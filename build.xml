@@ -1,10 +1,10 @@
 <?xml version="1.0" ?>
 
-<project name="haven" default="deftgt">
+<project name="salem" default="deftgt">
   <target name="build-env">
     <mkdir dir="build" />
     <mkdir dir="build/classes" />
-    <available property="has-res-jar" file="build/haven-res.jar" />
+    <available property="has-res-jar" file="build/salem-res.jar" />
     <available property="has-buildinfo" file="build/classes/buildinfo" />
     <available property="unpacked-lib" file="build/classes-lib" />
   </target>
@@ -18,7 +18,7 @@
     </echo>
   </target>
 
-  <target name="haven-client" depends="build-env">
+  <target name="salem-client" depends="build-env">
     <javac srcdir="src" destdir="build/classes" debug="on"
 	   source="1.5" target="1.5" includeantruntime="no">
       <classpath>
@@ -52,20 +52,20 @@
     </unjar>
   </target>
 
-  <target name="jar" depends="haven-client,buildinfo,lib-classes">
-    <jar destfile="build/haven.jar" update="true">
+  <target name="jar" depends="salem-client,buildinfo,lib-classes">
+    <jar destfile="build/salem.jar" update="true">
       <fileset dir="build/classes" />
       <fileset dir="build/classes-lib" />
       <manifest>
 	<attribute name="Main-Class" value="haven.MainFrame" />
-	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar haven-res.jar" />
+	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar salem-res.jar" />
       </manifest>
     </jar>
-    <chmod file="build/haven.jar" perm="a+x" />
+    <chmod file="build/salem.jar" perm="a+x" />
   </target>
   
   <target name="res-jar" depends="build-env" unless="has-res-jar">
-    <get src="http://www.havenandhearth.com/java/haven-res.jar" dest="lib/haven-res.jar"
+    <get src="http://www.havenandhearth.com/java/salem-res.jar" dest="lib/salem-res.jar"
 	 usetimestamp="true" />
   </target>
   
@@ -74,7 +74,7 @@
       <fileset dir="lib">
 	<include name="jogl.jar" />
 	<include name="gluegen-rt.jar" />
-	<include name="haven-res.jar" />
+	<include name="salem-res.jar" />
       </fileset>
     </copy>
   </target>
@@ -82,21 +82,10 @@
   <target name="deftgt" depends="jars, appletview" />
 
   <target name="run" depends="jars">
-    <java jar="build/haven.jar" fork="true" />
+    <java jar="build/salem.jar" fork="true" />
   </target>
   
   <target name="clean">
     <delete dir="build" />
-  </target>
-  
-  <target name="profile" depends="jars">
-    <nbprofiledirect>
-    </nbprofiledirect>
-      <java fork="true" jar="build/haven.jar">
-        <jvmarg value="${profiler.info.jvmargs.agent}" />
-        <sysproperty key="haven.dbtext" value="on" />
-        <sysproperty key="haven.defserv" value="sh.seatribe.se" />
-        <sysproperty key="haven.resdir" value="/home/fredrik/src/haven/res" />
-      </java>
   </target>
 </project>
