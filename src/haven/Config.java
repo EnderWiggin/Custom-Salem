@@ -60,6 +60,12 @@ public class Config {
 	    if(!(p = getprop("haven.mapurl", "http://jeff.seatribe.se/smm/")).equals(""))
 		mapurl = new URL(p);
 	    fullscreen = getprop("haven.fullscreen", "off").equals("on");
+	    if((p = getprop("haven.wndsz", null)) != null) {
+		int x = p.indexOf("x");
+		if(x >= 0)
+		    wndsz = new Coord(Integer.parseInt(p.substring(0, x)), Integer.parseInt(p.substring(x + 1)));
+	    }
+	    wndlock = getprop("haven.wndlock", "on").equals("on");
 	    loadwaited = getprop("haven.loadwaited", null);
 	    allused = getprop("haven.allused", null);
 	    dbtext = getprop("haven.dbtext", "off").equals("on");
@@ -74,11 +80,11 @@ public class Config {
     }
     
     private static void usage(PrintStream out) {
-	out.println("usage: haven.jar [-hdf] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");
+	out.println("usage: haven.jar [-hdfl] [-s WxH] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");
     }
 
     public static void cmdline(String[] args) {
-	PosixArgs opt = PosixArgs.getopt(args, "hdU:fr:A:u:C:");
+	PosixArgs opt = PosixArgs.getopt(args, "hdU:fr:A:u:C:ls:");
 	if(opt == null) {
 	    usage(System.err);
 	    System.exit(1);
@@ -114,6 +120,16 @@ public class Config {
 		break;
 	    case 'C':
 		authck = Utils.hex2byte(opt.arg);
+		break;
+	    case 's':
+		{
+		    int x = opt.arg.indexOf("x");
+		    if(x >= 0)
+			wndsz = new Coord(Integer.parseInt(opt.arg.substring(0, x)), Integer.parseInt(opt.arg.substring(x + 1)));
+		}
+		break;
+	    case 'l':
+		wndlock = false;
 		break;
 	    }
 	}
