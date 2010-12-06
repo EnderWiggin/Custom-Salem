@@ -90,7 +90,7 @@ public class Equipory extends Widget implements DTarget {
     
     public void draw(GOut g) {
 	for(Coord ec : ecoords)
-	    g.image(invsq, ec);
+	    invsq(g, ec);
 	super.draw(g);
     }
 	

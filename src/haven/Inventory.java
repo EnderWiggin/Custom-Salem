@@ -28,6 +28,7 @@ package haven;
 
 public class Inventory extends Widget implements DTarget {
     public static final Tex invsq = Resource.loadtex("gfx/hud/invsq");
+    public static final Tex refl = Resource.loadtex("gfx/hud/invref");
     public static final Coord sqsz = new Coord(31, 31);
     Coord isz;
 
@@ -44,7 +45,7 @@ public class Inventory extends Widget implements DTarget {
 	Coord sz = invsq.sz().add(new Coord(-1, -1));
 	for(c.y = 0; c.y < isz.y; c.y++) {
 	    for(c.x = 0; c.x < isz.x; c.x++) {
-		g.image(invsq, c.mul(sz));
+		invsq(g, c.mul(sz));
 	    }
 	}
 	super.draw(g);
@@ -53,6 +54,17 @@ public class Inventory extends Widget implements DTarget {
     public Inventory(Coord c, Coord sz, Widget parent) {
 	super(c, invsq.sz().add(new Coord(-1, -1)).mul(sz).add(new Coord(1, 1)), parent);
 	isz = sz;
+    }
+    
+    public static void invsq(GOut g, Coord c) {
+	g.image(invsq, c);
+	Coord ul = g.ul.sub(g.ul.div(2)).mod(refl.sz()).inv();
+	Coord rc = new Coord();
+	for(rc.y = ul.y; rc.y < c.y + invsq.sz().y; rc.y += refl.sz().y) {
+	    for(rc.x = ul.x; rc.x < c.x + invsq.sz().x; rc.x += refl.sz().x) {
+		g.image(refl, rc, c.add(1, 1), invsq.sz().sub(2, 2));
+	    }
+	}
     }
     
     public boolean mousewheel(Coord c, int amount) {

@@ -32,22 +32,22 @@ import java.awt.image.BufferedImage;
 
 public class Window extends Widget implements DTarget {
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
-    static Tex cl = Resource.loadtex("gfx/hud/cleft");
-    static Tex cm = Resource.loadtex("gfx/hud/cmain");
-    static Tex cr = Resource.loadtex("gfx/hud/cright");
+    static Tex topblob = Resource.loadtex("gfx/hud/tmain");
+    static Tex botblob = Resource.loadtex("gfx/hud/bmain");
     static BufferedImage[] cbtni = new BufferedImage[] {
 	Resource.loadimg("gfx/hud/cbtn"),
 	Resource.loadimg("gfx/hud/cbtnd"),
 	Resource.loadimg("gfx/hud/cbtnh")}; 
     static Color cc = Color.YELLOW;
     static Text.Foundry cf = new Text.Foundry(new Font("Serif", Font.PLAIN, 12));
-    static IBox wbox;
+    public static final IBox swbox = new IBox("gfx/hud", "stl", "str", "sbl", "sbr", "sextv", "sextv", "sexth", "sexth");
+    private static final IBox wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
     boolean dt = false;
     Text cap;
     boolean dm = false;
     public Coord atl, asz, wsz;
     public Coord tlo, rbo;
-    public Coord mrgn = new Coord(13, 13);
+    public Coord mrgn = new Coord(20, 20);
     public Coord doff;
     public IButton cbtn;
 	
@@ -60,11 +60,10 @@ public class Window extends Widget implements DTarget {
 			return(new Window(c, (Coord)args[0], parent, (String)args[1]));
 		}
 	    });
-	wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
     }
 
     private void placecbtn() {
-	cbtn.c = new Coord(wsz.x - 3 - Utils.imgsz(cbtni[0]).x, 3).add(mrgn.inv().add(wbox.tloff().inv()));
+	cbtn.c = xlate(new Coord(tlo.x + wsz.x - Utils.imgsz(cbtni[0]).x, tlo.y), false);
     }
 	
     public Window(Coord c, Coord sz, Widget parent, String cap, Coord tlo, Coord rbo) {
@@ -76,9 +75,9 @@ public class Window extends Widget implements DTarget {
 	    this.cap = cf.render(cap, cc);
 	sz = sz.add(tlo).add(rbo).add(wbox.bisz()).add(mrgn.mul(2));
 	this.sz = sz;
-	atl = new Coord(wbox.bl.sz().x, wbox.bt.sz().y).add(tlo);
-	wsz = sz.add(tlo.inv()).add(rbo.inv());
-	asz = new Coord(wsz.x - wbox.bl.sz().x - wbox.br.sz().x - mrgn.x, wsz.y - wbox.bt.sz().y - wbox.bb.sz().y - mrgn.y);
+	atl = wbox.tloff().add(tlo);
+	wsz = sz.sub(tlo).sub(rbo);
+	asz = wsz.sub(wbox.bisz()).sub(mrgn.mul(2));
 	placecbtn();
 	setfocustab(true);
 	parent.setfocus(this);
@@ -93,13 +92,20 @@ public class Window extends Widget implements DTarget {
 	
     public void draw(GOut og) {
 	GOut g = og.reclip(tlo, wsz);
+	Coord bgul = wbox.tloff();
+	Coord bgsz = wsz.sub(wbox.bisz());
 	Coord bgc = new Coord();
-	for(bgc.y = 3; bgc.y < wsz.y - 6; bgc.y += bg.sz().y) {
-	    for(bgc.x = 3; bgc.x < wsz.x - 6; bgc.x += bg.sz().x)
-		g.image(bg, bgc, new Coord(3, 3), wsz.add(new Coord(-6, -6)));
+	for(bgc.y = 0; bgc.y < bgsz.y; bgc.y += bg.sz().y) {
+	    for(bgc.x = 0; bgc.x < bgsz.x; bgc.x += bg.sz().x)
+		g.image(bg, bgc.add(bgul), bgul, bgsz);
 	}
 	cdraw(og.reclip(xlate(Coord.z, true), sz));
 	wbox.draw(g, Coord.z, wsz);
+	if(wsz.x > wbox.ctl.sz().x + wbox.ctr.sz().x + 0 + topblob.sz().x) {
+	    g.image(topblob, new Coord((wsz.x - topblob.sz().x) / 2, 0));
+	    g.image(botblob, new Coord((wsz.x - botblob.sz().x) / 2, wsz.y - botblob.sz().y));
+	}
+	/*
 	if(cap != null) {
 	    GOut cg = og.reclip(new Coord(0, -7), sz.add(0, 7));
 	    int w = cap.tex().sz().x;
@@ -108,6 +114,7 @@ public class Window extends Widget implements DTarget {
 	    cg.image(cr, new Coord((sz.x / 2) + (w / 2), 0));
 	    cg.image(cap.tex(), new Coord((sz.x / 2) - (w / 2), 0));
 	}
+	*/
 	super.draw(og);
     }
 	
@@ -122,13 +129,14 @@ public class Window extends Widget implements DTarget {
 	    if(br.y > max.y)
 		max.y = br.y;
 	}
-	resize(max);
+	resize(max.sub(1, 1));
     }
     
     public void resize(Coord sz) {
-	this.sz = sz.add(wbox.bsz().add(mrgn.mul(2)).add(tlo).add(rbo)).add(-1, -1);
-	wsz = this.sz.add(tlo.inv()).add(rbo.inv());
-	asz = new Coord(wsz.x - wbox.bl.sz().x - wbox.br.sz().x, wsz.y - wbox.bt.sz().y - wbox.bb.sz().y).add(mrgn.mul(2).inv());
+	sz = sz.add(tlo).add(rbo).add(wbox.bisz()).add(mrgn.mul(2));
+	this.sz = sz;
+	wsz = sz.sub(tlo).sub(rbo);
+	asz = wsz.sub(wbox.bisz()).sub(mrgn.mul(2));
 	placecbtn();
 	for(Widget ch = child; ch != null; ch = ch.next)
 	    ch.presize();

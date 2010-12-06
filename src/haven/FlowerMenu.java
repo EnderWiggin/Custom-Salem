@@ -32,7 +32,6 @@ import static java.lang.Math.PI;
 
 public class FlowerMenu extends Widget {
     public static Color pink = new Color(255, 0, 128);
-    public static IBox pbox; 
     public static Tex pbg = Resource.loadtex("gfx/hud/bgtex");
     static Color ptc = Color.YELLOW;
     static Text.Foundry ptf = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 12));
@@ -51,7 +50,6 @@ public class FlowerMenu extends Widget {
 		    return(new FlowerMenu(c, parent, opts));
 		}
 	    });
-	pbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
     }
 	
     public class Petal extends Widget {
@@ -79,7 +77,7 @@ public class FlowerMenu extends Widget {
 	public void draw(GOut g) {
 	    g.chcolor(new Color(255, 255, 255, (int)(255 * a)));
 	    g.image(pbg, new Coord(3, 3), new Coord(3, 3), sz.add(new Coord(-6, -6)));
-	    pbox.draw(g, Coord.z, sz);
+	    Window.swbox.draw(g, Coord.z, sz);
 	    g.image(text.tex(), sz.div(2).add(text.sz().div(2).inv()));
 	}
 		
