@@ -33,7 +33,7 @@ import static java.lang.Math.PI;
 public class FlowerMenu extends Widget {
     public static Color pink = new Color(255, 0, 128);
     public static Tex pbg = Resource.loadtex("gfx/hud/bgtex");
-    static Color ptc = Color.YELLOW;
+    static Color ptc = Color.WHITE;
     static Text.Foundry ptf = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 12));
     static int ph = 30, ppl = 8;
     Petal[] opts;
@@ -56,13 +56,13 @@ public class FlowerMenu extends Widget {
 	public String name;
 	public double ta, tr;
 	public int num;
-	Text text;
+	Tex text;
 	double a = 1;
 		
 	public Petal(String name) {
 	    super(Coord.z, Coord.z, FlowerMenu.this);
 	    this.name = name;
-	    text = ptf.render(name, ptc);
+	    text = new TexI(Utils.outline2(ptf.render(name, ptc).img, Utils.contrast(ptc)));
 	    sz = new Coord(text.sz().x + 25, ph);
 	}
 		
@@ -78,7 +78,7 @@ public class FlowerMenu extends Widget {
 	    g.chcolor(new Color(255, 255, 255, (int)(255 * a)));
 	    g.image(pbg, new Coord(3, 3), new Coord(3, 3), sz.add(new Coord(-6, -6)));
 	    Window.swbox.draw(g, Coord.z, sz);
-	    g.image(text.tex(), sz.div(2).add(text.sz().div(2).inv()));
+	    g.image(text, sz.div(2).add(text.sz().div(2).inv()));
 	}
 		
 	public boolean mousedown(Coord c, int button) {
@@ -113,7 +113,7 @@ public class FlowerMenu extends Widget {
     public class Opening extends Anim {
 	public void tick2() {
 	    for(Petal p : opts) {
-		p.move(p.ta + ((1 - s) * PI), p.tr * s);
+		p.move(p.ta, p.tr * (2 - s));
 		p.a = s;
 	    }
 	}
@@ -134,12 +134,15 @@ public class FlowerMenu extends Widget {
 			p.a = 1 - ((s - 0.6) / 0.4);
 		    } else if(s < 0.3) {
 			p.move(p.ta, p.tr * (1 - (s / 0.3)));
+			p.a = 1;
 		    }
 		} else {
-		    if(s > 0.3)
+		    if(s > 0.3) {
 			p.a = 0;
-		    else
+		    } else {
 			p.a = 1 - (s / 0.3);
+			p.move(p.ta - (s * PI), p.tr);
+		    }
 		}
 	    }
 	}
@@ -152,7 +155,7 @@ public class FlowerMenu extends Widget {
     public class Cancel extends Anim {
 	public void tick2() {
 	    for(Petal p : opts) {
-		p.move(p.ta + ((s) * PI), p.tr * (1 - s));
+		p.move(p.ta, p.tr * (1 + s));
 		p.a = 1 - s;
 	    }
 	}
