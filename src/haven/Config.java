@@ -80,11 +80,11 @@ public class Config {
     }
     
     private static void usage(PrintStream out) {
-	out.println("usage: haven.jar [-hdfL] [-s WxH] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");
+	out.println("usage: haven.jar [-hdfPL] [-s WxH] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");
     }
 
     public static void cmdline(String[] args) {
-	PosixArgs opt = PosixArgs.getopt(args, "hdU:fr:A:u:C:Ls:");
+	PosixArgs opt = PosixArgs.getopt(args, "hdPU:fr:A:u:C:Ls:");
 	if(opt == null) {
 	    usage(System.err);
 	    System.exit(1);
@@ -97,6 +97,9 @@ public class Config {
 		break;
 	    case 'd':
 		dbtext = true;
+		break;
+	    case 'P':
+		profile = true;
 		break;
 	    case 'f':
 		fullscreen = true;
