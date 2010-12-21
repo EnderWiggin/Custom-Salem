@@ -33,6 +33,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public final String chrid;
     public final int plid;
     public MenuGrid menu;
+    public Tempers tm;
     public MapView map;
     public MiniMap mmap;
     public Fightview fv;
@@ -58,6 +59,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	menu = new MenuGrid(Coord.z, this);
 	new Avaview(new Coord(10, 10), this, plid);
 	new Bufflist(new Coord(95, 50), this);
+	tm = new Tempers(Coord.z, this);
 	resize(sz);
     }
     
@@ -142,6 +144,16 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	if(msg == "err") {
 	    error((String)args[0]);
 	} else if(msg == "setbelt") {
+	} else if(msg == "stm") {
+	    int[] n = new int[4];
+	    for(int i = 0; i < 4; i++)
+		n[i] = (Integer)args[i];
+	    tm.upds(n);
+	} else if(msg == "htm") {
+	    int[] n = new int[4];
+	    for(int i = 0; i < 4; i++)
+		n[i] = (Integer)args[i];
+	    tm.updh(n);
 	} else {
 	    super.uimsg(msg, args);
 	}
@@ -192,6 +204,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public void resize(Coord sz) {
 	super.resize(sz);
 	menu.c = sz.sub(menu.sz);
+	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
 	if(map != null)
 	    map.resize(sz);
 	if(mmap != null)
