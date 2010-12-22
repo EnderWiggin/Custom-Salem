@@ -31,17 +31,17 @@ import java.awt.Color;
 public class Tempers extends Widget {
     public static final Tex bg = Resource.loadtex("gfx/hud/tempers");
     public static final Tex cross = Resource.loadtex("gfx/hud/tempersc");
-    public static final Coord mid = new Coord(146, 39);
+    public static final Coord mid = new Coord(93, 38);
     static final Color hardc = new Color(255, 255, 0, 255);
     static final Color softc = new Color(255, 255, 255, 64);
-    static final int l = 35;
+    static final int l = 32;
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
     static final Color[] cols = {
 	new Color(255, 0, 0, 255),
-	new Color(0, 255, 0, 255),
+	new Color(255, 255, 255, 255),
 	new Color(255, 255, 0, 255),
-	new Color(255, 0, 128, 255),
+	new Color(0, 64, 0, 255),
     };
     int[] soft = new int[4], hard = new int[4];
     
