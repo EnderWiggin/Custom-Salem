@@ -32,7 +32,6 @@ public class Tempers extends Widget {
     public static final Tex bg = Resource.loadtex("gfx/hud/tempers");
     public static final Tex cross = Resource.loadtex("gfx/hud/tempersc");
     public static final Coord mid = new Coord(93, 38);
-    static final Color hardc = new Color(255, 255, 0, 255);
     static final Color softc = new Color(255, 255, 255, 64);
     static final int l = 32;
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
@@ -44,6 +43,7 @@ public class Tempers extends Widget {
 	new Color(0, 64, 0, 255),
     };
     int[] soft = new int[4], hard = new int[4];
+    boolean full = false;
     
     public Tempers(Coord c, Widget parent) {
 	super(c, bg.sz(), parent);
@@ -52,10 +52,13 @@ public class Tempers extends Widget {
     public void draw(GOut g) {
 	g.image(bg, Coord.z);
 	int[] max = new int[4];
+	full = true;
 	for(int i = 0; i < 4; i++) {
 	    max[i] = ui.sess.glob.cattr.get(anm[i]).comp;
 	    if(max[i] == 0)
 		return;
+	    if(hard[i] < max[i])
+		full = false;
 	}
 	g.chcolor(softc);
 	g.poly(mid.add(0, -((soft[0] * 35) / max[0])),
@@ -67,7 +70,10 @@ public class Tempers extends Widget {
 		mid.add(((hard[1] * 35) / max[1]), 0), cols[1],
 		mid.add(0, ((hard[2] * 35) / max[2])), cols[2],
 		mid.add(-((hard[3] * 35) / max[3]), 0), cols[3]);
+	if(full)
+	    g.chcolor(64, 255, 192, 255);
 	g.aimage(cross, mid, 0.5, 0.5);
+	g.chcolor();
     }
     
     public void upds(int[] n) {
@@ -76,5 +82,13 @@ public class Tempers extends Widget {
     
     public void updh(int[] n) {
 	this.hard = n;
+    }
+    
+    public boolean mousedown(Coord c, int button) {
+	if(c.dist(mid) < l) {
+	    getparent(GameUI.class).act("gobble");
+	    return(true);
+	}
+	return(super.mousedown(c, button));
     }
 }

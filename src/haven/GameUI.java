@@ -34,6 +34,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public final int plid;
     public MenuGrid menu;
     public Tempers tm;
+    public Gobble gobble;
     public MapView map;
     public MiniMap mmap;
     public Fightview fv;
@@ -169,6 +170,26 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    for(int i = 0; i < 4; i++)
 		n[i] = (Integer)args[i];
 	    tm.updh(n);
+	} else if(msg == "gobble") {
+	    boolean g = (Integer)args[0] != 0;
+	    if(g && (gobble == null)) {
+		tm.hide();
+		gobble = new Gobble(Coord.z, this);
+		resize(sz);
+	    } else if(!g && (gobble != null)) {
+		ui.destroy(gobble);
+		gobble = null;
+		tm.show();
+	    }
+	} else if(msg == "gtm") {
+	    int[] n = new int[4];
+	    for(int i = 0; i < 4; i++)
+		n[i] = (Integer)args[i];
+	    gobble.updt(n);
+	} else if(msg == "gvar") {
+	    gobble.updv((Integer)args[0]);
+	} else if(msg == "gtrig") {
+	    gobble.trig((Integer)args[0]);
 	} else {
 	    super.uimsg(msg, args);
 	}
@@ -220,6 +241,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	super.resize(sz);
 	menu.c = sz.sub(menu.sz);
 	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
+	if(gobble != null)
+	    gobble.c = new Coord((sz.x - gobble.sz.x) / 2, 0);
 	if(map != null)
 	    map.resize(sz);
 	if(mmap != null)
@@ -235,6 +258,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public void error(String msg) {
 	errtime = System.currentTimeMillis();
 	lasterr = errfoundry.render(msg);
+    }
+    
+    public void act(String... args) {
+	wdgmsg("act", (Object[])args);
     }
 
     private Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
