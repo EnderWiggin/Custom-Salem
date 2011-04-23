@@ -26,8 +26,10 @@
 
 package haven;
 
-public class Alchemy extends GItem.Info {
-    public final int[] ch;
+import java.awt.image.BufferedImage;
+
+public class Alchemy extends GItem.Tip {
+    public final int[] a;
     
     public enum Element {
 	SALT, MERC, SULF, LEAD
@@ -35,6 +37,14 @@ public class Alchemy extends GItem.Info {
 
     public Alchemy(GItem item, int salt, int merc, int sulf, int lead) {
 	item.super();
-	this.ch = new int[]{salt, merc, sulf, lead};
+	this.a = new int[]{salt, merc, sulf, lead};
+    }
+    
+    public BufferedImage longtip() {
+	return(Text.std.renderf("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f", a[0] / 100.0, a[1] / 100.0, a[2] / 100.0, a[3] / 100.0).img);
+    }
+    
+    public String toString() {
+	return(String.format("%d-%d-%d-%d", a[0], a[1], a[2], a[3]));
     }
 }
