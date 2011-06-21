@@ -32,7 +32,7 @@ import java.awt.event.KeyEvent;
 
 public class GameUI extends ConsoleHost implements Console.Directory {
     public final String chrid;
-    public final int plid;
+    public final long plid;
     public MenuGrid menu;
     public Tempers tm;
     public Gobble gobble;
@@ -58,7 +58,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    });
     }
     
-    public GameUI(Widget parent, String chrid, int plid) {
+    public GameUI(Widget parent, String chrid, long plid) {
 	super(Coord.z, parent.sz, parent);
 	this.chrid = chrid;
 	this.plid = plid;
