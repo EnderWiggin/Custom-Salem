@@ -51,10 +51,18 @@ public class ErrorHandler extends ThreadGroup {
 	}
     }
 
+    public static ErrorHandler find() {
+	for(ThreadGroup tg = Thread.currentThread().getThreadGroup(); tg != null; tg = tg.getParent()) {
+	    if(tg instanceof ErrorHandler)
+		return((ErrorHandler)tg);
+	}
+	return(null);
+    }
+
     public static void setprop(String key, Object val) {
-	ThreadGroup tg = Thread.currentThread().getThreadGroup();
-	if(tg instanceof ErrorHandler)
-	    ((ErrorHandler)tg).lsetprop(key, val);
+	ErrorHandler tg = find();
+	if(tg != null)
+	    tg.lsetprop(key, val);
     }
     
     public void lsetprop(String key, Object val) {
