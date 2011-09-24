@@ -26,9 +26,16 @@
 
 package haven;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 public class Alchemy extends GItem.Tip {
+    public static final Color[] colors = {
+	new Color(255, 0, 0),
+	new Color(0, 255, 0),
+	new Color(0, 0, 255),
+	new Color(255, 255, 0),
+    };
     public final int[] a;
     
     public enum Element {
