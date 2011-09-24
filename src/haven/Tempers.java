@@ -43,7 +43,9 @@ public class Tempers extends Widget {
 	new Color(0, 64, 0, 255),
     };
     int[] soft = new int[4], hard = new int[4];
+    int[] lmax = new int[4];
     boolean full = false;
+    Tex tt = null;
     
     public Tempers(Coord c, Widget parent) {
 	super(c, bg.sz(), parent);
@@ -59,7 +61,10 @@ public class Tempers extends Widget {
 		return;
 	    if(hard[i] < max[i])
 		full = false;
+	    if(max[i] != lmax[i])
+		tt = null;
 	}
+	lmax = max;
 	g.chcolor(softc);
 	g.poly(mid.add(0, -((soft[0] * 35) / max[0])),
 	       mid.add(((soft[1] * 35) / max[1]), 0),
@@ -78,12 +83,27 @@ public class Tempers extends Widget {
     
     public void upds(int[] n) {
 	this.soft = n;
+	tt = null;
     }
     
     public void updh(int[] n) {
 	this.hard = n;
+	tt = null;
     }
     
+    public Object tooltip(Coord c, boolean again) {
+	if(c.dist(mid) < l) {
+	    if(tt == null) {
+		StringBuilder buf = new StringBuilder();
+		for(int i = 0; i < 4; i++)
+		    buf.append(String.format("%s: %.1f/%.1f/%.1f\n", rnm[i], hard[i] / 1000.0, soft[i] / 1000.0, lmax[i] / 1000.0));
+		tt = RichText.render(buf.toString(), 0).tex();
+	    }
+	    return(tt);
+	}
+	return(null);
+    }
+
     public boolean mousedown(Coord c, int button) {
 	if(c.dist(mid) < l) {
 	    getparent(GameUI.class).act("gobble");
