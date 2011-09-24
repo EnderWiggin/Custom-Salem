@@ -27,13 +27,14 @@
 package haven;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class Alchemy extends GItem.Tip {
     public static final Color[] colors = {
 	new Color(255, 0, 0),
 	new Color(0, 255, 0),
-	new Color(0, 0, 255),
+	new Color(0, 128, 255),
 	new Color(255, 255, 0),
     };
     public final int[] a;
@@ -49,6 +50,17 @@ public class Alchemy extends GItem.Tip {
     
     public BufferedImage longtip() {
 	return(Text.std.renderf("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f", a[0] / 100.0, a[1] / 100.0, a[2] / 100.0, a[3] / 100.0).img);
+    }
+    
+    public BufferedImage smallmeter() {
+	BufferedImage buf = TexI.mkbuf(new Coord(50, 12));
+	Graphics g = buf.getGraphics();
+	for(int i = 0; i < 4; i++) {
+	    g.setColor(colors[i]);
+	    g.fillRect(0, i * 3, a[i] / 200, 3);
+	}
+	g.dispose();
+	return(buf);
     }
     
     public String toString() {
