@@ -69,6 +69,8 @@ public class WItem extends Widget implements DTarget {
 	    else if((img == null) && (rc != null))
 		img = rc;
 	}
+	if(img == null)
+	    return(null);
 	return(new TexI(img));
     }
     
