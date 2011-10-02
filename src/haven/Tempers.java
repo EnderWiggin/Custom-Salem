@@ -51,6 +51,12 @@ public class Tempers extends Widget {
 	super(c, bg.sz(), parent);
     }
     
+    private static int dispval(int val, int max) {
+	if(val == 0)
+	    return(0);
+	return(Math.max(1, (val * 35) / max));
+    }
+
     public void draw(GOut g) {
 	g.image(bg, Coord.z);
 	int[] max = new int[4];
@@ -66,15 +72,15 @@ public class Tempers extends Widget {
 	}
 	lmax = max;
 	g.chcolor(softc);
-	g.poly(mid.add(0, -((soft[0] * 35) / max[0])),
-	       mid.add(((soft[1] * 35) / max[1]), 0),
-	       mid.add(0, ((soft[2] * 35) / max[2])),
-	       mid.add(-((soft[3] * 35) / max[3]), 0));
+	g.poly(mid.add(0, -dispval(soft[0], max[0])),
+	       mid.add(dispval(soft[1], max[1]), 0),
+	       mid.add(0, dispval(soft[2], max[2])),
+	       mid.add(-dispval(soft[3], max[3]), 0));
 	g.chcolor();
-	g.poly2(mid.add(0, -((hard[0] * 35) / max[0])), cols[0],
-		mid.add(((hard[1] * 35) / max[1]), 0), cols[1],
-		mid.add(0, ((hard[2] * 35) / max[2])), cols[2],
-		mid.add(-((hard[3] * 35) / max[3]), 0), cols[3]);
+	g.poly2(mid.add(0, -dispval(hard[0], max[0])), cols[0],
+		mid.add(dispval(hard[1], max[1]), 0), cols[1],
+		mid.add(0, dispval(hard[2], max[2])), cols[2],
+		mid.add(-dispval(hard[3], max[3]), 0), cols[3]);
 	if(full)
 	    g.chcolor(64, 255, 192, 255);
 	g.aimage(cross, mid, 0.5, 0.5);
