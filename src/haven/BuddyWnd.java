@@ -85,6 +85,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     public class Buddy {
 	int id;
 	String name;
+	Text rname = null;
 	int online;
 	int group;
 	boolean seen;
@@ -119,6 +120,12 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	
 	public void chgrp(int grp) {
 	    wdgmsg("grp", id, grp);
+	}
+	
+	public Text rname() {
+	    if(rname == null)
+		rname = Text.render(name);
+	    return(rname);
 	}
     }
     
@@ -204,7 +211,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 			else if(b.online == 0)
 			    g.image(offline, new Coord(0, i * 20));
 			g.chcolor(gc[b.group]);
-			g.atext(b.name, new Coord(25, i * 20 + 10), 0, 0.5);
+			g.aimage(b.rname().tex(), new Coord(25, i * 20 + 10), 0, 0.5);
 			g.chcolor();
 		    }
 		}
