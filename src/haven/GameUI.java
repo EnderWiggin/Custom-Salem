@@ -241,6 +241,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	} else if(afk && (System.currentTimeMillis() - ui.lastevent < 300000)) {
 	    afk = false;
 	}
+	dwalkupd();
     }
     
     public void uimsg(String msg, Object... args) {
@@ -316,7 +317,69 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    wdg.c.y = sz.y - wdg.sz.y;
     }
 
+    /* Directional walking. Apparently AWT send repeated keyup/keydown
+     * events on key autorepeat (:-/), so hysteresis elimination of
+     * some kind is necessary. This variant waits 100 ms before
+     * accepting a keyup event. */
+    private boolean dwalking = false;
+    private Coord dwalkang = new Coord();
+    private long dwalkhys;
+    private float dwalkbase;
+    private boolean[] dkeys = {false, false, false, false};
+
+    private void dwalkupd() {
+	Coord a = new Coord();
+	if(dkeys[0]) a = a.add(1, 0);
+	if(dkeys[1]) a = a.add(0, 1);
+	if(dkeys[2]) a = a.add(-1, 0);
+	if(dkeys[3]) a = a.add(0, -1);
+	long now = System.currentTimeMillis();
+	if(!a.equals(dwalkang) && (now > dwalkhys)) {
+	    if((a.x == 0) && (a.y == 0)) {
+		wdgmsg("dwalk");
+	    } else {
+		float da = dwalkbase + (float)a.angle(Coord.z);
+		wdgmsg("dwalk", (int)((da / (Math.PI * 2)) * 1000));
+	    }
+	    dwalkang = a;
+	}
+    }
+
+    private int dwalkkey(char key) {
+	if(key == 'W')
+	    return(0);
+	else if(key == 'D')
+	    return(1);
+	else if(key == 'S')
+	    return(2);
+	else if(key == 'A')
+	    return(3);
+	throw(new Error());
+    }
+
+    private void dwalkdown(char key, KeyEvent ev) {
+	if(!dwalking) {
+	    dwalking = true;
+	    dwalkbase = -map.camera.angle();
+	    ui.grabkeys(this);
+	}
+	int k = dwalkkey(key);
+	dkeys[k] = true;
+	dwalkhys = ev.getWhen();
+    }
+    
+    private void dwalkup(char key, KeyEvent ev) {
+	int k = dwalkkey(key);
+	dkeys[k] = false;
+	dwalkhys = ev.getWhen() + 100;
+	if(!dkeys[0] && !dkeys[1] && !dkeys[2] && !dkeys[3]) {
+	    dwalking = false;
+	    ui.grabkeys(null);
+	}
+    }
+
     public boolean globtype(char key, KeyEvent ev) {
+	char ukey = Character.toUpperCase(key);
 	if(key == ':') {
 	    entercmd();
 	    return(true);
@@ -343,10 +406,31 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	} else if(key == 1) {
 	    wdgmsg("atkm");
 	    return(true);
+	} else if((ukey == 'W') || (ukey == 'A') || (ukey == 'S') || (ukey == 'D')) {
+	    dwalkdown(ukey, ev);
+	    return(true);
 	}
 	if((key == 0) && beltwdg.key(ev))
 	    return(true);
 	return(super.globtype(key, ev));
+    }
+    
+    public boolean keydown(KeyEvent ev) {
+	char ukey = Character.toUpperCase(ev.getKeyChar());
+	if(dwalking && ((ukey == 'W') || (ukey == 'A') || (ukey == 'S') || (ukey == 'D'))) {
+	    dwalkdown(ukey, ev);
+	    return(true);
+	}
+	return(false);
+    }
+    
+    public boolean keyup(KeyEvent ev) {
+	char ukey = Character.toUpperCase(ev.getKeyChar());
+	if(dwalking && ((ukey == 'W') || (ukey == 'A') || (ukey == 'S') || (ukey == 'D'))) {
+	    dwalkup(ukey, ev);
+	    return(true);
+	}
+	return(false);
     }
     
     public boolean mousedown(Coord c, int button) {
