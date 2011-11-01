@@ -38,7 +38,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
     public Tempers tm;
     public Gobble gobble;
     public MapView map;
-    public MiniMap mmap;
+    public LocalMiniMap mmap;
     public Fightview fv;
     public static final Text.Foundry errfoundry = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14), new Color(192, 0, 0));
     private Text lasterr;
@@ -136,7 +136,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    map.lower();
 	    if(mmap != null)
 		ui.destroy(mmap);
-	    // mmap = new MiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map);
+	    mmap = new LocalMiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map);
 	    return(map);
 	} else if(place == "fight") {
 	    fv = (Fightview)gettype(type).create(new Coord(sz.x - Fightview.width, 0), this, cargs);
