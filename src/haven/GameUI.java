@@ -421,7 +421,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    dwalkdown(ukey, ev);
 	    return(true);
 	}
-	return(false);
+	return(super(ev));
     }
     
     public boolean keyup(KeyEvent ev) {
@@ -430,7 +430,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    dwalkup(ukey, ev);
 	    return(true);
 	}
-	return(false);
+	return(super(ev));
     }
     
     public boolean mousedown(Coord c, int button) {
