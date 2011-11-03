@@ -242,6 +242,8 @@ public class MapView extends PView implements DTarget {
 		mats = new GLState[32];
 		mats[0] = new Material(new Color(255, 0, 128, 32));
 		mats[1] = new Material(new Color(0, 0, 255, 32));
+		mats[2] = new Material(new Color(255, 0, 0, 32));
+		mats[3] = new Material(new Color(128, 0, 255, 32));
 		mats[16] = new Material(new Color(0, 255, 0, 32));
 		mats[17] = new Material(new Color(255, 255, 0, 32));
 	    }
@@ -470,7 +472,21 @@ public class MapView extends PView implements DTarget {
 	}
     }
 
+    private static final Text.Foundry polownertf;
+    static {
+	polownertf = new Text.Foundry("serif", 20);
+	polownertf.aa = true;
+    }
+    private Text polownert = null;
+    private long polchtm = 0;
+
+    public void setpoltext(String text) {
+	polownert = polownertf.render(text);
+	polchtm = System.currentTimeMillis();
+    }
+
     public void draw(GOut g) {
+	long now = System.currentTimeMillis();
 	glob.map.sendreqs();
 	if((olftimer != 0) && (olftimer < System.currentTimeMillis()))
 	    unflashol();
@@ -483,6 +499,19 @@ public class MapView extends PView implements DTarget {
 	    g.frect(Coord.z, sz);
 	    g.chcolor(Color.WHITE);
 	    g.atext(text, sz.div(2), 0.5, 0.5);
+	}
+	long poldt = now - polchtm;
+	if((polownert != null) && (poldt < 6000)) {
+	    int a;
+	    if(poldt < 1000)
+		a = (int)((255 * poldt) / 1000);
+	    else if(poldt < 4000)
+		a = 255;
+	    else
+		a = (int)((255 * (2000 - (poldt - 4000))) / 2000);
+	    g.chcolor(255, 255, 255, a);
+	    g.aimage(polownert.tex(), sz.div(2), 0.5, 0.5);
+	    g.chcolor();
 	}
     }
     
