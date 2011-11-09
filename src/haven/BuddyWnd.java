@@ -42,6 +42,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     private TextEntry nicksel;
     private GroupSelector grpsel;
     private FlowerMenu menu;
+    public int serial = 0;
     public static final Tex online = Resource.loadtex("gfx/hud/online");
     public static final Tex offline = Resource.loadtex("gfx/hud/offline");
     public static final Color[] gc = new Color[] {
@@ -321,7 +322,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 
     public BuddyWnd(Coord c, Widget parent) {
 	super(c, new Coord(200, 370), parent, "Kin");
-	bl = new BuddyList(new Coord(10, 5), new Coord(180, 155), this);
+	bl = new BuddyList(new Coord(10, 5), new Coord(180, 140), this);
 	new Label(new Coord(5, 215), this, "Sort by:");
 	sbstatus = new Button(new Coord(10,  230), 50, this, "Status")      { public void click() { setcmp(statuscmp); } };
 	sbgroup  = new Button(new Coord(75,  230), 50, this, "Group")       { public void click() { setcmp(groupcmp); } };
@@ -397,6 +398,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		idmap.put(b.id, b);
 		Collections.sort(buddies, bcmp);
 	    }
+	    serial++;
 	    bl.repop();
 	} else if(msg == "rm") {
 	    int id = (Integer)args[0];
@@ -414,6 +416,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		ui.destroy(nicksel);
 		ui.destroy(grpsel);
 	    }
+	    serial++;
 	} else if(msg == "chst") {
 	    int id = (Integer)args[0];
 	    int online = (Integer)args[1];
@@ -435,6 +438,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		nicksel.settext(b.name);
 		grpsel.group = b.group;
 	    }
+	    serial++;
 	} else if(msg == "sel") {
 	    int id = (Integer)args[0];
 	    show();
