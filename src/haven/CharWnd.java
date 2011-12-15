@@ -30,6 +30,7 @@ import java.util.*;
 
 public class CharWnd extends Window {
     public static final Map<String, String> attrnm;
+    public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
     
@@ -40,10 +41,30 @@ public class CharWnd extends Window {
 		}
 	    });
 	{
-	    Map<String, String> an = new HashMap<String, String>();
+	    final List<String> ao = new ArrayList<String>();
+	    Map<String, String> an = new HashMap<String, String>() {
+		public String put(String k, String v) {
+		    ao.add(k);
+		    return(super.put(k, v));
+		}
+	    };
+	    an.put("arts", "Arts & Crafts");
+	    an.put("cloak", "Cloak & Dagger");
+	    an.put("faith", "Faith & Wisdom");
+	    an.put("wild", "Frontier & Wilderness");
+	    an.put("nail", "Hammer & Nail");
+	    an.put("hung", "Hunting & Gathering");
+	    an.put("law", "Law & Lore");
+	    an.put("mine", "Mines & Mountains");
 	    an.put("pots", "Pots & Pans");
+	    an.put("fire", "Sparks & Embers");
+	    an.put("stock", "Stocks & Cultivars");
+	    an.put("spice", "Sugar & Spice");
+	    an.put("thread", "Thread & Needle");
 	    an.put("natp", "Natural Philosophy");
-	    attrnm = an;
+	    an.put("perp", "Perennial Philosophy");
+	    attrnm = Collections.unmodifiableMap(an);
+	    attrorder = Collections.unmodifiableList(ao);
 	}
     }
     
@@ -262,7 +283,7 @@ public class CharWnd extends Window {
 	super(c, new Coord(400, 340), parent, "Character");
 	new Label(new Coord(0, 0), this, "Skill Values:");
 	int y = 30;
-	for(String nm : new String[] {"pots", "natp"}) {
+	for(String nm : attrorder) {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
 	    y += 20;
 	}
