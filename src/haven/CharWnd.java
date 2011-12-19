@@ -115,17 +115,10 @@ public class CharWnd extends Window {
 		    StringBuilder text = new StringBuilder();
 		    text.append("$img[" + cur.res.get().name + "]\n\n");
 		    text.append("$font[serif,16]{" + cur.res.get().layer(Resource.tooltip).t + "}\n\n");
+		    int[] o = sortattrs(cur.costa);
 		    if(cur.costa.length > 0) {
-			Integer[] o = new Integer[cur.costa.length];
-			for(int i = 0; i < o.length; i++)
-			    o[i] = new Integer(i);
-			Arrays.sort(o, new Comparator<Integer>() {
-				public int compare(Integer a, Integer b) {
-				    return(attrorder.indexOf(cur.costa[a.intValue()]) - attrorder.indexOf(cur.costa[b.intValue()]));
-				}
-			    });
 			for(int i = 0; i < o.length; i++) {
-			    int u = o[i].intValue();
+			    int u = o[i];
 			    text.append(attrnm.get(cur.costa[u]) + ": " + cur.costv[u] + "\n");
 			}
 			text.append("\n");
@@ -142,6 +135,21 @@ public class CharWnd extends Window {
 	    cur = sk;
 	    settext("");
 	}
+    }
+    
+    public static int[] sortattrs(final String[] attrs) {
+	Integer[] o = new Integer[attrs.length];
+	for(int i = 0; i < o.length; i++)
+	    o[i] = new Integer(i);
+	Arrays.sort(o, new Comparator<Integer>() {
+		public int compare(Integer a, Integer b) {
+		    return(attrorder.indexOf(attrs[a.intValue()]) - attrorder.indexOf(attrs[b.intValue()]));
+		}
+	    });
+	int[] r = new int[o.length];
+	for(int i = 0; i < o.length; i++)
+	    r[i] = o[i];
+	return(r);
     }
 
     public static class SkillList extends Widget {
