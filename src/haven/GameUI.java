@@ -442,14 +442,14 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		setfocus(buddies);
 	    }
 	    return(true);
-	} else if(key == 20) {
+	} else if(key == 16) {
 	    if((polity != null) && polity.show(!polity.visible)) {
 		polity.raise();
 		fitwdg(polity);
 		setfocus(polity);
 	    }
 	    return(true);
-	} else if(key == 3) {
+	} else if(key == 20) {
 	    if((chrwdg != null) && chrwdg.show(!chrwdg.visible)) {
 		chrwdg.raise();
 		fitwdg(chrwdg);
