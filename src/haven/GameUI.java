@@ -190,7 +190,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    polity.hide();
 	    return(polity);
 	} else if(place == "chr") {
-	    chrwdg = (CharWnd)gettype(type).create(new Coord(200, 100), this, cargs);
+	    chrwdg = (CharWnd)gettype(type).create(new Coord(100, 50), this, cargs);
 	    chrwdg.hide();
 	    return(chrwdg);
 	} else if(place == "chat") {

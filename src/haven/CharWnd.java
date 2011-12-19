@@ -33,6 +33,7 @@ public class CharWnd extends Window {
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
+    private final SkillInfo ski;
     
     static {
 	Widget.addtype("chr", new WidgetFactory() {
@@ -94,6 +95,55 @@ public class CharWnd extends Window {
 	}
     }
     
+    private static class SkillInfo extends RichTextBox {
+	final static RichText.Foundry skbodfnd;
+	Skill cur = null;
+	boolean d = false;
+	
+	static {
+	    skbodfnd = new RichText.Foundry(java.awt.font.TextAttribute.FAMILY, "SansSerif", java.awt.font.TextAttribute.SIZE, 9);
+	    skbodfnd.aa = true;
+	}
+	
+	public SkillInfo(Coord c, Coord sz, Widget parent) {
+	    super(c, sz, parent, "", skbodfnd);
+	}
+	
+	public void tick(double dt) {
+	    if(d) {
+		try {
+		    StringBuilder text = new StringBuilder();
+		    text.append("$img[" + cur.res.get().name + "]\n\n");
+		    text.append("$font[serif,16]{" + cur.res.get().layer(Resource.tooltip).t + "}\n\n");
+		    if(cur.costa.length > 0) {
+			Integer[] o = new Integer[cur.costa.length];
+			for(int i = 0; i < o.length; i++)
+			    o[i] = new Integer(i);
+			Arrays.sort(o, new Comparator<Integer>() {
+				public int compare(Integer a, Integer b) {
+				    return(attrorder.indexOf(cur.costa[a.intValue()]) - attrorder.indexOf(cur.costa[b.intValue()]));
+				}
+			    });
+			for(int i = 0; i < o.length; i++) {
+			    int u = o[i].intValue();
+			    text.append(attrnm.get(cur.costa[u]) + ": " + cur.costv[u] + "\n");
+			}
+			text.append("\n");
+		    }
+		    text.append(cur.res.get().layer(Resource.pagina).text);
+		    settext(text.toString());
+		    d = false;
+		} catch(Loading e) {}
+	    }
+	}
+	
+	public void setsk(Skill sk) {
+	    d = (sk != null);
+	    cur = sk;
+	    settext("");
+	}
+    }
+
     public static class SkillList extends Widget {
 	private int h;
 	private Scrollbar sb;
@@ -196,8 +246,8 @@ public class CharWnd extends Window {
     public class Attr extends Widget {
 	private final Coord
 	    nmc = new Coord(0, 1),
-	    vc = new Coord(100, 1),
-	    expc = new Coord(125, 0),
+	    vc = new Coord(120, 1),
+	    expc = new Coord(145, 0),
 	    expsz = new Coord(sz.x - expc.x, sz.y);
 	public final String nm;
 	public final Glob.CAttr attr;
@@ -207,7 +257,7 @@ public class CharWnd extends Window {
 	private int cv;
 	
 	private Attr(String attr, Coord c, Widget parent) {
-	    super(c, new Coord(200, 15), parent);
+	    super(c, new Coord(220, 15), parent);
 	    this.nm = attr;
 	    this.attr = ui.sess.glob.cattr.get(nm);
 	    this.rnm = Text.render(attrnm.get(attr));
@@ -280,34 +330,38 @@ public class CharWnd extends Window {
     }
 
     public CharWnd(Coord c, Widget parent) {
-	super(c, new Coord(400, 340), parent, "Character");
+	super(c, new Coord(600, 340), parent, "Character");
 	new Label(new Coord(0, 0), this, "Skill Values:");
 	int y = 30;
 	for(String nm : attrorder) {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
 	    y += 20;
 	}
-	new Label(new Coord(210, 0), this, "Current Skills:");
-	this.csk = new SkillList(new Coord(210, 15), new Coord(190, 100), this) {
+	new Label(new Coord(230, 0), this, "Skills:");
+	new Label(new Coord(230, 30), this, "Current:");
+	this.csk = new SkillList(new Coord(230, 45), new Coord(170, 120), this) {
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			nsk.unsel();
+		    ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(210, 120), this, "Available Skills:");
-	this.nsk = new SkillList(new Coord(210, 135), new Coord(190, 100), this) {
+	new Label(new Coord(230, 170), this, "Available:");
+	this.nsk = new SkillList(new Coord(230, 185), new Coord(170, 120), this) {
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			csk.unsel();
+		    ski.setsk(sk);
 		}
 	    };
-	new Button(new Coord(210, 240), 50, this, "Buy") {
+	new Button(new Coord(230, 310), 50, this, "Buy") {
 	    public void click() {
 		if(nsk.sel >= 0) {
 		    CharWnd.this.wdgmsg("buy", nsk.skills[nsk.sel].nm);
 		}
 	    }
 	};
+	this.ski = new SkillInfo(new Coord(410, 30), new Coord(190, 275), this);
     }
     
     public void uimsg(String msg, Object... args) {
