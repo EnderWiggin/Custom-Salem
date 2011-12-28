@@ -114,7 +114,7 @@ public class CharWnd extends Window {
 		try {
 		    StringBuilder text = new StringBuilder();
 		    text.append("$img[" + cur.res.get().name + "]\n\n");
-		    text.append("$font[serif,16]{" + cur.res.get().layer(Resource.tooltip).t + "}\n\n");
+		    text.append("$font[serif,16]{" + cur.res.get().layer(Resource.action).name + "}\n\n");
 		    int[] o = sortattrs(cur.costa);
 		    if(cur.costa.length > 0) {
 			for(int i = 0; i < o.length; i++) {
