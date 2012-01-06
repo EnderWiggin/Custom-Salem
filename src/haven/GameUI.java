@@ -83,7 +83,11 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	setcanfocus(true);
 	setfocusctl(true);
 	menu = new MenuGrid(Coord.z, this);
-	new Avaview(new Coord(10, 10), this, plid);
+	new Avaview(new Coord(10, 10), this, plid) {
+	    public boolean mousedown(Coord c, int button) {
+		return(true);
+	    }
+	};
 	new Bufflist(new Coord(95, 50), this);
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
