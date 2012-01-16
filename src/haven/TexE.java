@@ -26,27 +26,20 @@
 
 package haven;
 
-public class LocationCam extends Camera {
-    private final static Matrix4f base = makerot(new Matrix4f(), new Coord3f(0.0f, 0.0f, 1.0f), (float)(Math.PI / 2))
-	.mul1(makerot(new Matrix4f(), new Coord3f(0.0f, 1.0f, 0.0f), (float)(Math.PI / 2)));
-    public final Location loc;
-    private Matrix4f ll;
-    
-    /* Oh, Java. <3 */
-    private LocationCam(Location loc, Matrix4f lm) {
-	super(base.mul(rxinvert(lm)));
-	this.ll = lm;
-	this.loc = loc;
-    }
+import javax.media.opengl.*;
 
-    public LocationCam(Location loc) {
-	this(loc, loc.fin(Matrix4f.id));
+public class TexE extends TexGL {
+    public final int ifmt, dfmt, dtype;
+    
+    public TexE(Coord sz, int ifmt, int dfmt, int dtype) {
+	super(sz, sz);
+	this.ifmt = ifmt;
+	this.dfmt = dfmt;
+	this.dtype = dtype;
     }
     
-    public Matrix4f fin(Matrix4f p) {
-	Matrix4f lm = loc.fin(Matrix4f.id);
-	if(lm != ll)
-	    update(base.mul(rxinvert(ll = lm)));
-	return(super.fin(p));
+    protected void fill(GOut g) {
+	GL gl = g.gl;
+	gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, ifmt, tdim.x, tdim.y, 0, dfmt, dtype, null);
     }
 }

@@ -1,9 +1,9 @@
-	       Haven & Hearth Client -- Copying Rights
+		    Salem Client -- Copying Rights
 
-This file documents the copying rights of the Haven & Hearth client
-source tree. The source tree is partitioned into a few sections, each
-with their own copying restrictions. These partitions and their
-respective licensing details are as follows:
+This file documents the copying rights of the Salem client source
+tree. The source tree is partitioned into a few sections, each with
+their own copying restrictions. These partitions and their respective
+licensing details are as follows:
 
  * The files in the `src/haven' directory and its subdirectories are
    the main source code of the client. It is subject to the GNU Lesser
@@ -28,7 +28,7 @@ respective licensing details are as follows:
     - lib/jogg.jar, lib/jorbis.jar:
       These files are part of JCraft's open source implementation of
       the OGG and Vorbis multimedia formats. They are extracted and
-      included in the Haven binary itself.
+      included in the client binary itself.
       
       They are licensed under the LPGL, version 2.1, and appear to be
       owned by JCraft, Inc. Its homepage is
@@ -46,9 +46,9 @@ respective licensing details are as follows:
       Sun Microsystems. If anyone can find a replacement for them, I'd
       accept it at any time.
 
-    - lib/haven-res.jar
+    - lib/salem-res.jar
       This file is not actually distributed with this source tree, but
-      is downloaded from Haven's web server as part of the default
+      is downloaded from the Salem web server as part of the default
       target of the Ant build file. It is the file containing all the
       data files with game content. In particular, it is necessary for
       actually connecting to our game server and playing, and it also
@@ -75,7 +75,7 @@ respective licensing details are as follows:
  * The build script, when run by Ant, will produce lots of stuff in
    the `build' directory. It comes from all over the source tree, and
    will thus be subject to various of the above licenses. Particularly
-   worthy of notice, however, is the `build/haven.jar' file, which is
+   worthy of notice, however, is the `build/salem.jar' file, which is
    the build script's primary output. It will consist of files compile
    from the `src' directory, some resources from the `etc' directory
    (including our amazing trademark icon), and the extracted JCraft
@@ -87,27 +87,17 @@ respective licensing details are as follows:
 
 It must be noticed that the Git repository which is the main keeper of
 this source tree contains, in historical versions, copies of the game
-resources (this was before the file `haven-res.jar' existed). In these
-versions, they are located in a directory named `res'. They are
-subject to the same terms as `lib/haven-res.jar' as described
-above. You are free to copy them around verbatim as part of the Git
-repository. If, for any reason, you decide to publish a historical
-version of this source tree which contains these resources, or any
-derivative work thereof, you must add a notice pointing this fact out,
-and the fact that they are owned by Fredrik Tolf and Björn
-Johannessen, and are proprietary to us.
+resources (this was before the resources were separated into their own
+Jar file). In these versions, they are located in a directory named
+`res'. The files are owned by Fredrik Tolf and Björn Johannessen, and
+we reserve all rights to them, but you are free to copy them around
+verbatim as part of the Git repository.
 
 If you change the source code so as to incorporate other files of new
 ownership or other licenses (like your own stuff), you should remember
 to update this file accordingly, so as to not confuse any new
 recipients.
 
-Do notice, however, that if you wish us to incorporate any changes you
-make into our mainline client, as published on Haven's & Hearth's
-website, we will require you to turn over the copyright ownership to
-us. Please see <http://www.havenandhearth.com/portal/doc-src> for
-details (the "Contributing Back" section).
-
 --
 
-This file was authored by Fredrik Tolf. It was last updated 2009-07-30.
+This file was authored by Fredrik Tolf. It was last updated 2012-01-06.
