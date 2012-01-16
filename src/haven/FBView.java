@@ -26,27 +26,48 @@
 
 package haven;
 
-public class LocationCam extends Camera {
-    private final static Matrix4f base = makerot(new Matrix4f(), new Coord3f(0.0f, 0.0f, 1.0f), (float)(Math.PI / 2))
-	.mul1(makerot(new Matrix4f(), new Coord3f(0.0f, 1.0f, 0.0f), (float)(Math.PI / 2)));
-    public final Location loc;
-    private Matrix4f ll;
+import javax.media.opengl.*;
+
+public class FBView {
+    public final GLFrameBuffer fbo;
+    public RenderList rls;
+    public GLState basicstate;
+    private final PView.RenderState rstate = new PView.RenderState();
     
-    /* Oh, Java. <3 */
-    private LocationCam(Location loc, Matrix4f lm) {
-	super(base.mul(rxinvert(lm)));
-	this.ll = lm;
-	this.loc = loc;
+    public FBView(GLFrameBuffer fbo, GLState basic) {
+	this.fbo = fbo;
+	this.basicstate = basic;
+    }
+    
+    protected GLState.Buffer basic(GOut g) {
+	GLState.Buffer buf = g.basicstate();
+	rstate.prep(buf);
+	if(basicstate != null)
+	    basicstate.prep(buf);
+	return(buf);
     }
 
-    public LocationCam(Location loc) {
-	this(loc, loc.fin(Matrix4f.id));
+    public void render(Rendered root, GOut ctx) {
+	if((rls == null) || (rls.cfg != ctx.gc))
+	    rls = new RenderList(ctx.gc);
+	GOut g = gderive(ctx);
+	GLState.Buffer bk = g.st.copy();
+	try {
+	    GLState.Buffer def = basic(g);
+	    rls.setup(root, def);
+	    rls.fin();
+	    g.st.set(def);
+	    g.apply();
+	    g.gl.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT);
+	    rls.render(g);
+	} finally {
+	    g.st.set(bk);
+	}
     }
     
-    public Matrix4f fin(Matrix4f p) {
-	Matrix4f lm = loc.fin(Matrix4f.id);
-	if(lm != ll)
-	    update(base.mul(rxinvert(ll = lm)));
-	return(super.fin(p));
+    public GOut gderive(GOut orig) {
+	GLState.Buffer def = orig.basicstate();
+	fbo.prep(def);
+	return(new GOut(orig.gl, orig.ctx, orig.gc, orig.st, def, fbo.sz()));
     }
 }

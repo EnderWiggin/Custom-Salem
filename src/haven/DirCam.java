@@ -26,27 +26,25 @@
 
 package haven;
 
-public class LocationCam extends Camera {
-    private final static Matrix4f base = makerot(new Matrix4f(), new Coord3f(0.0f, 0.0f, 1.0f), (float)(Math.PI / 2))
-	.mul1(makerot(new Matrix4f(), new Coord3f(0.0f, 1.0f, 0.0f), (float)(Math.PI / 2)));
-    public final Location loc;
-    private Matrix4f ll;
-    
-    /* Oh, Java. <3 */
-    private LocationCam(Location loc, Matrix4f lm) {
-	super(base.mul(rxinvert(lm)));
-	this.ll = lm;
-	this.loc = loc;
+import javax.media.opengl.*;
+
+public class DirCam extends Camera {
+    static final Coord3f defdir = new Coord3f(0, 0, -1);
+    Coord3f base = Coord3f.o, dir = defdir;
+
+    public DirCam() {
+	super(Matrix4f.identity());
     }
 
-    public LocationCam(Location loc) {
-	this(loc, loc.fin(Matrix4f.id));
+    public Matrix4f fin(Matrix4f p) {
+	update(compute(base, dir));
+	return(super.fin(p));
     }
     
-    public Matrix4f fin(Matrix4f p) {
-	Matrix4f lm = loc.fin(Matrix4f.id);
-	if(lm != ll)
-	    update(base.mul(rxinvert(ll = lm)));
-	return(super.fin(p));
+    public static Matrix4f compute(Coord3f base, Coord3f dir) {
+	Coord3f diff = defdir.cmul(dir);
+	float a = (float)Math.asin(diff.abs());
+	return(makerot(new Matrix4f(), diff, -a)
+	       .mul1(makexlate(new Matrix4f(), base.inv())));
     }
 }

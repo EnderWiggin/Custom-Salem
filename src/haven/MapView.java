@@ -403,7 +403,7 @@ public class MapView extends PView implements DTarget {
     private Coord checkmapclick(GOut g, Coord c) {
 	Maplist rl = new Maplist(basic(g));
 	rl.setup(map, basic(g));
-	rl.sort();
+	rl.fin();
 	{
 	    rl.render(g);
 	    MapMesh hit = rl.get(g, c);
@@ -460,7 +460,7 @@ public class MapView extends PView implements DTarget {
 		}
 	    };
 	rl.setup(gobs, basic(g));
-	rl.sort();
+	rl.fin();
 	rl.render(g);
 	return(rl.get(g, c));
     }
@@ -524,7 +524,7 @@ public class MapView extends PView implements DTarget {
 
     private void partydraw(GOut g) {
 	Coord3f cc;
-	PView.RenderState proj;
+	Projection proj;
 	Matrix4f cam;
 	try {
 	    Gob plgob = player();

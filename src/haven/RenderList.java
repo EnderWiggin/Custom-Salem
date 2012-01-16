@@ -30,16 +30,17 @@ import java.util.*;
 
 public class RenderList {
     final GLConfig cfg;
-    Slot[] list = new Slot[100];
-    int cur = 0;
+    private Slot[] list = new Slot[100];
+    private int cur = 0;
     private Slot curp = null;
+    private GLState.Global[] gstates = new GLState.Global[0];
     private static final ThreadLocal<RenderList> curref = new ThreadLocal<RenderList>();
     
-    class Slot {
-	Rendered r;
-	GLState.Buffer os = new GLState.Buffer(cfg), cs = new GLState.Buffer(cfg);
-	Rendered.Order o;
-	Slot p;
+    public class Slot {
+	public Rendered r;
+	public GLState.Buffer os = new GLState.Buffer(cfg), cs = new GLState.Buffer(cfg);
+	public Rendered.Order o;
+	public Slot p;
     }
     
     public RenderList(GLConfig cfg) {
@@ -59,6 +60,33 @@ public class RenderList {
 	return(s);
     }
 
+    private final Iterable<Slot> slotsi = new Iterable<Slot>() {
+	public Iterator<Slot> iterator() {
+	    return(new Iterator<Slot>() {
+		    private int i = 0;
+
+		    public Slot next() {
+			return(list[i++]);
+		    }
+
+		    public boolean hasNext() {
+			return(i < cur);
+		    }
+
+		    public void remove() {
+			throw(new UnsupportedOperationException());
+		    }
+		});
+	}
+    };
+    public Iterable<Slot> slots() {
+	return(slotsi);
+    }
+
+    public static RenderList current() {
+	return(curref.get());
+    }
+
     protected void setup(Slot s, Rendered r) {
 	s.r = r;
 	Slot pp = s.p = curp;
@@ -73,29 +101,6 @@ public class RenderList {
 	}
     }
     
-    public static RenderList current() {
-	return(curref.get());
-    }
-
-    protected void render(GOut g, Rendered r) {
-	r.draw(g);
-    }
-
-    public void render(GOut g) {
-	for(int i = 0; i < cur; i++) {
-	    Slot s = list[i];
-	    if(s.o == null)
-		break;
-	    g.st.set(s.os);
-	    render(g, s.r);
-	}
-    }
-
-    public void dump(java.io.PrintStream out) {
-	for(int i = 0; i < cur; i++)
-	    out.println(list[i].r + ": " + list[i].os);
-    }
-
     public void setup(Rendered r, GLState.Buffer t) {
 	rewind();
 	Slot s = getslot();
@@ -114,6 +119,18 @@ public class RenderList {
 	setup(s, r);
     }
     
+    public void add(Rendered r, GLState.Buffer t, Rendered.Order o) {
+	Slot s = getslot();
+	t.copy(s.os);
+	s.r = r;
+	s.p = curp;
+	s.o = o;
+    }
+    
+    public GLState.Buffer cstate() {
+	return(curp.cs);
+    }
+
     public GLState.Buffer state() {
 	return(curp.os);
     }
@@ -144,13 +161,56 @@ public class RenderList {
 	}
     };
     
-    public void sort() {
+    private GLState.Global[] getgstates() {
+	/* This is probably a fast way to intern the states. */
+	IdentityHashMap<GLState.Global, GLState.Global> gstates = new IdentityHashMap<GLState.Global, GLState.Global>(this.gstates.length);
+	for(int i = 0; i < cur; i++) {
+	    if(list[i].o == null)
+		continue;
+	    GLState[] sl = list[i].os.states();
+	    for(GLState st : sl) {
+		if(st instanceof GLState.Global) {
+		    GLState.Global gst = (GLState.Global)st;
+		    gstates.put(gst, gst);
+		}
+	    }
+	}
+	return(gstates.keySet().toArray(new GLState.Global[0]));
+    }
+
+    public void fin() {
+	gstates = getgstates();
+	for(GLState.Global gs : gstates)
+	    gs.postsetup(this);
 	Arrays.sort(list, 0, cur, cmp);
     }
     
+    protected void render(GOut g, Rendered r) {
+	r.draw(g);
+    }
+
+    public void render(GOut g) {
+	for(GLState.Global gs : gstates)
+	    gs.prerender(this, g);
+	for(int i = 0; i < cur; i++) {
+	    Slot s = list[i];
+	    if(s.o == null)
+		break;
+	    g.st.set(s.os);
+	    render(g, s.r);
+	}
+	for(GLState.Global gs : gstates)
+	    gs.postrender(this, g);
+    }
+
     public void rewind() {
 	if(curp != null)
 	    throw(new RuntimeException("Tried to rewind RenderList while adding to it."));
 	cur = 0;
+    }
+
+    public void dump(java.io.PrintStream out) {
+	for(Slot s : slots())
+	    out.println(s.r + ": " + s.os);
     }
 }
