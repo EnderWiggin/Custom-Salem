@@ -56,6 +56,8 @@ public class MapView extends PView implements DTarget {
     }
     
     public abstract class Camera extends haven.Camera {
+	private boolean loading;
+	
 	public Camera() {
 	    super(Matrix4f.identity());
 	}
@@ -76,8 +78,18 @@ public class MapView extends PView implements DTarget {
 	public abstract float angle();
 	
 	public Matrix4f fin(Matrix4f p) {
-	    update(compute());
+	    if(loading)
+		throw(new Loading());
 	    return(super.fin(p));
+	}
+	
+	public void tick(double dt) {
+	    loading = false;
+	    try {
+		update(compute());
+	    } catch(Loading e) {
+		loading = true;
+	    }
 	}
     }
     
@@ -303,13 +315,33 @@ public class MapView extends PView implements DTarget {
 	return(camera);
     }
 
+    private Coord3f smapcc = null;
+    private Light.PSLights.ShadowMap smap = null;
     public void setup(RenderList rl) {
 	Gob pl = player();
 	if(pl != null)
 	    this.cc = new Coord(pl.getc());
 	synchronized(glob) {
-	    if(glob.lightamb != null)
-		rl.add(new DirLight(glob.lightamb, glob.lightdif, glob.lightspc, Coord3f.o.sadd((float)glob.lightelev, (float)glob.lightang, 1f)), null);
+	    if(glob.lightamb != null) {
+		DirLight light = new DirLight(glob.lightamb, glob.lightdif, glob.lightspc, Coord3f.o.sadd((float)glob.lightelev, (float)glob.lightang, 1f));
+		rl.add(light, null);
+		if(rl.cfg.deflight == Light.pslights) {
+		    if(smap == null)
+			smap = new Light.PSLights.ShadowMap(new Coord(2048, 2048), 750, 5000);
+		    smap.light = light;
+		    Coord3f dir = new Coord3f(-light.dir[0], -light.dir[1], -light.dir[2]);
+		    Coord3f cc = getcc();
+		    cc.y = -cc.y;
+		    if((smapcc == null) || (smapcc.dist(cc) > 50)) {
+			smapcc = cc;
+			smap.setpos(smapcc.add(dir.neg().mul(1000f)), dir);
+		    }
+		    rl.prepc(smap);
+		} else {
+		    smap = null;
+		    smapcc = null;
+		}
+	    }
 	}
 	rl.add(map, null);
 	rl.add(mapol, null);
@@ -575,6 +607,10 @@ public class MapView extends PView implements DTarget {
 	}
 	poldraw(g);
 	partydraw(g);
+    }
+    
+    public void tick(double dt) {
+	camera.tick(dt);
     }
     
     public void resize(Coord sz) {
