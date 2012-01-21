@@ -72,9 +72,7 @@ public abstract class PView extends Widget {
     public PView(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent);
 	rstate = new RenderState();
-	float field = 0.5f;
-	float aspect = ((float)sz.y) / ((float)sz.x);
-	pstate = Projection.frustum(-field, field, -aspect * field, aspect * field, 1, 5000);
+	pstate = makeproj();
 	lm = new Light.Model();
 	lm.cc = GL.GL_SEPARATE_SPECULAR_COLOR;
     }
@@ -90,9 +88,15 @@ public abstract class PView extends Widget {
     protected abstract Camera camera();
     protected abstract void setup(RenderList rls);
     
+    protected Projection makeproj() {
+	float field = 0.5f;
+	float aspect = ((float)sz.y) / ((float)sz.x);
+	return(Projection.frustum(-field, field, -aspect * field, aspect * field, 1, 5000));
+    }
+
     public void resize(Coord sz) {
 	super.resize(sz);
-	pstate = new RenderState();
+	pstate = makeproj();
     }
 
     private final Rendered scene = new Rendered() {
@@ -106,7 +110,7 @@ public abstract class PView extends Widget {
 	};
 
     public void draw(GOut g) {
-	if(rls == null)
+	if((rls == null) || (rls.cfg != g.gc))
 	    rls = new RenderList(g.gc);
 	Profile.Frame curf = null;
 	if(Config.profile)

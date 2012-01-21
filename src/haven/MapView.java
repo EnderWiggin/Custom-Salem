@@ -338,6 +338,8 @@ public class MapView extends PView implements DTarget {
 		    }
 		    rl.prepc(smap);
 		} else {
+		    if(smap != null)
+			smap.dispose();
 		    smap = null;
 		    smapcc = null;
 		}
@@ -596,6 +598,8 @@ public class MapView extends PView implements DTarget {
 	if((olftimer != 0) && (olftimer < System.currentTimeMillis()))
 	    unflashol();
 	try {
+	    if(camera.loading)
+		throw(new MCache.LoadingMap());
 	    undelay(g);
 	    super.draw(g);
 	} catch(MCache.LoadingMap e) {
