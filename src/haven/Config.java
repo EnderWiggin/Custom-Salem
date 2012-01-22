@@ -50,6 +50,8 @@ public class Config {
     public static byte[] authck = null;
     public static String prefspec = "salem";
     
+    public static boolean isShowNames = true;
+    
     static {
 	String p;
 	if((p = getprop("haven.authck", null)) != null)
