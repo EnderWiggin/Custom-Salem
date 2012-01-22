@@ -49,7 +49,14 @@ public class Alchemy extends GItem.Tip {
     }
     
     public BufferedImage longtip() {
-	return(Text.std.renderf("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f", a[0] / 100.0, a[1] / 100.0, a[2] / 100.0, a[3] / 100.0).img);
+	double salt = a[0]/100.0;
+	double merc = a[1]/100.0;
+	double sulp = a[2]/100.0;
+	double lead = a[3]/100.0;
+	double purity = ((salt*salt + merc*merc + sulp*sulp + lead*lead)/10000.0)*12 - 2;
+	
+	String text = String.format("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f\nPurity: %.2f", salt, merc, sulp, lead, purity);
+	return RichText.stdf.render(text).img;
     }
     
     public BufferedImage smallmeter() {
