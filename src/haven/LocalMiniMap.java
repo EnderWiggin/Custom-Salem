@@ -256,8 +256,16 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	
 	parent.setfocus(this);
 	raise();
-	
+
+	Marker m = getmarkerat(c);
+	Coord mc = uitomap(c);
+
 	if(button == 3){
+	    if (m != null) {
+                mv.wdgmsg("click", this.c.add(c), mc, button, ui.modflags(), (int)m.gob.id, m.gob.rc, (-1));
+                return true;
+            }
+	    
 	    dm = true;
 	    ui.grabmouse(this);
 	    doff = c;
@@ -265,6 +273,11 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	
 	if (button == 1) {
+	    if (m != null || ui.modctrl) {
+                mv.wdgmsg("click", Coord.z, mc, button, 0);
+                return true;
+            }
+	    
 	    ui.grabmouse(this);
 	    doff = c;
 	    if(c.isect(sz.sub(gzsz), gzsz)) {

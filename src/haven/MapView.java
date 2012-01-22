@@ -26,13 +26,15 @@
 
 package haven;
 
-import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
-import haven.Resource.Tile;
+
 import java.awt.Color;
-import java.util.*;
-import java.lang.reflect.*;
-import javax.media.opengl.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
+import javax.media.opengl.GL;
 
 public class MapView extends PView implements DTarget {
     public long plgob = -1;

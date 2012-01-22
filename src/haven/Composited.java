@@ -114,7 +114,7 @@ public class Composited implements Rendered {
 	this.pose = skel.new Pose(skel.bindpose);
     }
     
-    private static final Rendered.Order modorder = new Rendered.Order<Model>() {
+    private static final Rendered.Order<Model> modorder = new Rendered.Order<Model>() {
 	public int mainz() {
 	    return(1);
 	}
@@ -150,7 +150,7 @@ public class Composited implements Rendered {
 	    m.drawflat(g);
 	}
 	
-	public Order setup(RenderList r) {
+	public Order<Model> setup(RenderList r) {
 	    m.setup(r);
 	    return(modorder);
 	}
