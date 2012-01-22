@@ -45,6 +45,7 @@ public class UI {
     public Widget mouseon;
     public Console cons = new WidgetConsole();
     private Collection<AfterDraw> afterdraws = null;
+    public MenuGrid mnu;
     
     {
 	lastevent = lasttick = System.currentTimeMillis();

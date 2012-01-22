@@ -44,7 +44,7 @@ public class Window extends Widget implements DTarget {
     static Color cc = Color.YELLOW;
     static Text.Foundry cf = new Text.Foundry(new Font("Serif", Font.PLAIN, 12));
     public static final IBox swbox = new IBox("gfx/hud", "stl", "str", "sbl", "sbr", "sextv", "sextv", "sexth", "sexth");
-    private static final IBox wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
+    protected static final IBox wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
     boolean dt = false;
     Text cap;
     boolean dm = false;

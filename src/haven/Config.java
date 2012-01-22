@@ -51,11 +51,16 @@ public class Config {
     public static String prefspec = "salem";
     
     public static boolean isShowNames = true;
+    public static String currentCharName;
     
     static {
 	String p;
 	if((p = getprop("haven.authck", null)) != null)
 	    authck = Utils.hex2byte(p);
+    }
+    
+    public static void setCharName(String name){
+	currentCharName = name;
     }
     
     private static int getint(String name, int def) {

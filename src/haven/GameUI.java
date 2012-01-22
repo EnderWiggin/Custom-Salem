@@ -31,7 +31,7 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import static haven.Inventory.invsq;
 
-public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.Directory {
+public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Console.Directory {
     public final String chrid;
     public final long plid;
     public MenuGrid menu;
@@ -55,7 +55,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
     private boolean afk = false;
     @SuppressWarnings("unchecked")
     public Indir<Resource>[] belt = new Indir[144];
-    public Belt beltwdg;
+//    public Belt beltwdg;
     public String polowner;
     
     public abstract class Belt {
@@ -238,9 +238,9 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	int by = sz.y;
 	if(chat.expanded)
 	    by -= chat.sz.y;
-	if(showbeltp()) {
-	    by -= beltwdg.draw(g, by);
-	}
+//	if(showbeltp()) {
+//	    by -= beltwdg.draw(g, by);
+//	}
 	if(cmdline != null) {
 	    drawcmd(g, new Coord(135, by -= 20));
 	} else if(lasterr != null) {
@@ -468,8 +468,8 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    dwalkdown(ukey, ev);
 	    return(true);
 	}
-	if((key == 0) && beltwdg.key(ev))
-	    return(true);
+//	if((key == 0) && beltwdg.key(ev))
+//	    return(true);
 	return(super.globtype(key, ev));
     }
     
@@ -491,23 +491,23 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	return(super.keyup(ev));
     }
     
-    public boolean mousedown(Coord c, int button) {
-	if(beltwdg.click(c, button))
-	    return(true);
-	return(super.mousedown(c, button));
-    }
-
-    public boolean drop(Coord cc, Coord ul) {
-	return(beltwdg.item(cc));
-    }
-    
-    public boolean iteminteract(Coord cc, Coord ul) {
-	return(false);
-    }
-
-    public boolean dropthing(Coord c, Object thing) {
-	return(beltwdg.thing(c, thing));
-    }
+//    public boolean mousedown(Coord c, int button) {
+//	if(beltwdg.click(c, button))
+//	    return(true);
+//	return(super.mousedown(c, button));
+//    }
+//
+//    public boolean drop(Coord cc, Coord ul) {
+//	return(beltwdg.item(cc));
+//    }
+//    
+//    public boolean iteminteract(Coord cc, Coord ul) {
+//	return(false);
+//    }
+//
+//    public boolean dropthing(Coord c, Object thing) {
+//	return(beltwdg.thing(c, thing));
+//    }
     
     public void resize(Coord sz) {
 	super.resize(sz);
@@ -713,14 +713,17 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
     }
     
     {
-	String val = Utils.getpref("belttype", "n");
-	if(val.equals("n")) {
-	    beltwdg = new NKeyBelt();
-	} else if(val.equals("f")) {
-	    beltwdg = new FKeyBelt();
-	} else {
-	    beltwdg = new NKeyBelt();
-	}
+	ToolbarWnd.loadBelts();
+	new ToolbarWnd(Coord.z, ui.root, "belt1");
+	new ToolbarWnd(Coord.z, ui.root, "belt2", 5, KeyEvent.VK_F1, 12, new Coord(4, 10));
+//	String val = Utils.getpref("belttype", "n");
+//	if(val.equals("n")) {
+//	    beltwdg = new NKeyBelt();
+//	} else if(val.equals("f")) {
+//	    beltwdg = new FKeyBelt();
+//	} else {
+//	    beltwdg = new NKeyBelt();
+//	}
     }
     
     private Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
@@ -738,7 +741,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		    wdgmsg("act", ad);
 		}
 	    });
-	cmdmap.put("belt", new Console.Command() {
+	/*cmdmap.put("belt", new Console.Command() {
 		public void run(Console cons, String[] args) {
 		    if(args[1].equals("f")) {
 			beltwdg = new FKeyBelt();
@@ -748,7 +751,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 			Utils.setpref("belttype", "n");
 		    }
 		}
-	    });
+	    });*/
     }
     public Map<String, Console.Command> findcmds() {
 	return(cmdmap);

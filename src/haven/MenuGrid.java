@@ -96,7 +96,7 @@ public class MenuGrid extends Widget {
 	
     public MenuGrid(Coord c, Widget parent) {
 	super(c, bgsz.mul(gsz).add(1, 1), parent);
-
+	ui.mnu = this;
 	Glob glob = ui.sess.glob;
 	Collection<Pagina> p = glob.paginae;
 	p.add(glob.paginafor(Resource.load("paginae/act/add")));
@@ -246,7 +246,11 @@ public class MenuGrid extends Widget {
     private Pagina paginafor(Resource res) {
 	return(ui.sess.glob.paginafor(res));
     }
-
+    
+    public void useres(Resource r){
+	use(paginafor(r));
+    }
+    
     private void use(Pagina r) {
 	if(cons(r).length > 0) {
 	    cur = r;
@@ -276,8 +280,7 @@ public class MenuGrid extends Widget {
 	if(ad[1].equals("act")) {
 	    String[] args = new String[ad.length - 2];
 	    System.arraycopy(ad, 2, args, 0, args.length);
-	    GameUI gi = (GameUI)ui.root.findchild(GameUI.class);
-	    gi.wdgmsg("act", (Object[])args);
+	    ui.gui.wdgmsg("act", (Object[])args);
 	}
 	use(null);
     }
