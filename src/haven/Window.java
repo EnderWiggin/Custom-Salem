@@ -32,8 +32,11 @@ import java.awt.image.BufferedImage;
 
 public class Window extends Widget implements DTarget {
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
-    static Tex topblob = Resource.loadtex("gfx/hud/tmain");
-    static Tex botblob = Resource.loadtex("gfx/hud/bmain");
+    static Tex cl = Resource.loadtex("gfx/hud/cleft");
+    static Tex cm = Resource.loadtex("gfx/hud/cmain");
+    static Tex cr = Resource.loadtex("gfx/hud/cright");
+    //static Tex topblob = Resource.loadtex("gfx/hud/tmain");
+    //static Tex botblob = Resource.loadtex("gfx/hud/bmain");
     static BufferedImage[] cbtni = new BufferedImage[] {
 	Resource.loadimg("gfx/hud/cbtn"),
 	Resource.loadimg("gfx/hud/cbtnd"),
@@ -47,7 +50,7 @@ public class Window extends Widget implements DTarget {
     boolean dm = false;
     public Coord atl, asz, wsz;
     public Coord tlo, rbo;
-    public Coord mrgn = new Coord(20, 20);
+    public Coord mrgn = new Coord(13, 13);
     public Coord doff;
     public IButton cbtn;
 	
@@ -63,7 +66,8 @@ public class Window extends Widget implements DTarget {
     }
 
     private void placecbtn() {
-	cbtn.c = xlate(new Coord(tlo.x + wsz.x - Utils.imgsz(cbtni[0]).x, tlo.y), false);
+	cbtn.c = new Coord(wsz.x - Utils.imgsz(cbtni[0]).x + 7, -24).sub(mrgn).sub(wbox.tloff());
+	//cbtn.c = xlate(new Coord(tlo.x + wsz.x - Utils.imgsz(cbtni[0]).x, tlo.y), false);
     }
 	
     public Window(Coord c, Coord sz, Widget parent, String cap, Coord tlo, Coord rbo) {
@@ -101,20 +105,20 @@ public class Window extends Widget implements DTarget {
 	}
 	cdraw(og.reclip(xlate(Coord.z, true), sz));
 	wbox.draw(g, Coord.z, wsz);
-	if(wsz.x > wbox.ctl.sz().x + wbox.ctr.sz().x + 0 + topblob.sz().x) {
-	    g.image(topblob, new Coord((wsz.x - topblob.sz().x) / 2, 0));
-	    g.image(botblob, new Coord((wsz.x - botblob.sz().x) / 2, wsz.y - botblob.sz().y));
-	}
-	/*
+//	if(wsz.x > wbox.ctl.sz().x + wbox.ctr.sz().x + 0 + topblob.sz().x) {
+//	    g.image(topblob, new Coord((wsz.x - topblob.sz().x) / 2, 0));
+//	    g.image(botblob, new Coord((wsz.x - botblob.sz().x) / 2, wsz.y - botblob.sz().y));
+//	}
+	
 	if(cap != null) {
-	    GOut cg = og.reclip(new Coord(0, -7), sz.add(0, 7));
+	    GOut cg = og.reclipl(new Coord(0, -8), sz.add(0, 8));
 	    int w = cap.tex().sz().x;
 	    cg.image(cl, new Coord((sz.x / 2) - (w / 2) - cl.sz().x, 0));
 	    cg.image(cm, new Coord((sz.x / 2) - (w / 2), 0), new Coord(w, cm.sz().y));
 	    cg.image(cr, new Coord((sz.x / 2) + (w / 2), 0));
 	    cg.image(cap.tex(), new Coord((sz.x / 2) - (w / 2), 0));
 	}
-	*/
+	
 	super.draw(og);
     }
 	
