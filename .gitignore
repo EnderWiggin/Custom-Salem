@@ -2,3 +2,6 @@
 /.project
 /build
 *~
+
+/.externalToolBuilders
+/.settings
