@@ -26,9 +26,15 @@
 
 package haven;
 
-import java.net.URL;
-import java.io.PrintStream;
 import static haven.Utils.getprop;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.Properties;
 
 public class Config {
     public static String authuser = getprop("haven.authuser", null);
@@ -52,11 +58,14 @@ public class Config {
     
     public static boolean isShowNames = true;
     public static String currentCharName;
+    static Properties window_props;
     
     static {
 	String p;
 	if((p = getprop("haven.authck", null)) != null)
 	    authck = Utils.hex2byte(p);
+	
+	loadWindowOptions();
     }
     
     public static void setCharName(String name){
@@ -80,7 +89,45 @@ public class Config {
 	    throw(new RuntimeException(e));
 	}
     }
-
+    
+    private static void loadWindowOptions() {
+	window_props = new Properties();
+	File inputFile = new File("windows.conf");
+        if (!inputFile.exists()) {
+            return;
+        }
+        try {
+            window_props.load(new FileInputStream(inputFile));
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+    
+    public static synchronized void setWindowOpt(String key, String value) {
+	synchronized (window_props) {
+	    String prev_val =window_props.getProperty(key); 
+	    if((prev_val != null)&&prev_val.equals(value))
+		return;
+	    window_props.setProperty(key, value);
+	}
+	saveWindowOpt();
+    }
+    
+    public static synchronized void setWindowOpt(String key, Boolean value) {
+	setWindowOpt(key, value?"true":"false");
+    }
+    
+    public static void saveWindowOpt() {
+	synchronized (window_props) {
+	    try {
+		window_props.store(new FileOutputStream("windows.conf"), "Window config options");
+	    } catch (IOException e) {
+		System.out.println(e);
+	    }
+	}
+    }
+    
     private static void usage(PrintStream out) {
 	out.println("usage: haven.jar [-hdfPL] [-s WxH] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV[:PORT]] [SERVER[:PORT]]");
     }

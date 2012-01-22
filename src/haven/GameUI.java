@@ -714,8 +714,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     
     {
 	ToolbarWnd.loadBelts();
-	new ToolbarWnd(Coord.z, ui.root, "belt1");
-	new ToolbarWnd(Coord.z, ui.root, "belt2", 5, KeyEvent.VK_F1, 12, new Coord(4, 10));
+	new ToolbarWnd(Coord.z, ui.root, "NumericBelt");
+	new ToolbarWnd(Coord.z, ui.root, "F-Belt", 5, KeyEvent.VK_F1, 12, new Coord(4, 10));
 //	String val = Utils.getpref("belttype", "n");
 //	if(val.equals("n")) {
 //	    beltwdg = new NKeyBelt();

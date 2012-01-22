@@ -53,6 +53,20 @@ public class Coord implements Comparable<Coord>, java.io.Serializable {
 	this(d.width, d.height);
     }
 	
+    public Coord(String str) {
+	int x,y;
+	if((str == null)||(str.charAt(0)!='(')||(str.charAt(str.length()-1)!=')'))
+	    x = y = 0;
+	else {
+	    str = str.substring(1,str.length()-1);
+	    String val[] = str.split(", ");
+	    x = Integer.parseInt(val[0]);
+	    y = Integer.parseInt(val[1]);
+	}
+	this.x = x;
+	this.y = y;
+    }
+
     public static Coord sc(double a, double r) {
 	return(new Coord((int)(Math.cos(a) * r), -(int)(Math.sin(a)* r)));
     }

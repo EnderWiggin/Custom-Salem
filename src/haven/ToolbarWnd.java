@@ -70,6 +70,7 @@ public class ToolbarWnd extends Window implements DropTarget {
 	mrgn = new Coord(2,18);
 	layout = new Slot[sz];
 	cbtn.visible = false;
+	loadOpts();
 	lockbtn = new IButton(Coord.z, this, locked?ilockc:ilocko, locked?ilocko:ilockc, locked?ilockch:ilockoh) {
 		
 		public void click() {
@@ -83,7 +84,7 @@ public class ToolbarWnd extends Window implements DropTarget {
 			down = ilockc;
 			hover = ilockoh;
 		    }
-//		    Config.setWindowOpt(name+"_locked", locked);
+		    Config.setWindowOpt(name+"_locked", locked);
 		}
 	};
 	
@@ -123,6 +124,19 @@ public class ToolbarWnd extends Window implements DropTarget {
 		slot = "N"+Integer.toString(i);
 	    }
 	    nums[i] = new TexI(Utils.outline2(Text.render(slot).img, Color.BLACK, true));
+	}
+    }
+    
+    private void loadOpts() {
+	synchronized (Config.window_props) {
+	    if(Config.window_props.getProperty(name+"_locked", "false").equals("true")) {
+		locked = true;
+	    }
+	    if(Config.window_props.getProperty(name+"_flipped", "false").equals("true")) {
+		flip();
+	    }
+	    visible = Config.window_props.getProperty(name, "true").equals("true");
+	    c = new Coord(Config.window_props.getProperty(name+"_pos", c.toString()));
 	}
     }
     
@@ -296,6 +310,7 @@ public class ToolbarWnd extends Window implements DropTarget {
     
     public void flip() {
 	flipped = !flipped;
+	Config.setWindowOpt(name+"_flipped", flipped);
 	gsz = new Coord(gsz.y, gsz.x);
 	mrgn = new Coord(mrgn.y, mrgn.x);
 	pack();
@@ -348,7 +363,7 @@ public class ToolbarWnd extends Window implements DropTarget {
 	    ui.grabmouse(null);
 	}
 	if(dm) {
-//	    Config.setWindowOpt(name+"_pos", this.c.toString());
+	    Config.setWindowOpt(name+"_pos", this.c.toString());
 	}
 	super.mouseup(c, button);
 	
