@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
 
 public class UI {
+    public GameUI gui;
     public RootWidget root;
     private Widget keygrab, mousegrab;
     public Map<Integer, Widget> widgets = new TreeMap<Integer, Widget>();

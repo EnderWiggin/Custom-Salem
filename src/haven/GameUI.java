@@ -78,6 +78,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
     
     public GameUI(Widget parent, String chrid, long plid) {
 	super(Coord.z, parent.sz, parent);
+	ui.gui = this;
 	this.chrid = chrid;
 	this.plid = plid;
 	setcanfocus(true);

@@ -33,6 +33,7 @@ public class RootWidget extends ConsoleHost {
     Logout logout = null;
     Profile gprof;
     boolean afk = false;
+    private boolean bShowOls = false;
 	
     public RootWidget(UI ui, Coord sz) {
 	super(ui, new Coord(0, 0), sz);
@@ -45,11 +46,18 @@ public class RootWidget extends ConsoleHost {
 	    if(Config.profile && (key == '`')) {
 		new Profwnd(new Coord(100, 100), this, gprof, "Glob prof");
 	    } else if(Config.profile && (key == '~')) {
-		GameUI gi = findchild(GameUI.class);
+		GameUI gi = ui.gui;
 		if((gi != null) && (gi.map != null))
 		    new Profwnd(new Coord(100, 100), this, gi.map.prof, "MV prof");
 	    } else if(key == ':') {
 		entercmd();
+	    } else if((ev.getKeyCode() == KeyEvent.VK_V)&&(ev.isAltDown())){
+		bShowOls = !bShowOls ;
+		if (bShowOls)
+		    ui.gui.map.enol(new int[] { 0, 1, 2, 3 });
+		else {
+		    ui.gui.map.disol(new int[] { 0, 1, 2, 3 });
+		}
 	    } else if(key != 0) {
 		wdgmsg("gk", (int)key);
 	    }
