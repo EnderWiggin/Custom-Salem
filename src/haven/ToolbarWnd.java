@@ -49,7 +49,7 @@ public class ToolbarWnd extends Window implements DropTarget {
     public ToolbarWnd(Coord c, Widget parent, String name) {
 	super( c, Coord.z,  parent, null);
 	this.name = name;
-	init(1, 10, new Coord(5, 10), KeyEvent.VK_0);
+	init(0, 10, new Coord(5, 10), KeyEvent.VK_0);
     }
     
     public ToolbarWnd(Coord c, Widget parent, String name, int belt, int key, int sz, Coord off) {
