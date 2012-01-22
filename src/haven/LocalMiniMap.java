@@ -32,6 +32,8 @@ import static haven.MCache.tilesz;
 import haven.MCache.Grid;
 import haven.MCache.LoadingMap;
 import haven.Resource.Loading;
+import haven.minimap.Marker;
+import haven.minimap.Radar;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -43,10 +45,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
-public class LocalMiniMap extends Window {
+public class LocalMiniMap extends Window implements Console.Directory{
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
@@ -63,6 +66,8 @@ public class LocalMiniMap extends Window {
     private static final double scales[] = {0.5, 0.66, 0.8, 0.9, 1, 1.25, 1.5, 1.75, 2};
     private Coord sp;
     private String session;
+    private final Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
+    private boolean radarenabled = true;
     
     private BufferedImage tileimg(int t) {
 	BufferedImage img = texes[t];
@@ -116,6 +121,27 @@ public class LocalMiniMap extends Window {
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
 	super(c, sz, parent, "Minimap");
 	this.mv = mv;
+	
+	cmdmap.put("radar", new Console.Command() {
+            public void run(Console console, String[] args) throws Exception {
+                if (args.length == 2) {
+                    String arg = args[1];
+                    if (arg.equals("on")) {
+                        radarenabled = true;
+                        return;
+                    }
+                    else if (arg.equals("off")) {
+                        radarenabled = false;
+                        return;
+                    }
+                    else if (arg.equals("reload")) {
+                        ui.sess.glob.oc.radar.reload();
+                        return;
+                    }
+                }
+                throw new Exception("No such setting");
+            }
+        });
     }
     
     public void draw(GOut og) {
@@ -171,6 +197,7 @@ public class LocalMiniMap extends Window {
 	    }
 	}
 	Coord c0 = hsz.div(2).sub(tc);
+	drawmarkers(g, c0);
 	synchronized(ui.sess.glob.party.memb) {
 		for(Party.Member memb : ui.sess.glob.party.memb.values()) {
 		    Coord ptc = memb.getc();
@@ -302,5 +329,51 @@ public class LocalMiniMap extends Window {
 	    setScale(scale + 1);
 	}
 	return true;
+    }
+    
+    private void drawmarkers(GOut g, Coord tc) {
+        if (!radarenabled)
+            return;
+
+        Radar radar = ui.sess.glob.oc.radar;
+        try {
+            for (Marker m : radar.getMarkers()) {
+                if (m.template.visible)
+                    m.draw(g, tc);
+            }
+        } catch (MCache.LoadingMap e) {
+        }
+    }
+    
+    private Coord uitomap(Coord c) {
+        return c.sub(sz.div(2)).add(off).div(getScale()).mul(MCache.tilesz).add(mv.cc);
+    }
+    
+    private Marker getmarkerat(Coord c) {
+        if (radarenabled) {
+            Radar radar = ui.sess.glob.oc.radar;
+            try {
+                Coord mc = uitomap(c);
+                for (Marker m : radar.getMarkers()) {
+                    if (m.template.visible && m.hit(mc))
+                        return m;
+                }
+            } catch (MCache.LoadingMap e) {
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object tooltip(Coord c, boolean again) {
+        Marker m = getmarkerat(c);
+        if (m != null)
+            return m.template.tooltip;
+        return null;
+    }
+
+    @Override
+    public Map<String, Console.Command> findcmds() {
+        return cmdmap;
     }
 }
