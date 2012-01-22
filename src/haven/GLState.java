@@ -76,7 +76,7 @@ public abstract class GLState {
 	public final Class<T> scl;
 	private int depid = -1;
 	private final Slot<?>[] dep, rdep;
-	private Slot[] grdep;
+	private Slot<?>[] grdep;
 	
 	public static enum Type {
 	    SYS, GEOM, DRAW
