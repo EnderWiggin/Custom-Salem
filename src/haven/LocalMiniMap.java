@@ -121,7 +121,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
 	super(c, sz, parent, "Minimap");
 	this.mv = mv;
-	
+	loadOpts();
 	cmdmap.put("radar", new Console.Command() {
             public void run(Console console, String[] args) throws Exception {
                 if (args.length == 2) {
@@ -142,6 +142,13 @@ public class LocalMiniMap extends Window implements Console.Directory{
                 throw new Exception("No such setting");
             }
         });
+    }
+    
+    private void loadOpts() {
+	synchronized (Config.window_props) {
+	    c = new Coord(Config.window_props.getProperty("mmap_pos", c.toString()));
+	    sz = new Coord(Config.window_props.getProperty("mmap_sz", sz.toString()));
+	}
     }
     
     public void draw(GOut og) {
@@ -289,9 +296,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     public boolean mouseup(Coord c, int button) {
-//	if(dm){
-//	    Config.setWindowOpt("minimap_pos", this.c.toString());
-//	}
+	if(super.dm){
+	    Config.setWindowOpt("mmap_pos", this.c.toString());
+	}
 	if(button == 2){
 	    off.x = off.y = 0;
 	    return true;
@@ -306,7 +313,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	if (rsm){
 	    ui.grabmouse(null);
 	    rsm = false;
-//	    Config.setWindowOpt("minimap_sz", mm.sz.toString());
+	    Config.setWindowOpt("mmap_sz", sz.toString());
 	} else {
 	    super.mouseup(c, button);
 	}

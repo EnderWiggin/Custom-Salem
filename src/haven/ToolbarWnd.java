@@ -135,7 +135,6 @@ public class ToolbarWnd extends Window implements DropTarget {
 	    if(Config.window_props.getProperty(name+"_flipped", "false").equals("true")) {
 		flip();
 	    }
-	    visible = Config.window_props.getProperty(name, "true").equals("true");
 	    c = new Coord(Config.window_props.getProperty(name+"_pos", c.toString()));
 	}
     }

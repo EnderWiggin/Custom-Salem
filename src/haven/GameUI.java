@@ -519,8 +519,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    gobble.c = new Coord((sz.x - gobble.sz.x) / 2, 0);
 	if(map != null)
 	    map.resize(sz);
-	if(mmap != null)
-	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
+//	if(mmap != null)
+//	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
 	if(fv != null)
 	    fv.c = new Coord(sz.x - Fightview.width, 0);
     }
