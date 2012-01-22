@@ -1,0 +1,21 @@
+#ABUTTON LAYER FOR RES src//\paginae\add\anime\facepalm.res
+#String pr
+paginae/add/anime
+#uint16 pver
+2
+#String name
+Facepalm
+#String preq
+
+#uint16 hk
+102
+#uint16 ad length
+4
+#String ad[0]
+@
+#String ad[1]
+act
+#String ad[2]
+anime
+#String ad[3]
+facepalm

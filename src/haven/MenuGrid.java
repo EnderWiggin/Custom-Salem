@@ -96,6 +96,15 @@ public class MenuGrid extends Widget {
 	
     public MenuGrid(Coord c, Widget parent) {
 	super(c, bgsz.mul(gsz).add(1, 1), parent);
+
+	Glob glob = ui.sess.glob;
+	Collection<Pagina> p = glob.paginae;
+	p.add(glob.paginafor(Resource.load("paginae/act/add")));
+	p.add(glob.paginafor(Resource.load("paginae/add/anime")));
+	p.add(glob.paginafor(Resource.load("paginae/add/anime/lol")));
+	p.add(glob.paginafor(Resource.load("paginae/add/anime/raeg")));
+	p.add(glob.paginafor(Resource.load("paginae/add/anime/facepalm")));
+
 	cons(null);
     }
 	
@@ -251,12 +260,28 @@ public class MenuGrid extends Widget {
 	    else
 		curoff += 14;
 	} else {
-	    wdgmsg("act", (Object[])r.act().ad);
+	    String [] ad = r.act().ad;
+		if((ad == null) || (ad.length < 1)){return;}
+		if(ad[0].equals("@")) {
+			usecustom(ad);
+		} else {
+			wdgmsg("act", (Object[])ad);
+		}
 	    cur = null;
 	    curoff = 0;
 	}
     }
-	
+
+    private void usecustom(String[] ad) {
+	if(ad[1].equals("act")) {
+	    String[] args = new String[ad.length - 2];
+	    System.arraycopy(ad, 2, args, 0, args.length);
+	    GameUI gi = (GameUI)ui.root.findchild(GameUI.class);
+	    gi.wdgmsg("act", (Object[])args);
+	}
+	use(null);
+    }
+    
     public boolean mouseup(Coord c, int button) {
 	Pagina h = bhit(c);
 	if(button == 1) {

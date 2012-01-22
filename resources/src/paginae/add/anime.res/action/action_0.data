@@ -1,0 +1,13 @@
+#ABUTTON LAYER FOR RES src//\paginae\add\anime.res
+#String pr
+paginae/act/add
+#uint16 pver
+2
+#String name
+Anime
+#String preq
+
+#uint16 hk
+110
+#uint16 ad length
+0
