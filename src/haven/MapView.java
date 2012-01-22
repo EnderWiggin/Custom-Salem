@@ -863,7 +863,15 @@ public class MapView extends PView implements DTarget {
 	}
 	return(true);
     }
-
+    
+    public void togglecam(){
+	if(camera instanceof FreeCam){
+	    camera = new FollowCam();
+	} else {
+	    camera = new FreeCam();
+	}
+    }
+    
     public boolean globtype(char c, java.awt.event.KeyEvent ev) {
 	return(false);
     }

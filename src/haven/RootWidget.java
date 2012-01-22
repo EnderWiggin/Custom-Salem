@@ -51,6 +51,8 @@ public class RootWidget extends ConsoleHost {
 		    new Profwnd(new Coord(100, 100), this, gi.map.prof, "MV prof");
 	    } else if(key == ':') {
 		entercmd();
+	    } else if((ev.getKeyCode() == KeyEvent.VK_C)&&(ev.isAltDown())){
+		ui.gui.map.togglecam();
 	    } else if((ev.getKeyCode() == KeyEvent.VK_V)&&(ev.isAltDown())){
 		bShowOls = !bShowOls ;
 		if (bShowOls)
