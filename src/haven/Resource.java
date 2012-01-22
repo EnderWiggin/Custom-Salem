@@ -32,6 +32,7 @@ import java.lang.annotation.*;
 import java.util.*;
 import java.net.*;
 import java.io.*;
+
 import javax.imageio.*;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -65,8 +66,14 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
 
     static {
-	if(!Config.nolocalres)
-	    loader = new Loader(new JarSource());
+	try {
+	    chainloader(new Loader(new FileSource(new File("./custom_res"))));
+	} catch(Exception e) {}
+	
+	try {
+	    chainloader(new Loader(new FileSource(new File("./res"))));
+	} catch(Exception e) {}
+	
 	try {
 	    String dir = Config.resdir;
 	    if(dir == null)
@@ -78,6 +85,9 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	     * for users just because of errors in development
 	     * aids. */
 	}
+	
+	if(!Config.nolocalres)
+	    chainloader(new Loader(new JarSource()));
     }
 	
     private LoadException error;

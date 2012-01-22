@@ -31,6 +31,7 @@ import static haven.MCache.tilesz;
 
 import haven.MCache.Grid;
 import haven.MCache.LoadingMap;
+import haven.Resource.Loading;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -69,11 +70,15 @@ public class LocalMiniMap extends Window {
 	    Resource r = ui.sess.glob.map.sets[t];
 	    if(r == null)
 		return(null);
-	    Resource.Image ir = r.layer(Resource.imgc);
-	    if(ir == null)
-		return(null);
-	    img = ir.img;
-	    texes[t] = img;
+	    try{
+		Resource.Image ir = r.layer(Resource.imgc);
+		if(ir == null)
+		    return(null);
+		img = ir.img;
+		texes[t] = img;
+	    }catch (Loading e){
+		return null;
+	    }
 	}
 	return(img);
     }
