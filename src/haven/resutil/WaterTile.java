@@ -97,12 +97,14 @@ public class WaterTile extends Tiler {
     public static final GLState surfmat = new GLState.StandAlone(GLState.Slot.Type.DRAW, PView.cam) {
 	    public void apply(GOut g) {
 		GL gl = g.gl;
+		g.st.texunit(0);
 		gl.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP);
 		gl.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP);
 		gl.glTexGeni(GL.GL_R, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP);
 		gl.glEnable(GL.GL_TEXTURE_GEN_S);
 		gl.glEnable(GL.GL_TEXTURE_GEN_T);
 		gl.glEnable(GL.GL_TEXTURE_GEN_R);
+		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
 		gl.glEnable(GL.GL_TEXTURE_CUBE_MAP);
 		gl.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, sky.glid(g));
 		gl.glColor4f(1, 1, 1, 0.5f);
@@ -113,6 +115,7 @@ public class WaterTile extends Tiler {
 	    
 	    public void unapply(GOut g) {
 		GL gl = g.gl;
+		g.st.texunit(0);
 		g.st.matmode(GL.GL_TEXTURE);
 		gl.glPopMatrix();
 		gl.glDisable(GL.GL_TEXTURE_CUBE_MAP);
@@ -123,7 +126,6 @@ public class WaterTile extends Tiler {
 	    }
 	    
 	    public void prep(Buffer buf) {
-		buf.put(Tex.slot, null);
 		buf.put(States.color, null);
 		buf.put(Light.lighting, null);
 		super.prep(buf);
