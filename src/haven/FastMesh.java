@@ -26,12 +26,14 @@
 
 package haven;
 
-import java.nio.*;
-import javax.media.opengl.*;
+import java.nio.ShortBuffer;
+
+import javax.media.opengl.GL;
 
 public class FastMesh implements FRendered {
     public final VertexBuf vert;
     public final ShortBuffer indb;
+    public boolean isWireframe = false;
     public final int num;
     public FastMesh from;
     private DisplayList list = null;
@@ -54,7 +56,13 @@ public class FastMesh implements FRendered {
     }
 
     public void sdraw(GL gl) {
-	gl.glBegin(GL.GL_TRIANGLES);
+	if(isWireframe){
+	    gl.glLineWidth(5);
+	    gl.glBegin(GL.GL_LINES);
+	} else {
+	    gl.glBegin(GL.GL_TRIANGLES);
+	}
+	int o0 = 0;
 	for(int i = 0; i < num * 3; i++) {
 	    int idx = indb.get(i);
 	    int o = idx * 3;
@@ -64,6 +72,12 @@ public class FastMesh implements FRendered {
 		gl.glTexCoord2f(vert.texb.get(u), vert.texb.get(u + 1));
 	    }
 	    gl.glVertex3f(vert.posb.get(o), vert.posb.get(o + 1), vert.posb.get(o + 2));
+	    if(isWireframe){
+		if(i%3 == 0){o0 = o;}
+		if(i%3 == 2){
+		    gl.glVertex3f(vert.posb.get(o0), vert.posb.get(o0 + 1), vert.posb.get(o0 + 2));
+		}
+	    }
 	}
 	gl.glEnd();
     }
@@ -134,8 +148,9 @@ public class FastMesh implements FRendered {
 	GOut.checkerr(gl);
     }
     
+    public final static Order wforder = new Order.Default(1);
     public Order setup(RenderList r) {
-	return(deflt);
+	return (isWireframe)?wforder:deflt;
     }
     
     public boolean boned() {

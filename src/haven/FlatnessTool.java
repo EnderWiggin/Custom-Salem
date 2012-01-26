@@ -14,17 +14,40 @@ class FlatnessTool extends Window implements MapView.Grabber {
     MCache.Overlay ol;
     final List<MCache.Overlay> lowestol = new ArrayList<MCache.Overlay>();
     final MCache map;
+    private Button btnToggle;
+    private boolean grabbed = false;
+    
+    private static FlatnessTool instance; 
 
     public FlatnessTool(MapView mv, String text, Coord c, Widget parent) {
         super(c, new Coord(150, 50), parent, title);
         this.map = this.ui.sess.glob.map;
         this.text = new Label(Coord.z, this, defaulttext);
         this.mv = mv;
-        this.mv.enol(16, 17);
-        this.mv.grab(this);
+        this.mv.enol(MapView.LOWEST, MapView.FLAT);
+        btnToggle = new Button(new Coord(0, 20), 75, this, "");
+        //toggle();
         this.pack();
     }
-
+    
+    public static FlatnessTool instance(UI ui) {
+	if(instance == null){
+	    instance = new FlatnessTool(ui.gui.map, null,  new Coord(100, 100), ui.root);
+	}
+	return instance;
+    }
+    
+    public void toggle(){
+	grabbed = !grabbed;
+	if(grabbed){
+	    mv.grab(this);
+	    btnToggle.change("Release");
+	} else {
+	    mv.release(this);
+	    btnToggle.change("Grab");
+	}
+    }
+    
     private void checkflatness(Coord c1, Coord c2) {
         if (c1.equals(this.c1) && c2.equals(this.c2))
             return;
@@ -83,7 +106,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
     private void makelowestol(Coord[] tiles, float[] heights, float height) {
         for (int i = 0; i < tiles.length; i++) {
             if (Math.abs(heights[i] - height) < 0.0001) {
-                MCache.Overlay ol = map.new Overlay(tiles[i], tiles[i], 1<<17);
+                MCache.Overlay ol = map.new Overlay(tiles[i], tiles[i], 1<<MapView.LOWEST);
                 lowestol.add(ol);
             }
         }
@@ -95,8 +118,9 @@ class FlatnessTool extends Window implements MapView.Grabber {
             this.ol.destroy();
         for (MCache.Overlay ol : lowestol)
             ol.destroy();
-        this.mv.disol(16, 17);
+        this.mv.disol(MapView.FLAT, MapView.LOWEST);
         this.mv.release(this);
+        instance = null;
         super.destroy();
     }
 
@@ -105,7 +129,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
         Coord c = mc.div(MCache.tilesz);
         if (this.ol != null)
             this.ol.destroy();
-        this.ol = map.new Overlay(c, c, 1<<16);
+        this.ol = map.new Overlay(c, c, 1<<MapView.FLAT);
         this.sc = c;
         this.dm = true;
         this.ui.grabmouse(this.mv);
@@ -175,6 +199,8 @@ class FlatnessTool extends Window implements MapView.Grabber {
     public void wdgmsg(Widget wdg, String msg, Object... args) {
         if (wdg == cbtn) {
             ui.destroy(this);
+        } else if(wdg == btnToggle){
+            toggle();
         } else {
             super.wdgmsg(wdg, msg, args);
         }

@@ -249,7 +249,10 @@ public class MapView extends PView implements DTarget {
 		return(null);
 	    }
 	};
-    
+	
+    public static final int FLAT = 18;
+    public static final int LOWEST = 19;
+    public static final int WFOL = FLAT;
     private final Rendered mapol = new Rendered() {
 	    private final GLState[] mats;
 	    {
@@ -259,7 +262,9 @@ public class MapView extends PView implements DTarget {
 		mats[2] = new Material(new Color(255, 0, 0, 32));
 		mats[3] = new Material(new Color(128, 0, 255, 32));
 		mats[16] = new Material(new Color(0, 255, 0, 32));
-		mats[17] = new Material(new Color(255, 0, 255, 64));
+		mats[17] = new Material(new Color(255, 0, 255, 32));
+		mats[FLAT] = new Material(new Color(0, 255, 0, 255));
+		mats[LOWEST] = new Material(new Color(255, 0, 255, 96));
 	    }
 	    
 	    public void draw(GOut g) {}
@@ -800,7 +805,7 @@ public class MapView extends PView implements DTarget {
 	    synchronized(delayed) {
 		delayed.add(new Hittest(c) {
 			public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			    grab.mmousemove(mc);
+			    if(grab!=null)grab.mmousemove(mc);
 			}
 		    });
 	    }
@@ -824,7 +829,7 @@ public class MapView extends PView implements DTarget {
 	    synchronized(delayed) {
 		delayed.add(new Hittest(c) {
 			public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			    grab.mmouseup(mc, button);
+			    if(grab!=null)grab.mmouseup(mc, button);
 			}
 		    });
 	    }

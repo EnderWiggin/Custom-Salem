@@ -61,7 +61,7 @@ public class RootWidget extends ConsoleHost {
 		    ui.gui.map.disol(new int[] { 0, 1, 2, 3 });
 		}
 	    }else if((ev.getKeyCode() == KeyEvent.VK_L)&&(ev.isControlDown())){
-                ui.gui.map.grab(new FlatnessTool(ui.gui.map, null,  new Coord(100, 100), ui.root));
+                FlatnessTool.instance(ui).toggle();
 	    } else if(key != 0) {
 		wdgmsg("gk", (int)key);
 	    }

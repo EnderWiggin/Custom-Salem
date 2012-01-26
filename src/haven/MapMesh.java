@@ -41,6 +41,23 @@ public class MapMesh implements Rendered {
     private List<Layer> layers;
     private float[] zmap;
 
+    private final class OLMesh implements Rendered {
+	FastMesh mesh;
+
+	private OLMesh(int k, MeshBuf buf) {
+	    mesh = buf.mkmesh();
+	    mesh.isWireframe = (k == MapView.WFOL);
+	}
+
+	public void draw(GOut g) {
+	    mesh.draw(g);
+	}
+
+	public Order setup(RenderList rl) {
+	    return(olorder);
+	}
+    }
+
     public static class SPoint {
 	public Coord3f pos, nrm = Coord3f.zu;
 	public SPoint(Coord3f pos) {
@@ -444,17 +461,7 @@ public class MapMesh implements Rendered {
 		}
 	    }
 	    if(h)
-		ret[i] = new Rendered() {
-			FastMesh mesh = buf.mkmesh();
-			
-			public void draw(GOut g) {
-			    mesh.draw(g);
-			}
-			
-			public Order setup(RenderList rl) {
-			    return(olorder);
-			}
-		    };
+		ret[i] = new OLMesh(i, buf);
 	}
 	return(ret);
     }
