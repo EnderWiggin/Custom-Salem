@@ -35,6 +35,8 @@ public class CharWnd extends Window {
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
     private final SkillInfo ski;
+    public static final Color GREEN = new Color(0xaaeeaa);
+    public static final Color GRAY = new Color(0xbda3a3);
     
     static {
 	Widget.addtype("chr", new WidgetFactory() {
@@ -160,9 +162,16 @@ public class CharWnd extends Window {
 	for (String attr : attrs){
 	    c[i] = Color.WHITE;
 	    if(ski.cur != null){
-		for(String cost : ski.cur.costa){
-		    if(cost.equals(attr)){
-			c[i] = Color.GREEN;
+		for(int j = 0; j<ski.cur.costa.length; j++){
+		    String costa = ski.cur.costa[j];
+		    int costv = ski.cur.costv[j];
+		    if(costa.equals(attr)){
+			if(this.attrs.get(costa).sexp < costv){
+			    c[i] = GREEN;
+			} else {
+			    c[i] = GRAY;
+			}
+			break;
 		    }
 		}
 	    }
@@ -323,8 +332,9 @@ public class CharWnd extends Window {
 		}
 	    }
 	    g.chcolor();
-	    if(rexp == null)
+	    if(rexp == null){
 		rexp = Text.render(String.format("%d/%d", sexp, attr.comp * 100));
+	    }
 	    g.aimage(rexp.tex(), expc.add(expsz.x / 2, 1), 0.5, 0);
 	}
 	
@@ -404,6 +414,7 @@ public class CharWnd extends Window {
 		a.rexp = null;
 		a.av = av;
 	    }
+	    GItem.infoUpdated = System.currentTimeMillis();
 	} else if(msg == "csk") {
 	    Collection<Skill> sk = new LinkedList<Skill>();
 	    for(int i = 0; i < args.length; i += 2) {

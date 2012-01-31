@@ -57,7 +57,7 @@ public class Config {
     public static String prefspec = "salem";
     
     public static boolean isShowNames = true;
-    public static String currentCharName;
+    public static String currentCharName = "";
     static Properties window_props;
     
     static {
