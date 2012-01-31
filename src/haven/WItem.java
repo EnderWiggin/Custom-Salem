@@ -26,18 +26,19 @@
 
 package haven;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.util.*;
-import haven.GItem.Info;
 import static haven.GItem.find;
+import haven.GItem.Info;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.util.List;
 
 public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
     public final GItem item;
     private Tex mask = null;
     private Resource cmask = null;
+    private long ts = 0;
     
     public WItem(Coord c, Widget parent, GItem item) {
 	super(c, new Coord(30, 30), parent);
@@ -104,8 +105,10 @@ public class WItem extends Widget implements DTarget {
 		    shorttip = shorttip(info);
 		return(shorttip);
 	    } else {
-		if(longtip == null)
+		if((longtip == null) || ts < GItem.infoUpdated){
+		    ts = GItem.infoUpdated;
 		    longtip = longtip(info);
+		}
 		return(longtip);
 	    }
 	} catch(Loading e) {

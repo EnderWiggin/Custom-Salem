@@ -29,9 +29,15 @@ package haven;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GItem extends AWidget {
+    public static volatile long infoUpdated = 0;
+    
     public Indir<Resource> res;
     public int meter = 0;
     public int num = -1;

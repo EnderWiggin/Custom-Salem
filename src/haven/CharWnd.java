@@ -26,6 +26,7 @@
 
 package haven;
 
+import java.awt.Color;
 import java.util.*;
 
 public class CharWnd extends Window {
@@ -134,6 +135,7 @@ public class CharWnd extends Window {
 	    d = (sk != null);
 	    cur = sk;
 	    settext("");
+	    GItem.infoUpdated = System.currentTimeMillis();
 	}
     }
     
@@ -151,7 +153,24 @@ public class CharWnd extends Window {
 	    r[i] = o[i];
 	return(r);
     }
-
+    
+    public Color[] attrcols(final String[] attrs){
+	Color[] c = new Color[attrs.length];
+	int i=0;
+	for (String attr : attrs){
+	    c[i] = Color.WHITE;
+	    if(ski.cur != null){
+		for(String cost : ski.cur.costa){
+		    if(cost.equals(attr)){
+			c[i] = Color.GREEN;
+		    }
+		}
+	    }
+	    i++;
+	}
+	return c;
+    }
+    
     public static class SkillList extends Widget {
 	private int h;
 	private Scrollbar sb;

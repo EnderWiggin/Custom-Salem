@@ -1,11 +1,11 @@
-import java.awt.image.BufferedImage;
-
 import haven.CharWnd;
 import haven.GItem;
 import haven.GItem.Info;
 import haven.GItem.InfoFactory;
 import haven.RichText;
-import haven.Text;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 
 public class Curiosity implements InfoFactory {
@@ -14,7 +14,7 @@ public class Curiosity implements InfoFactory {
     }
 
     @Override
-    public Info build(GItem item, Object... args) {
+    public Info build(final GItem item, Object... args) {
 	final String[] attrs = new String[args.length / 2];
 	final int[] exp = new int[args.length / 2];
 	int i = 1; for (int j = 0; i < args.length; j++) {
@@ -27,11 +27,14 @@ public class Curiosity implements InfoFactory {
 	return item.new Tip() {
 	    public BufferedImage longtip() {
 		StringBuilder sb = new StringBuilder();
+		Color[] cs = item.ui.gui.chrwdg.attrcols(attrs);
 		for (int i = 0; i < attrs.length; i++) {
 		    if (i > 0)
 			sb.append('\n');
 		    String attr = CharWnd.attrnm.get(attrs[order[i]]);
-		    sb.append(String.format("%s: %d",  attr, exp[order[i]] ));
+		    Color c = cs[order[i]];
+		    sb.append(String.format("$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[order[i]] ));
+//		    sb.append(String.format("%s: %d", attr, exp[order[i]] ));
 		}
 		return RichText.stdf.render(sb.toString(), 0).img;
 	    }
