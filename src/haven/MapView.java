@@ -94,12 +94,78 @@ public class MapView extends PView implements DTarget {
 	private final float fr = 0.0f, h = 10.0f;
 	private float ca, cd, da;
 	private Coord3f curc = null;
+	private float elev = (float)Math.PI / 4.0f;
+	private float angl = 0.0f;
+	private Coord dragorig = null;
+	private float anglorig;
+	
+	public void resized() {
+	    ca = (float)sz.y / (float)sz.x;
+	    cd = 400.0f * ca;
+	    da = (float)Math.atan(ca * 0.5f);
+	}
+	{resized();}
+	
+	public boolean click(Coord c) {
+	    anglorig = angl;
+	    dragorig = c;
+	    return(true);
+	}
+	
+	public void drag(Coord c) {
+	    angl = anglorig + ((float)(c.x - dragorig.x) / 100.0f);
+	    angl = angl % ((float)Math.PI * 2.0f);
+	}
+
+	private float dist(float elev) {
+	    return((float)(((cd - (h / Math.tan(elev))) * Math.sin(elev - da) / Math.sin(da)) - (h / Math.sin(elev))));
+	}
+
+	public Matrix4f compute() {
+	    Coord3f cc = getcc();
+	    cc.y = -cc.y;
+	    if(curc == null)
+		curc = cc;
+	    float dx = cc.x - curc.x, dy = cc.y - curc.y;
+	    if(Math.sqrt((dx * dx) + (dy * dy)) > fr) {
+		Coord3f oc = curc;
+		float pd = (float)Math.cos(elev) * dist(elev);
+		Coord3f cambase = new Coord3f(curc.x + ((float)Math.cos(angl) * pd), curc.y + ((float)Math.sin(angl) * pd), 0.0f);
+		float a = cc.xyangle(curc);
+		float nx = cc.x + ((float)Math.cos(a) * fr), ny = cc.y + ((float)Math.sin(a) * fr);
+		curc = new Coord3f(nx, ny, cc.z);
+		angl = curc.xyangle(cambase);
+	    }
+	    return(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
+	}
+	
+	public float angle() {
+	    return(angl);
+	}
+	
+	private static final float maxang = (float)(Math.PI / 2 - 0.1);
+	private static final float mindist = 10.0f;
+	public boolean wheel(Coord c, int amount) {
+	    float fe = elev;
+	    elev += amount * elev * 0.02f;
+	    if(elev > maxang)
+		elev = maxang;
+	    if(dist(elev) < mindist)
+		elev = fe;
+	    return(true);
+	}
+    }
+    
+    private class SmoothFollowCam extends Camera {
+	private final float fr = 0.0f, h = 10.0f;
+	private float ca, cd, da;
+	private Coord3f curc = null;
 	private float elev, telev;
 	private float angl, tangl;
 	private Coord dragorig = null;
 	private float anglorig;
 	
-	private FollowCam() {
+	private SmoothFollowCam() {
 	    elev = telev = (float)Math.PI / 4.0f;
 	    angl = tangl = 0.0f;
 	}
@@ -901,11 +967,21 @@ public class MapView extends PView implements DTarget {
     }
     
     public void togglecam(){
+	
+	String str ="Camera changed to ";
+	
 	if(camera instanceof FreeCam){
 	    camera = new FollowCam();
+	    str += "FolowCam";
+	} else if(camera instanceof FollowCam){
+	    camera = new SmoothFollowCam();
+	    str += "SmoothFolowCam";
 	} else {
 	    camera = new FreeCam();
+	    str += "FreeCam";
 	}
+	ui.cons.out.println(str);
+	ui.gui.error(str);
     }
     
     public boolean globtype(char c, java.awt.event.KeyEvent ev) {
