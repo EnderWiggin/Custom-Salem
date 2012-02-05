@@ -81,7 +81,55 @@ public class LoginScreen extends Widget {
 	}
 		
 	Object[] data() {
-	    return(new Object[] {user.text, pass.text, savepass.a});
+	    return(new Object[] {new AuthClient.NativeCred(user.text, pass.text), savepass.a});
+	}
+		
+	boolean enter() {
+	    if(user.text.equals("")) {
+		setfocus(user);
+		return(false);
+	    } else if(pass.text.equals("")) {
+		setfocus(pass);
+		return(false);
+	    } else {
+		return(true);
+	    }
+	}
+
+	public boolean globtype(char k, KeyEvent ev) {
+	    if((k == 'r') && ((ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0)) {
+		savepass.set(!savepass.a);
+		return(true);
+	    }
+	    return(false);
+	}
+    }
+	
+    private class Pdxbox extends Login {
+	TextEntry user, pass;
+	CheckBox savepass;
+		
+	private Pdxbox(String username, boolean save) {
+	    super(new Coord(345, 310), new Coord(150, 150), LoginScreen.this);
+	    setfocustab(true);
+	    new Label(new Coord(0, 0), this, "User name", textf);
+	    user = new TextEntry(new Coord(0, 20), new Coord(150, 20), this, username);
+	    new Label(new Coord(0, 60), this, "Password", textf);
+	    pass = new TextEntry(new Coord(0, 80), new Coord(150, 20), this, "");
+	    pass.pw = true;
+	    savepass = new CheckBox(new Coord(0, 110), this, "Remember me");
+	    savepass.a = save;
+	    if(user.text.equals(""))
+		setfocus(user);
+	    else
+		setfocus(pass);
+	}
+		
+	public void wdgmsg(Widget sender, String name, Object... args) {
+	}
+		
+	Object[] data() {
+	    return(new Object[] {new ParadoxCreds(user.text, pass.text), savepass.a});
 	}
 		
 	boolean enter() {
@@ -193,7 +241,13 @@ public class LoginScreen extends Widget {
 	synchronized(ui) {
 	    if(msg == "passwd") {
 		clear();
-		cur = new Pwbox((String)args[0], (Boolean)args[1]);
+		if(Config.authmech.equals("native")) {
+		    cur = new Pwbox((String)args[0], (Boolean)args[1]);
+		} else if(Config.authmech.equals("paradox")) {
+		    cur = new Pdxbox((String)args[0], (Boolean)args[1]);
+		} else {
+		    throw(new RuntimeException("Unknown authmech `" + Config.authmech + "' specified"));
+		}
 		mklogin();
 	    } else if(msg == "token") {
 		clear();
