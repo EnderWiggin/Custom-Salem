@@ -47,6 +47,7 @@ public class Config {
     public static String allused = getprop("haven.allused", null);
     public static int mainport = getint("haven.mainport", 1870);
     public static int authport = getint("haven.authport", 1871);
+    public static String authmech = getprop("haven.authmech", "native");
     public static byte[] authck = null;
     public static String prefspec = "salem";
     
@@ -85,10 +86,11 @@ public class Config {
 	out.println("  -A AUTHSERV[:PORT] Use specified authentication server");
 	out.println("  -u USER            Authenticate as USER (together with -C)");
 	out.println("  -C HEXCOOKIE       Authenticate with specified hex-encoded cookie");
+	out.println("  -m AUTHMECH        Use specified authentication mechanism (`native' or `paradox')");
     }
 
     public static void cmdline(String[] args) {
-	PosixArgs opt = PosixArgs.getopt(args, "hdPU:r:A:u:C:");
+	PosixArgs opt = PosixArgs.getopt(args, "hdPU:r:A:u:C:m:");
 	if(opt == null) {
 	    usage(System.err);
 	    System.exit(1);
@@ -131,6 +133,8 @@ public class Config {
 	    case 'C':
 		authck = Utils.hex2byte(opt.arg);
 		break;
+	    case 'm':
+		authmech = opt.arg;
 	    }
 	}
 	if(opt.rest.length > 0) {
