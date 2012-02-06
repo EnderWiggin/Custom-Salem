@@ -86,12 +86,17 @@ public class CharWnd extends Window {
 	    this(nm, res, new String[0], new int[0]);
 	}
 	
-	public boolean afforded() {
+	public int afforded() {
+	    int ret = 0;
 	    for(int i = 0; i < costa.length; i++) {
-		if(attrs.get(costa[i]).hexp < costv[i])
-		    return(false);
+		if(attrs.get(costa[i]).attr.comp * 100 < costv[i])
+		    return(3);
+		if(attrs.get(costa[i]).sexp < costv[i])
+		    ret = Math.max(ret, 2);
+		else if(attrs.get(costa[i]).hexp < costv[i])
+		    ret = Math.max(ret, 1);
 	    }
-	    return(true);
+	    return(ret);
 	}
     }
     
@@ -201,8 +206,13 @@ public class CharWnd extends Window {
 		    g.frect(new Coord(0, i * 20), new Coord(sz.x, 20));
 		    g.chcolor();
 		}
-		if(!sk.afforded())
+		int astate = sk.afforded();
+		if(astate == 3)
 		    g.chcolor(255, 128, 128, 255);
+		else if(astate == 2)
+		    g.chcolor(255, 192, 128, 255);
+		else if(astate == 1)
+		    g.chcolor(255, 255, 128, 255);
 		try {
 		    g.image(sk.res.get().layer(Resource.imgc).tex(), new Coord(0, i * 20), new Coord(20, 20));
 		    g.atext(sk.res.get().layer(Resource.action).name, new Coord(25, i * 20 + 10), 0, 0.5);
@@ -287,6 +297,25 @@ public class CharWnd extends Window {
 	    else
 		g.chcolor(0, 0, 128, 255);
 	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
+	    if(ui.lasttip instanceof WItem.ItemTip) {
+		GItem item = ((WItem.ItemTip)ui.lasttip).item();
+		Inspiration insp = GItem.find(Inspiration.class, item.info());
+		if(insp != null) {
+		    for(int i = 0; i < insp.attrs.length; i++) {
+			if(insp.attrs[i].equals(nm)) {
+			    int w = ((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100);
+			    if(w > expsz.x - 2) {
+				w = expsz.x - 2;
+				g.chcolor(255, 255, 0, 255);
+			    } else {
+				g.chcolor(255, 192, 0, 255);
+			    }
+			    g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
+			    break;
+			}
+		    }
+		}
+	    }
 	    if(nsk.sel >= 0) {
 		Skill sk = nsk.skills[nsk.sel];
 		for(int i = 0; i < sk.costa.length; i++) {
