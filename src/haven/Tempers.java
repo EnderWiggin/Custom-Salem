@@ -33,6 +33,7 @@ public class Tempers extends Widget {
     public static final Tex cross = Resource.loadtex("gfx/hud/tempersc");
     public static final Coord mid = new Coord(93, 38);
     static final Color softc = new Color(255, 255, 255, 64);
+    static final Color foodc = new Color(255, 255, 0, 64);
     static final int l = 32;
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
@@ -54,7 +55,7 @@ public class Tempers extends Widget {
     private static int dispval(int val, int max) {
 	if(val == 0)
 	    return(0);
-	return(Math.max(1, (val * 35) / max));
+	return(Math.min(Math.max(1, (val * 35) / max), 35));
     }
 
     public void draw(GOut g) {
@@ -71,6 +72,17 @@ public class Tempers extends Widget {
 		tt = null;
 	}
 	lmax = max;
+	if(ui.lasttip instanceof WItem.ItemTip) {
+	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
+	    FoodInfo food = GItem.find(FoodInfo.class, item.info());
+	    if(food != null) {
+		g.chcolor(foodc);
+		g.poly(mid.add(0, -dispval(soft[0] + food.tempers[0], max[0])),
+		       mid.add(dispval(soft[1] + food.tempers[1], max[1]), 0),
+		       mid.add(0, dispval(soft[2] + food.tempers[2], max[2])),
+		       mid.add(-dispval(soft[3] + food.tempers[3], max[3]), 0));
+	    }
+	}
 	g.chcolor(softc);
 	g.poly(mid.add(0, -dispval(soft[0], max[0])),
 	       mid.add(dispval(soft[1], max[1]), 0),
