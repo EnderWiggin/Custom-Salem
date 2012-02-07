@@ -26,48 +26,29 @@
 
 package haven;
 
-import static haven.Resource.imgc;
-import javax.media.opengl.GL;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
-public class AvaRender extends TexRT {
-    List<Indir<Resource>> layers;
-    List<Resource.Image> images;
-    boolean loading;
-    public static final Coord sz = new Coord(212, 249);
+public class Inspiration extends GItem.Tip {
+    public final String[] attrs;
+    public final int[] exp;
+    public final int[] o;
     
-    public AvaRender(List<Indir<Resource>> layers) {
-	super(sz);
-	setlay(layers);
+    public Inspiration(GItem item, String[] attrs, int[] exp) {
+	item.super();
+	this.o = CharWnd.sortattrs(attrs);
+	this.attrs = attrs;
+	this.exp = exp;
     }
     
-    public void setlay(List<Indir<Resource>> layers) {
-        this.layers = layers;
-        loading = true;
-    }
-
-    public boolean subrend(GOut g) {
-	if(!loading)
-	    return(false);
-
-	List<Resource.Image> images = new ArrayList<Resource.Image>();
-	loading = false;
-	for(Indir<Resource> r : layers) {
-	    try {
-		images.addAll(r.get().layers(imgc));
-	    } catch(Loading e) {
-		loading = true;
-	    }
+    public BufferedImage longtip() {
+	StringBuilder buf = new StringBuilder();
+	for(int i = 0; i < attrs.length; i++) {
+	    if(i > 0)
+		buf.append('\n');
+	    buf.append(String.format("%s: %d", CharWnd.attrnm.get(attrs[o[i]]), exp[o[i]]));
 	}
-	Collections.sort(images);
-	if(images.equals(this.images))
-	    return(false);
-	this.images = images;
-
-	g.gl.glClearColor(255, 255, 255, 0);
-	g.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-	for(Resource.Image i : images)
-	    g.image(i.tex(), i.o);
-        return(true);
+	return(Text.std.renderwrap(buf.toString(), 0).img);
     }
 }

@@ -26,48 +26,33 @@
 
 package haven;
 
-import static haven.Resource.imgc;
-import javax.media.opengl.GL;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
-public class AvaRender extends TexRT {
-    List<Indir<Resource>> layers;
-    List<Resource.Image> images;
-    boolean loading;
-    public static final Coord sz = new Coord(212, 249);
-    
-    public AvaRender(List<Indir<Resource>> layers) {
-	super(sz);
-	setlay(layers);
-    }
-    
-    public void setlay(List<Indir<Resource>> layers) {
-        this.layers = layers;
-        loading = true;
-    }
-
-    public boolean subrend(GOut g) {
-	if(!loading)
-	    return(false);
-
-	List<Resource.Image> images = new ArrayList<Resource.Image>();
-	loading = false;
-	for(Indir<Resource> r : layers) {
-	    try {
-		images.addAll(r.get().layers(imgc));
-	    } catch(Loading e) {
-		loading = true;
-	    }
+public class GobbleInfo extends GItem.Tip {
+    private static final String[] colors;
+    static {
+	String[] c = new String[Alchemy.colors.length];
+	for(int i = 0; i < c.length; i++) {
+	    Color col = Alchemy.colors[i];
+	    c[i] = String.format("%d,%d,%d", col.getRed(), col.getGreen(), col.getBlue());
 	}
-	Collections.sort(images);
-	if(images.equals(this.images))
-	    return(false);
-	this.images = images;
-
-	g.gl.glClearColor(255, 255, 255, 0);
-	g.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-	for(Resource.Image i : images)
-	    g.image(i.tex(), i.o);
-        return(true);
+	colors = c;
+    };
+    public final int[][] evs;
+    
+    public GobbleInfo(GItem item, int[][] evs) {
+	item.super();
+	this.evs = evs;
+    }
+    
+    public BufferedImage longtip() {
+	StringBuilder buf = new StringBuilder();
+	buf.append("Events:\n");
+	for(int i = 0; i < 4; i++) {
+	    buf.append(String.format("  $col[%s]{%.1f, %.1f, %.1f, %.1f}\n", colors[i], evs[i][0] / 1000.0, evs[i][1] / 1000.0, evs[i][2] / 1000.0, evs[i][3] / 1000.0));
+	}
+	return(RichText.render(buf.toString(), 0).img);
     }
 }

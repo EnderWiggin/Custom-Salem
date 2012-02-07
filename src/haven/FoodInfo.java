@@ -26,48 +26,21 @@
 
 package haven;
 
-import static haven.Resource.imgc;
-import javax.media.opengl.GL;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
-public class AvaRender extends TexRT {
-    List<Indir<Resource>> layers;
-    List<Resource.Image> images;
-    boolean loading;
-    public static final Coord sz = new Coord(212, 249);
+public class FoodInfo extends GItem.Tip {
+    public final int[] tempers;
     
-    public AvaRender(List<Indir<Resource>> layers) {
-	super(sz);
-	setlay(layers);
+    public FoodInfo(GItem item, int[] tempers) {
+	item.super();
+	this.tempers = tempers;
     }
     
-    public void setlay(List<Indir<Resource>> layers) {
-        this.layers = layers;
-        loading = true;
-    }
-
-    public boolean subrend(GOut g) {
-	if(!loading)
-	    return(false);
-
-	List<Resource.Image> images = new ArrayList<Resource.Image>();
-	loading = false;
-	for(Indir<Resource> r : layers) {
-	    try {
-		images.addAll(r.get().layers(imgc));
-	    } catch(Loading e) {
-		loading = true;
-	    }
-	}
-	Collections.sort(images);
-	if(images.equals(this.images))
-	    return(false);
-	this.images = images;
-
-	g.gl.glClearColor(255, 255, 255, 0);
-	g.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-	for(Resource.Image i : images)
-	    g.image(i.tex(), i.o);
-        return(true);
+    public BufferedImage longtip() {
+	return(Text.std.renderf("Heals: %.1f, %.1f, %.1f, %.1f", 
+				tempers[0] / 1000.0, tempers[1] / 1000.0,
+				tempers[2] / 1000.0, tempers[3] / 1000.0).img);
     }
 }
