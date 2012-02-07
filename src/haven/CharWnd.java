@@ -334,9 +334,9 @@ public class CharWnd extends Window {
 			    int w = ((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100);
 			    if(w > expsz.x - 2) {
 				w = expsz.x - 2;
-				g.chcolor(255, 255, 0, 255);
+				g.chcolor(112, 200, 0, 255);
 			    } else {
-				g.chcolor(255, 192, 0, 255);
+				g.chcolor(200, 112, 0, 255);
 			    }
 			    g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
 			    break;

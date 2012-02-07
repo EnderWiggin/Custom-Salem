@@ -27,28 +27,32 @@
 package haven;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class Inspiration extends GItem.Tip {
     public final String[] attrs;
     public final int[] exp;
     public final int[] o;
+    private final GItem item;
     
     public Inspiration(GItem item, String[] attrs, int[] exp) {
 	item.super();
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;
+	this.item = item;
     }
     
     public BufferedImage longtip() {
-	StringBuilder buf = new StringBuilder();
-	for(int i = 0; i < attrs.length; i++) {
-	    if(i > 0)
-		buf.append('\n');
-	    buf.append(String.format("%s: %d", CharWnd.attrnm.get(attrs[o[i]]), exp[o[i]]));
+	StringBuilder sb = new StringBuilder();
+	Color[] cs = item.ui.gui.chrwdg.attrcols(attrs);
+	for (int i = 0; i < attrs.length; i++) {
+	    if (i > 0)
+		sb.append('\n');
+	    String attr = CharWnd.attrnm.get(attrs[o[i]]);
+	    Color c = cs[o[i]];
+	    sb.append(String.format("$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[o[i]] ));
 	}
-	return(Text.std.renderwrap(buf.toString(), 0).img);
+	return RichText.stdf.render(sb.toString(), 0).img;
     }
 }
