@@ -114,7 +114,7 @@ public class Tempers extends Widget {
 	    if(tt == null) {
 		StringBuilder buf = new StringBuilder();
 		for(int i = 0; i < 4; i++)
-		    buf.append(String.format("%s: %.1f/%.1f/%.1f\n", rnm[i], hard[i] / 1000.0, soft[i] / 1000.0, lmax[i] / 1000.0));
+		    buf.append(String.format("%s: %s/%s/%s\n", rnm[i], Utils.fpformat(hard[i], 3, 1), Utils.fpformat(soft[i], 3, 1), Utils.fpformat(lmax[i], 3, 1)));
 		tt = RichText.render(buf.toString(), 0).tex();
 	    }
 	    return(tt);

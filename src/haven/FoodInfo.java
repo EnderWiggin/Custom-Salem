@@ -39,8 +39,8 @@ public class FoodInfo extends GItem.Tip {
     }
     
     public BufferedImage longtip() {
-	return(Text.std.renderf("Heals: %.1f, %.1f, %.1f, %.1f", 
-				tempers[0] / 1000.0, tempers[1] / 1000.0,
-				tempers[2] / 1000.0, tempers[3] / 1000.0).img);
+	return(Text.std.renderf("Heals: %s, %s, %s, %s", 
+				Utils.fpformat(tempers[0], 3, 1), Utils.fpformat(tempers[1], 3, 1),
+				Utils.fpformat(tempers[2], 3, 1), Utils.fpformat(tempers[3], 3, 1)).img);
     }
 }
