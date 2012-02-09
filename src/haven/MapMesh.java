@@ -53,8 +53,9 @@ public class MapMesh implements Rendered {
 	    mesh.draw(g);
 	}
 
-	public Order setup(RenderList rl) {
-	    return(olorder);
+	public boolean setup(RenderList rl) {
+	    rl.prepo(olorder);
+	    return(true);
 	}
     }
 
@@ -226,9 +227,10 @@ public class MapMesh implements Rendered {
 	    mesh.draw(g);
 	}
 	
-	public Order setup(RenderList rl) {
+	public boolean setup(RenderList rl) {
 	    rl.prepo(st);
-	    return(mmorder);
+	    rl.prepo(mmorder);
+	    return(true);
 	}
     }
     
@@ -371,7 +373,7 @@ public class MapMesh implements Rendered {
     }
 
     private static States.DepthOffset gmoff = new States.DepthOffset(-1, -1);
-    public static class GroundMod implements FRendered {
+    public static class GroundMod implements Rendered {
 	private static final Order gmorder = new Order.Default(1001);
 	public final Material mat;
 	public final Coord cc;
@@ -415,17 +417,14 @@ public class MapMesh implements Rendered {
 	}
 
 	public void draw(GOut g) {
-	    mesh.draw(g);
 	}
-		
-	public void drawflat(GOut g) {
-	    mesh.drawflat(g);
-	}
-		
-	public Order setup(RenderList rl) {
-	    rl.prepo(mat);
-	    rl.prepo(gmoff);
-	    return(gmorder);
+
+	public boolean setup(RenderList rl) {
+	    rl.prepc(gmorder);
+	    rl.prepc(mat);
+	    rl.prepc(gmoff);
+	    rl.add(mesh, null);
+	    return(false);
 	}
     }
     
@@ -472,7 +471,7 @@ public class MapMesh implements Rendered {
 	    l.pl = null;
 	modbuf = null;
     }
-    
+
     public void draw(GOut g) {
     }
     
@@ -513,11 +512,11 @@ public class MapMesh implements Rendered {
 	GOut.checkerr(gl);
     }
     
-    public Order setup(RenderList rl) {
+    public boolean setup(RenderList rl) {
 	for(Layer l : layers)
 	    rl.add(l, null);
 	for(Rendered e : extras)
 	    rl.add(e, null);
-	return(deflt);
+	return(true);
     }
 }

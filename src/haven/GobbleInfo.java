@@ -51,7 +51,9 @@ public class GobbleInfo extends GItem.Tip {
 	StringBuilder buf = new StringBuilder();
 	buf.append("Events:\n");
 	for(int i = 0; i < 4; i++) {
-	    buf.append(String.format("  $col[%s]{%.1f, %.1f, %.1f, %.1f}\n", colors[i], evs[i][0] / 1000.0, evs[i][1] / 1000.0, evs[i][2] / 1000.0, evs[i][3] / 1000.0));
+	    buf.append(String.format("  $col[%s]{%s, %s, %s, %s}\n", colors[i], 
+				     Utils.fpformat(evs[i][0], 3, 1), Utils.fpformat(evs[i][1], 3, 1),
+				     Utils.fpformat(evs[i][2], 3, 1), Utils.fpformat(evs[i][3], 3, 1)));
 	}
 	return(RichText.render(buf.toString(), 0).img);
     }

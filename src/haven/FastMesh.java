@@ -148,9 +148,8 @@ public class FastMesh implements FRendered {
 	GOut.checkerr(gl);
     }
     
-    public final static Order wforder = new Order.Default(1);
-    public Order setup(RenderList r) {
-	return (isWireframe)?wforder:deflt;
+    public boolean setup(RenderList r) {
+	return(true);
     }
     
     public boolean boned() {
