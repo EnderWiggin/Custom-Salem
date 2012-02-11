@@ -31,7 +31,7 @@ import java.util.*;
 public class Inventory extends Widget implements DTarget {
     public static final Tex invsq = Resource.loadtex("gfx/hud/invsq");
     public static final Tex refl = Resource.loadtex("gfx/hud/invref");
-    public static final Coord sqsz = new Coord(31, 31);
+    public static final Coord sqsz = new Coord(33, 33);
     Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
 
@@ -45,10 +45,9 @@ public class Inventory extends Widget implements DTarget {
 
     public void draw(GOut g) {
 	Coord c = new Coord();
-	Coord sz = invsq.sz().add(new Coord(-1, -1));
 	for(c.y = 0; c.y < isz.y; c.y++) {
 	    for(c.x = 0; c.x < isz.x; c.x++) {
-		invsq(g, c.mul(sz));
+		invsq(g, c.mul(sqsz));
 	    }
 	}
 	super.draw(g);
