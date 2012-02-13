@@ -29,7 +29,7 @@ package haven;
 import java.util.*;
 
 public class RenderList {
-    final GLConfig cfg;
+    public final GLConfig cfg;
     private Slot[] list = new Slot[100];
     private int cur = 0;
     private Slot curp = null;
@@ -168,10 +168,11 @@ public class RenderList {
 	for(int i = 0; i < cur; i++) {
 	    if(!list[i].d)
 		continue;
-	    GLState[] sl = list[i].os.states();
+	    GLState.Buffer ctx = list[i].os;
+	    GLState[] sl = ctx.states();
 	    for(GLState st : sl) {
-		if(st instanceof GLState.Global) {
-		    GLState.Global gst = (GLState.Global)st;
+		if(st instanceof GLState.GlobalState) {
+		    GLState.Global gst = ((GLState.GlobalState)st).global(this, ctx);
 		    gstates.put(gst, gst);
 		}
 	    }

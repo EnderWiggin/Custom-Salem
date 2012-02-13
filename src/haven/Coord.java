@@ -175,6 +175,10 @@ public class Coord implements Comparable<Coord>, java.io.Serializable {
 	return Math.abs(x - c.x) + Math.abs(y - c.y);
     }
     
+    public int manhattan2(Coord c){
+	return Math.max(Math.abs(x - c.x) , Math.abs(y - c.y));
+    }
+    
     public Coord clip(Coord ul, Coord sz) {
 	Coord ret = this;
 	if(ret.x < ul.x)

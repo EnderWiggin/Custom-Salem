@@ -28,8 +28,7 @@ package haven;
 
 import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
-
-import haven.MCache.Grid;
+import haven.Defer.Future;
 import haven.MCache.LoadingMap;
 import haven.Resource.Loading;
 import haven.minimap.Marker;
@@ -43,7 +42,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -53,11 +52,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
-    Tex mapimg = null;
-    Coord ultile = null, cgrid = null;
+    private Coord cgrid = null;
     private final BufferedImage[] texes = new BufferedImage[256];
     private Coord off = new Coord();
-    private Map<String, TexI> cache = new HashMap<String, TexI>();
     boolean rsm = false;
     boolean dm = false;
     private static Coord gzsz = new Coord(15,15);
@@ -69,6 +66,33 @@ public class LocalMiniMap extends Window implements Console.Directory{
     private final Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
     private boolean radarenabled = true;
     
+    private final Map<Coord, Future<MapTile>> cache = new LinkedHashMap<Coord, Defer.Future<MapTile>>(9, 0.75f, true) {
+	private static final long serialVersionUID = 1L;
+
+	protected boolean removeEldestEntry(Map.Entry<Coord, Defer.Future<MapTile>> eldest) {
+	    if(size() > 75) {
+		try {
+		    MapTile t = eldest.getValue().get();
+		    t.img.dispose();
+		} catch(RuntimeException e) {
+		}
+		return(true);
+	    }
+	    return(false);
+	}
+    };
+    
+    public static class MapTile {
+	public final Tex img;
+	public final Coord ul, c;
+	
+	public MapTile(Tex img, Coord ul, Coord c) {
+	    this.img = img;
+	    this.ul = ul;
+	    this.c = c;
+	}
+    }
+
     private BufferedImage tileimg(int t) {
 	BufferedImage img = texes[t];
 	if(img == null) {
@@ -155,8 +179,8 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	Gob pl = ui.sess.glob.oc.getgob(mv.plgob);
 	if(pl == null)
 	    return;
-	Coord plt = pl.rc.div(tilesz);
-	Coord plg = plt.div(cmaps);
+	final Coord plt = pl.rc.div(tilesz);
+	final Coord plg = plt.div(cmaps);
 	checkSession(plg);
 	
 	double scale = getScale();
@@ -182,25 +206,31 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	g.gl.glPushMatrix();
 	g.gl.glScaled(scale, scale, scale);
 	
-	MCache m = this.ui.sess.glob.map;
 	Coord cg = new Coord();
-	
-	for(cg.y = ulg.y; (cg.y * cmaps.y) + dy < hsz.y; cg.y++) {
-	    for(cg.x = ulg.x; (cg.x * cmaps.x) + dx < hsz.x; cg.x++) {
-		TexI img = cache.get(cg.toString());
-		if(img == null){
-		    Grid gr = m.grids.get(cg);
-		    if(gr != null){
-			img = new TexI(drawmap(gr.ul, cmaps));
-			cache.put(cg.toString(), img);
-			store(img.back, cg);
+	synchronized(cache) {
+	    for(cg.y = ulg.y; (cg.y * cmaps.y) + dy < hsz.y; cg.y++) {
+		for(cg.x = ulg.x; (cg.x * cmaps.x) + dx < hsz.x; cg.x++) {
 
-
+		    Defer.Future<MapTile> f = cache.get(cg);
+		    final Coord tcg = new Coord(cg);
+		    final Coord ul = cg.mul(cmaps);
+		    if((f == null) && (cg.manhattan2(plg) <= 1)) {
+			f = Defer.later(new Defer.Callable<MapTile> () {
+			    public MapTile call() {
+				BufferedImage img = drawmap(ul, cmaps);
+				store(img, tcg);
+				return(new MapTile(new TexI(img), ul, tcg));
+			    }
+			});
+			cache.put(tcg, f);
 		    }
+		    if((f == null) || (!f.done())) {
+			continue; 
+		    }
+
+		    Tex img = f.get().img;
+		    g.image(img, ul.add(tc.inv()).add(hsz.div(2)));
 		}
-		if(img == null){continue;}
-		
-		g.image(img, cg.mul(cmaps).add(tc.inv()).add(hsz.div(2)));
 	    }
 	}
 	Coord c0 = hsz.div(2).sub(tc);
@@ -221,7 +251,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	
 	g.gl.glPopMatrix();
 	Window.swbox.draw(og, Coord.z, this.sz);
-
     }
     
     private void store(BufferedImage img, Coord cg) {

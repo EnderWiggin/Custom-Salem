@@ -32,7 +32,13 @@ public class FBView {
     public final GLFrameBuffer fbo;
     public RenderList rls;
     public GLState basicstate;
-    private final PView.RenderState rstate = new PView.RenderState();
+    private final PView.RenderState rstate = new RenderState();
+    
+    private class RenderState extends PView.RenderState {
+	public Coord sz() {
+	    return(fbo.sz());
+	}
+    }
     
     public FBView(GLFrameBuffer fbo, GLState basic) {
 	this.fbo = fbo;
@@ -58,6 +64,7 @@ public class FBView {
 	    rls.fin();
 	    g.st.set(def);
 	    g.apply();
+	    g.gl.glClearColor(0, 0, 0, 0);
 	    g.gl.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT);
 	    rls.render(g);
 	} finally {
