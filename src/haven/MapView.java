@@ -341,6 +341,7 @@ public class MapView extends PView implements DTarget {
     public static final int FLAT = 18;
     public static final int LOWEST = 19;
     public static final int WFOL = FLAT;
+    public static final Tex mat22 = Resource.loadtex("tex/flat");
     private final Rendered mapol = new Rendered() {
 	    private final GLState[] mats;
 	    {
@@ -351,7 +352,8 @@ public class MapView extends PView implements DTarget {
 		mats[3] = new Material(new Color(128, 0, 255, 32));
 		mats[16] = new Material(new Color(0, 255, 0, 32));
 		mats[17] = new Material(new Color(255, 0, 255, 32));
-		mats[FLAT] = new Material(new Color(0, 255, 0, 255));
+//		mats[FLAT] = new Material(new Color(0, 255, 0, 255));
+		mats[FLAT] = new Material(mat22);
 		mats[LOWEST] = new Material(new Color(255, 0, 255, 96));
 	    }
 	    
