@@ -1264,7 +1264,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	return(indir);
     }
 	
-    private void checkerr() {
+    public void checkerr() {
 	if(error != null)
 	    throw(new RuntimeException("Delayed error in resource " + name + " (v" + ver + "), from " + source, error));
     }
