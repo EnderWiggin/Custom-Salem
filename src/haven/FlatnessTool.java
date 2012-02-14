@@ -1,14 +1,13 @@
 package haven;
 
 import java.awt.event.KeyEvent;
-import java.util.*;
 
 class FlatnessTool extends Window implements MapView.Grabber {
     static final String title = "Area selection";
     static final String defaulttext = "Select area";
     
-    static public float minheight = 0;
-    static public float maxheight = 1;
+    static public float minheight = Float.MAX_VALUE;
+    static public float maxheight = -minheight;
     
     private final Label text;
     private final MapView mv;
@@ -16,7 +15,6 @@ class FlatnessTool extends Window implements MapView.Grabber {
     Coord sc;
     Coord c1, c2;
     MCache.Overlay ol;
-    final List<MCache.Overlay> lowestol = new ArrayList<MCache.Overlay>();
     final MCache map;
     private Button btnToggle;
     private boolean grabbed = false;
@@ -53,11 +51,9 @@ class FlatnessTool extends Window implements MapView.Grabber {
     }
     
     private void checkflatness(Coord c1, Coord c2) {
-        if (c1.equals(this.c1) && c2.equals(this.c2))
-            return;
-        c2 = c2.add(1,1);
         this.c1 = c1;
         this.c2 = c2;
+        c2 = c2.add(1,1);
         
         minheight = Float.MAX_VALUE;
         maxheight = -minheight;
@@ -103,8 +99,6 @@ class FlatnessTool extends Window implements MapView.Grabber {
     public void destroy() {
         if (this.ol != null)
             this.ol.destroy();
-        for (MCache.Overlay ol : lowestol)
-            ol.destroy();
         this.mv.disol(MapView.WFOL);
         this.mv.release(this);
         instance = null;
@@ -188,5 +182,12 @@ class FlatnessTool extends Window implements MapView.Grabber {
 
     private final void settext(String text) {
         this.text.settext(text);
+    }
+
+    public static void recalcheight() {
+	if(instance != null){
+	    instance.checkflatness(instance.c1, instance.c2);
+	    instance.ol.update();
+	}
     }
 }

@@ -79,6 +79,10 @@ public class MCache {
 		this.c2 = c2;
 	    }
 	}
+	
+	public void update() {
+	    olseq++;
+	}
     }
 
     public class Grid {
