@@ -45,8 +45,7 @@ public class MapMesh implements Rendered {
 	FastMesh mesh;
 
 	private OLMesh(int k, MeshBuf buf) {
-	    mesh = buf.mkmesh();
-	    mesh.isWireframe = (k == MapView.WFOL);
+	    mesh = buf.mkmesh(k == MapView.WFOL);
 	}
 
 	public void draw(GOut g) {

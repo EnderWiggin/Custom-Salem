@@ -6,6 +6,10 @@ import java.util.*;
 class FlatnessTool extends Window implements MapView.Grabber {
     static final String title = "Area selection";
     static final String defaulttext = "Select area";
+    
+    static public float minheight = 0;
+    static public float maxheight = 1;
+    
     private final Label text;
     private final MapView mv;
     boolean dm = false;
@@ -24,7 +28,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
         this.map = this.ui.sess.glob.map;
         this.text = new Label(Coord.z, this, defaulttext);
         this.mv = mv;
-        this.mv.enol(MapView.LOWEST, MapView.FLAT);
+        this.mv.enol(MapView.WFOL);
         btnToggle = new Button(new Coord(0, 20), 75, this, "");
         //toggle();
         this.pack();
@@ -51,42 +55,40 @@ class FlatnessTool extends Window implements MapView.Grabber {
     private void checkflatness(Coord c1, Coord c2) {
         if (c1.equals(this.c1) && c2.equals(this.c2))
             return;
-
+        c2 = c2.add(1,1);
         this.c1 = c1;
         this.c2 = c2;
-        Area a = new Area(c1.y, c1.x, c2.y, c2.x);
         
-        Coord[] tiles = a.coords();
-        float[] heights = new float[tiles.length];
-        
+        minheight = Float.MAX_VALUE;
+        maxheight = -minheight;
+        float h = 0;
         boolean flat = true;
-        float minheight = 0;
         float prevheight = Float.NaN;
-        
-        for (int i = 0; i < tiles.length; i++) {
-            // find z-level value in the center of the tile
-            heights[i] = map.getcz(tilify(tiles[i].mul(MCache.tilesz)));
-            if (i == 0) {
-                prevheight = heights[i];
-                minheight = heights[i];
-                flat = Math.abs(heights[i] - map.getz(tiles[i])) < 0.0001;
-            } else if (Math.abs(heights[i] - prevheight) > 0.0001) {
-                flat = false;
-            }
-            if (i != 0 && heights[i] < minheight) {
-                minheight = heights[i];
+        Coord c = new Coord();
+        flat = true;
+        for (c.x = c1.x; c.x <= c2.x; c.x++) {
+            for (c.y = c1.y; c.y <= c2.y; c.y++) {
+        	h = map.getcz(c.mul(MCache.tilesz));
+        	if (Math.abs(h - prevheight) > 0.0001) {
+        	    flat = false;
+        	}
+        	prevheight = h;
+        	if (h < minheight) {
+        	    minheight = h;
+        	}
+        	if (h > maxheight) {
+        	    maxheight = h;
+        	}
             }
         }
 
         String text = "";
-        clearlowestol();
         if (flat)
             text += "Area is flat.";
         else {
-            makelowestol(tiles, heights, minheight);
             text += "Area isn't flat.";
         }
-        text += " Lowest height: [" + minheight + "].";
+        text += String.format(" Lowest: [%.2f], Highest: [%.2f].", minheight, maxheight);
 
         settext(text);
 
@@ -97,28 +99,13 @@ class FlatnessTool extends Window implements MapView.Grabber {
         this.cbtn.click();
     }
 
-    private void clearlowestol() {
-        for (MCache.Overlay ol : lowestol)
-            ol.destroy();
-        lowestol.clear();
-    }
-
-    private void makelowestol(Coord[] tiles, float[] heights, float height) {
-        for (int i = 0; i < tiles.length; i++) {
-            if (Math.abs(heights[i] - height) < 0.0001) {
-                MCache.Overlay ol = map.new Overlay(tiles[i], tiles[i], 1<<MapView.LOWEST);
-                lowestol.add(ol);
-            }
-        }
-    }
-
     @Override
     public void destroy() {
         if (this.ol != null)
             this.ol.destroy();
         for (MCache.Overlay ol : lowestol)
             ol.destroy();
-        this.mv.disol(MapView.FLAT, MapView.LOWEST);
+        this.mv.disol(MapView.WFOL);
         this.mv.release(this);
         instance = null;
         super.destroy();
@@ -129,7 +116,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
         Coord c = mc.div(MCache.tilesz);
         if (this.ol != null)
             this.ol.destroy();
-        this.ol = map.new Overlay(c, c, 1<<MapView.FLAT);
+        this.ol = map.new Overlay(c, c, 1<<MapView.WFOL);
         this.sc = c;
         this.dm = true;
         this.ui.grabmouse(this.mv);
@@ -151,24 +138,24 @@ class FlatnessTool extends Window implements MapView.Grabber {
         if (!this.dm)
             return;
         Coord c = mc.div(MCache.tilesz);
-        Coord localCoord2 = new Coord(0, 0);
-        Coord localCoord3 = new Coord(0, 0);
+        Coord c1 = new Coord(0, 0);
+        Coord c2 = new Coord(0, 0);
         if (c.x < this.sc.x) {
-            localCoord2.x = c.x;
-            localCoord3.x = this.sc.x;
+            c1.x = c.x;
+            c2.x = this.sc.x;
         } else {
-            localCoord2.x = this.sc.x;
-            localCoord3.x = c.x;
+            c1.x = this.sc.x;
+            c2.x = c.x;
         }
         if (c.y < this.sc.y) {
-            localCoord2.y = c.y;
-            localCoord3.y = this.sc.y;
+            c1.y = c.y;
+            c2.y = this.sc.y;
         } else {
-            localCoord2.y = this.sc.y;
-            localCoord3.y = c.y;
+            c1.y = this.sc.y;
+            c2.y = c.y;
         }
-        this.ol.update(localCoord2, localCoord3);
-        checkflatness(localCoord2, localCoord3);
+        this.ol.update(c1, c2);
+        checkflatness(c1, c2);
     }
     
     @Override
@@ -178,13 +165,6 @@ class FlatnessTool extends Window implements MapView.Grabber {
             this.ol = null;
             this.c1 = (this.c2 = null);
         }
-    }
-
-    private static Coord tilify(Coord c) {
-        c = c.div(MCache.tilesz);
-        c = c.mul(MCache.tilesz);
-        c = c.add(MCache.tilesz.div(2));
-        return c;
     }
 
     public boolean type(char key, java.awt.event.KeyEvent ev) {

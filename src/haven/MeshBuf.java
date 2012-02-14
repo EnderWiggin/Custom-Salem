@@ -138,8 +138,12 @@ public class MeshBuf {
     public void clearfaces() {
 	this.f.clear();
     }
-
+    
     public FastMesh mkmesh() {
+	return mkmesh(false);
+    }
+    
+    public FastMesh mkmesh(boolean isWireframe) {
 	if(f.isEmpty())
 	    throw(new RuntimeException("Tried to build empty mesh"));
 	if(this.vbuf == null)
@@ -152,7 +156,7 @@ public class MeshBuf {
 	    idx[ii + 2] = f.v3.idx;
 	    ii += 3;
 	}
-	return(new FastMesh(this.vbuf, idx));
+	return isWireframe?(new WireMesh(this.vbuf, idx)):(new FastMesh(this.vbuf, idx));
     }
     
     public boolean emptyp() {
