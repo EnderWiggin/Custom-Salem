@@ -29,10 +29,12 @@ package haven;
 import java.awt.Color;
 
 public class VMeter extends Widget {
+    private static final Coord C2 = new Coord(1, 0);
     static Tex bg = Resource.loadtex("gfx/hud/vm-frame");
     static Tex fg = Resource.loadtex("gfx/hud/vm-tex");
     Color cl;
     int amount;
+    private Tex amt = null;
 	
     static {
 	Widget.addtype("vm", new WidgetFactory() {
@@ -56,22 +58,32 @@ public class VMeter extends Widget {
     }
 	
     public VMeter(Coord c, Widget parent, int amount, Color cl) {
-	super(c, bg.sz(), parent);
+	super(c, bg.sz().add(2, 12), parent);
 	this.amount = amount;
 	this.cl = cl;
     }
-	
+    
+    private Tex amt(){
+	if(amt == null){
+	    amt = Text.render(String.format("%d", amount)).tex();
+	}
+	return amt;
+    }
+    
     public void draw(GOut g) {
-	g.image(bg, Coord.z);
+	g.image(bg, C2);
 	g.chcolor(cl);
-	int h = (sz.y - 6);
+	int h = (sz.y - 18);
 	h = (h * amount) / 100;
-	g.image(fg, new Coord(0, 0), new Coord(0, sz.y - 3 - h), sz.add(0, h));
+	g.image(fg, C2, new Coord(0, sz.y - 15 - h), sz.add(0, h));
+	g.chcolor();
+	g.aimage(amt(), new Coord(sz.x/2, sz.y), 0.5, 1);
     }
 	
     public void uimsg(String msg, Object... args) {
 	if(msg == "set") {
 	    amount = (Integer)args[0];
+	    amt = null;
 	} else {
 	    super.uimsg(msg, args);
 	}
