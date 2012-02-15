@@ -51,6 +51,9 @@ class FlatnessTool extends Window implements MapView.Grabber {
     }
     
     private void checkflatness(Coord c1, Coord c2) {
+	if(c1 == null || c2 == null){
+	    return;
+	}
         this.c1 = c1;
         this.c2 = c2;
         c2 = c2.add(1,1);
@@ -58,17 +61,10 @@ class FlatnessTool extends Window implements MapView.Grabber {
         minheight = Float.MAX_VALUE;
         maxheight = -minheight;
         float h = 0;
-        boolean flat = true;
-        float prevheight = Float.NaN;
         Coord c = new Coord();
-        flat = true;
         for (c.x = c1.x; c.x <= c2.x; c.x++) {
             for (c.y = c1.y; c.y <= c2.y; c.y++) {
         	h = map.getcz(c.mul(MCache.tilesz));
-        	if (Math.abs(h - prevheight) > 0.0001) {
-        	    flat = false;
-        	}
-        	prevheight = h;
         	if (h < minheight) {
         	    minheight = h;
         	}
@@ -79,7 +75,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
         }
 
         String text = "";
-        if (flat)
+        if (minheight == maxheight)
             text += "Area is flat.";
         else {
             text += "Area isn't flat.";
@@ -187,7 +183,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
     public static void recalcheight() {
 	if(instance != null){
 	    instance.checkflatness(instance.c1, instance.c2);
-	    instance.ol.update();
+	    //instance.ol.update();
 	}
     }
 }

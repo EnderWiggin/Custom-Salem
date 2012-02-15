@@ -16,7 +16,6 @@ public class WireMesh extends FastMesh {
     public void sdraw(GL gl) {
 	gl.glLineWidth(5);
 	gl.glBegin(GL.GL_LINES);
-	FlatnessTool.recalcheight();
 	int o0 = 0;
 	for(int i = 0; i < num * 3; i++) {
 	    int idx = indb.get(i);

@@ -173,6 +173,7 @@ public class MCache {
 		for(int i = 0; i < cutn.x * cutn.y; i++)
 		    olcuts[i] = null;
 		this.olseq = MCache.this.olseq;
+		FlatnessTool.recalcheight();
 	    }
 	    int i = cc.x + (cc.y * cutn.x);
 	    if(olcuts[i] == null)
