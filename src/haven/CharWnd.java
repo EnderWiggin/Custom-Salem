@@ -35,8 +35,19 @@ public class CharWnd extends Window {
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
     private final SkillInfo ski;
+    
     public static final Color GREEN = new Color(0xaaeeaa);
     public static final Color GRAY = new Color(0xbda3a3);
+    
+    public static final Color REQ_ENOUGH = new Color(0x991616);
+    public static final Color REQ_NOT_ENOUGH = new Color(0xFF3A3A);
+    public static final Color FILL = new Color(0x006AA3);
+    public static final Color FILL_ENOUGH = new Color(0x4EA320);
+    public static final Color FILL_FULL = new Color(0x4DD300);
+    public static final Color FILL_GHOST = new Color(0x6E91A3);
+    public static final Color GAIN_FULL = new Color(0x6BA050);
+    public static final Color GAIN_ENOUGH = new Color(0xA09740);
+    public static final Color GAIN_SMALL = new Color(0xA36751);
     
     static {
 	Widget.addtype("chr", new WidgetFactory() {
@@ -318,25 +329,19 @@ public class CharWnd extends Window {
 	    g.image(rv.tex(), vc);
 	    g.chcolor(0, 0, 0, 255);
 	    g.frect(expc, expsz);
-	    g.chcolor(64, 64, 64, 255);
-	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * sexp) / (attr.comp * 100), expsz.y - 2));
-	    if(av)
-		g.chcolor(0, (a == 1)?255:128, 0, 255);
-	    else
-		g.chcolor(0, 0, 128, 255);
-	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
+	    
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		GItem item = ((WItem.ItemTip)ui.lasttip).item();
 		Inspiration insp = GItem.find(Inspiration.class, item.info());
 		if(insp != null) {
 		    for(int i = 0; i < insp.attrs.length; i++) {
 			if(insp.attrs[i].equals(nm)) {
-			    int w = ((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100);
-			    if(w > expsz.x - 2) {
+			    int w = ((expsz.x - 2) * (insp.exp[i]+sexp)) / (attr.comp * 100);
+			    if(w >= expsz.x - 2) {
 				w = expsz.x - 2;
-				g.chcolor(112, 200, 0, 255);
+				g.chcolor(GAIN_FULL);
 			    } else {
-				g.chcolor(200, 112, 0, 255);
+				g.chcolor(GAIN_SMALL);
 			    }
 			    g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
 			    break;
@@ -344,6 +349,14 @@ public class CharWnd extends Window {
 		    }
 		}
 	    }
+	    
+	    g.chcolor(FILL_GHOST);
+	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * sexp) / (attr.comp * 100), expsz.y - 2));
+	    if(av)
+		g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
+	    else 
+		g.chcolor(FILL);
+	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
 	    if(nsk.sel >= 0) {
 		Skill sk = nsk.skills[nsk.sel];
 		for(int i = 0; i < sk.costa.length; i++) {
@@ -351,9 +364,9 @@ public class CharWnd extends Window {
 			int w = ((expsz.x - 2) * sk.costv[i]) / (attr.comp * 100);
 			if(w > expsz.x - 2) {
 			    w = expsz.x - 2;
-			    g.chcolor(255, 0, 0, 255);
+			    g.chcolor(REQ_NOT_ENOUGH);
 			} else {
-			    g.chcolor(128, 0, 0, 255);
+			    g.chcolor(REQ_ENOUGH);
 			}
 			g.frect(expc.add(1, expsz.y / 2), new Coord(w, (expsz.y / 2)));
 			break;
