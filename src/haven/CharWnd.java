@@ -30,11 +30,15 @@ import java.awt.Color;
 import java.util.*;
 
 public class CharWnd extends Window {
+    private static final Coord SZ_FULL = new Coord(600, 340);
+    private static final Coord SZ_SHORT = new Coord(220, 340);
     public static final Map<String, String> attrnm;
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
     private final SkillInfo ski;
+    private final Widget container;
+    private final Button btntoggle;
     
     public static final Color GREEN = new Color(0xaaeeaa);
     public static final Color GRAY = new Color(0xbda3a3);
@@ -409,40 +413,52 @@ public class CharWnd extends Window {
     }
 
     public CharWnd(Coord c, Widget parent) {
-	super(c, new Coord(600, 340), parent, "Character");
+	super(c, SZ_FULL, parent, "Character");
 	new Label(new Coord(0, 0), this, "Skill Values:");
 	int y = 30;
 	for(String nm : attrorder) {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
 	    y += 20;
 	}
-	new Label(new Coord(230, 0), this, "Skills:");
-	new Label(new Coord(230, 30), this, "Current:");
-	this.csk = new SkillList(new Coord(230, 45), new Coord(170, 120), this) {
+	btntoggle = new Button(new Coord(180, 0), 30, this, "<<"){
+	    public void click() {
+		toggle();
+	    }
+	};
+	container = new Widget(Coord.z, sz, this);
+	new Label(new Coord(230, 0), container, "Skills:");
+	new Label(new Coord(230, 30), container, "Current:");
+	this.csk = new SkillList(new Coord(230, 45), new Coord(170, 120), container) {
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			nsk.unsel();
 		    ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(230, 170), this, "Available:");
-	this.nsk = new SkillList(new Coord(230, 185), new Coord(170, 120), this) {
+	new Label(new Coord(230, 170), container, "Available:");
+	this.nsk = new SkillList(new Coord(230, 185), new Coord(170, 120), container) {
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			csk.unsel();
 		    ski.setsk(sk);
 		}
 	    };
-	new Button(new Coord(230, 310), 50, this, "Buy") {
+	new Button(new Coord(230, 310), 50, container, "Buy") {
 	    public void click() {
 		if(nsk.sel >= 0) {
 		    CharWnd.this.wdgmsg("buy", nsk.skills[nsk.sel].nm);
 		}
 	    }
 	};
-	this.ski = new SkillInfo(new Coord(410, 30), new Coord(190, 275), this);
+	this.ski = new SkillInfo(new Coord(410, 30), new Coord(190, 275), container);
     }
     
+    protected void toggle() {
+	container.visible = !container.visible;
+	resize(container.visible?SZ_FULL:SZ_SHORT);
+	btntoggle.change(container.visible?"<<":">>");
+    }
+
     public void uimsg(String msg, Object... args) {
 	if(msg == "exp") {
 	    for(int i = 0; i < args.length; i += 4) {
