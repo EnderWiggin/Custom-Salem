@@ -311,4 +311,9 @@ public class UI {
 	       (modmeta?4:0) |
 	       (modsuper?8:0));
     }
+
+    public void message(String str) {
+	cons.out.println(str);
+	gui.error(str);
+    }
 }

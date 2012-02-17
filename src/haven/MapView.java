@@ -979,8 +979,7 @@ public class MapView extends PView implements DTarget {
 	    camera = new FreeCam();
 	    str += "FreeCam";
 	}
-	ui.cons.out.println(str);
-	ui.gui.error(str);
+	ui.message(str);
     }
     
     public boolean globtype(char c, java.awt.event.KeyEvent ev) {
