@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.Resource.AButton;
+
 import java.util.*;
 
 public class Glob {
@@ -204,6 +206,9 @@ public class Glob {
 		    int ver = msg.uint16();
 		    Pagina pag = paginafor(Resource.load(nm, ver));
 		    paginae.add(pag);
+		    Resource.AButton abtn = pag.act();
+		    if(abtn != null)
+			UI.instance.message("You get access to " + abtn.name);
 		    pag.state(Pagina.State.ENABLED);
 		    pag.meter = 0;
 		    int t;

@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
 
 public class UI {
+    public static UI instance;
     public GameUI gui;
     public RootWidget root;
     private Widget keygrab, mousegrab;
@@ -105,6 +106,7 @@ public class UI {
     }
 	
     public UI(Coord sz, Session sess) {
+	UI.instance = this;
 	root = new RootWidget(this, sz);
 	widgets.put(0, root);
 	rwidgets.put(root, 0);
@@ -313,7 +315,9 @@ public class UI {
     }
 
     public void message(String str) {
-	cons.out.println(str);
-	gui.error(str);
+	if((cons!=null) && (gui!=null)){
+	    cons.out.println(str);
+	    gui.error(str);
+	}
     }
 }
