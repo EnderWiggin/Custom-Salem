@@ -28,12 +28,13 @@ package haven;
 
 import java.util.*;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 
 public class ChatUI extends Widget {
-    public static final RichText.Foundry fnd = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 9, TextAttribute.FOREGROUND, Color.BLACK);
-    public static final Text.Foundry qfnd = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12), new java.awt.Color(192, 255, 192));
+    public static final RichText.Foundry fnd = new RichText.Foundry(new Font("SansSerif", Font.PLAIN, 12), Color.BLACK);
+    public static final Text.Foundry qfnd = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 14), new Color(192, 255, 192));
     public static final int selw = 100;
     public Channel sel = null;
     private final Selector chansel;
@@ -51,6 +52,15 @@ public class ChatUI extends Widget {
 	setcanfocus(false);
     }
     
+    private static Color lighter(Color col){
+	int hsl[] = new int[3];
+	Utils.rgb2hsl(col.getRed(), col.getGreen(), col.getBlue(), hsl);
+	hsl[1] = Math.round(0.75f*hsl[1]);
+	hsl[2] = 100;
+	int rgb[] = Utils.hsl2rgb(hsl);
+	return new Color(rgb[0], rgb[1], rgb[2]);
+    }
+
     public static abstract class Channel extends Widget {
 	public final List<Message> msgs = new LinkedList<Message>();
 	private final Scrollbar sb;
@@ -116,7 +126,7 @@ public class ChatUI extends Widget {
 	}
 	
 	public void draw(GOut g) {
-	    g.chcolor(0, 0, 0, 255);
+	    g.chcolor(24, 24, 16, 255);
 	    g.frect(Coord.z, sz);
 	    g.chcolor();
 	    int y = 0;
@@ -276,7 +286,7 @@ public class ChatUI extends Widget {
 	public PartyChat(Widget parent) {
 	    super(parent, "Party", true);
 	}
-
+	
 	public void uimsg(String msg, Object... args) {
 	    if(msg == "msg") {
 		int from = (Integer)args[0];
@@ -286,7 +296,7 @@ public class ChatUI extends Widget {
 		synchronized(ui.sess.glob.party.memb) {
 		    Party.Member pm = ui.sess.glob.party.memb.get((long)gobid);
 		    if(pm != null)
-			col = pm.col;
+			col = lighter(pm.col);
 		}
 		if(from >= 0) {
 		    Message cmsg = new NamedMessage(from, line, col, iw());
