@@ -49,6 +49,7 @@ import java.util.TreeMap;
 import javax.imageio.ImageIO;
 
 public class LocalMiniMap extends Window implements Console.Directory{
+    private static final SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
@@ -266,7 +267,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	if(cgrid == null || plg.manhattan(cgrid) > 5){
 	    sp = plg;
 	    cache.clear();
-	    session = (new SimpleDateFormat("yyyy-MM-dd HH.mm.ss")).format(new Date(System.currentTimeMillis()));
+	    session = datef.format(new Date(System.currentTimeMillis()));
 	    (new File("map/" + session)).mkdirs();
 	    try {
 		Writer currentSessionFile = new FileWriter("map/currentsession.js");
