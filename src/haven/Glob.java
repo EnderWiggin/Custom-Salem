@@ -26,9 +26,13 @@
 
 package haven;
 
-import haven.Resource.AButton;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.WeakHashMap;
 
 public class Glob {
     public static final int GMSG_TIME = 0;
@@ -206,9 +210,6 @@ public class Glob {
 		    int ver = msg.uint16();
 		    Pagina pag = paginafor(Resource.load(nm, ver));
 		    paginae.add(pag);
-		    Resource.AButton abtn = pag.act();
-		    if(abtn != null)
-			UI.instance.message("You get access to " + abtn.name);
 		    pag.state(Pagina.State.ENABLED);
 		    pag.meter = 0;
 		    int t;
