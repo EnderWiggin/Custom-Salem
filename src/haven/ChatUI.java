@@ -304,13 +304,13 @@ public class ChatUI extends Widget {
 	
 	public class InMessage extends SimpleMessage {
 	    public InMessage(String text, int w) {
-		super(text, new Color(192, 0, 0, 255), w);
+		super(text, BuddyWnd.gc[2], w);
 	    }
 	}
 
 	public class OutMessage extends SimpleMessage {
 	    public OutMessage(String text, int w) {
-		super(text, new Color(0, 0, 192, 255), w);
+		super(text, BuddyWnd.gc[3], w);
 	    }
 	}
 
