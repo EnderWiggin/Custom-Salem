@@ -396,7 +396,8 @@ public abstract class GLState {
 		GLProgram np;
 		boolean shreq = false;
 		for(int i = 0; i < trans.length; i++) {
-		    if((shaders[i] != null) && next.states[i].reqshaders()) {
+		    GLState nst = next.states[i];
+		    if((shaders[i] != null) && (nst != null) && nst.reqshaders()) {
 			shreq = true;
 			break;
 		    }
