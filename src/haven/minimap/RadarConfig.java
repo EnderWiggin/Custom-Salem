@@ -75,9 +75,7 @@ public class RadarConfig {
         marker.show = el.hasAttribute("show")
                 ? el.getAttribute("show").equals("true")
                 : group.show;
-        marker.tooltip = el.hasAttribute("tooltip")
-                ? el.getAttribute("tooltip").equals("true")
-                : false;
+        marker.tooltip = el.hasAttribute("tooltip") && el.getAttribute("tooltip").equals("true");
 
         if (el.hasAttribute("match")) {
             marker.match = el.getAttribute("match");

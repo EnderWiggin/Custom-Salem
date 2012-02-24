@@ -8,7 +8,6 @@ public class Marker {
     public final String name;
     public final Gob gob;
     public final MarkerTemplate template;
-    private final int radius = 4;
     private final Tex tex = Utils.generateMarkerTex();
 
     public Marker(String name, Gob gob, MarkerTemplate template) {
@@ -22,7 +21,8 @@ public class Marker {
         if (ptc3f == null)
             return false;
         Coord p = new Coord((int)ptc3f.x, (int)ptc3f.y);
-        return (c.x - p.x) * (c.x - p.x) + (c.y - p.y) * (c.y - p.y) < radius * radius * MCache.tilesz.x * MCache.tilesz.y;
+	int radius = 4;
+	return (c.x - p.x) * (c.x - p.x) + (c.y - p.y) * (c.y - p.y) < radius * radius * MCache.tilesz.x * MCache.tilesz.y;
     }
 
     public void draw(GOut g, Coord c) {

@@ -28,8 +28,8 @@ public class Radar {
                     add(r.name, g);
                     added = true;
                 }
-            } catch (Session.LoadingIndir e) {
-            } catch (Resource.Loading e) {
+            } catch (Session.LoadingIndir ignored) {
+            } catch (Resource.Loading ignored) {
             }
             if (!added) {
                 // resource isn't loaded yet?
@@ -63,8 +63,8 @@ public class Radar {
                     add(r.name, gr.gob);
                     undefined.remove(gr.gob.id);
                 }
-            } catch (Session.LoadingIndir e) {
-            } catch (Resource.Loading e) {
+            } catch (Session.LoadingIndir ignored) {
+            } catch (Resource.Loading ignored) {
             }
         }
     }

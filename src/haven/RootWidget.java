@@ -55,10 +55,10 @@ public class RootWidget extends ConsoleHost {
 		ui.gui.map.togglecam();
 	    } else if((ev.getKeyCode() == KeyEvent.VK_V)&&(ev.isAltDown())){
 		bShowOls = !bShowOls ;
-		if (bShowOls)
-		    ui.gui.map.enol(new int[] { 0, 1, 2, 3 });
-		else {
-		    ui.gui.map.disol(new int[] { 0, 1, 2, 3 });
+		if (bShowOls) {
+		    ui.gui.map.enol(0, 1, 2, 3);
+		} else {
+		    ui.gui.map.disol(0, 1, 2, 3);
 		}
 	    }else if((ev.getKeyCode() == KeyEvent.VK_L)&&(ev.isControlDown())){
                 FlatnessTool.instance(ui).toggle();
