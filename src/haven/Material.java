@@ -181,7 +181,7 @@ public class Material extends GLState {
 	    st.prep(buf);
     }
     
-    public static class Res extends Resource.Layer {
+    public static class Res extends Resource.Layer implements Resource.IDLayer<Integer> {
 	public final int id;
 	private transient List<GLState> states = new LinkedList<GLState>();
 	private transient List<Resolver> left = new LinkedList<Resolver>();
@@ -282,7 +282,11 @@ public class Material extends GLState {
 			r.resolve(states);
 			i.remove();
 		    }
-		    m = new Material(states.toArray(new GLState[0]));
+		    m = new Material(states.toArray(new GLState[0])) {
+			    public String toString() {
+				return(super.toString() + "@" + getres().name);
+			    }
+			};
 		}
 		return(m);
 	    }
@@ -296,6 +300,10 @@ public class Material extends GLState {
 		if(linear)
 		    tex.magfilter(GL.GL_LINEAR);
 	    }
+	}
+	
+	public Integer layerid() {
+	    return(id);
 	}
     }
 }

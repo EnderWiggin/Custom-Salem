@@ -37,6 +37,7 @@ public class MapMesh implements Rendered {
     private Map<Class<? extends Surface>, Surface> surfmap = new HashMap<Class<? extends Surface>, Surface>();
     private Map<Tex, GLState[]> texmap = new HashMap<Tex, GLState[]>();
     private Map<GLState, MeshBuf> modbuf = new HashMap<GLState, MeshBuf>();
+    public Map<Object, Object> data = new HashMap<Object, Object>();
     private List<Rendered> extras = new ArrayList<Rendered>();
     private List<Layer> layers;
     private float[] zmap;
@@ -158,29 +159,67 @@ public class MapMesh implements Rendered {
 	}
     }
 
+    /* Inner classes cannot have static declarations D:< */
+    private static SPoint[] fortile(Surface surf, Coord sc) {
+	return(new SPoint[] {
+		surf.spoint(sc),
+		surf.spoint(sc.add(0, 1)),
+		surf.spoint(sc.add(1, 1)),
+		surf.spoint(sc.add(1, 0)),
+	    });
+    }
+
     public class Plane extends Shape {
 	public SPoint[] vrt;
+	public int[] texx, texy;
 	public Tex tex = null;
 	
-	public Plane(Surface surf, Coord sc, int z, GLState st) {
+	public Plane(SPoint[] vrt, int z, GLState st) {
 	    super(z, st);
-	    vrt = new SPoint[] {surf.spoint(sc),
-				surf.spoint(sc.add(0, 1)),
-				surf.spoint(sc.add(1, 1)),
-				surf.spoint(sc.add(1, 0))};
-	}
-
-	public Plane(Surface surf, Coord sc, int z, Tex tex, boolean clip) {
-	    this(surf, sc, z, stfor(tex, clip));
-	    this.tex = tex;
+	    this.vrt = vrt;
 	}
 	
+	public Plane(Surface surf, Coord sc, int z, GLState st) {
+	    this(fortile(surf, sc), z, st);
+	}
+
+	public Plane(SPoint[] vrt, int z, Tex tex, boolean clip) {
+	    this(vrt, z, stfor(tex, clip));
+	    this.tex = tex;
+	    texrot(null, null, 0, false);
+	}
+	
+	public Plane(Surface surf, Coord sc, int z, Tex tex, boolean clip) {
+	    this(fortile(surf, sc), z, tex, clip);
+	}
+
 	public Plane(Surface surf, Coord sc, int z, Tex tex) {
 	    this(surf, sc, z, tex, true);
 	}
 	
 	public Plane(Surface surf, Coord sc, int z, Resource.Tile tile) {
 	    this(surf, sc, z, tile.tex(), tile.t != 'g');
+	}
+	
+	public void texrot(Coord ul, Coord br, int rot, boolean flipx) {
+	    if(ul == null) ul = Coord.z;
+	    if(br == null) br = tex.sz();
+	    int[] x, y;
+	    if(!flipx) {
+		x = new int[] {ul.x, ul.x, br.x, br.x};
+		y = new int[] {ul.y, br.y, br.y, ul.y};
+	    } else {
+		x = new int[] {br.x, br.x, ul.x, ul.x};
+		y = new int[] {ul.y, br.y, br.y, ul.y};
+	    }
+	    if(texx == null) {
+		texx = new int[4];
+		texy = new int[4];
+	    }
+	    for(int i = 0; i < 4; i++) {
+		texx[i] = x[(i + rot) % 4];
+		texy[i] = y[(i + rot) % 4];
+	    }
 	}
 	
 	public void build(MeshBuf buf) {
@@ -191,10 +230,10 @@ public class MapMesh implements Rendered {
 	    Tex tex = this.tex;
 	    if(tex != null) {
 		int r = tex.sz().x, b = tex.sz().y;
-		v1.tex = new Coord3f(tex.tcx(0), tex.tcy(0), 0.0f);
-		v2.tex = new Coord3f(tex.tcx(0), tex.tcy(b), 0.0f);
-		v3.tex = new Coord3f(tex.tcx(r), tex.tcy(b), 0.0f);
-		v4.tex = new Coord3f(tex.tcx(r), tex.tcy(0), 0.0f);
+		v1.tex = new Coord3f(tex.tcx(texx[0]), tex.tcy(texy[0]), 0.0f);
+		v2.tex = new Coord3f(tex.tcx(texx[1]), tex.tcy(texy[1]), 0.0f);
+		v3.tex = new Coord3f(tex.tcx(texx[2]), tex.tcy(texy[2]), 0.0f);
+		v4.tex = new Coord3f(tex.tcx(texx[3]), tex.tcy(texy[3]), 0.0f);
 	    }
 	    splitquad(buf, v1, v2, v3, v4);
 	}
@@ -240,6 +279,7 @@ public class MapMesh implements Rendered {
     }
 	
     private static void dotrans(MapMesh m, Random rnd, Coord lc, Coord gc) {
+	Tiler ground = m.map.tiler(m.map.gettile(gc));
 	int tr[][] = new int[3][3];
 	int max = -1;
 	for(int y = -1; y <= 1; y++) {
@@ -272,7 +312,7 @@ public class MapMesh implements Rendered {
 		    cm |= 1 << o;
 	    }
 	    if((bm != 0) || (cm != 0))
-		t.trans(m, rnd, lc, gc, 255 - i, bm, cm);
+		t.trans(m, rnd, ground, lc, gc, 255 - i, bm, cm);
 	}
     }
 
@@ -302,6 +342,10 @@ public class MapMesh implements Rendered {
 	return(surf(Surface.class));
     }
     
+    public static class Hooks {
+	public void postcalcnrm(Random rnd) {}
+    }
+
     public <T extends MeshBuf> T model(GLState st, Class<T> init) {
 	MeshBuf ret = modbuf.get(st);
 	if(ret == null) {
@@ -340,6 +384,10 @@ public class MapMesh implements Rendered {
 	}
 	for(Surface s : m.surfmap.values())
 	    s.calcnrm();
+	for(Object obj : m.data.values()) {
+	    if(obj instanceof Hooks)
+		((Hooks)obj).postcalcnrm(rnd);
+	}
 	for(Layer l : m.layers) {
 	    MeshBuf buf = new MeshBuf();
 	    if(l.pl.isEmpty())
@@ -469,6 +517,7 @@ public class MapMesh implements Rendered {
 	for(Layer l : layers)
 	    l.pl = null;
 	modbuf = null;
+	data = null;
     }
 
     public void draw(GOut g) {

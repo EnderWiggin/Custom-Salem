@@ -376,7 +376,7 @@ public class Skeleton {
 	    };
     }
     
-    public class PoseMod {
+    public abstract class PoseMod {
 	public float[][] lpos, lrot;
 	
 	public PoseMod() {
@@ -406,8 +406,12 @@ public class Skeleton {
 	    }
 	}
 	
-	public void tick(float dt) {
+	public boolean tick(float dt) {
+	    return(false);
 	}
+	
+	public abstract boolean stat();
+	public abstract boolean done();
     }
     
     public static class Res extends Resource.Layer {
@@ -454,9 +458,9 @@ public class Skeleton {
     public class TrackMod extends PoseMod {
 	public final Track[] tracks;
 	public final float len;
-	public final boolean stat;
+	private final boolean stat;
 	public final WrapMode mode;
-	public boolean done;
+	private boolean done;
 	public float time = 0.0f;
 	public boolean speedmod = false;
 	public double nspeed = 0.0;
@@ -469,6 +473,7 @@ public class Skeleton {
 	    for(Track t : tracks) {
 		if((t != null) && (t.frames.length > 1)) {
 		    stat = false;
+		    aupdate(0.0f);
 		    return;
 		}
 	    }
@@ -519,7 +524,7 @@ public class Skeleton {
 	    }
 	}
 	
-	public void tick(float dt) {
+	public boolean tick(float dt) {
 	    float nt = time + (back?-dt:dt);
 	    switch(mode) {
 	    case LOOP:
@@ -551,8 +556,20 @@ public class Skeleton {
 		break;
 	    }
 	    this.time = nt;
-	    if(!stat)
+	    if(!stat) {
 		aupdate(this.time);
+		return(true);
+	    } else {
+		return(false);
+	    }
+	}
+	
+	public boolean stat() {
+	    return(stat);
+	}
+	
+	public boolean done() {
+	    return(done);
 	}
     }
 
@@ -577,7 +594,7 @@ public class Skeleton {
 	}
     }
 
-    public static class ResPose extends Resource.Layer {
+    public static class ResPose extends Resource.Layer implements Resource.IDLayer<Integer> {
 	public final int id;
 	public final float len;
 	public final Track[] tracks;
@@ -640,10 +657,14 @@ public class Skeleton {
 	    return(ret);
 	}
 	
+	public Integer layerid() {
+	    return(id);
+	}
+	
 	public void init() {}
     }
     
-    public static class BoneOffset extends Resource.Layer {
+    public static class BoneOffset extends Resource.Layer implements Resource.IDLayer<String> {
 	public final String nm;
 	public final Command[] prog;
 	private static final HatingJava[] opcodes = new HatingJava[256];
@@ -720,6 +741,10 @@ public class Skeleton {
 	    while(off[0] < buf.length)
 		cbuf.add(opcodes[buf[off[0]++]].make(buf, off));
 	    this.prog = cbuf.toArray(new Command[0]);
+	}
+	
+	public String layerid() {
+	    return(nm);
 	}
 	
 	public void init() {
