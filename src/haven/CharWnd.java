@@ -263,11 +263,13 @@ public class CharWnd extends Window {
 
     public class Attr extends Widget {
 	private final Coord
-	    nmc = new Coord(0, 1),
-	    vc = new Coord(120, 1),
-	    expc = new Coord(145, 0),
+	    imgc = new Coord(0, 1),
+	    nmc = new Coord(17, 1),
+	    vc = new Coord(137, 1),
+	    expc = new Coord(162, 0),
 	    expsz = new Coord(sz.x - expc.x, sz.y);
 	public final String nm;
+	public final Resource res;
 	public final Glob.CAttr attr;
 	public int sexp, hexp;
 	public boolean av = false;
@@ -275,13 +277,19 @@ public class CharWnd extends Window {
 	private int cv;
 	
 	private Attr(String attr, Coord c, Widget parent) {
-	    super(c, new Coord(220, 15), parent);
+	    super(c, new Coord(237, 15), parent);
 	    this.nm = attr;
+	    this.res = Resource.load("gfx/hud/skills/" + nm);
+	    this.res.loadwait();
+	    Resource.Pagina pag = this.res.layer(Resource.pagina);
+	    if(pag != null)
+		this.tooltip = RichText.render(pag.text);
 	    this.attr = ui.sess.glob.cattr.get(nm);
 	    this.rnm = Text.render(attrnm.get(attr));
 	}
 	
 	public void draw(GOut g) {
+	    g.image(res.layer(Resource.imgc).tex(), imgc);
 	    g.image(rnm.tex(), nmc);
 	    if(attr.comp != cv)
 		rv = null;
@@ -367,38 +375,38 @@ public class CharWnd extends Window {
     }
 
     public CharWnd(Coord c, Widget parent) {
-	super(c, new Coord(600, 340), parent, "Character");
+	super(c, new Coord(620, 340), parent, "Character");
 	new Label(new Coord(0, 0), this, "Skill Values:");
 	int y = 30;
 	for(String nm : attrorder) {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
 	    y += 20;
 	}
-	new Label(new Coord(230, 0), this, "Skills:");
-	new Label(new Coord(230, 30), this, "Current:");
-	this.csk = new SkillList(new Coord(230, 45), new Coord(170, 120), this) {
+	new Label(new Coord(250, 0), this, "Skills:");
+	new Label(new Coord(250, 30), this, "Current:");
+	this.csk = new SkillList(new Coord(250, 45), new Coord(170, 120), this) {
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			nsk.unsel();
 		    ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(230, 170), this, "Available:");
-	this.nsk = new SkillList(new Coord(230, 185), new Coord(170, 120), this) {
+	new Label(new Coord(250, 170), this, "Available:");
+	this.nsk = new SkillList(new Coord(250, 185), new Coord(170, 120), this) {
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			csk.unsel();
 		    ski.setsk(sk);
 		}
 	    };
-	new Button(new Coord(230, 310), 50, this, "Buy") {
+	new Button(new Coord(250, 310), 50, this, "Buy") {
 	    public void click() {
 		if(nsk.sel >= 0) {
 		    CharWnd.this.wdgmsg("buy", nsk.skills[nsk.sel].nm);
 		}
 	    }
 	};
-	this.ski = new SkillInfo(new Coord(410, 30), new Coord(190, 275), this);
+	this.ski = new SkillInfo(new Coord(430, 30), new Coord(190, 275), this);
     }
     
     public void uimsg(String msg, Object... args) {
