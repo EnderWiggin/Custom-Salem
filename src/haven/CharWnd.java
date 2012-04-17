@@ -283,7 +283,7 @@ public class CharWnd extends Window {
 	    this.res.loadwait();
 	    Resource.Pagina pag = this.res.layer(Resource.pagina);
 	    if(pag != null)
-		this.tooltip = RichText.render(pag.text);
+		this.tooltip = RichText.render(pag.text, 300);
 	    this.attr = ui.sess.glob.cattr.get(nm);
 	    this.rnm = Text.render(attrnm.get(attr));
 	}
