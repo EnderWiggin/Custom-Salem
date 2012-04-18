@@ -30,38 +30,29 @@ import java.awt.Color;
 import java.util.*;
 
 public class Avaview extends PView {
-    public static final Coord dasz = new Coord(74, 74);
-    public static final Coord unborder = new Coord(2, 2);
     public static final Tex missing = Resource.loadtex("gfx/hud/equip/missing");
+    public static final Coord dasz = missing.sz();
     public Color color = Color.WHITE;
     public long avagob;
-    private Coord asz;
     private Composited comp;
     private List<Composited.MD> cmod = null;
     private List<Composited.ED> cequ = null;
+    private final String camnm;
 	
     static {
 	Widget.addtype("av", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Avaview(c, parent, (Integer)args[0]));
+		    return(new Avaview(c, dasz, parent, (Integer)args[0], "avacam"));
 		}
 	    });
     }
 	
-    private Avaview(Coord c, Widget parent, Coord asz) {
-	super(c, asz.add(Window.swbox.bisz()).add(unborder.mul(2).inv()), parent);
-	this.asz = asz;
-    }
-        
-    public Avaview(Coord c, Widget parent, long avagob, Coord asz) {
-	this(c, parent, asz);
+    public Avaview(Coord c, Coord sz, Widget parent, long avagob, String camnm) {
+	super(c, sz, parent);
+	this.camnm = camnm;
 	this.avagob = avagob;
     }
-	
-    public Avaview(Coord c, Widget parent, long avagob) {
-	this(c, parent, avagob, dasz);
-    }
-        
+    
     public void uimsg(String msg, Object... args) {
 	if(msg == "upd") {
 	    this.avagob = (long)(Integer)args[0];
@@ -86,22 +77,22 @@ public class Avaview extends PView {
 	return(gc);
     }
 
-    private static Camera makecam(Composite gc) {
-	Skeleton.BoneOffset bo = gc.base.get().layer(Skeleton.BoneOffset.class, "avacam");
+    private static Camera makecam(Composite gc, String camnm) {
+	Skeleton.BoneOffset bo = gc.base.get().layer(Skeleton.BoneOffset.class, camnm);
 	if(bo == null)
 	    throw(new Loading());
 	GLState.Buffer buf = new GLState.Buffer(null);
 	bo.forpose(gc.comp.pose).prep(buf);
 	return(new LocationCam(buf.get(PView.loc)));
     }
-    
+
     private Composite lgc = null;
     protected Camera camera() {
 	Composite gc = getgcomp();
 	if(gc == null)
 	    throw(new Loading());
 	if((cam == null) || (gc != lgc))
-	    cam = makecam(lgc = gc);
+	    cam = makecam(lgc = gc, camnm);
 	return(cam);
     }
 
@@ -138,12 +129,12 @@ public class Avaview extends PView {
 	} catch(Loading e) {
 	    missed = true;
 	}
-	if(missed) {
-	    GOut g2 = g.reclip(Window.swbox.tloff().add(unborder.inv()), asz);
-	    g2.image(missing, Coord.z);
+	if(missed)
+	    g.image(missing, Coord.z, sz);
+	if(color != null) {
+	    g.chcolor(color);
+	    Window.swbox.draw(g, Coord.z, sz);
 	}
-	g.chcolor(color);
-	Window.swbox.draw(g, Coord.z, asz.add(Window.swbox.bisz()).add(unborder.mul(2).inv()));
     }
 	
     public boolean mousedown(Coord c, int button) {

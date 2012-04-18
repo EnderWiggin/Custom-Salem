@@ -685,33 +685,33 @@ public class ChatUI extends Widget {
 	}
     }
 
+    public void toggle() {
+	if(!expanded) {
+	    expand();
+	    parent.setfocus(this);
+	} else {
+	    if(hasfocus) {
+		if(sz.y == 100)
+		    resize(new Coord(sz.x, 300));
+		else
+		    contract();
+	    } else {
+		parent.setfocus(this);
+	    }
+	}
+    }
+
     public boolean type(char key, KeyEvent ev) {
 	if(qline != null) {
 	    qline.key(ev);
 	    return(true);
 	} else {
-	    if(key == 3) {
-		if(sz.y == 100)
-		    resize(new Coord(sz.x, 300));
-		else
-		    resize(new Coord(sz.x, 100));
-		return(true);
-	    } else if(key == 27) {
-		contract();
-		return(true);
-	    }
 	    return(super.type(key, ev));
 	}
     }
 
     public boolean globtype(char key, KeyEvent ev) {
-	if(key == 3) {
-	    if(!expanded) {
-		expand();
-	    }
-	    parent.setfocus(this);
-	    return(true);
-	} else if(key == 10) {
+	if(key == 10) {
 	    if(!expanded && (sel instanceof EntryChannel)) {
 		ui.grabkeys(this);
 		qline = new QuickLine((EntryChannel)sel);

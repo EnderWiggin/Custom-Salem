@@ -44,6 +44,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     private Text lasterr;
     private long errtime;
     private Window invwnd, equwnd, makewnd;
+    private Widget mainmenu, menumenu, mapmenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
     public Polity polity;
@@ -84,7 +85,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	setcanfocus(true);
 	setfocusctl(true);
 	menu = new MenuGrid(Coord.z, this);
-	new Avaview(new Coord(10, 10), this, plid) {
+	new Avaview(new Coord(10, 10), Avaview.dasz, this, plid, "avacam") {
 	    public boolean mousedown(Coord c, int button) {
 		return(true);
 	    }
@@ -108,7 +109,28 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		public void close() {}
 		public void flush() {}
 	    });
+	makemenu();
 	resize(sz);
+    }
+
+    static class MenuButton extends IButton {
+	private final int gkey;
+
+	MenuButton(Coord c, Widget parent, String base, int gkey, String tooltip) {
+	    super(c, parent, Resource.loadimg("gfx/hud/" + base + "up"), Resource.loadimg("gfx/hud/" + base + "down"));
+	    this.tooltip = Text.render(tooltip);
+	    this.gkey = (char)gkey;
+	}
+	
+	public void click() {}
+	
+	public boolean globtype(char key, KeyEvent ev) {
+	    if((gkey != -1) && (key == gkey)) {
+		click();
+		return(true);
+	    }
+	    return(super.globtype(key, ev));
+	}
     }
     
     static class Hidewnd extends Window {
@@ -142,9 +164,47 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    Coord cc = (Coord)cargs[0];
 	    map = new MapView(Coord.z, sz, this, cc, plid);
 	    map.lower();
-	    if(mmap != null)
+	    if(mmap != null) {
 		ui.destroy(mmap);
+		ui.destroy(mapmenu);
+	    }
 	    mmap = new LocalMiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map);
+	    mapmenu = new Widget(mmap.c.add(0, -18), new Coord(mmap.sz.x, 18), this) {
+		public void draw(GOut g) {
+		    draw(g, false);
+		}
+	    };
+	    new MenuButton(new Coord(0, 0), mapmenu, "cla", -1, "Display personal claims") {
+		boolean v = false;
+		
+		public void click() {
+		    if(!v) {
+			map.enol(0, 1);
+			v = true;
+		    } else {
+			map.disol(0, 1);
+			v = false;
+		    }
+		}
+	    };
+	    new MenuButton(new Coord(18, 0), mapmenu, "tow", -1, "Display town claims") {
+		boolean v = false;
+		
+		public void click() {
+		    if(!v) {
+			map.enol(2, 3);
+			v = true;
+		    } else {
+			map.disol(2, 3);
+			v = false;
+		    }
+		}
+	    };
+	    new MenuButton(new Coord(36, 0), mapmenu, "chat", 3, "Chat (Ctrl+C)") {
+		public void click() {
+		    chat.toggle();
+		}
+	    };
 	    return(map);
 	} else if(place == "fight") {
 	    fv = (Fightview)gettype(type).create(new Coord(sz.x - Fightview.width, 0), this, cargs);
@@ -228,7 +288,9 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     static {progf.aa = true;}
     Text progt = null;
     public void draw(GOut g) {
+	mainmenu.show(showbeltp());
 	super.draw(g);
+	togglesdw(g.gc);
 	if(prog >= 0) {
 	    String progs = String.format("%d%%", prog);
 	    if((progt == null) || !progs.equals(progt.text))
@@ -236,6 +298,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    g.aimage(progt.tex(), new Coord(sz.x / 2, (sz.y * 4) / 10), 0.5, 0.5);
 	}
 	int by = sz.y;
+	if(mainmenu.visible)
+	    by -= mainmenu.sz.y + 5;
 	if(chat.expanded)
 	    by -= chat.sz.y;
 //	if(showbeltp()) {
@@ -247,6 +311,9 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    if((System.currentTimeMillis() - errtime) > 3000) {
 		lasterr = null;
 	    } else {
+		g.chcolor(0, 0, 0, 192);
+		g.frect(new Coord(133, by - 22), lasterr.sz().add(4, 4));
+		g.chcolor();
 		g.image(lasterr.tex(), new Coord(135, by -= 20));
 	    }
 	}
@@ -270,7 +337,6 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	if(msg == "err") {
 	    String err = (String)args[0];
 	    error(err);
-	    syslog.append(err, Color.RED);
 	} else if(msg == "prog") {
 	    if(args.length > 0)
 		prog = (Integer)args[0];
@@ -421,48 +487,98 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	}
     }
 
+    private boolean togglesdw = false;
+    private void makemenu() {
+	mainmenu = new Widget(new Coord(135, sz.y - 26), new Coord(386, 26), this);
+	int x = 0;
+	new MenuButton(new Coord(x, 0), mainmenu, "inv", 9, "Inventory (Tab)") {
+	    public void click() {
+		if((invwnd != null) && invwnd.show(!invwnd.visible)) {
+		    invwnd.raise();
+		    fitwdg(invwnd);
+		}
+	    }
+	};
+	x += 62;
+	new MenuButton(new Coord(x, 0), mainmenu, "equ", 5, "Equipment (Ctrl+E)") {
+	    public void click() {
+		if((equwnd != null) && equwnd.show(!equwnd.visible)) {
+		    equwnd.raise();
+		    fitwdg(equwnd);
+		}
+	    }
+	};
+	x += 62;
+	new MenuButton(new Coord(x, 0), mainmenu, "chr", 20, "Studying (Ctrl+T)") {
+	    public void click() {
+		if((chrwdg != null) && chrwdg.show(!chrwdg.visible)) {
+		    chrwdg.raise();
+		    fitwdg(chrwdg);
+		    setfocus(chrwdg);
+		}
+	    }
+	};
+	x += 62;
+	new MenuButton(new Coord(x, 0), mainmenu, "bud", 2, "Buddy List (Ctrl+B)") {
+	    public void click() {
+		if((buddies != null) && buddies.show(!buddies.visible)) {
+		    buddies.raise();
+		    fitwdg(buddies);
+		    setfocus(buddies);
+		}
+	    }
+	};
+	x += 62;
+	new MenuButton(new Coord(x, 0), mainmenu, "pol", 16, "Town (Ctrl+P)") {
+	    public void click() {
+		if((polity != null) && polity.show(!polity.visible)) {
+		    polity.raise();
+		    fitwdg(polity);
+		    setfocus(polity);
+		}
+	    }
+	};
+	x += 62;
+	new MenuButton(new Coord(x, 0), mainmenu, "opt", -1, "Options (Merely toggles shadows for now)") {
+	    public void click() {
+		togglesdw = true;
+	    }
+	};
+	menumenu = new Widget(Coord.z, new Coord(66, 33), this) {
+		public void draw(GOut g) {
+		    draw(g, false);
+		}
+	    };
+	new MenuButton(new Coord(0, 0), menumenu, "atk", 1, "Attack mode (Ctrl+A)") {
+	    public void click() {
+		GameUI.this.wdgmsg("atkm");
+	    }
+	};
+	new MenuButton(new Coord(33, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
+	    public void click() {
+		act("blk");
+	    }
+	};
+    }
+    private void togglesdw(GLConfig gc) {
+	if(togglesdw) {
+	    togglesdw = false;
+	    if(gc.deflight == Light.pslights) {
+		gc.deflight = Light.vlights;
+	    } else {
+		if(gc.shuse) {
+		    gc.deflight = Light.pslights;
+		} else {
+		    error("Shadow rendering requires a shader compatible video card.");
+		}
+	    }
+	}
+    }
+
     public boolean globtype(char key, KeyEvent ev) {
 	char ukey = Character.toUpperCase(key);
 	if(key == ':') {
 	    entercmd();
-	    return(true);
-	} else if(key == 9) {
-	    if((invwnd != null) && invwnd.show(!invwnd.visible)) {
-		invwnd.raise();
-		fitwdg(invwnd);
-	    }
-	    return(true);
-	} else if(key == 5) {
-	    if((equwnd != null) && equwnd.show(!equwnd.visible)) {
-		equwnd.raise();
-		fitwdg(equwnd);
-	    }
-	    return(true);
-	} else if(key == 19) {
-	    act("blk");
-	} else if(key == 2) {
-	    if((buddies != null) && buddies.show(!buddies.visible)) {
-		buddies.raise();
-		fitwdg(buddies);
-		setfocus(buddies);
-	    }
-	    return(true);
-	} else if(key == 16) {
-	    if((polity != null) && polity.show(!polity.visible)) {
-		polity.raise();
-		fitwdg(polity);
-		setfocus(polity);
-	    }
-	    return(true);
-	} else if(key == 20) {
-	    if((chrwdg != null) && chrwdg.show(!chrwdg.visible)) {
-		chrwdg.raise();
-		fitwdg(chrwdg);
-		setfocus(chrwdg);
-	    }
-	    return(true);
-	} else if(key == 1) {
-	    wdgmsg("atkm");
 	    return(true);
 	} else if((ukey == 'W') || (ukey == 'A') || (ukey == 'S') || (ukey == 'D')) {
 	    dwalkdown(ukey, ev);
@@ -512,6 +628,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     public void resize(Coord sz) {
 	super.resize(sz);
 	menu.c = sz.sub(menu.sz);
+	menumenu.c = menu.c.add(menu.sz.x, 0).sub(menumenu.sz);
 	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
 	chat.resize(sz.x - 125 - menu.sz.x);
 	chat.move(new Coord(125, sz.y));
@@ -519,19 +636,30 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    gobble.c = new Coord((sz.x - gobble.sz.x) / 2, 0);
 	if(map != null)
 	    map.resize(sz);
+<<<<<<< HEAD
 //	if(mmap != null)
 //	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
+=======
+	if(mmap != null)
+	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
+	if(mapmenu != null)
+	    mapmenu.c = mmap.c.add(0, -18);
+>>>>>>> 539f0592a524bd9b87d0655471ddad63cb12b1a7
 	if(fv != null)
 	    fv.c = new Coord(sz.x - Fightview.width, 0);
+	mainmenu.c = new Coord(135, sz.y - 26);
     }
     
     public void presize() {
 	resize(parent.sz);
     }
     
+    private static final Resource errsfx = Resource.load("sfx/error");
     public void error(String msg) {
 	errtime = System.currentTimeMillis();
 	lasterr = errfoundry.render(msg);
+	syslog.append(msg, Color.RED);
+	Audio.play(errsfx);
     }
     
     public void act(String... args) {
@@ -549,7 +677,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 			     135
 			     + ((invsq.sz().x + 2) * i)
 			     + (10 * (i / 4)),
-			     sz.y - invsq.sz().y - 2));
+			     sz.y - 26 - invsq.sz().y - 2));
 	}
     
 	private int beltslot(Coord c) {
@@ -636,7 +764,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 			     135
 			     + ((invsq.sz().x + 2) * i)
 			     + (10 * (i / 5)),
-			     sz.y - invsq.sz().y - 2));
+			     sz.y - 26 - invsq.sz().y - 2));
 	}
     
 	private int beltslot(Coord c) {

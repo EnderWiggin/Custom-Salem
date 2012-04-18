@@ -306,11 +306,13 @@ public class CharWnd extends Window {
 
     public class Attr extends Widget {
 	private final Coord
-	    nmc = new Coord(0, 1),
-	    vc = new Coord(120, 1),
-	    expc = new Coord(145, 0),
+	    imgc = new Coord(0, 1),
+	    nmc = new Coord(17, 1),
+	    vc = new Coord(137, 1),
+	    expc = new Coord(162, 0),
 	    expsz = new Coord(sz.x - expc.x, sz.y);
 	public final String nm;
+	public final Resource res;
 	public final Glob.CAttr attr;
 	public int sexp, hexp;
 	public boolean av = false;
@@ -318,13 +320,19 @@ public class CharWnd extends Window {
 	private int cv;
 	
 	private Attr(String attr, Coord c, Widget parent) {
-	    super(c, new Coord(220, 15), parent);
+	    super(c, new Coord(237, 15), parent);
 	    this.nm = attr;
+	    this.res = Resource.load("gfx/hud/skills/" + nm);
+	    this.res.loadwait();
+	    Resource.Pagina pag = this.res.layer(Resource.pagina);
+	    if(pag != null)
+		this.tooltip = RichText.render(pag.text, 300);
 	    this.attr = ui.sess.glob.cattr.get(nm);
 	    this.rnm = Text.render(attrnm.get(attr));
 	}
 	
 	public void draw(GOut g) {
+	    g.image(res.layer(Resource.imgc).tex(), imgc);
 	    g.image(rnm.tex(), nmc);
 	    if(attr.comp != cv)
 		rv = null;
