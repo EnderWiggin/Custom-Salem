@@ -54,14 +54,14 @@ gfx/borka/raeg:4
 gfx/borka/robe-body:15
 gfx/borka/robe-kjol:11
 gfx/borka/schnurr:5
+gfx/borka/strafeidle:4
+gfx/borka/strafeleft:3
+gfx/borka/straferight:1
 gfx/borka/trapper-body:3
 gfx/borka/trapper-kjol:1
 gfx/borka/trapperboots:1
 gfx/borka/treepickan:5
 gfx/borka/unconcerned:2
-gfx/borka/strafeidle:4
-gfx/borka/strafeleft:3
-gfx/borka/straferight:3
 gfx/borka/walking:20
 gfx/borka/wave:4
 gfx/borka/woolsweater:1
@@ -115,8 +115,8 @@ gfx/hud/combat/knapp/sl:1
 gfx/hud/combat/knapp/sr:1
 gfx/hud/curs/arw:2
 gfx/hud/curs/chi:2
-gfx/hud/curs/kreuz:1
 gfx/hud/curs/eat:1
+gfx/hud/curs/kreuz:1
 gfx/hud/emote/bl:1
 gfx/hud/emote/br:1
 gfx/hud/emote/eb:1
