@@ -53,6 +53,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
+    private Widget mapmenu;
     private Coord cgrid = null;
     private final BufferedImage[] texes = new BufferedImage[256];
     private Coord off = new Coord();
@@ -143,8 +144,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	return(buf);
     }
 
-    public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
+    public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv, Widget mapmenu) {
 	super(c, sz, parent, "Minimap");
+	this.mapmenu = mapmenu;
 	this.mv = mv;
 	loadOpts();
 	cmdmap.put("radar", new Console.Command() {
@@ -173,6 +175,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	synchronized (Config.window_props) {
 	    c = new Coord(Config.window_props.getProperty("mmap_pos", c.toString()));
 	    sz = new Coord(Config.window_props.getProperty("mmap_sz", sz.toString()));
+	    mapmenu.c = c.add(0,-18);
 	}
     }
     
@@ -368,6 +371,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    //pack();
 	} else {
 	    super.mousemove(c);
+	    mapmenu.c = this.c.add(0,-18);
 	}
     }
 

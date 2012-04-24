@@ -168,12 +168,12 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		ui.destroy(mmap);
 		ui.destroy(mapmenu);
 	    }
-	    mmap = new LocalMiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map);
-	    mapmenu = new Widget(mmap.c.add(0, -18), new Coord(mmap.sz.x, 18), this) {
+	    mapmenu = new Widget(Coord.z, new Coord(100, 18), this) {
 		public void draw(GOut g) {
 		    draw(g, false);
 		}
 	    };
+	    mmap = new LocalMiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map, mapmenu);
 	    new MenuButton(new Coord(0, 0), mapmenu, "cla", -1, "Display personal claims") {
 		boolean v = false;
 		
@@ -636,15 +636,10 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    gobble.c = new Coord((sz.x - gobble.sz.x) / 2, 0);
 	if(map != null)
 	    map.resize(sz);
-<<<<<<< HEAD
 //	if(mmap != null)
 //	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
-=======
-	if(mmap != null)
-	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
-	if(mapmenu != null)
-	    mapmenu.c = mmap.c.add(0, -18);
->>>>>>> 539f0592a524bd9b87d0655471ddad63cb12b1a7
+//	if(mapmenu != null)
+//	    mapmenu.c = mmap.c.add(0, -18);
 	if(fv != null)
 	    fv.c = new Coord(sz.x - Fightview.width, 0);
 	mainmenu.c = new Coord(135, sz.y - 26);
