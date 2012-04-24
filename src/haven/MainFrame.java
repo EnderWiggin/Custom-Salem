@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.error.ErrorHandler;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -354,6 +356,14 @@ public class MainFrame extends Frame implements Runnable, Console.Directory {
 		g = hg;
 	    } catch(java.net.MalformedURLException e) {
 	    }
+	} else {
+	    final haven.error.ErrorHandler hg = new haven.error.ErrorHandler();
+		hg.sethandler(new haven.error.ErrorGui(null) {
+			public void errorsent() {
+			    hg.interrupt();
+			}
+		    });
+		g = hg;
 	}
 	Thread main = new HackThread(g, new Runnable() {
 		public void run() {

@@ -9,10 +9,10 @@
     <available property="unpacked-lib" file="build/classes-lib" />
   </target>
   
-  <target name="buildinfo" depends="build-env" unless="has-buildinfo">
-    <exec executable="git" outputproperty="gitrev" failifexecutionfails="false">
-      <arg line="rev-parse HEAD" />
-    </exec>
+  <target name="buildinfo" depends="build-env">
+    <tstamp>
+  	  <format property="gitrev" pattern="dd.MM.yyyy HH:mm"/>
+  	</tstamp>
     <echo file="build/classes/buildinfo" xml:space="default">
       git-rev = ${gitrev}
     </echo>
@@ -20,7 +20,7 @@
 
   <target name="salem-client" depends="build-env">
     <javac srcdir="src" destdir="build/classes" debug="on"
-	   source="1.5" target="1.5" includeantruntime="no">
+	   source="1.6" target="1.6" includeantruntime="no">
       <classpath>
 	<pathelement path="lib/jogl.jar" />
 	<pathelement path="lib/gluegen-rt.jar" />
