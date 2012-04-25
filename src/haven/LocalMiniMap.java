@@ -229,10 +229,13 @@ public class LocalMiniMap extends Window implements Console.Directory{
 			cache.put(tcg, f);
 		    }
 		    if((f == null) || (!f.done())) {
-			continue; 
+			continue;
 		    }
-
-		    Tex img = f.get().img;
+		    MapTile mt = f.get();
+		    if(mt == null){
+			continue;
+		    }
+		    Tex img = mt.img;
 		    g.image(img, ul.add(tc.inv()).add(hsz.div(2)));
 		}
 	    }
@@ -259,7 +262,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     
     private void store(BufferedImage img, Coord cg) {
 	Coord c = cg.sub(sp);
-	String fileName = String.format("map/%s/tile_%d_%d.png", session, c.x, c.y);
+	String fileName = String.format("%s/map/%s/tile_%d_%d.png",Config.userhome, session, c.x, c.y);
 	File outputfile = new File(fileName);
 	try {
 	    ImageIO.write(img, "png", outputfile);
@@ -271,9 +274,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    sp = plg;
 	    cache.clear();
 	    session = datef.format(new Date(System.currentTimeMillis()));
-	    (new File("map/" + session)).mkdirs();
+	    (new File(Config.userhome+"/map/" + session)).mkdirs();
 	    try {
-		Writer currentSessionFile = new FileWriter("map/currentsession.js");
+		Writer currentSessionFile = new FileWriter(Config.userhome+"/map/currentsession.js");
 		currentSessionFile.write("var currentSession = '" + session + "';\n");
 		currentSessionFile.close();
 	    } catch (IOException e) {}

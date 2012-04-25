@@ -56,6 +56,7 @@ public class Config {
     public static String authmech = getprop("haven.authmech", "native");
     public static byte[] authck = null;
     public static String prefspec = "salem";
+    public static String userhome = System.getProperty("user.home")+"/Salem";
     
     public static boolean isShowNames = true;
     public static String currentCharName = "";
@@ -65,7 +66,10 @@ public class Config {
 	String p;
 	if((p = getprop("haven.authck", null)) != null)
 	    authck = Utils.hex2byte(p);
-	
+	File f = new File(userhome);
+	if(!f.exists()){
+	    f.mkdirs();
+	}
 	loadWindowOptions();
     }
     
@@ -93,7 +97,7 @@ public class Config {
     
     private static void loadWindowOptions() {
 	window_props = new Properties();
-	File inputFile = new File("windows.conf");
+	File inputFile = new File(userhome+"/windows.conf");
         if (!inputFile.exists()) {
             return;
         }
@@ -122,7 +126,7 @@ public class Config {
     public static void saveWindowOpt() {
 	synchronized (window_props) {
 	    try {
-		window_props.store(new FileOutputStream("windows.conf"), "Window config options");
+		window_props.store(new FileOutputStream(userhome+"/windows.conf"), "Window config options");
 	    } catch (IOException e) {
 		System.out.println(e);
 	    }

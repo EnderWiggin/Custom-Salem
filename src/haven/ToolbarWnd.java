@@ -149,7 +149,7 @@ public class ToolbarWnd extends Window implements DropTarget {
 
     public static void loadBelts() {
 	
-	String configFileName = "belts_" + Config.currentCharName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
+	String configFileName = Config.userhome+"/belts_" + Config.currentCharName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 	try {
 	    synchronized (beltsConfig) {
 		beltsConfig.load(new FileInputStream(configFileName));
@@ -161,7 +161,7 @@ public class ToolbarWnd extends Window implements DropTarget {
     
     private static void saveBelts() {
 	synchronized (beltsConfig) {
-	    String configFileName = "belts_" + Config.currentCharName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
+	    String configFileName = Config.userhome+"/belts_" + Config.currentCharName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 	    try {
 		beltsConfig.store(new FileOutputStream(configFileName), "Belts actions for " + Config.currentCharName);
 	    } catch (FileNotFoundException e) {

@@ -26,6 +26,8 @@
 
 package haven.error;
 
+import haven.Config;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -102,7 +104,7 @@ public class ErrorHandler extends ThreadGroup {
 	}
     
 	private void dolocalreport(Report r) throws IOException {
-	    FileOutputStream fs = new FileOutputStream("error.html");
+	    FileOutputStream fs = new FileOutputStream(Config.userhome+"/error.html");
 	    HtmlReporter.makereport(fs, r);
 	    fs.close();
 	    status.done();

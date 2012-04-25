@@ -67,7 +67,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 
     static {
 	try {
-	    chainloader(new Loader(new FileSource(new File("./custom_res"))));
+	    chainloader(new Loader(new FileSource(new File(Config.userhome+"/custom_res"))));
 	} catch(Exception e) {}
 	
 	try {
