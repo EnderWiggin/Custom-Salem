@@ -57,8 +57,11 @@
 
   <target name="resources">
   	<exec executable="java" failifexecutionfails="false">
-  	  <arg line="-jar resources/LayerUtil.jar -re resources/src build/res" />
+  	  <arg line="-jar resources/LayerUtil.jar -re resources/src resources/compiled/res" />
   	</exec>
+  	<jar destfile="build/client-res.jar" update="true">
+  	  <fileset dir="resources/compiled" />
+  	</jar>
   </target>
 
   <target name="jar" depends="salem-client,buildinfo,lib-classes,resources">
@@ -67,7 +70,7 @@
       <fileset dir="build/classes-lib" />
       <manifest>
 	<attribute name="Main-Class" value="haven.MainFrame" />
-	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar salem-res.jar" />
+	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar client-res.jar salem-res.jar" />
       </manifest>
     </jar>
     <chmod file="build/salem.jar" perm="a+x" />

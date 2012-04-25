@@ -71,10 +71,6 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	} catch(Exception e) {}
 	
 	try {
-	    chainloader(new Loader(new FileSource(new File("./res"))));
-	} catch(Exception e) {}
-	
-	try {
 	    String dir = Config.resdir;
 	    if(dir == null)
 		dir = System.getenv("SALEM_RESDIR");
