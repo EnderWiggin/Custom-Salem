@@ -39,6 +39,7 @@ public class Textlog extends Widget {
     int maxy, cury;
     int margin = 3;
     boolean sdrag = false;
+    public int maxLines = 150;
 	
     static {
 	Widget.addtype("log", new WidgetFactory() {
@@ -91,6 +92,12 @@ public class Textlog extends Widget {
 	    rl = fnd.render(RichText.Parser.quote(line), sz.x - (margin * 2) - sflarp.sz().x, TextAttribute.FOREGROUND, col);
 	synchronized(lines) {
 	    lines.add(rl);
+	    if((maxLines > 0)&&(lines.size() > maxLines)){
+		Text tl = lines.remove(0);
+		int dy = tl.sz().y;
+		maxy -= dy;
+		cury -= dy;
+	    }
 	}
 	if(cury == maxy)
 	    cury += rl.sz().y;
@@ -148,5 +155,13 @@ public class Textlog extends Widget {
 	    return(true);
 	}
 	return(false);
+    }
+    
+    public void setprog(double a){
+	if(a < 0)
+	    a = 0;
+	if(a > 1)
+	    a = 1;
+	cury = (int)(a * (maxy - sz.y)) + sz.y;
     }
 }

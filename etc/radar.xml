@@ -1,0 +1,24 @@
+<radarConfig>
+    <group name="herb" show="true" color="#ffff00">
+	<marker match="gfx/terobjs/herbs/smoothstone" tooltip="true" color="#aa00ff" />
+	<!--<marker match="gfx/terobjs/herbs/chestnut" tooltip="true" color="#33bb55" />-->
+	<marker match="gfx/terobjs/herbs/oldlog" tooltip="true" color="#ff5555" />
+	<marker match="gfx/terobjs/herbs/newworldgourd" tooltip="true" color="#cc5533" />
+        <marker match="gfx/terobjs/herbs/arrowhead" tooltip="true" color="#11bc98" />
+	<marker match="gfx/terobjs/herbs/indianfeather" tooltip="true" color="#11bc98" />
+	<marker match="gfx/terobjs/herbs/waxingtoadstool" tooltip="true" color="#aaff00" />
+	<marker match="gfx/terobjs/herbs/blackberry" tooltip="true" color="#aaff00" />
+	<marker match="gfx/terobjs/herbs/lime" tooltip="true" color="#ff9911" />
+        <marker match="gfx/terobjs/herbs/autumngrass" tooltip="true" color="#e1e1e1" />
+        <!-- unknown forageables -->
+        <marker pattern="gfx/terobjs/herbs/.+" tooltip="true" show="true" />
+    </group>
+    <!-- animals -->
+    <group name="animals" show="true">
+    </group>
+    <!-- players -->
+    <group name="player" show="true">
+    </group>
+    <group name="custom" show="true">
+    </group>
+</radarConfig>

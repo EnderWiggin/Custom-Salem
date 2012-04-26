@@ -53,6 +53,7 @@ public class Window extends Widget implements DTarget {
     public Coord mrgn = new Coord(13, 13);
     public Coord doff;
     public IButton cbtn;
+    public boolean justclose = false;
 	
     static {
 	Widget.addtype("wnd", new WidgetFactory() {
@@ -199,7 +200,10 @@ public class Window extends Widget implements DTarget {
 
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(sender == cbtn) {
-	    wdgmsg("close");
+	    if(justclose)
+		ui.destroy(this);
+	    else
+		wdgmsg("close");
 	} else {
 	    super.wdgmsg(sender, msg, args);
 	}
@@ -207,7 +211,10 @@ public class Window extends Widget implements DTarget {
 	
     public boolean type(char key, java.awt.event.KeyEvent ev) {
 	if(key == 27) {
-	    wdgmsg("close");
+	    if(justclose)
+		ui.destroy(this);
+	    else
+		wdgmsg("close");
 	    return(true);
 	}
 	return(super.type(key, ev));

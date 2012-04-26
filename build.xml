@@ -68,9 +68,11 @@
     <jar destfile="build/salem.jar" update="true">
       <fileset dir="build/classes" />
       <fileset dir="build/classes-lib" />
+      <fileset file="changelog.txt"/>
+      <fileset file="etc/radar.xml"/>
       <manifest>
-	<attribute name="Main-Class" value="haven.MainFrame" />
-	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar client-res.jar salem-res.jar" />
+        <attribute name="Main-Class" value="haven.MainFrame" />
+        <attribute name="Class-Path" value="jogl.jar gluegen-rt.jar client-res.jar salem-res.jar" />
       </manifest>
     </jar>
     <chmod file="build/salem.jar" perm="a+x" />

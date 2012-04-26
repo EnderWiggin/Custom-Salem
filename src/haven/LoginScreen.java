@@ -26,8 +26,17 @@
 
 package haven;
 
+import haven.error.ErrorHandler;
+
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class LoginScreen extends Widget {
     Login cur;
@@ -50,6 +59,33 @@ public class LoginScreen extends Widget {
 	setfocustab(true);
 	parent.setfocus(this);
 	new Img(Coord.z, bg, this);
+	
+	if(Config.isUpdate){
+	    showChangelog();
+	}
+    }
+    
+    private void showChangelog() {
+	Window wnd = new Window(new Coord(100,50), new Coord(50,50), ui.root, "Changelog");
+	wnd.justclose = true;
+	Textlog txt= new Textlog(Coord.z, new Coord(350,500), wnd);
+	int maxlines = txt.maxLines = 200; 
+	wnd.pack();
+	try {
+	    InputStream in = ErrorHandler.class.getResourceAsStream("/changelog.txt");
+	    BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+	    String strLine;
+	    int count = 0;
+	    while ((count<maxlines)&&(strLine = br.readLine()) != null)   {
+		txt.append(strLine);
+		count++;
+	    }
+	    br.close();
+	    in.close();
+	} catch (FileNotFoundException e) {
+	} catch (IOException e) {
+	}
+	txt.setprog(0);
     }
 
     private static abstract class Login extends Widget {

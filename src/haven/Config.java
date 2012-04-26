@@ -28,12 +28,18 @@ package haven;
 
 import static haven.Utils.getprop;
 
+import haven.error.ErrorHandler;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 
 public class Config {
@@ -57,10 +63,15 @@ public class Config {
     public static byte[] authck = null;
     public static String prefspec = "salem";
     public static String userhome = System.getProperty("user.home")+"/Salem";
+    public static String version;
     
-    public static boolean isShowNames = true;
     public static String currentCharName = "";
     static Properties window_props;
+    public static Properties options;
+    private static Map<String, Object> buildinfo = new HashMap<String, Object>();
+    
+    public static boolean isUpdate;
+    public static boolean isShowNames = true;
     
     static {
 	String p;
@@ -70,13 +81,56 @@ public class Config {
 	if(!f.exists()){
 	    f.mkdirs();
 	}
-	loadWindowOptions();
+	
+	InputStream in = ErrorHandler.class.getResourceAsStream("/buildinfo");
+	try {
+	    try {
+		if(in != null) {
+		    Properties info = new Properties();
+		    info.load(in);
+		    for(Map.Entry<Object, Object> e : info.entrySet())
+			buildinfo.put((String)e.getKey(), e.getValue());
+		}
+	    } finally {
+		in.close();
+	    }
+	} catch(IOException e) {
+	    throw(new Error(e));
+	}
+	version = (String) buildinfo.get("git-rev");
+	loadOptions();
+	window_props = loadProps("windows.conf");
     }
     
     public static void setCharName(String name){
 	currentCharName = name;
     }
     
+    private static void loadOptions() {
+	options = loadProps("salem.cfg");
+        String ver = options.getProperty("version", "");
+        isUpdate = !version.equals(ver);
+        
+        if(isUpdate){
+            saveOptions();
+        }
+    }
+
+    private static void saveOptions() {
+	synchronized (options) {
+	    //refresh from vars
+	    options.setProperty("version", version);
+	    
+	    //store it
+	    saveProps(options, "salem.cfg", "Salem config file");
+	}
+	
+    }
+
+    public static File getFile(String name) {
+	return new File(userhome+"/"+name);
+    }
+
     private static int getint(String name, int def) {
 	String val = getprop(name, null);
 	if(val == null)
@@ -95,20 +149,6 @@ public class Config {
 	}
     }
     
-    private static void loadWindowOptions() {
-	window_props = new Properties();
-	File inputFile = new File(userhome+"/windows.conf");
-        if (!inputFile.exists()) {
-            return;
-        }
-        try {
-            window_props.load(new FileInputStream(inputFile));
-        }
-        catch (IOException e) {
-            System.out.println(e);
-        }
-    }
-    
     public static synchronized void setWindowOpt(String key, String value) {
 	synchronized (window_props) {
 	    String prev_val =window_props.getProperty(key); 
@@ -119,17 +159,40 @@ public class Config {
 	saveWindowOpt();
     }
     
+    private static Properties loadProps(String name){
+	File f = getFile(name);
+	Properties props = new Properties();
+	if (!f.exists()) {
+            try {
+		f.createNewFile();
+	    } catch (IOException e) {
+		return null;
+	    }
+        }
+        try {
+            props.load(new FileInputStream(f));
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
+        return props;
+    }
+    
+    private static void saveProps(Properties props, String name, String comments){
+	try {
+		props.store(new FileOutputStream(getFile(name)), comments);
+	    } catch (IOException e) {
+		System.out.println(e);
+	    }
+    }
+    
     public static synchronized void setWindowOpt(String key, Boolean value) {
 	setWindowOpt(key, value?"true":"false");
     }
     
     public static void saveWindowOpt() {
 	synchronized (window_props) {
-	    try {
-		window_props.store(new FileOutputStream(userhome+"/windows.conf"), "Window config options");
-	    } catch (IOException e) {
-		System.out.println(e);
-	    }
+	    saveProps(window_props, "windows.conf", "Window config options");
 	}
     }
     
