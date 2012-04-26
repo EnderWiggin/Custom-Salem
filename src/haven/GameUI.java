@@ -169,11 +169,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		ui.destroy(mapmenu);
 	    }
 	    mmap = new LocalMiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map);
-	    mapmenu = new Widget(mmap.c.add(0, -18), new Coord(mmap.sz.x, 18), this) {
-		public void draw(GOut g) {
-		    draw(g, false);
-		}
-	    };
+	    mapmenu = new Widget(mmap.c.add(0, -18), new Coord(mmap.sz.x, 18), this);
 	    new MenuButton(new Coord(0, 0), mapmenu, "cla", -1, "Display personal claims") {
 		boolean v = false;
 		
@@ -553,9 +549,24 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		togglesdw = true;
 	    }
 	};
-	menumenu = new Widget(Coord.z, new Coord(66, 33), this) {
+	menumenu = new Widget(Coord.z, new Coord(132, 33), this) {
 		public void draw(GOut g) {
-		    draw(g, false);
+		    super.draw(g);
+		    try {
+			if(catk != null)
+			    g.image(catk.get().layer(Resource.imgc).tex(), new Coord(33, 0));
+		    } catch(Loading e) {}
+		    try {
+			if(lblk != null) {
+			    Tex t = lblk.get().layer(Resource.imgc).tex();
+			    g.image(t, new Coord(99, 0));
+			    g.chcolor(0, 255, 0, 128);
+			    g.frect(new Coord(99, 0), t.sz());
+			    g.chcolor();
+			} else if(dblk != null) {
+			    g.image(dblk.get().layer(Resource.imgc).tex(), new Coord(99, 0));
+			}
+		    } catch(Loading e) {}
 		}
 	    };
 	new MenuButton(new Coord(0, 0), menumenu, "atk", 1, "Attack mode (Ctrl+A)") {
@@ -563,7 +574,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		GameUI.this.wdgmsg("atkm");
 	    }
 	};
-	new MenuButton(new Coord(33, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
+	new MenuButton(new Coord(66, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
 	    public void click() {
 		act("blk");
 	    }
