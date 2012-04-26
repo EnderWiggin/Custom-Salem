@@ -56,6 +56,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
     private boolean afk = false;
     @SuppressWarnings("unchecked")
     public Indir<Resource>[] belt = new Indir[144];
+    public Indir<Resource> lblk, dblk, catk;
     public Belt beltwdg;
     public String polowner;
     
@@ -395,6 +396,15 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		}
 		polowner = o;
 	    }
+	} else if(msg == "dblk") {
+	    int id = (Integer)args[0];
+	    dblk = (id < 0)?null:(ui.sess.getres(id));
+	} else if(msg == "lblk") {
+	    int id = (Integer)args[0];
+	    lblk = (id < 0)?null:(ui.sess.getres(id));
+	} else if(msg == "catk") {
+	    int id = (Integer)args[0];
+	    catk = (id < 0)?null:(ui.sess.getres(id));
 	} else {
 	    super.uimsg(msg, args);
 	}
