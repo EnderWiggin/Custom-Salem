@@ -1,6 +1,7 @@
 package haven.minimap;
 
 import haven.Config;
+import haven.LoginScreen;
 
 import java.awt.*;
 import java.io.*;
@@ -20,7 +21,28 @@ public class RadarConfig {
     }
 
     public RadarConfig(File configfile) {
-        this.file = configfile;
+        file = configfile;
+        if(!file.exists()){
+            try {
+		FileOutputStream out = new FileOutputStream(file);
+		InputStream in = RadarConfig.class.getResourceAsStream("/radar.xml");
+		
+		int k = 512;
+		int off = 0;
+		byte[] b = new byte[512];
+		while(k>0){
+		    k = in.read(b, 0, 512);
+		    if(k>0){
+			out.write(b, 0, k);
+		    }
+		    off += k;
+		}
+		out.close();
+		in.close();
+	    } catch (FileNotFoundException e) {
+	    } catch (IOException e) {
+	    }
+        }
         try {
             load();
         } catch (Exception e) {

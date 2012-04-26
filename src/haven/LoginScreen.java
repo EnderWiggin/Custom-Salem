@@ -32,8 +32,10 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -72,15 +74,19 @@ public class LoginScreen extends Widget {
 	int maxlines = txt.maxLines = 200; 
 	wnd.pack();
 	try {
-	    InputStream in = ErrorHandler.class.getResourceAsStream("/changelog.txt");
+	    InputStream in = LoginScreen.class.getResourceAsStream("/changelog.txt");
 	    BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+	    File f = Config.getFile("changelog.txt");
+	    FileOutputStream out = new FileOutputStream(f);
 	    String strLine;
 	    int count = 0;
 	    while ((count<maxlines)&&(strLine = br.readLine()) != null)   {
 		txt.append(strLine);
+		out.write((strLine+"\n").getBytes());
 		count++;
 	    }
 	    br.close();
+	    out.close();
 	    in.close();
 	} catch (FileNotFoundException e) {
 	} catch (IOException e) {
