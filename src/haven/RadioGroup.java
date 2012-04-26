@@ -43,8 +43,15 @@ public class RadioGroup {
     }
 
     public class RadioButton extends CheckBox {
+	private boolean skip_super = false;
+	
 	RadioButton(Coord c, Widget parent, String lbl) {
 	    super(c, parent, lbl);
+	}
+	
+	RadioButton(Coord c, Widget parent, String lbl, boolean skip) {
+	    super(c, parent, lbl);
+	    skip_super = skip;
 	}
 
 	public boolean mousedown(Coord c, int button) {
@@ -56,13 +63,17 @@ public class RadioGroup {
 
 	public void changed(boolean val) {
 	    a = val;
-	    super.changed(val);
+	    if(!skip_super)super.changed(val);
 	    lbl = Text.std.render(lbl.text, a ? java.awt.Color.YELLOW : java.awt.Color.WHITE);
 	}
     }
 
     public RadioButton add(String lbl, Coord c) {
-	RadioButton rb = new RadioButton(c, parent, lbl);
+	return add(lbl, c, false);
+    }
+    
+    public RadioButton add(String lbl, Coord c, boolean skip) {
+	RadioButton rb = new RadioButton(c, parent, lbl, skip);
 	btns.add(rb);
 	map.put(lbl, rb);
 	rmap.put(rb, lbl);

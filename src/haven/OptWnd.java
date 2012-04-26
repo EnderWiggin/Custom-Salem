@@ -27,6 +27,7 @@
 package haven;
 
 import java.util.*;
+import java.awt.Color;
 import java.awt.font.TextAttribute;
 
 public class OptWnd extends Window {
@@ -264,19 +265,29 @@ public class OptWnd extends Window {
 	    super.wdgmsg(sender, msg, args);
     }
 
-    public class Frame extends Widget {
+    public static class Frame extends Widget {
 	private IBox box;
+	private Color bgcoplor;
 
 	public Frame(Coord c, Coord sz, Widget parent) {
 	    super(c, sz, parent);
 	    box = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
 	}
+	
+	public Frame(Coord c, Coord sz, Color bg, Widget parent) {
+	   this(c, sz, parent);
+	   bgcoplor = bg;
+	}
 
 	public void draw(GOut og) {
-	    super.draw(og);
 	    GOut g = og.reclip(Coord.z, sz);
+	    if(bgcoplor != null){
+		g.chcolor(bgcoplor);
+		g.frect(box.tloff(), sz.sub(box.bisz()));
+	    }
 	    g.chcolor(150, 200, 125, 255);
 	    box.draw(g, Coord.z, sz);
+	    super.draw(og);
 	}
     }
 }

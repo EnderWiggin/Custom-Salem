@@ -26,10 +26,14 @@
 
 package haven;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 
 public class LoginScreen extends Widget {
     Login cur;
+    Login[] lgn;
+    RadioGroup lgnType;
+    OptWnd.Frame frame;
     Text error;
     IButton btn;
     static Text.Foundry textf, textfs;
@@ -51,8 +55,9 @@ public class LoginScreen extends Widget {
     private static abstract class Login extends Widget {
 	private Login(Coord c, Coord sz, Widget parent) {
 	    super(c, sz, parent);
+	    new OptWnd.Frame(Coord.z, sz, new Color(33,33,33,200), this);
 	}
-		
+	
 	abstract Object[] data();
 	abstract boolean enter();
     }
@@ -62,21 +67,21 @@ public class LoginScreen extends Widget {
 	CheckBox savepass;
 		
 	private Pwbox(String username, boolean save) {
-	    super(new Coord(345, 310), new Coord(150, 150), LoginScreen.this);
+	    super(new Coord(345, 310), new Coord(170, 160), LoginScreen.this);
 	    setfocustab(true);
-	    new Label(new Coord(0, 0), this, "User name", textf);
-	    user = new TextEntry(new Coord(0, 20), new Coord(150, 20), this, username);
-	    new Label(new Coord(0, 60), this, "Password", textf);
-	    pass = new TextEntry(new Coord(0, 80), new Coord(150, 20), this, "");
+	    new Label(new Coord(10, 10), this, "H&H User name", textf);
+	    user = new TextEntry(new Coord(10, 30), new Coord(150, 20), this, username);
+	    new Label(new Coord(10, 60), this, "Password", textf);
+	    pass = new TextEntry(new Coord(10, 80), new Coord(150, 20), this, "");
 	    pass.pw = true;
-	    savepass = new CheckBox(new Coord(0, 110), this, "Remember me");
+	    savepass = new CheckBox(new Coord(10, 110), this, "Remember me");
 	    savepass.a = save;
 	    if(user.text.equals(""))
 		setfocus(user);
 	    else
 		setfocus(pass);
 	}
-		
+	
 	public void wdgmsg(Widget sender, String name, Object... args) {
 	}
 		
@@ -110,14 +115,14 @@ public class LoginScreen extends Widget {
 	CheckBox savepass;
 		
 	private Pdxbox(String username, boolean save) {
-	    super(new Coord(345, 310), new Coord(150, 150), LoginScreen.this);
+	    super(new Coord(345, 310), new Coord(170, 160), LoginScreen.this);
 	    setfocustab(true);
-	    new Label(new Coord(0, 0), this, "User name", textf);
-	    user = new TextEntry(new Coord(0, 20), new Coord(150, 20), this, username);
-	    new Label(new Coord(0, 60), this, "Password", textf);
-	    pass = new TextEntry(new Coord(0, 80), new Coord(150, 20), this, "");
+	    new Label(new Coord(10, 10), this, "Paradox User name", textf);
+	    user = new TextEntry(new Coord(10, 30), new Coord(150, 20), this, username);
+	    new Label(new Coord(10, 60), this, "Password", textf);
+	    pass = new TextEntry(new Coord(10, 80), new Coord(150, 20), this, "");
 	    pass.pw = true;
-	    savepass = new CheckBox(new Coord(0, 110), this, "Remember me");
+	    savepass = new CheckBox(new Coord(10, 110), this, "Remember me");
 	    savepass.a = save;
 	    if(user.text.equals(""))
 		setfocus(user);
@@ -158,9 +163,9 @@ public class LoginScreen extends Widget {
 	Button btn;
 		
 	private Tokenbox(String username) {
-	    super(new Coord(295, 310), new Coord(250, 100), LoginScreen.this);
+	    super(new Coord(295, 310), new Coord(250, 70), LoginScreen.this);
 	    label = textfs.render("Identity is saved for " + username, java.awt.Color.WHITE);
-	    btn = new Button(new Coord(75, 30), 100, this, "Forget me");
+	    btn = new Button(new Coord(75, 40), 100, this, "Forget me");
 	}
 		
 	Object[] data() {
@@ -180,8 +185,8 @@ public class LoginScreen extends Widget {
 	}
 		
 	public void draw(GOut g) {
-	    g.image(label.tex(), new Coord((sz.x / 2) - (label.sz().x / 2), 0));
 	    super.draw(g);
+	    g.image(label.tex(), new Coord((sz.x / 2) - (label.sz().x / 2), 10));
 	}
 	
 	public boolean globtype(char k, KeyEvent ev) {
@@ -195,7 +200,7 @@ public class LoginScreen extends Widget {
 
     private void mklogin() {
 	synchronized(ui) {
-	    btn = new IButton(new Coord(373, 460), this, Resource.loadimg("gfx/hud/buttons/loginu"), Resource.loadimg("gfx/hud/buttons/logind"));
+	    btn = new IButton(new Coord(373, 470), this, Resource.loadimg("gfx/hud/buttons/loginu"), Resource.loadimg("gfx/hud/buttons/logind"));
 	    progress(null);
 	}
     }
@@ -219,9 +224,21 @@ public class LoginScreen extends Widget {
     }
     
     private void clear() {
+	if(frame != null){
+	    ui.destroy(frame);
+	    frame = null;
+	}
+	if(lgn != null){
+	    ui.destroy(lgn[0]);
+	    ui.destroy(lgn[1]);
+	    lgn = null;
+	    cur = null;
+	}
 	if(cur != null) {
 	    ui.destroy(cur);
 	    cur = null;
+	}
+	if(btn != null){
 	    ui.destroy(btn);
 	    btn = null;
 	}
@@ -245,6 +262,29 @@ public class LoginScreen extends Widget {
 		    cur = new Pwbox((String)args[0], (Boolean)args[1]);
 		} else if(Config.authmech.equals("paradox")) {
 		    cur = new Pdxbox((String)args[0], (Boolean)args[1]);
+		} else if(Config.authmech.equals("unsure")) {
+		    
+		    lgn = new Login[2];
+		    lgn[0] = new Pdxbox((String)args[0], (Boolean)args[1]);
+		    lgn[1] = new Pwbox((String)args[0], (Boolean)args[1]);
+		    
+		    frame = new OptWnd.Frame(new Coord(550, 350), new Coord(130, 120), new Color(33,33,33,200), this);
+		    new Label(new Coord(10,10), frame, "Your account type:");
+		    
+		    lgnType = new RadioGroup(frame){
+
+			@Override
+			public void changed(int btn, String lbl) {
+			    lgn[0].hide();
+			    lgn[1].hide();
+			    cur = lgn[btn];
+			    cur.show();
+			}
+			
+		    };
+		    lgnType.add("Paradox", new Coord(10, 30), true);
+		    lgnType.add("H&H", new Coord(10, 65), true);
+		    lgnType.check(0);
 		} else {
 		    throw(new RuntimeException("Unknown authmech `" + Config.authmech + "' specified"));
 		}
