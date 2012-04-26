@@ -26,14 +26,10 @@
 
 package haven;
 
-import haven.error.ErrorHandler;
-
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,6 +42,7 @@ public class LoginScreen extends Widget {
     RadioGroup lgnType;
     OptWnd.Frame frame;
     Text error;
+    Window log;
     IButton btn;
     static Text.Foundry textf, textfs;
     static Tex bg = Resource.loadtex("gfx/loginscr");
@@ -68,11 +65,12 @@ public class LoginScreen extends Widget {
     }
     
     private void showChangelog() {
-	Window wnd = new Window(new Coord(100,50), new Coord(50,50), ui.root, "Changelog");
-	wnd.justclose = true;
-	Textlog txt= new Textlog(Coord.z, new Coord(350,500), wnd);
-	int maxlines = txt.maxLines = 200; 
-	wnd.pack();
+	log = new Window(new Coord(100,50), new Coord(50,50), ui.root, "Changelog");
+	log.justclose = true;
+	Textlog txt= new Textlog(Coord.z, new Coord(450,500), log);
+	txt.quote = false;
+	int maxlines = txt.maxLines = 200;
+	log.pack();
 	try {
 	    InputStream in = LoginScreen.class.getResourceAsStream("/changelog.txt");
 	    BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
@@ -364,5 +362,14 @@ public class LoginScreen extends Widget {
 	    return(true);
 	}
 	return(super.type(k, ev));
+    }
+
+    @Override
+    public void destroy() {
+	if(log != null){
+	    ui.destroy(log);
+	    log = null;
+	}
+	super.destroy();
     }
 }

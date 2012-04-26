@@ -1,6 +1,37 @@
-aasdasdasd
-asd
-asd
-as
-da
-sd
+$size[20]{$u{CHANGE LOG:}}
+ 
+$size[18]{Main differences from default client:}
+ 
+$size[14]{$u{1. Minimap:}}
+  * You can drag it with Left Mouse Button
+  * You can resize it by dragging at bottom-right corner with Left Mouse Button
+  * You can offset map center by dragging with Right Mouse Button
+  * You can center it on your character by clicking Middle Mouse Button
+  * You can zoom it by scrolling Mouse Wheel
+  * It stores minimap tiles in folder $b{<UserHome>/Salem/map}
+  
+$size[14]{$u{2. Radar (made by Marvi):}}
+  * Configured by file $b{radar.xml} in $b{<UserHome>/Salem}
+  * Default $b{radar.xml} will be created at launch if none present
+  * You can type $b{:radar reload} to reload radar config without restarting client
+  * You can type $b{:radar off} to turn radar off
+  * You can type $b{:radar on} to turn radar on
+  * You can Left-click on radar mark on minimap to move to it
+  * You can Right-click on radar mark on minimap to show menu.
+ 
+ $size[14]{$u{3. Camera control:}}
+  * You can press ALT-C to change camera modes
+ 
+$size[14]{$u{4. Land Flatness tool:}}
+  * You can show/hide it by pressing CTRL-L
+  * When you can select area when this tool
+  * You can press release button, to stop selecting, and grab button to start selecting again
+  
+$size[14]{$u{5. Toolbars:}}
+  * There are 2 toolbars to replace default one
+  * You can rotate toolbar by pressing L-shaped button
+  * You can lock toolbar, to prevent accidental skill removal by clicking on lock button
+  
+$size[14]{$u{6. Study Window:}}
+  * You can shrink it by pressing << button
+  * You can restore it by pressing >> button

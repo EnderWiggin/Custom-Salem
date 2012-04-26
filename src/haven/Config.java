@@ -27,7 +27,6 @@
 package haven;
 
 import static haven.Utils.getprop;
-
 import haven.error.ErrorHandler;
 
 import java.io.File;
@@ -38,7 +37,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
@@ -104,6 +102,7 @@ public class Config {
     
     public static void setCharName(String name){
 	currentCharName = name;
+	MainFrame.instance.setTitle(name);
     }
     
     private static void loadOptions() {
