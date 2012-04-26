@@ -90,7 +90,7 @@ public class Radar {
     public void reload() {
         synchronized (markerLock) {
             undefined.clear();
-            factory.setConfig(new RadarConfig("radar.xml"));
+            factory.setConfig(new RadarConfig());
             Marker[] ms = markers.values().toArray(new Marker[markers.size()]);
             markers.clear();
             for (Marker m : ms) {

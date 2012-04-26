@@ -16,7 +16,7 @@ class MarkerFactory {
         matches = new HashMap<String, ConfigMarker>();
         patterns = new ArrayList<ConfigMarker>();
 
-        setConfig(new RadarConfig(Config.userhome+"/radar.xml"));
+        setConfig(new RadarConfig());
     }
 
     public Marker makeMarker(String resname, Gob gob) {

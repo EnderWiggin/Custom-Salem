@@ -1,5 +1,7 @@
 package haven.minimap;
 
+import haven.Config;
+
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -9,6 +11,7 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 
 public class RadarConfig {
+    public static final String def_config = Config.userhome+"/radar.xml";
     private final File file;
     private List<ConfigGroup> groups = new ArrayList<ConfigGroup>();
 
@@ -23,6 +26,10 @@ public class RadarConfig {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public RadarConfig() {
+	this(new File(def_config));
     }
 
     public Iterable<ConfigGroup> getGroups() {
