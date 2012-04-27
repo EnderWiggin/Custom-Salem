@@ -33,6 +33,10 @@ import java.util.prefs.*;
 import java.util.*;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 
 public class Utils {
@@ -121,6 +125,20 @@ public class Utils {
 	java.awt.Graphics2D g2 = (java.awt.Graphics2D)g;
 	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);		
     }
+    
+    public static String getClipboard() {
+	Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+	try {
+	    if (t != null && t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+		String text = (String)t.getTransferData(DataFlavor.stringFlavor);
+		return text;
+	    }
+	} catch (UnsupportedFlavorException e) {
+	} catch (IOException e) {
+	}
+	return "";
+    }
+    
 	
     static synchronized Preferences prefs() {
 	if(prefs == null) {
