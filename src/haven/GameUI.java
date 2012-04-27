@@ -48,6 +48,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     public BuddyWnd buddies;
     public CharWnd chrwdg;
     public Polity polity;
+    public HelpWnd help;
     public Collection<GItem> hand = new LinkedList<GItem>();
     private WItem vhand;
     public ChatUI chat;
@@ -57,8 +58,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     @SuppressWarnings("unchecked")
     public Indir<Resource>[] belt = new Indir[144];
 //    public Belt beltwdg;
-    public String polowner;
-    
+    public Indir<Resource> lblk, dblk, catk;
+    public String polowner;    
     public abstract class Belt {
 	public abstract int draw(GOut g, int by);
 	public abstract boolean click(Coord c, int button);
@@ -396,6 +397,21 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		}
 		polowner = o;
 	    }
+	} else if(msg == "dblk") {
+	    int id = (Integer)args[0];
+	    dblk = (id < 0)?null:(ui.sess.getres(id));
+	} else if(msg == "lblk") {
+	    int id = (Integer)args[0];
+	    lblk = (id < 0)?null:(ui.sess.getres(id));
+	} else if(msg == "catk") {
+	    int id = (Integer)args[0];
+	    catk = (id < 0)?null:(ui.sess.getres(id));
+	} else if(msg == "showhelp") {
+	    Indir<Resource> res = ui.sess.getres((Integer)args[0]);
+	    if(help == null)
+		help = new HelpWnd(sz.div(2).sub(150, 200), this, res);
+	    else
+		help.res = res;
 	} else {
 	    super.uimsg(msg, args);
 	}
@@ -411,6 +427,10 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    polity.hide();
 	} else if((sender == chrwdg) && (msg == "close")) {
 	    chrwdg.hide();
+	} else if((sender == help) && (msg == "close")) {
+	    ui.destroy(help);
+	    help = null;
+	    return;
 	}
 	super.wdgmsg(sender, msg, args);
     }
@@ -544,9 +564,24 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		togglesdw = true;
 	    }
 	};
-	menumenu = new Widget(Coord.z, new Coord(66, 33), this) {
+	menumenu = new Widget(Coord.z, new Coord(132, 33), this) {
 		public void draw(GOut g) {
-		    draw(g, false);
+		    super.draw(g);
+		    try {
+			if(catk != null)
+			    g.image(catk.get().layer(Resource.imgc).tex(), new Coord(33, 0));
+		    } catch(Loading e) {}
+		    try {
+			if(lblk != null) {
+			    Tex t = lblk.get().layer(Resource.imgc).tex();
+			    g.image(t, new Coord(99, 0));
+			    g.chcolor(0, 255, 0, 128);
+			    g.frect(new Coord(99, 0), t.sz());
+			    g.chcolor();
+			} else if(dblk != null) {
+			    g.image(dblk.get().layer(Resource.imgc).tex(), new Coord(99, 0));
+			}
+		    } catch(Loading e) {}
 		}
 	    };
 	new MenuButton(new Coord(0, 0), menumenu, "atk", 1, "Attack mode (Ctrl+A)") {
@@ -554,7 +589,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		GameUI.this.wdgmsg("atkm");
 	    }
 	};
-	new MenuButton(new Coord(33, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
+	new MenuButton(new Coord(66, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
 	    public void click() {
 		act("blk");
 	    }
@@ -608,13 +643,13 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     }
     
 //    public boolean mousedown(Coord c, int button) {
-//	if(beltwdg.click(c, button))
+//	if(showbeltp() && beltwdg.click(c, button))
 //	    return(true);
 //	return(super.mousedown(c, button));
 //    }
 //
 //    public boolean drop(Coord cc, Coord ul) {
-//	return(beltwdg.item(cc));
+//	return(showbeltp() && beltwdg.item(cc));
 //    }
 //    
 //    public boolean iteminteract(Coord cc, Coord ul) {
@@ -622,7 +657,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 //    }
 //
 //    public boolean dropthing(Coord c, Object thing) {
-//	return(beltwdg.thing(c, thing));
+//	return(showbeltp() && beltwdg.thing(c, thing));
 //    }
     
     public void resize(Coord sz) {

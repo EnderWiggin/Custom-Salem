@@ -422,7 +422,7 @@ public class CharWnd extends Window {
 
     public CharWnd(Coord c, Widget parent) {
 	super(c, SZ_FULL, parent, "Character");
-	new Label(new Coord(0, 0), this, "Skill Values:");
+	new Label(new Coord(0, 0), this, "Proficiencies:");
 	int y = 30;
 	for(String nm : attrorder) {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));

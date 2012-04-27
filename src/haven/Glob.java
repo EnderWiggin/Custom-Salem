@@ -86,6 +86,7 @@ public class Glob {
 	public int meter, dtime;
 	public long gettime;
 	public Image img;
+	public boolean newp;
 	
 	public interface Image {
 	    public Tex tex();
@@ -220,6 +221,8 @@ public class Glob {
 			    pag.meter = msg.int32();
 			    pag.gettime = System.currentTimeMillis();
 			    pag.dtime = msg.int32();
+			} else if(t == '^') {
+			    pag.newp = true;
 			}
 		    }
 		} else if(act == '-') {
