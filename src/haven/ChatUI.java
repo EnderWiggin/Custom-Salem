@@ -55,7 +55,7 @@ public class ChatUI extends Widget {
     private static Color lighter(Color col){
 	int hsl[] = new int[3];
 	Utils.rgb2hsl(col.getRed(), col.getGreen(), col.getBlue(), hsl);
-	hsl[1] = Math.round(0.75f*hsl[1]);
+	hsl[1] = Math.round(0.7f*hsl[1]);
 	hsl[2] = 100;
 	int rgb[] = Utils.hsl2rgb(hsl);
 	return new Color(rgb[0], rgb[1], rgb[2]);

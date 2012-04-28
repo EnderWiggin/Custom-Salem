@@ -48,7 +48,7 @@ public class Config {
     public static URL mapurl = geturl("haven.mapurl", "");
     public static boolean dbtext = getprop("haven.dbtext", "off").equals("on");
     public static boolean bounddb = getprop("haven.bounddb", "off").equals("on");
-    public static boolean profile = getprop("haven.profile", "off").equals("on");
+    public static boolean profile = getprop("haven.profile", "on").equals("on");
     public static boolean nolocalres = getprop("haven.nolocalres", "").equals("yesimsure");
     public static boolean fscache = getprop("haven.fscache", "on").equals("on");
     public static String resdir = getprop("haven.resdir", null);

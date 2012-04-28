@@ -50,7 +50,11 @@ import javax.imageio.ImageIO;
 
 public class LocalMiniMap extends Window implements Console.Directory{
     private static final SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+    private static final int MAX = 650;
+    private static final int MIN = -50;
+    private static final int SIZE = MAX - MIN;
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
+    //static BufferedImage height_tex = Resource.loadimg("tex/height");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
     private Widget mapmenu;
@@ -120,25 +124,58 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	Coord c = new Coord();
 	for(c.y = 0; c.y < sz.y; c.y++) {
 	    for(c.x = 0; c.x < sz.x; c.x++) {
-		int t = m.gettile(ul.add(c));
+		Coord c2 = ul.add(c);
+		int t = m.gettile(c2);
 		BufferedImage tex = tileimg(t);
 		if(tex != null)
 		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x + ul.x, tex.getWidth()),
 						    Utils.floormod(c.y + ul.y, tex.getHeight())));
-	    }
-	}
-	for(c.y = 0; c.y < sz.y; c.y++) {
-	    for(c.x = 0; c.x < sz.x; c.x++) {
-		int t = m.gettile(ul.add(c));
 		try {
-		    if((m.gettile(ul.add(c).add(-1, 0)) > t) ||
-		       (m.gettile(ul.add(c).add( 1, 0)) > t) ||
-		       (m.gettile(ul.add(c).add(0, -1)) > t) ||
-		       (m.gettile(ul.add(c).add(0,  1)) > t))
-		        buf.setRGB(c.x, c.y, Color.BLACK.getRGB());
+		    if((m.gettile(c2.add(-1, 0)) > t) ||
+			(m.gettile(c2.add( 1, 0)) > t) ||
+			(m.gettile(c2.add(0, -1)) > t) ||
+			(m.gettile(c2.add(0,  1)) > t))
+			buf.setRGB(c.x, c.y, Color.BLACK.getRGB());
+//		    t = m.getz(c2);
+//		    if((m.getz(c2.add(-1, 0)) > (t+11)) ||
+//			(m.getz(c2.add( 1, 0)) > (t+11)) ||
+//			(m.getz(c2.add(0, -1)) > (t+11)) ||
+//			(m.getz(c2.add(0,  1)) > (t+11)))
+//			buf.setRGB(c.x, c.y, Color.RED.getRGB());
 		} catch (LoadingMap e) {
 		    continue;
 		}
+	    }
+	}
+	return(buf);
+    }
+    
+    public BufferedImage drawmap2(Coord ul, Coord sz) {
+	MCache m = ui.sess.glob.map;
+	BufferedImage buf = TexI.mkbuf(sz);
+	Coord c = new Coord();
+	//int w = height_tex.getWidth()-1;
+	for(c.y = 0; c.y < sz.y; c.y++) {
+	    for(c.x = 0; c.x < sz.x; c.x++) {
+		Coord c2 = ul.add(c);
+		int t2 = m.getz(c2);
+		int t = Math.max(t2, MIN);
+		t = Math.min(t,  MAX);
+		t = t - MIN;
+		t = (255*t)/SIZE;
+		t = t|(t<<8)|(t<<16)|0xff000000;
+		buf.setRGB(c.x, c.y, t);
+		try {
+		    if((m.getz(c2.add(-1, 0)) > (t2+11)) ||
+		       (m.getz(c2.add( 1, 0)) > (t2+11)) ||
+		       (m.getz(c2.add(0, -1)) > (t2+11)) ||
+		       (m.getz(c2.add(0,  1)) > (t2+11)))
+		        buf.setRGB(c.x, c.y, Color.RED.getRGB());
+		} catch (LoadingMap e) {
+		    continue;
+		}
+//		t = w - (w*t)/SIZE;
+//		buf.setRGB(c.x, c.y, height_tex.getRGB(t, 0));
 	    }
 	}
 	return(buf);

@@ -245,6 +245,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
     }
     
     void redraw(GL gl) {
+	//gl = new DebugGL(gl);
 	if((state == null) || (state.gl != gl))
 	    state = new GLState.Applier(gl, glconf);
 	GLState.Buffer ibuf = new GLState.Buffer(glconf);

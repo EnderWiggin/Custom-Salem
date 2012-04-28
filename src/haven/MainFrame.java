@@ -382,12 +382,13 @@ public class MainFrame extends Frame implements Runnable, Console.Directory {
 	    }
 	} else {
 	    final haven.error.ErrorHandler hg = new haven.error.ErrorHandler();
-		hg.sethandler(new haven.error.ErrorGui(null) {
-			public void errorsent() {
-			    hg.interrupt();
-			}
-		    });
-		g = hg;
+	    hg.sethandler(new haven.error.ErrorGui(null) {
+		public void errorsent() {
+		    hg.interrupt();
+		}
+	    });
+	    System.out.println("Error handler is set up!");
+	    g = hg;
 	}
 	Thread main = new HackThread(g, new Runnable() {
 		public void run() {

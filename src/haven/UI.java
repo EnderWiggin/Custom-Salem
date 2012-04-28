@@ -319,7 +319,7 @@ public class UI {
     public void message(String str) {
 	if((cons!=null) && (gui!=null)){
 	    str = datef.format(new Date(System.currentTimeMillis())) + str;
-	    cons.out.println(str);
+//	    cons.out.println(str);
 	    gui.error(str);
 	}
     }

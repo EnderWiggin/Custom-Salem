@@ -28,14 +28,12 @@ public class RadarConfig {
 		InputStream in = RadarConfig.class.getResourceAsStream("/radar.xml");
 		
 		int k = 512;
-		int off = 0;
 		byte[] b = new byte[512];
 		while(k>0){
 		    k = in.read(b, 0, 512);
 		    if(k>0){
 			out.write(b, 0, k);
 		    }
-		    off += k;
 		}
 		out.close();
 		in.close();
