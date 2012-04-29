@@ -546,10 +546,12 @@ public class ChatUI extends Widget {
 	}
     }
 
+    public static final Resource notifsfx = Resource.load("sfx/tick");
     public void notify(Channel chan, Channel.Message msg) {
 	synchronized(notifs) {
 	    notifs.addFirst(new Notification(chan, msg));
 	}
+	Audio.playres(notifsfx);
     }
     
     public void newchild(Widget w) {
