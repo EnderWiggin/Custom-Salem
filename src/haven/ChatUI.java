@@ -551,7 +551,7 @@ public class ChatUI extends Widget {
 	synchronized(notifs) {
 	    notifs.addFirst(new Notification(chan, msg));
 	}
-	Audio.playres(notifsfx);
+	Audio.play(notifsfx);
     }
     
     public void newchild(Widget w) {
