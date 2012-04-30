@@ -1,6 +1,7 @@
 $size[20]{$u{CHANGE LOG:}}
  
 $size[14]{$u{Update for 30.04.12:}}
+  * ALT-V toggles humours bar between diamond and plain modes. Right-click humours bar in plain mode to make it always display values.
   * fixed minimap drawn not correctly at launch sometime
   * added height map overlay to minimap. Toggle it by minimap menu button.
   * made minimap menu buttons for claim, town and height map toggle

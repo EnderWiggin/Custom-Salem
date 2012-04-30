@@ -212,10 +212,23 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		}
 	    };
 	    new MenuButton(new Coord(36, 0), mapmenu, "height", -1, "Display heightmap") {
+		{
+		    hover = down;
+		    down = Resource.loadimg("gfx/hud/heighthl");
+		}
 		public void click() {
 		    mmap.toggleHeight();
 		    toggle();
 		}
+		@Override
+		protected void toggle() {
+		    BufferedImage img = up;
+		    
+		    up = hover;
+		    hover = down;
+		    down = img;
+		}
+		
 	    };
 	    new MenuButton(new Coord(54, 0), mapmenu, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {

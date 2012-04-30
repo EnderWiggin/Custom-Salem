@@ -33,7 +33,6 @@ public class RootWidget extends ConsoleHost {
     Logout logout = null;
     Profile gprof;
     boolean afk = false;
-    private boolean bShowOls = false;
 	
     public RootWidget(UI ui, Coord sz) {
 	super(ui, new Coord(0, 0), sz);
@@ -54,12 +53,7 @@ public class RootWidget extends ConsoleHost {
 	    } else if((ev.getKeyCode() == KeyEvent.VK_C)&&(ev.isAltDown())){
 		ui.gui.map.togglecam();
 	    } else if((ev.getKeyCode() == KeyEvent.VK_V)&&(ev.isAltDown())){
-		bShowOls = !bShowOls ;
-		if (bShowOls) {
-		    ui.gui.map.enol(0, 1, 2, 3);
-		} else {
-		    ui.gui.map.disol(0, 1, 2, 3);
-		}
+		Config.plain_tempers = !Config.plain_tempers;
 	    }else if((ev.getKeyCode() == KeyEvent.VK_L)&&(ev.isControlDown())){
                 FlatnessTool.instance(ui).toggle();
 	    } else if(key != 0) {

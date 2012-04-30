@@ -68,7 +68,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     private String session;
     private final Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
     private boolean radarenabled = true;
-    private boolean height = false;
+    private int height = 0;
     private Future<BufferedImage> heightmap;
     private Coord lastplg;
     private final Coord hmsz = cmaps.mul(3);
@@ -194,7 +194,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		t = Math.min(t,  MAX);
 		t = t - MIN;
 		t = (255*t)/SIZE;
-		t = t|(t<<8)|(t<<16)|0xc0000000;
+		t = t|(t<<8)|(t<<16)|height;
 		buf.setRGB(c.x, c.y, t);
 		try {
 		    if((m.getz(c2.add(-1, 0)) > (t2+11)) ||
@@ -246,7 +246,14 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
     
     public void toggleHeight(){
-	height = !height;
+	if(height == 0){
+	    height = 0xb5000000;
+	} else if(height == 0xb5000000){
+	    height = 0xff000000;
+	} else {
+	    height = 0;
+	}
+	heightmap = null;
     }
     
     public void draw(GOut og) {
@@ -260,7 +267,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    lastplg = plg;
 	    heightmap = null;
 	}
-	if(height && (heightmap == null)){
+	if((height!=0) && (heightmap == null)){
 	    heightmap = getheightmap(plg);
 	}
 	
@@ -321,7 +328,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	Coord c0 = hsz.div(2).sub(tc);
 	
-	if(height && (heightmap != null) && heightmap.done()){
+	if((height!=0) && (heightmap != null) && heightmap.done()){
 	    BufferedImage img = heightmap.get();
 	    if(img != null){
 		g.image(img, c0.add(plg.sub(1,1).mul(cmaps)));
