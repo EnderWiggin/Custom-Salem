@@ -35,6 +35,7 @@ import haven.minimap.Marker;
 import haven.minimap.Radar;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -50,11 +51,7 @@ import javax.imageio.ImageIO;
 
 public class LocalMiniMap extends Window implements Console.Directory{
     private static final SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-    private static final int MAX = 650;
-    private static final int MIN = -50;
-    private static final int SIZE = MAX - MIN;
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
-    //static BufferedImage height_tex = Resource.loadimg("tex/height");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
     private Widget mapmenu;
@@ -71,6 +68,10 @@ public class LocalMiniMap extends Window implements Console.Directory{
     private String session;
     private final Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
     private boolean radarenabled = true;
+    private boolean height = false;
+    private Future<BufferedImage> heightmap;
+    private Coord lastplg;
+    private final Coord hmsz = cmaps.mul(3);
     
     private final Map<Coord, Future<MapTile>> cache = new LinkedHashMap<Coord, Defer.Future<MapTile>>(9, 0.75f, true) {
 	private static final long serialVersionUID = 1L;
@@ -125,23 +126,26 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	for(c.y = 0; c.y < sz.y; c.y++) {
 	    for(c.x = 0; c.x < sz.x; c.x++) {
 		Coord c2 = ul.add(c);
-		int t = m.gettile(c2);
+		int t;
+		try{
+		    t = m.gettile(c2);
+		} catch (LoadingMap e) {
+		    return null;
+		}
 		BufferedImage tex = tileimg(t);
-		if(tex != null)
+		if(tex != null){
 		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x + ul.x, tex.getWidth()),
 						    Utils.floormod(c.y + ul.y, tex.getHeight())));
+		} else {
+		    return null;
+		}
+		
 		try {
 		    if((m.gettile(c2.add(-1, 0)) > t) ||
 			(m.gettile(c2.add( 1, 0)) > t) ||
 			(m.gettile(c2.add(0, -1)) > t) ||
 			(m.gettile(c2.add(0,  1)) > t))
 			buf.setRGB(c.x, c.y, Color.BLACK.getRGB());
-//		    t = m.getz(c2);
-//		    if((m.getz(c2.add(-1, 0)) > (t+11)) ||
-//			(m.getz(c2.add( 1, 0)) > (t+11)) ||
-//			(m.getz(c2.add(0, -1)) > (t+11)) ||
-//			(m.getz(c2.add(0,  1)) > (t+11)))
-//			buf.setRGB(c.x, c.y, Color.RED.getRGB());
 		} catch (LoadingMap e) {
 		    continue;
 		}
@@ -150,20 +154,47 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	return(buf);
     }
     
-    public BufferedImage drawmap2(Coord ul, Coord sz) {
+    private Future<BufferedImage> getheightmap(final Coord plg){
+	Future<BufferedImage> f = Defer.later(new Defer.Callable<BufferedImage> () {
+	    public BufferedImage call() {
+		return drawmap2(plg);
+	    }
+	});
+	return f;
+    }
+    
+    public BufferedImage drawmap2(Coord plg) {
 	MCache m = ui.sess.glob.map;
-	BufferedImage buf = TexI.mkbuf(sz);
+	Coord ul = (plg.sub(1, 1)).mul(cmaps);
+	BufferedImage buf = TexI.mkbuf(hmsz);
 	Coord c = new Coord();
-	//int w = height_tex.getWidth()-1;
-	for(c.y = 0; c.y < sz.y; c.y++) {
-	    for(c.x = 0; c.x < sz.x; c.x++) {
+	int MAX = Integer.MIN_VALUE;
+	int MIN = Integer.MAX_VALUE;
+	
+	try{
+	    for(c.y = 0; c.y < hmsz.y; c.y++) {
+		for(c.x = 0; c.x < hmsz.x; c.x++) {
+		    Coord c2 = ul.add(c);
+		    int t = m.getz(c2);
+		    if(t > MAX) {MAX = t;}
+		    if(t < MIN) {MIN = t;}
+		}
+	    }
+	} catch (LoadingMap e) {
+	    return null;
+	}
+	
+	int SIZE = MAX - MIN;
+	
+	for(c.y = 0; c.y < hmsz.y; c.y++) {
+	    for(c.x = 0; c.x < hmsz.x; c.x++) {
 		Coord c2 = ul.add(c);
 		int t2 = m.getz(c2);
 		int t = Math.max(t2, MIN);
 		t = Math.min(t,  MAX);
 		t = t - MIN;
 		t = (255*t)/SIZE;
-		t = t|(t<<8)|(t<<16)|0xff000000;
+		t = t|(t<<8)|(t<<16)|0xc0000000;
 		buf.setRGB(c.x, c.y, t);
 		try {
 		    if((m.getz(c2.add(-1, 0)) > (t2+11)) ||
@@ -174,8 +205,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		} catch (LoadingMap e) {
 		    continue;
 		}
-//		t = w - (w*t)/SIZE;
-//		buf.setRGB(c.x, c.y, height_tex.getRGB(t, 0));
 	    }
 	}
 	return(buf);
@@ -216,6 +245,10 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
     }
     
+    public void toggleHeight(){
+	height = !height;
+    }
+    
     public void draw(GOut og) {
 	Gob pl = ui.sess.glob.oc.getgob(mv.plgob);
 	if(pl == null)
@@ -223,6 +256,13 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	final Coord plt = pl.rc.div(tilesz);
 	final Coord plg = plt.div(cmaps);
 	checkSession(plg);
+	if(!plg.equals(lastplg)){
+	    lastplg = plg;
+	    heightmap = null;
+	}
+	if(height && (heightmap == null)){
+	    heightmap = getheightmap(plg);
+	}
 	
 	double scale = getScale();
 	Coord hsz = sz.div(scale);
@@ -259,6 +299,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 			f = Defer.later(new Defer.Callable<MapTile> () {
 			    public MapTile call() {
 				BufferedImage img = drawmap(ul, cmaps);
+				if(img == null){return null;}
 				store(img, tcg);
 				return(new MapTile(new TexI(img), ul, tcg));
 			    }
@@ -270,6 +311,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		    }
 		    MapTile mt = f.get();
 		    if(mt == null){
+			cache.put(cg, null);
 			continue;
 		    }
 		    Tex img = mt.img;
@@ -278,6 +320,16 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    }
 	}
 	Coord c0 = hsz.div(2).sub(tc);
+	
+	if(height && (heightmap != null) && heightmap.done()){
+	    BufferedImage img = heightmap.get();
+	    if(img != null){
+		g.image(img, c0.add(plg.sub(1,1).mul(cmaps)));
+	    } else {
+		heightmap = null;
+	    }
+	}
+	
 	drawmarkers(g, c0);
 	synchronized(ui.sess.glob.party.memb) {
 		for(Party.Member memb : ui.sess.glob.party.memb.values()) {
@@ -469,5 +521,13 @@ public class LocalMiniMap extends Window implements Console.Directory{
     @Override
     public Map<String, Console.Command> findcmds() {
         return cmdmap;
+    }
+
+    @Override
+    public boolean type(char key, KeyEvent ev) {
+	if(key == 27) {
+	    return false;
+	}
+	return super.type(key, ev);
     }
 }

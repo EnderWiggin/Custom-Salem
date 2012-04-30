@@ -29,6 +29,8 @@ package haven;
 import java.util.*;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+
 import static haven.Inventory.invsq;
 
 public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Console.Directory {
@@ -124,7 +126,13 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	}
 	
 	public void click() {}
-	
+	protected void toggle(){
+	    BufferedImage sel = up;
+	    BufferedImage img = down;
+	    
+	    hover = up = img;
+	    down = sel;
+	}
 	public boolean globtype(char key, KeyEvent ev) {
 	    if((gkey != -1) && (key == gkey)) {
 		click();
@@ -186,6 +194,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 			map.disol(0, 1);
 			v = false;
 		    }
+		    toggle();
 		}
 	    };
 	    new MenuButton(new Coord(18, 0), mapmenu, "tow", -1, "Display town claims") {
@@ -199,9 +208,16 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 			map.disol(2, 3);
 			v = false;
 		    }
+		    toggle();
 		}
 	    };
-	    new MenuButton(new Coord(36, 0), mapmenu, "chat", 3, "Chat (Ctrl+C)") {
+	    new MenuButton(new Coord(36, 0), mapmenu, "height", -1, "Display heightmap") {
+		public void click() {
+		    mmap.toggleHeight();
+		    toggle();
+		}
+	    };
+	    new MenuButton(new Coord(54, 0), mapmenu, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {
 		    chat.toggle();
 		}
