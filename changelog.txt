@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 30.04.12:}}
+  * fixed minimap drawn not correctly at launch sometime
+  * added height map overlay to minimap. Toggle it by minimap menu button.
+  * made minimap menu buttons for claim, town and height map toggle
+  * fixed crash when ESC pressed while minimap has focus
+ 
 $size[18]{Main differences from default client:}
  
 $size[14]{$u{1. Minimap:}}
