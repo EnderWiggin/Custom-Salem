@@ -193,8 +193,12 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		int t = Math.max(t2, MIN);
 		t = Math.min(t,  MAX);
 		t = t - MIN;
-		t = (255*t)/SIZE;
-		t = t|(t<<8)|(t<<16)|height;
+		if(SIZE>0){
+		    t = (255*t)/SIZE;
+		    t = t|(t<<8)|(t<<16)|height;
+		} else {
+		    t = 0x00FFFFFF|height;
+		}
 		buf.setRGB(c.x, c.y, t);
 		try {
 		    if((m.getz(c2.add(-1, 0)) > (t2+11)) ||
