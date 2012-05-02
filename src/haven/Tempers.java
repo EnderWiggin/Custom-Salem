@@ -156,7 +156,6 @@ public class Tempers extends Widget {
 //		    texts[i] = new TexI(RichText.render(str, 0, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12).img);
 		    texts[i] = new TexI(Utils.outline2(RichText.render(str, 0, TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12).img, new Color(220, 220, 220), false));
 		}
-		System.out.println("redraw texts");
 	    }
 
 	    c0.x = mid.x;
@@ -204,14 +203,12 @@ public class Tempers extends Widget {
 	this.soft = n;
 	tt = null;
 	texts = null;
-	System.out.println("upds"+n);
     }
     
     public void updh(int[] n) {
 	this.hard = n;
 	tt = null;
 	texts = null;
-	System.out.println("updh"+n);
     }
     
     
