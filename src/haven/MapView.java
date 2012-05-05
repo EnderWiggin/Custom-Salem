@@ -917,7 +917,7 @@ public class MapView extends PView implements DTarget {
 	} else if(placing != null) {
 	    if((placing.lastmc == null) || !placing.lastmc.equals(c)) {
 		synchronized(delayed) {
-		    delayed.add(placing.new Adjust(c, ui.modctrl));
+		    delayed.add(placing.new Adjust(c, !ui.modctrl));
 		}
 	    }
 	}
@@ -946,7 +946,7 @@ public class MapView extends PView implements DTarget {
 	if(ui.modshift) {
 	    if(placing != null) {
 		placing.freerot = true;
-		if(ui.modctrl)
+		if(!ui.modctrl)
 		    placing.a = (Math.PI / 4) * Math.round((placing.a + (amount * Math.PI / 4)) / (Math.PI / 4));
 		else
 		    placing.a += amount * Math.PI / 16;

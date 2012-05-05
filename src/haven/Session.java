@@ -31,7 +31,7 @@ import java.util.*;
 import java.io.*;
 
 public class Session {
-    public static final int PVER = 15;
+    public static final int PVER = 16;
     
     public static final int MSG_SESS = 0;
     public static final int MSG_REL = 1;
@@ -224,9 +224,9 @@ public class Session {
 			    oc.remove(id, frame);
 			} else if(type == OD_MOVE) {
 			    Coord c = msg.coord();
-			    int ia = msg.uint8();
+			    int ia = msg.uint16();
 			    if(gob != null)
-				oc.move(gob, c, (ia / 255.0) * Math.PI * 2);
+				oc.move(gob, c, (ia / 65536.0) * Math.PI * 2);
 			} else if(type == OD_RES) {
 			    int resid = msg.uint16();
 			    Message sdt;
