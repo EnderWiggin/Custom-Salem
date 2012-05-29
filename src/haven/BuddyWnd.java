@@ -335,7 +335,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	    if(sort.equals("group"))  bcmp = groupcmp;
 	    if(sort.equals("status")) bcmp = statuscmp;
 	}
-	new Label(new Coord(0, 250), this, "My hearth secret:");
+	new Label(new Coord(0, 250), this, "My homestead secret:");
 	charpass = new TextEntry(new Coord(0, 265), new Coord(190, 20), this, "") {
 		public void activate(String text) {
 		    BuddyWnd.this.wdgmsg("pwd", text);
@@ -344,7 +344,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	new Button(new Coord(0  , 290), 50, this, "Set")    { public void click() {sendpwd(charpass.text);} };
 	new Button(new Coord(60 , 290), 50, this, "Clear")  { public void click() {sendpwd("");} };
 	new Button(new Coord(120, 290), 50, this, "Random") { public void click() {sendpwd(randpwd());} };
-	new Label(new Coord(0, 310), this, "Make kin by hearth secret:");
+	new Label(new Coord(0, 310), this, "Make kin by homestead secret:");
 	opass = new TextEntry(new Coord(0, 325), new Coord(190, 20), this, "") {
 		public void activate(String text) {
 		    BuddyWnd.this.wdgmsg("bypwd", text);
