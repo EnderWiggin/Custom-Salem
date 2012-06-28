@@ -57,7 +57,7 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
     private boolean afk = false;
     @SuppressWarnings("unchecked")
     public Indir<Resource>[] belt = new Indir[144];
-    public Indir<Resource> lblk, dblk, catk;
+    public Indir<Resource> lblk, dblk;
     public Belt beltwdg;
     public String polowner;
     
@@ -419,9 +419,6 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	} else if(msg == "lblk") {
 	    int id = (Integer)args[0];
 	    lblk = (id < 0)?null:(ui.sess.getres(id));
-	} else if(msg == "catk") {
-	    int id = (Integer)args[0];
-	    catk = (id < 0)?null:(ui.sess.getres(id));
 	} else if(msg == "showhelp") {
 	    Indir<Resource> res = ui.sess.getres((Integer)args[0]);
 	    if(help == null)
@@ -584,10 +581,6 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		public void draw(GOut g) {
 		    super.draw(g);
 		    try {
-			if(catk != null)
-			    g.image(catk.get().layer(Resource.imgc).tex(), new Coord(33, 0));
-		    } catch(Loading e) {}
-		    try {
 			if(lblk != null) {
 			    Tex t = lblk.get().layer(Resource.imgc).tex();
 			    g.image(t, new Coord(99, 0));
@@ -600,11 +593,6 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		    } catch(Loading e) {}
 		}
 	    };
-	new MenuButton(new Coord(0, 0), menumenu, "atk", 1, "Attack mode (Ctrl+A)") {
-	    public void click() {
-		GameUI.this.wdgmsg("atkm");
-	    }
-	};
 	new MenuButton(new Coord(66, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
 	    public void click() {
 		act("blk");
