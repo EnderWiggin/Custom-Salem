@@ -48,7 +48,7 @@ public class Window extends Widget implements DTarget {
     boolean dt = false;
     Text cap;
     boolean dm = false;
-    public Coord atl, asz, wsz;
+    public Coord atl, asz, wsz, ac;
     public Coord tlo, rbo;
     public Coord mrgn = new Coord(13, 13);
     public Coord doff;
@@ -142,6 +142,7 @@ public class Window extends Widget implements DTarget {
 	this.sz = sz;
 	wsz = sz.sub(tlo).sub(rbo);
 	asz = wsz.sub(wbox.bisz()).sub(mrgn.mul(2));
+	ac = tlo.add(wbox.tloff()).add(mrgn);
 	placecbtn();
 	for(Widget ch = child; ch != null; ch = ch.next)
 	    ch.presize();
