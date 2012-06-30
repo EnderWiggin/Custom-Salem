@@ -601,6 +601,12 @@ public class MapView extends PView implements DTarget {
 	rl.render(g);
 	return(rl.get(g, c));
     }
+    
+    public void delay(Delayed d) {
+	synchronized(delayed) {
+	    delayed.add(d);
+	}
+    }
 
     protected void undelay(GOut g) {
 	synchronized(delayed) {
@@ -740,9 +746,7 @@ public class MapView extends PView implements DTarget {
 	    super(MapView.this.glob, Coord.z);
 	    setattr(new ResDrawable(this, res));
 	    if(ui.mc.isect(rootpos(), sz)) {
-		synchronized(delayed) {
-		    delayed.add(new Adjust(ui.mc.sub(rootpos()), false));
-		}
+		delay(new Adjust(ui.mc.sub(rootpos()), false));
 	    }
 	}
 
@@ -844,10 +848,13 @@ public class MapView extends PView implements DTarget {
 		    hit(clickc, mapcl, null, null);
 		else
 		    hit(clickc, mapcl, gobcl.gob, gobcl.r);
+	    } else {
+		nohit(clickc);
 	    }
 	}
 	
 	protected abstract void hit(Coord pc, Coord mc, Gob gob, Rendered tgt);
+	protected void nohit(Coord pc) {}
     }
 
     private static int getid(Rendered tgt) {
@@ -896,9 +903,7 @@ public class MapView extends PView implements DTarget {
 	    if(placing.lastmc != null)
 		wdgmsg("place", placing.rc, (int)(placing.a * 180 / Math.PI), button, ui.modflags());
 	} else {
-	    synchronized(delayed) {
-		delayed.add(new Click(c, button));
-	    }
+	    delay(new Click(c, button));
 	}
 	return(true);
     }
@@ -914,11 +919,14 @@ public class MapView extends PView implements DTarget {
 			}
 		    });
 	    }
+	    delay(new Hittest(c) {
+		    public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
+			grab.mmousemove(mc);
+		    }
+		});
 	} else if(placing != null) {
 	    if((placing.lastmc == null) || !placing.lastmc.equals(c)) {
-		synchronized(delayed) {
-		    delayed.add(placing.new Adjust(c, !ui.modctrl));
-		}
+		delay(placing.new Adjust(c, !ui.modctrl));
 	    }
 	}
     }
@@ -938,6 +946,11 @@ public class MapView extends PView implements DTarget {
 			}
 		    });
 	    }
+	    delay(new Hittest(c) {
+		    public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
+			grab.mmouseup(mc, button);
+		    }
+		});
 	}
 	return(true);
     }
@@ -957,27 +970,23 @@ public class MapView extends PView implements DTarget {
     }
     
     public boolean drop(final Coord cc, final Coord ul) {
-	synchronized(delayed) {
-	    delayed.add(new Hittest(cc) {
-		    public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			wdgmsg("drop", pc, mc, ui.modflags());
-		    }
-		});
-	}
+	delay(new Hittest(cc) {
+		public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
+		    wdgmsg("drop", pc, mc, ui.modflags());
+		}
+	    });
 	return(true);
     }
     
     public boolean iteminteract(Coord cc, Coord ul) {
-	synchronized(delayed) {
-	    delayed.add(new Hittest(cc) {
-		    public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			if(gob == null)
-			    wdgmsg("itemact", pc, mc, ui.modflags());
-			else
-			    wdgmsg("itemact", pc, mc, ui.modflags(), (int)gob.id, gob.rc, getid(tgt));
-		    }
-		});
-	}
+	delay(new Hittest(cc) {
+		public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
+		    if(gob == null)
+			wdgmsg("itemact", pc, mc, ui.modflags());
+		    else
+			wdgmsg("itemact", pc, mc, ui.modflags(), (int)gob.id, gob.rc, getid(tgt));
+		}
+	    });
 	return(true);
     }
     

@@ -26,35 +26,54 @@
 
 package haven;
 
-import java.awt.Color;
+import java.util.*;
+import java.lang.ref.*;
 
-public class Buff {
-    public static final Text.Foundry nfnd = new Text.Foundry("SansSerif", 10);
-    int id;
-    Indir<Resource> res;
-    String tt = null;
-    int ameter = -1;
-    int nmeter = -1;
-    int cmeter = -1;
-    int cticks = -1;
-    long gettime;
-    Tex ntext = null;
-    boolean major = false;
+public class IDRef {
+    private static Map<Object, WRef> map = new HashMap<Object, WRef>();
+    private static ReferenceQueue<IDRef> queue = new ReferenceQueue<IDRef>();
+    private static int nextseq = 0;
+    /* Just for debugging */
+    private final Object val;
+    private final int seq;
     
-    public Buff(int id, Indir<Resource> res) {
-	this.id = id;
-	this.res = res;
+    private IDRef(Object val) {
+	synchronized(IDRef.class) {
+	    this.seq = nextseq++;
+	}
+	this.val = val;
     }
     
-    Tex nmeter() {
-	if(ntext == null)
-	    ntext = new TexI(Utils.outline2(nfnd.render(Integer.toString(nmeter), Color.WHITE).img, Color.BLACK));
-	return(ntext);
+    private static class WRef extends WeakReference<IDRef> {
+	private final Object val;
+	
+	private WRef(IDRef ref, Object val) {
+	    super(ref, queue);
+	    this.val = val;
+	}
     }
     
-    public String tooltip() {
-	if(tt != null)
-	    return(tt);
-	return(res.get().layer(Resource.tooltip).t);
+    public static IDRef intern(Object x) {
+	if(x == null)
+	    return(null);
+	synchronized(map) {
+	    WRef old;
+	    while((old = (WRef)queue.poll()) != null) {
+		if(map.get(old.val) == old)
+		    map.remove(old.val);
+	    }
+	    WRef ref = map.get(x);
+	    IDRef id = (ref == null)?null:(ref.get());
+	    if(id == null) {
+		id = new IDRef(x);
+		ref = new WRef(id, x);
+		map.put(x, ref);
+	    }
+	    return(id);
+	}
+    }
+    
+    public String toString() {
+	return("<ID: " + val + " (" + seq + ")>");
     }
 }

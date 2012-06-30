@@ -59,8 +59,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     private boolean afk = false;
     @SuppressWarnings("unchecked")
     public Indir<Resource>[] belt = new Indir[144];
-//    public Belt beltwdg;
-    public Indir<Resource> lblk, dblk, catk;
+    public Indir<Resource> lblk, dblk;
     public String polowner;    
     public abstract class Belt {
 	public abstract int draw(GOut g, int by);
@@ -68,6 +67,26 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	public abstract boolean key(KeyEvent ev);
 	public abstract boolean item(Coord c);
 	public abstract boolean thing(Coord c, Object thing);
+	
+	public void keyact(final int slot) {
+	    if(map != null) {
+		Coord mvc = map.rootxlate(ui.mc);
+		if(mvc.isect(Coord.z, map.sz)) {
+		    map.delay(map.new Hittest(mvc) {
+			    protected void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
+				if(gob == null)
+				    wdgmsg("belt", slot, 1, ui.modflags(), mc);
+				else
+				    wdgmsg("belt", slot, 1, ui.modflags(), mc, (int)gob.id, gob.rc);
+			    }
+			    
+			    protected void nohit(Coord pc) {
+				wdgmsg("belt", slot, 1, ui.modflags());
+			    }
+			});
+		}
+	    }
+	}
     }
     
     static {
@@ -432,9 +451,6 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	} else if(msg == "lblk") {
 	    int id = (Integer)args[0];
 	    lblk = (id < 0)?null:(ui.sess.getres(id));
-	} else if(msg == "catk") {
-	    int id = (Integer)args[0];
-	    catk = (id < 0)?null:(ui.sess.getres(id));
 	} else if(msg == "showhelp") {
 	    Indir<Resource> res = ui.sess.getres((Integer)args[0]);
 	    if(help == null)
@@ -597,10 +613,6 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		public void draw(GOut g) {
 		    super.draw(g);
 		    try {
-			if(catk != null)
-			    g.image(catk.get().layer(Resource.imgc).tex(), new Coord(33, 0));
-		    } catch(Loading e) {}
-		    try {
 			if(lblk != null) {
 			    Tex t = lblk.get().layer(Resource.imgc).tex();
 			    g.image(t, new Coord(99, 0));
@@ -613,11 +625,6 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		    } catch(Loading e) {}
 		}
 	    };
-	new MenuButton(new Coord(0, 0), menumenu, "atk", 1, "Attack mode (Ctrl+A)") {
-	    public void click() {
-		GameUI.this.wdgmsg("atkm");
-	    }
-	};
 	new MenuButton(new Coord(66, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
 	    public void click() {
 		act("blk");
@@ -783,7 +790,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 			curbelt = i;
 			return(true);
 		    } else {
-			wdgmsg("belt", i + (curbelt * 12), 1, ui.modflags());
+			keyact(i + (curbelt * 12));
 			return(true);
 		    }
 		}
@@ -868,10 +875,11 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 		return(false);
 	    int i = Utils.floormod(c - KeyEvent.VK_0 - 1, 10);
 	    boolean M = (ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0;
-	    if(M)
+	    if(M) {
 		curbelt = i;
-	    else
-		wdgmsg("belt", i + (curbelt * 12), 1, ui.modflags());
+	    } else {
+		keyact(i + (curbelt * 12));
+	    }
 	    return(true);
 	}
 	

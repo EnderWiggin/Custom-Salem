@@ -264,15 +264,15 @@ public class ChatUI extends Widget {
 	
 	public void uimsg(String msg, Object... args) {
 	    if(msg == "msg") {
-		int from = (Integer)args[0];
+		Integer from = (Integer)args[0];
 		String line = (String)args[1];
-		if(from >= 0) {
+		if(from == null) {
+		    append(new MyMessage(line, iw()));
+		} else {
 		    Message cmsg = new NamedMessage(from, line, Color.WHITE, iw());
 		    append(cmsg);
 		    if(notify)
 			notify(cmsg);
-		} else if(from == -1) {
-		    append(new MyMessage(line, iw()));
 		}
 	    }
 	}
@@ -289,7 +289,7 @@ public class ChatUI extends Widget {
 	
 	public void uimsg(String msg, Object... args) {
 	    if(msg == "msg") {
-		int from = (Integer)args[0];
+		Integer from = (Integer)args[0];
 		int gobid = (Integer)args[1];
 		String line = (String)args[2];
 		Color col = Color.WHITE;
@@ -298,12 +298,12 @@ public class ChatUI extends Widget {
 		    if(pm != null)
 			col = lighter(pm.col);
 		}
-		if(from >= 0) {
+		if(from == null) {
+		    append(new MyMessage(line, iw()));
+		} else {
 		    Message cmsg = new NamedMessage(from, line, col, iw());
 		    append(cmsg);
 		    notify(cmsg);
-		} else if(from == -1) {
-		    append(new MyMessage(line, iw()));
 		}
 	    }
 	}
