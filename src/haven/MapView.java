@@ -921,7 +921,7 @@ public class MapView extends PView implements DTarget {
 	    }
 	    delay(new Hittest(c) {
 		    public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			grab.mmousemove(mc);
+			if(grab!=null)grab.mmousemove(mc);
 		    }
 		});
 	} else if(placing != null) {
@@ -948,7 +948,7 @@ public class MapView extends PView implements DTarget {
 	    }
 	    delay(new Hittest(c) {
 		    public void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			grab.mmouseup(mc, button);
+			if(grab!=null)grab.mmouseup(mc, button);
 		    }
 		});
 	}
