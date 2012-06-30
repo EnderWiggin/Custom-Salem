@@ -29,6 +29,7 @@ package haven;
 import java.awt.RenderingHints;
 import java.io.*;
 import java.nio.*;
+import java.text.SimpleDateFormat;
 import java.util.prefs.*;
 import java.util.*;
 import java.awt.Graphics;
@@ -40,6 +41,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 
 public class Utils {
+    private static final SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
     public static final java.nio.charset.Charset utf8 = java.nio.charset.Charset.forName("UTF-8");
     public static final java.nio.charset.Charset ascii = java.nio.charset.Charset.forName("US-ASCII");
     public static final java.awt.image.ColorModel rgbm = java.awt.image.ColorModel.getRGBdefault();
@@ -89,6 +91,14 @@ public class Utils {
 	java.awt.FontMetrics m = g.getFontMetrics();
 	java.awt.geom.Rectangle2D ts = m.getStringBounds(text, g);
 	g.drawString(text, (int)(c.x - ts.getWidth() * ax), (int)(c.y + m.getAscent() - ts.getHeight() * ay));
+    }
+    
+    public static String datef(long time){
+	return datef.format(new Date(time));
+    }
+    
+    public static String current_date(){
+	return datef(System.currentTimeMillis());
     }
     
     public static String fpformat(int num, int div, int dec) {

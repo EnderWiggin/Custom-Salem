@@ -1,0 +1,4 @@
+#CODE LAYER FOR RES rrr//\plants.res
+#String class_name
+#Note: the .class file will have the same name as this file
+haven.res.lib.plants.GrowingPlant
