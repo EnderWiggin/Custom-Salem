@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
 
 import static haven.Inventory.invsq;
 
-public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Console.Directory {
+public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.Directory {
     public final String chrid;
     public final long plid;
     public MenuGrid menu;
@@ -677,8 +677,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	    dwalkdown(ukey, ev);
 	    return(true);
 	}
-//	if((key == 0) && beltwdg.key(ev))
-//	    return(true);
+	if(beltwdg.key(ev))
+	    return(true);
 	return(super.globtype(key, ev));
     }
     
