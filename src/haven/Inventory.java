@@ -54,7 +54,7 @@ public class Inventory extends Widget implements DTarget {
     }
 	
     public Inventory(Coord c, Coord sz, Widget parent) {
-	super(c, sqsz.mul(sz), parent);
+	super(c, sqsz.mul(sz).add(1,1), parent);
 	isz = sz;
     }
     

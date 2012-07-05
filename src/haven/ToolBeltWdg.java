@@ -4,17 +4,23 @@ import static haven.Inventory.invsq;
 import static haven.WItem.missing;
 
 import java.awt.event.KeyEvent;
-
-import haven.MapView.Hittest;
+import java.awt.image.BufferedImage;
 
 public class ToolBeltWdg extends Window implements DropTarget{
     private static final Coord invsz = invsq.sz();
     private static final int COUNT = 12;
+    
+    private static final BufferedImage ilockc = Resource.loadimg("gfx/hud/lockc");
+    private static final BufferedImage ilockch = Resource.loadimg("gfx/hud/lockch");
+    private static final BufferedImage ilocko = Resource.loadimg("gfx/hud/locko");
+    private static final BufferedImage ilockoh = Resource.loadimg("gfx/hud/lockoh");
+    
     GameUI gui;
     private int curbelt = 0;
     boolean locked = false;
     private Resource pressed, dragging;
     private int preslot;
+    private IButton lockbtn;
     public final int beltkeys[] = {KeyEvent.VK_F1, KeyEvent.VK_F2, KeyEvent.VK_F3, KeyEvent.VK_F4,
 	       KeyEvent.VK_F5, KeyEvent.VK_F6, KeyEvent.VK_F7, KeyEvent.VK_F8,
 	       KeyEvent.VK_F9, KeyEvent.VK_F10, KeyEvent.VK_F11, KeyEvent.VK_F12};
@@ -25,6 +31,25 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	mrgn = new Coord(0,0);
 	cbtn.visible = false;
 	justclose = true;
+	
+	lockbtn = new IButton(Coord.z, this, locked?ilockc:ilocko, locked?ilocko:ilockc, locked?ilockch:ilockoh) {
+	    public void click() {
+		locked = !locked;
+		if(locked) {
+		    up = ilockc;
+		    down = ilocko;
+		    hover = ilockch;
+		} else {
+		    up = ilocko;
+		    down = ilockc;
+		    hover = ilockoh;
+		}
+		//		    Config.setWindowOpt(name+"_locked", locked);
+	    }
+	};
+	
+	lockbtn.recthit = true;
+	
 	resize(beltc(COUNT-1).add(invsz));
     }
     
@@ -70,6 +95,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		ui.grabmouse(this);
 	    } else {
 		super.mousedown(c, button);
+		if(locked){canceldm();}
 	    }
 	} else if((button == 3)&&(!locked)){
 	    clearslot(slot);
@@ -181,7 +207,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     private Coord beltc(int i) {
 	return(new Coord(((invsz.x + 2) * i)
-		+ (10 * (i / 4)),
+		+ (10 * (i / 4)) + lockbtn.sz.x,
 		0));
     }
     
@@ -197,6 +223,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     public Resource beltres(int slot){
 	if(slot == -1){return null;}
+	slot += curbelt*COUNT;
 	Resource res = null;
 	try {
 	    if(gui.belt[slot] != null)

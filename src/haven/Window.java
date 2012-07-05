@@ -40,7 +40,7 @@ public class Window extends Widget implements DTarget {
     static BufferedImage[] cbtni = new BufferedImage[] {
 	Resource.loadimg("gfx/hud/cbtn"),
 	Resource.loadimg("gfx/hud/cbtnd"),
-	Resource.loadimg("gfx/hud/cbtnh")}; 
+	Resource.loadimg("gfx/hud/cbtnh")};
     static Color cc = Color.YELLOW;
     static Text.Foundry cf = new Text.Foundry(new Font("Serif", Font.PLAIN, 12));
     public static final IBox swbox = new IBox("gfx/hud", "stl", "str", "sbl", "sbr", "sextv", "sextv", "sexth", "sexth");
@@ -67,7 +67,8 @@ public class Window extends Widget implements DTarget {
     }
 
     private void placecbtn() {
-	cbtn.c = new Coord(wsz.x - Utils.imgsz(cbtni[0]).x + 7, -24).sub(mrgn).sub(wbox.tloff());
+	cbtn.c = new Coord(sz.x - cbtn.sz.x, 0).sub(mrgn).sub(wbox.tloff());
+//	cbtn.c = new Coord(wsz.x - Utils.imgsz(cbtni[0]).x + 7, -24).sub(mrgn).sub(wbox.tloff());
 	//cbtn.c = xlate(new Coord(tlo.x + wsz.x - Utils.imgsz(cbtni[0]).x, tlo.y), false);
     }
 	
@@ -76,6 +77,7 @@ public class Window extends Widget implements DTarget {
 	this.tlo = tlo;
 	this.rbo = rbo;
 	cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
+	cbtn.recthit = true;
 	if(cap != null)
 	    this.cap = cf.render(cap, cc);
 	sz = sz.add(tlo).add(rbo).add(wbox.bisz()).add(mrgn.mul(2));
@@ -183,12 +185,17 @@ public class Window extends Widget implements DTarget {
 	
     public boolean mouseup(Coord c, int button) {
 	if(dm) {
-	    ui.grabmouse(null);
-	    dm = false;
+	    canceldm();
 	} else {
 	    super.mouseup(c, button);
 	}
 	return(true);
+    }
+
+    public void canceldm() {
+	if(dm)
+	    ui.grabmouse(null);
+	dm = false;
     }
 	
     public void mousemove(Coord c) {
