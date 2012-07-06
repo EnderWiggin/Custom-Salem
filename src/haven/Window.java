@@ -66,7 +66,7 @@ public class Window extends Widget implements DTarget {
 	    });
     }
 
-    private void placecbtn() {
+    protected void placecbtn() {
 	cbtn.c = new Coord(sz.x - cbtn.sz.x, 0).sub(mrgn).sub(wbox.tloff());
 //	cbtn.c = new Coord(wsz.x - Utils.imgsz(cbtni[0]).x + 7, -24).sub(mrgn).sub(wbox.tloff());
 	//cbtn.c = xlate(new Coord(tlo.x + wsz.x - Utils.imgsz(cbtni[0]).x, tlo.y), false);

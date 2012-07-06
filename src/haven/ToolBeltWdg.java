@@ -3,6 +3,9 @@ package haven;
 import static haven.Inventory.invsq;
 import static haven.WItem.missing;
 
+import haven.Resource.AButton;
+
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
@@ -17,21 +20,29 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     GameUI gui;
     private int curbelt = 0;
-    boolean locked = false;
+    boolean locked = false, flipped = false;
     private Resource pressed, dragging;
     private int preslot;
-    private IButton lockbtn;
-    public final int beltkeys[] = {KeyEvent.VK_F1, KeyEvent.VK_F2, KeyEvent.VK_F3, KeyEvent.VK_F4,
-	       KeyEvent.VK_F5, KeyEvent.VK_F6, KeyEvent.VK_F7, KeyEvent.VK_F8,
-	       KeyEvent.VK_F9, KeyEvent.VK_F10, KeyEvent.VK_F11, KeyEvent.VK_F12};
+    private IButton lockbtn, flipbtn;
+    public final int beltkeys[];
+    private Tex[] nums;
+    private final String name;
     
-    public ToolBeltWdg(GameUI parent) {
+    public ToolBeltWdg(GameUI parent, String name, int beltn, final int[] keys) {
 	super(new Coord(5, 500), Coord.z, parent, null);
 	gui = parent;
+	curbelt = beltn;
+	this.name = name;
+	beltkeys = keys;
 	mrgn = new Coord(0,0);
 	cbtn.visible = false;
 	justclose = true;
 	
+	init();
+    }
+
+    private void init() {
+	loadOpts();
 	lockbtn = new IButton(Coord.z, this, locked?ilockc:ilocko, locked?ilocko:ilockc, locked?ilockch:ilockoh) {
 	    public void click() {
 		locked = !locked;
@@ -44,15 +55,56 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		    down = ilockc;
 		    hover = ilockoh;
 		}
-		//		    Config.setWindowOpt(name+"_locked", locked);
+		Config.setWindowOpt(name+"_locked", locked);
 	    }
 	};
-	
 	lockbtn.recthit = true;
 	
+	flipbtn = new IButton(Coord.z, this, Resource.loadimg("gfx/hud/flip"), Resource.loadimg("gfx/hud/flip"), Resource.loadimg("gfx/hud/flipo")) {
+		public void click() {
+		    flip();
+		}
+	};
+	flipbtn.recthit = true;
+	
 	resize(beltc(COUNT-1).add(invsz));
+	/* Text rendering is slow, so pre-cache the hotbar numbers. */
+	nums = new Tex[COUNT];
+	for(int i = 0; i < COUNT; i++) {
+	    String key = KeyEvent.getKeyText(beltkeys[i]);
+	    nums[i] = new TexI(Utils.outline2(Text.render(key).img, Color.BLACK, true));
+	}
     }
     
+    private void loadOpts() {
+	synchronized (Config.window_props) {
+	    if(Config.window_props.getProperty(name+"_locked", "false").equals("true")) {
+		locked = true;
+	    }
+	    if(Config.window_props.getProperty(name+"_flipped", "false").equals("true")) {
+		flip();
+	    }
+	    c = new Coord(Config.window_props.getProperty(name+"_pos", c.toString()));
+	}
+    }
+    
+    private void flip() {
+	flipped = !flipped;
+	Config.setWindowOpt(name+"_flipped", flipped);
+	resize(beltc(COUNT-1).add(invsz));
+    }
+
+    @Override
+    protected void placecbtn() {
+	if(flipbtn != null){
+	    if(flipped){
+		flipbtn.c = new Coord(asz.x - flipbtn.sz.x,0);
+	    } else {
+		flipbtn.c = new Coord(0, asz.y - flipbtn.sz.y);
+	    }
+	}
+    }
+
     @Override
     public void cdraw(GOut g) {
 	super.cdraw(g);
@@ -71,7 +123,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		    g.image(tex, c, invsz);
 		}
 		g.chcolor(200, 220, 200, 255);
-		FastText.aprintf(g, c.add(invsz), 1, 1, "F%d", i + 1);
+		g.aimage(nums[i], c.add(invsz), 1, 1);
 		g.chcolor();
 	    }
     }
@@ -119,7 +171,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	    ui.grabmouse(null);
 	}
 	if(dm) {
-	    //Config.setWindowOpt(name+"_pos", this.c.toString());
+	    Config.setWindowOpt(name+"_pos", this.c.toString());
 	}
 	super.mouseup(c, button);
 	
@@ -171,14 +223,26 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	    return true;
     }
     
+    private boolean checkmenu(int slot) {
+	Resource res = beltres(slot);
+	if(res == null){return false;}
+	AButton ab = res.layer(AButton.class);
+	if(ab != null && ((ab.ad.length == 0) || ab.ad[0].equals("@"))){
+	    ui.mnu.useres(res);
+	}
+	return false;
+    }
+    
     private void use(int slot) {
 	if(slot == -1){return;}
+	if(checkmenu(slot)){return;}
 	slot += curbelt*COUNT;
 	ui.gui.wdgmsg("belt", slot, 1, ui.modflags());
     }
-    
+
     private void keyact(int index) {
 	if(index == -1){return;}
+	if(checkmenu(index)){return;}
 	final int slot = index + curbelt*COUNT;
 	MapView map = ui.gui.map;
 	if(map != null) {
@@ -206,9 +270,16 @@ public class ToolBeltWdg extends Window implements DropTarget{
     }
     
     private Coord beltc(int i) {
-	return(new Coord(((invsz.x + 2) * i)
-		+ (10 * (i / 4)) + lockbtn.sz.x,
-		0));
+	if(flipped){
+	    return(new Coord(0, 
+		    ((invsz.y + 2) * i)
+		    + (10 * (i / 4)) + ilockc.getWidth() + 2));
+	} else {
+	    
+	    return(new Coord(((invsz.x + 2) * i)
+		    + (10 * (i / 4)) + ilockc.getWidth() + 2,
+		    0));
+	}
     }
     
     public int beltslot(Coord c){
@@ -254,6 +325,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     public boolean dropthing(Coord cc, Object thing) {
 	int slot = beltslot(cc);
 	if(slot != -1) {
+	    slot += (curbelt * COUNT);
 	    if(thing instanceof Resource) {
 		Resource res = (Resource)thing;
 		if(res.layer(Resource.action) != null) {
