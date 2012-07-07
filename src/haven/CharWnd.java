@@ -311,13 +311,12 @@ public class CharWnd extends Window {
 		if(insp != null) {
 		    for(int i = 0; i < insp.attrs.length; i++) {
 			if(insp.attrs[i].equals(nm)) {
-			    int w = ((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100);
-			    if(w > expsz.x - 2) {
-				w = expsz.x - 2;
+			    int w = Math.min(((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100),
+					     expsz.x - 2);
+			    if(insp.exp[i] > (attr.comp * 100))
 				g.chcolor(255, 255, 0, 255);
-			    } else {
+			    else
 				g.chcolor(255, 192, 0, 255);
-			    }
 			    g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
 			    break;
 			}
@@ -328,13 +327,12 @@ public class CharWnd extends Window {
 		Skill sk = nsk.skills[nsk.sel];
 		for(int i = 0; i < sk.costa.length; i++) {
 		    if(sk.costa[i].equals(nm)) {
-			int w = ((expsz.x - 2) * sk.costv[i]) / (attr.comp * 100);
-			if(w > expsz.x - 2) {
-			    w = expsz.x - 2;
+			int w = Math.min(((expsz.x - 2) * sk.costv[i]) / (attr.comp * 100),
+					 expsz.x - 2);
+			if(sk.costv[i] > (attr.comp * 100))
 			    g.chcolor(255, 0, 0, 255);
-			} else {
+			else
 			    g.chcolor(128, 0, 0, 255);
-			}
 			g.frect(expc.add(1, expsz.y / 2), new Coord(w, (expsz.y / 2)));
 			break;
 		    }
