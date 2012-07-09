@@ -1,5 +1,13 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 09.07.12:}}
+  * Reworked Toolbar - now it uses default client's mechanics to store and activate actions. Actual changes:
+    - combat actions now work same way as in default client when 
+      activated by key - immediate execution in direction of a cursor
+    - Your stored actions will be same on any computer
+    - ALT+1 ... ALT+6 changes belts for numeric belt
+    - ALT+F1 ... ALT+F6 changes belts for function-key belt. Note that ALT+F4 could close your client.
+ 
 $size[14]{$u{Update for 30.04.12:}}
   * ALT-V toggles humours bar between diamond and plain modes. Right-click humours bar in plain mode to make it always display values.
   * fixed minimap drawn not correctly at launch sometime
