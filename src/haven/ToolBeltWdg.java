@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 public class ToolBeltWdg extends Window implements DropTarget{
     private static final Coord invsz = invsq.sz();
     private static final int COUNT = 12;
+    private static final int BELTS = 6;
+    private static final Tex BELTNUMS[];
     
     private static final BufferedImage ilockc = Resource.loadimg("gfx/hud/lockc");
     private static final BufferedImage ilockch = Resource.loadimg("gfx/hud/lockch");
@@ -20,18 +22,28 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     GameUI gui;
     private int curbelt = 0;
+    private int start = 0;
     boolean locked = false, flipped = false;
     private Resource pressed, dragging;
     private int preslot;
-    private IButton lockbtn, flipbtn;
+    private IButton lockbtn, flipbtn, minus, plus;
     public final int beltkeys[];
     private Tex[] nums;
     private final String name;
+    private Coord beltNumC;
+    
+    static {
+	BELTNUMS = new Tex[BELTS];
+	for(int i=0; i< BELTS; i++){
+	    String num = String.format("%d", i);
+	    BELTNUMS[i] = new TexI(Utils.outline2(Text.render(num).img, Color.BLACK, true));
+	}
+    }
     
     public ToolBeltWdg(GameUI parent, String name, int beltn, final int[] keys) {
 	super(new Coord(5, 500), Coord.z, parent, null);
 	gui = parent;
-	curbelt = beltn;
+	start = beltn;
 	this.name = name;
 	beltkeys = keys;
 	mrgn = new Coord(0,0);
@@ -67,7 +79,18 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	};
 	flipbtn.recthit = true;
 	
-	resize(beltc(COUNT-1).add(invsz));
+	minus = new IButton(Coord.z, this, Resource.loadimg("gfx/hud/charsh/minusup"), Resource.loadimg("gfx/hud/charsh/minusdown")) {
+	    public void click() {
+		    prevBelt();
+		}
+	};
+	plus = new IButton(Coord.z, this, Resource.loadimg("gfx/hud/charsh/plusup"), Resource.loadimg("gfx/hud/charsh/plusdown")) {
+	    public void click() {
+		    nextBelt();
+		}
+	};
+	
+	resize();
 	/* Text rendering is slow, so pre-cache the hotbar numbers. */
 	nums = new Tex[COUNT];
 	for(int i = 0; i < COUNT; i++) {
@@ -91,16 +114,48 @@ public class ToolBeltWdg extends Window implements DropTarget{
     private void flip() {
 	flipped = !flipped;
 	Config.setWindowOpt(name+"_flipped", flipped);
-	resize(beltc(COUNT-1).add(invsz));
+	resize();
+    }
+
+    private void resize() {
+	resize(beltc(COUNT-1).add(invsz).add(flipped?new Coord(0,14):new Coord(14,0)));
+    }
+    
+    protected int getbelt(){
+	return getbelt(0);
+    }
+    
+    protected int getbelt(int i){
+	return i + (start + curbelt)*COUNT;
+    }
+    
+    protected void nextBelt() {
+	curbelt = (curbelt + 1)%BELTS;
+    }
+
+    protected void prevBelt() {
+	curbelt = (curbelt + BELTS - 1)%BELTS;
     }
 
     @Override
     protected void placecbtn() {
-	if(flipbtn != null){
-	    if(flipped){
+	if(flipped){
+	    if(flipbtn != null)
 		flipbtn.c = new Coord(asz.x - flipbtn.sz.x,0);
-	    } else {
+	    if(plus != null)
+		plus.c = new Coord(-1, asz.y - plus.sz.y);
+	    if(minus != null) {
+		minus.c  = asz.sub(minus.sz).add(1, 0);
+		beltNumC = plus.c.add(minus.c).add(minus.sz).div(2);
+	    }
+	} else {
+	    if(flipbtn != null)
 		flipbtn.c = new Coord(0, asz.y - flipbtn.sz.y);
+	    if(plus != null)
+		plus.c = new Coord(asz.x - plus.sz.x, -1);
+	    if(minus != null) {
+		minus.c  = asz.sub(minus.sz).add(0,1);
+		beltNumC = plus.c.add(minus.c).add(minus.sz).div(2);
 	    }
 	}
     }
@@ -109,23 +164,24 @@ public class ToolBeltWdg extends Window implements DropTarget{
     public void cdraw(GOut g) {
 	super.cdraw(g);
 	for(int i = 0; i < COUNT; i++) {
-		int slot = i + (curbelt * COUNT);
-		Coord c = beltc(i);
-		g.image(invsq, beltc(i));
-		Tex tex = null;
-		try {
-		    if(gui.belt[slot] != null)
-			tex = gui.belt[slot].get().layer(Resource.imgc).tex();
-		    g.image(tex, c.add(1, 1));
-		} catch(Loading e) {
-		    missing.loadwait();
-		    tex = missing.layer(Resource.imgc).tex();
-		    g.image(tex, c, invsz);
-		}
-		g.chcolor(200, 220, 200, 255);
-		g.aimage(nums[i], c.add(invsz), 1, 1);
-		g.chcolor();
+	    int slot = getbelt(i);
+	    Coord c = beltc(i);
+	    g.image(invsq, beltc(i));
+	    Tex tex = null;
+	    try {
+		if(gui.belt[slot] != null)
+		    tex = gui.belt[slot].get().layer(Resource.imgc).tex();
+		g.image(tex, c.add(1, 1));
+	    } catch(Loading e) {
+		missing.loadwait();
+		tex = missing.layer(Resource.imgc).tex();
+		g.image(tex, c, invsz);
 	    }
+	    g.chcolor(200, 220, 200, 255);
+	    g.aimage(nums[i], c.add(invsz), 1, 1);
+	    g.chcolor();
+	}
+	g.aimage(BELTNUMS[curbelt], beltNumC, 0.5f, 0.5f);
     }
     
     @Override
@@ -195,7 +251,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	for(int i = 0; i < beltkeys.length; i++) {
 	    if(ev.getKeyCode() == beltkeys[i]) {
 		if(M) {
-		    curbelt = i;
+		    curbelt = i%BELTS;
 		    return(true);
 		} else {
 		    keyact(i);
@@ -236,14 +292,14 @@ public class ToolBeltWdg extends Window implements DropTarget{
     private void use(int slot) {
 	if(slot == -1){return;}
 	if(checkmenu(slot)){return;}
-	slot += curbelt*COUNT;
+	slot = getbelt(slot);
 	ui.gui.wdgmsg("belt", slot, 1, ui.modflags());
     }
 
     private void keyact(int index) {
 	if(index == -1){return;}
 	if(checkmenu(index)){return;}
-	final int slot = index + curbelt*COUNT;
+	final int slot = getbelt(index);
 	MapView map = ui.gui.map;
 	if(map != null) {
 	    Coord mvc = map.rootxlate(ui.mc);
@@ -266,7 +322,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     private void clearslot(int slot) {
 	if(slot == -1){return;}
-	ui.gui.wdgmsg("setbelt", (curbelt*COUNT)+slot, 1);
+	ui.gui.wdgmsg("setbelt", getbelt(slot), 1);
     }
     
     private Coord beltc(int i) {
@@ -294,7 +350,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     public Resource beltres(int slot){
 	if(slot == -1){return null;}
-	slot += curbelt*COUNT;
+	slot = getbelt(slot);
 	Resource res = null;
 	try {
 	    if(gui.belt[slot] != null)
@@ -307,7 +363,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     public Object tooltip(Coord c, boolean again) {
 	int slot = beltslot(c);
 	if(slot  != -1){
-	    slot += (curbelt * COUNT);
+	    slot = getbelt(slot);
 	    try {
 		if(gui.belt[slot] != null){
 		    Resource res = gui.belt[slot].get();
@@ -325,7 +381,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     public boolean dropthing(Coord cc, Object thing) {
 	int slot = beltslot(cc);
 	if(slot != -1) {
-	    slot += (curbelt * COUNT);
+	    slot = getbelt(slot);
 	    if(thing instanceof Resource) {
 		Resource res = (Resource)thing;
 		if(res.layer(Resource.action) != null) {
