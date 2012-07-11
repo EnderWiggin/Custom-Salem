@@ -613,7 +613,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	x += 62;
 	new MenuButton(new Coord(x, 0), mainmenu, "opt", -1, "Options (Merely toggles shadows for now)") {
 	    public void click() {
-		togglesdw = true;
+		//togglesdw = true;
+		OptWnd.toggle();
 	    }
 	};
 	menumenu = new Widget(Coord.z, new Coord(132, 33), this) {

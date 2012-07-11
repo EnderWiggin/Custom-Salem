@@ -38,6 +38,7 @@ import java.util.Map;
 import javax.media.opengl.GL;
 
 public class MapView extends PView implements DTarget {
+    public static Map<String, Class> camtypes;
     public long plgob = -1;
     public Coord cc;
     private final Glob glob;
@@ -47,6 +48,13 @@ public class MapView extends PView implements DTarget {
     private Plob placing = null;
     private int[] visol = new int[32];
     private Grabber grab;
+    
+    {
+	camtypes = new HashMap<String, Class>();
+	camtypes.put("folow", FollowCam.class);
+	camtypes.put("sfollow", SmoothFollowCam.class);
+	camtypes.put("free", FreeCam.class);
+    }
     
     private interface Delayed {
 	public void run(GOut g);

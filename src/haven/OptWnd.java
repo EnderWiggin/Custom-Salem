@@ -32,6 +32,7 @@ import java.awt.font.TextAttribute;
 
 public class OptWnd extends Window {
     public static final RichText.Foundry foundry = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
+    private static OptWnd instance = null;
     private Tabs body;
     private String curcam;
     private Map<String, CamInfo> caminfomap = new HashMap<String, CamInfo>();
@@ -58,7 +59,7 @@ public class OptWnd extends Window {
 
     public OptWnd(Coord c, Widget parent) {
 	super(c, new Coord(400, 340), parent, "Options");
-
+	justclose = true;
 	body = new Tabs(Coord.z, new Coord(400, 300), this) {
 		public void changed(Tab from, Tab to) {
 		    Utils.setpref("optwndtab", to.btn.text.text);
@@ -70,11 +71,11 @@ public class OptWnd extends Window {
 	{ /* GENERAL TAB */
 	    tab = body.new Tab(new Coord(0, 0), 60, "General");
 
-	    new Button(new Coord(10, 40), 125, tab, "Quit") {
+	    new Button(new Coord(0, 30), 125, tab, "Quit") {
 		public void click() {
 		    HackThread.tg().interrupt();
 		}};
-	    new Button(new Coord(10, 70), 125, tab, "Log out") {
+	    new Button(new Coord(0, 60), 125, tab, "Log out") {
 		public void click() {
 		    ui.sess.close();
 		}};
@@ -100,70 +101,21 @@ public class OptWnd extends Window {
 	    else                                                editmode.check("PC");
 	}
 
-	/*
-	{ -* CAMERA TAB *-
-	    curcam = Utils.getpref("defcam", "border");
+	
+	{ //-* CAMERA TAB *-
+	    curcam = Utils.getpref("defcam", "fololw");
 	    tab = body.new Tab(new Coord(70, 0), 60, "Camera");
 
 	    new Label(new Coord(10, 40), tab, "Camera type:");
 	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 70), new Coord(210, 180), tab, "", foundry);
 	    caminfo.bg = new java.awt.Color(0, 0, 0, 64);
-	    String dragcam = "\n\n$col[225,200,100,255]{You can drag and recenter with the middle mouse button.}";
-	    String fscam = "\n\n$col[225,200,100,255]{Should be used in full-screen mode.}";
-	    addinfo("orig",       "The Original",  "The camera centers where you left-click.", null);
-	    addinfo("predict",    "The Predictor", "The camera tries to predict where your character is heading - à la Super Mario World - and moves ahead of your character. Works unlike a charm." + dragcam, null);
-	    addinfo("border",     "Freestyle",     "You can move around freely within the larger area of the window; the camera only moves along to ensure the character does not reach the edge of the window. Boom chakalak!" + dragcam, null);
-	    addinfo("fixed",      "The Fixator",   "The camera is fixed, relative to your character." + dragcam, null);
-	    addinfo("kingsquest", "King's Quest",  "The camera is static until your character comes close enough to the edge of the screen, at which point the camera snaps around the edge.", null);
-	    addinfo("cake",       "Pan-O-Rama",    "The camera centers at the point between your character and the mouse cursor. It's pantastic!", null);
+	    addinfo("follow",       "The Follow Cam",  "The camera centers where you left-click.", null);
+	    addinfo("sfollow",    "Smooth Follow Cam", "The camera tries to predict where your character is heading - à la Super Mario World - and moves ahead of your character. Works unlike a charm.", null);
+	    addinfo("free",     "Freestyle",     "You can move around freely within the larger area of the window; the camera only moves along to ensure the character does not reach the edge of the window. Boom chakalak!", null);
 
 	    final Tabs cambox = new Tabs(new Coord(100, 60), new Coord(300, 200), tab);
 	    Tabs.Tab ctab;
-	    -* clicktgt arg *-
-	    ctab = cambox.new Tab();
-	    new Label(new Coord(45, 10),  ctab, "Fast");
-	    new Label(new Coord(45, 180), ctab, "Slow");
-	    new Scrollbar(new Coord(60, 20), 160, ctab, 0, 20) {
-		    {
-			val = Integer.parseInt(Utils.getpref("clicktgtarg1", "10"));
-			setcamargs("clicktgt", calcarg());
-		    }
-		public boolean mouseup(Coord c, int button) {
-		    if(super.mouseup(c, button)) {
-			setcamargs(curcam, calcarg());
-			setcamera(curcam);
-			Utils.setpref("clicktgtarg1", String.valueOf(val));
-			return(true);
-		    }
-		    return(false);
-		}
-		private String calcarg() {
-		    return(String.valueOf(Math.cbrt(Math.cbrt(val / 24.0))));
-		}};
-	    addinfo("clicktgt", "The Target Seeker", "The camera recenters smoothly where you left-click." + dragcam, ctab);
-	    -* fixedcake arg *-
-	    ctab = cambox.new Tab();
-	    new Label(new Coord(45, 10),  ctab, "Fast");
-	    new Label(new Coord(45, 180), ctab, "Slow");
-	    new Scrollbar(new Coord(60, 20), 160, ctab, 0, 20) {
-		    {
-			val = Integer.parseInt(Utils.getpref("fixedcakearg1", "10"));
-			setcamargs("fixedcake", calcarg());
-		    }
-		public boolean mouseup(Coord c, int button) {
-		    if(super.mouseup(c, button)) {
-			setcamargs(curcam, calcarg());
-			setcamera(curcam);
-			Utils.setpref("fixedcakearg1", String.valueOf(val));
-			return(true);
-		    }
-		    return(false);
-		}
-		private String calcarg() {
-		    return(String.valueOf(Math.pow(1 - (val / 20.0), 2)));
-		}};
-	    addinfo("fixedcake", "The Borderizer", "The camera is fixed, relative to your character unless you touch one of the screen's edges with the mouse, in which case the camera peeks in that direction." + dragcam + fscam, ctab);
-
+	    
 	    final RadioGroup cameras = new RadioGroup(tab) {
 		    public void changed(int btn, String lbl) {
 			if(camname2type.containsKey(lbl))
@@ -171,7 +123,7 @@ public class OptWnd extends Window {
 			if(!lbl.equals(curcam)) {
 			    if(camargs.containsKey(lbl))
 				setcamargs(lbl, camargs.get(lbl));
-			    setcamera(lbl);
+//			    setcamera(lbl);
 			}
 			CamInfo inf = caminfomap.get(lbl);
 			if(inf == null) {
@@ -191,7 +143,7 @@ public class OptWnd extends Window {
 		cameras.add(camname, new Coord(10, y += 25));
 	    cameras.check(caminfomap.containsKey(curcam) ? caminfomap.get(curcam).name : curcam);
 	}
-	*/
+	
 
 	{ /* AUDIO TAB */
 	    tab = body.new Tab(new Coord(140, 0), 60, "Audio");
@@ -289,5 +241,20 @@ public class OptWnd extends Window {
 	    box.draw(g, Coord.z, sz);
 	    super.draw(og);
 	}
+    }
+
+    public static void toggle() {
+	UI ui = UI.instance;
+	if(instance == null){
+	    instance = new OptWnd(Coord.z, ui.gui);
+	} else {
+	    ui.destroy(instance);
+	}
+    }
+
+    @Override
+    public void destroy() {
+	instance = null;
+	super.destroy();
     }
 }
