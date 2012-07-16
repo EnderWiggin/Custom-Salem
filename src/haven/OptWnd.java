@@ -37,7 +37,6 @@ public class OptWnd extends Window {
     private String curcam;
     private Map<String, CamInfo> caminfomap = new HashMap<String, CamInfo>();
     private Map<String, String> camname2type = new HashMap<String, String>();
-    private Map<String, String[]> camargs = new HashMap<String, String[]>();
     private Comparator<String> camcomp = new Comparator<String>() {
 	public int compare(String a, String b) {
 	    if(a.startsWith("The ")) a = a.substring(4);
@@ -103,27 +102,24 @@ public class OptWnd extends Window {
 
 	
 	{ //-* CAMERA TAB *-
-	    curcam = Utils.getpref("defcam", "fololw");
+	    curcam = Utils.getpref("defcam", MapView.DEFCAM);
 	    tab = body.new Tab(new Coord(70, 0), 60, "Camera");
 
 	    new Label(new Coord(10, 40), tab, "Camera type:");
-	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 70), new Coord(210, 180), tab, "", foundry);
+	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 25), new Coord(210, 180), tab, "", foundry);
 	    caminfo.bg = new java.awt.Color(0, 0, 0, 64);
-	    addinfo("follow",       "The Follow Cam",  "The camera centers where you left-click.", null);
-	    addinfo("sfollow",    "Smooth Follow Cam", "The camera tries to predict where your character is heading - à la Super Mario World - and moves ahead of your character. Works unlike a charm.", null);
-	    addinfo("free",     "Freestyle",     "You can move around freely within the larger area of the window; the camera only moves along to ensure the character does not reach the edge of the window. Boom chakalak!", null);
+	    addinfo("follow",       "Follow Cam",  "The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("sfollow",    "Follow Cam Smoothed", "The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("free",     "Freestyle",     "You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 
 	    final Tabs cambox = new Tabs(new Coord(100, 60), new Coord(300, 200), tab);
-	    Tabs.Tab ctab;
 	    
 	    final RadioGroup cameras = new RadioGroup(tab) {
 		    public void changed(int btn, String lbl) {
 			if(camname2type.containsKey(lbl))
 			    lbl = camname2type.get(lbl);
 			if(!lbl.equals(curcam)) {
-			    if(camargs.containsKey(lbl))
-				setcamargs(lbl, camargs.get(lbl));
-//			    setcamera(lbl);
+			    setcamera(lbl);
 			}
 			CamInfo inf = caminfomap.get(lbl);
 			if(inf == null) {
@@ -176,31 +172,15 @@ public class OptWnd extends Window {
 	}
     }
 
-    /*
+
     private void setcamera(String camtype) {
 	curcam = camtype;
 	Utils.setpref("defcam", curcam);
-	String[] args = camargs.get(curcam);
-	if(args == null) args = new String[0];
 
-	MapView mv = ui.root.findchild(MapView.class);
+	MapView mv = ui.gui.map;
 	if(mv != null) {
-	    if     (curcam.equals("clicktgt"))   mv.cam = new MapView.OrigCam2(args);
-	    else if(curcam.equals("fixedcake"))  mv.cam = new MapView.FixedCakeCam(args);
-	    else {
-		try {
-		    mv.cam = MapView.camtypes.get(curcam).newInstance();
-		} catch(InstantiationException e) {
-		} catch(IllegalAccessException e) {}
-	    }
+	    mv.setcam(curcam);
 	}
-    }
-    */
-
-    private void setcamargs(String camtype, String... args) {
-	camargs.put(camtype, args);
-	if(args.length > 0 && curcam.equals(camtype))
-	    Utils.setprefb("camargs", Utils.serialize(args));
     }
 
     private int getsfxvol() {

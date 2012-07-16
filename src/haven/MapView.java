@@ -29,6 +29,8 @@ package haven;
 import static haven.MCache.tilesz;
 
 import java.awt.Color;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,20 +40,21 @@ import java.util.Map;
 import javax.media.opengl.GL;
 
 public class MapView extends PView implements DTarget {
-    public static Map<String, Class> camtypes;
+    public static final String DEFCAM = "sfollow";
+    public static Map<String, Class<? extends Camera>> camtypes;
     public long plgob = -1;
     public Coord cc;
     private final Glob glob;
     private int view = 2;
     private Collection<Delayed> delayed = new LinkedList<Delayed>();
-    public Camera camera = new FollowCam();
+    public Camera camera;
     private Plob placing = null;
     private int[] visol = new int[32];
     private Grabber grab;
     
     {
-	camtypes = new HashMap<String, Class>();
-	camtypes.put("folow", FollowCam.class);
+	camtypes = new HashMap<String, Class<? extends Camera>>();
+	camtypes.put("follow", FollowCam.class);
 	camtypes.put("sfollow", SmoothFollowCam.class);
 	camtypes.put("free", FreeCam.class);
     }
@@ -66,11 +69,13 @@ public class MapView extends PView implements DTarget {
 	void mmousemove(Coord mc);
     }
     
-    public abstract class Camera extends haven.Camera {
+    public static abstract class Camera extends haven.Camera {
 	private boolean loading;
+	protected MapView mv;
 	
-	public Camera() {
+	public Camera(MapView mv) {
 	    super(Matrix4f.identity());
+	    this.mv = mv;
 	}
 	
 	public boolean click(Coord sc) {
@@ -99,7 +104,11 @@ public class MapView extends PView implements DTarget {
 	}
     }
     
-    private class FollowCam extends Camera {
+    private static class FollowCam extends Camera {
+	public FollowCam(MapView mv) {
+	    super(mv);
+	}
+
 	private final float fr = 0.0f, h = 10.0f;
 	private float ca, cd, da;
 	private Coord3f curc = null;
@@ -109,7 +118,7 @@ public class MapView extends PView implements DTarget {
 	private float anglorig;
 	
 	public void resized() {
-	    ca = (float)sz.y / (float)sz.x;
+	    ca = (float)mv.sz.y / (float)mv.sz.x;
 	    cd = 400.0f * ca;
 	    da = (float)Math.atan(ca * 0.5f);
 	}
@@ -131,7 +140,7 @@ public class MapView extends PView implements DTarget {
 	}
 
 	public Matrix4f compute() {
-	    Coord3f cc = getcc();
+	    Coord3f cc = mv.getcc();
 	    cc.y = -cc.y;
 	    if(curc == null)
 		curc = cc;
@@ -165,7 +174,7 @@ public class MapView extends PView implements DTarget {
 	}
     }
     
-    private class SmoothFollowCam extends Camera {
+    private static class SmoothFollowCam extends Camera {
 	private final float fr = 0.0f, h = 10.0f;
 	private float ca, cd, da;
 	private Coord3f curc = null;
@@ -174,13 +183,14 @@ public class MapView extends PView implements DTarget {
 	private Coord dragorig = null;
 	private float anglorig;
 	
-	private SmoothFollowCam() {
+	public SmoothFollowCam(MapView mv) {
+	    super(mv);
 	    elev = telev = (float)Math.PI / 4.0f;
 	    angl = tangl = 0.0f;
 	}
 	
 	public void resized() {
-	    ca = (float)sz.y / (float)sz.x;
+	    ca = (float)mv.sz.y / (float)mv.sz.x;
 	    cd = 400.0f * ca;
 	    da = (float)Math.atan(ca * 0.5f);
 	}
@@ -213,7 +223,7 @@ public class MapView extends PView implements DTarget {
 	    if(Math.abs(tangl - angl) < 0.0001)
 		angl = tangl;
 	    
-	    Coord3f cc = getcc();
+	    Coord3f cc = mv.getcc();
 	    cc.y = -cc.y;
 	    if(curc == null)
 		curc = cc;
@@ -258,15 +268,19 @@ public class MapView extends PView implements DTarget {
 	}
     }
 
-    private class FreeCam extends Camera {
+    private static class FreeCam extends Camera {
+	public FreeCam(MapView mv) {
+	    super(mv);
+	}
+
 	private float dist = 50.0f;
 	private float elev = (float)Math.PI / 4.0f;
 	private float angl = 0.0f;
 	private Coord dragorig = null;
 	private float elevorig, anglorig;
-
+	
 	public Matrix4f compute() {
-	    Coord3f cc = getcc();
+	    Coord3f cc = mv.getcc();
 	    cc.y = -cc.y;
 	    return(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
 	}
@@ -314,6 +328,7 @@ public class MapView extends PView implements DTarget {
     
     public MapView(Coord c, Coord sz, Widget parent, Coord cc, long plgob) {
 	super(c, sz, parent);
+	setcam(Utils.getpref("defcam", DEFCAM));
 	glob = ui.sess.glob;
 	this.cc = cc;
 	this.plgob = plgob;
@@ -998,24 +1013,27 @@ public class MapView extends PView implements DTarget {
 	return(true);
     }
     
-    public void togglecam(){
-	
-	String str ="Camera changed to ";
-	
-	if(camera instanceof FreeCam){
-	    camera = new FollowCam();
-	    str += "FolowCam";
-	} else if(camera instanceof FollowCam){
-	    camera = new SmoothFollowCam();
-	    str += "SmoothFolowCam";
-	} else {
-	    camera = new FreeCam();
-	    str += "FreeCam";
-	}
-	ui.message(str);
-    }
-    
     public boolean globtype(char c, java.awt.event.KeyEvent ev) {
 	return(false);
+    }
+
+    public void setcam(String cam) {
+	try {
+	    Constructor<? extends Camera> constructor;
+	    constructor = camtypes.get(cam).getConstructor(MapView.class); 
+	    camera = constructor.newInstance(this);
+	} catch (InstantiationException e) {
+	    e.printStackTrace();
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (SecurityException e) {
+	    e.printStackTrace();
+	} catch (IllegalArgumentException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) {
+	    e.printStackTrace();
+	}
     }
 }
