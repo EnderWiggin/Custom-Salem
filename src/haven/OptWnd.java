@@ -32,7 +32,7 @@ import java.awt.font.TextAttribute;
 
 public class OptWnd extends Window {
     public static final RichText.Foundry foundry = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
-    private static OptWnd instance = null;
+    public static OptWnd instance = null;
     private Tabs body;
     private String curcam;
     private Map<String, CamInfo> caminfomap = new HashMap<String, CamInfo>();
@@ -44,6 +44,7 @@ public class OptWnd extends Window {
 	    return(a.compareTo(b));
 	}
     };
+    CheckBox opt_shadow;
 
     private static class CamInfo {
 	String name, desc;
@@ -138,6 +139,17 @@ public class OptWnd extends Window {
 	    for(String camname : clist)
 		cameras.add(camname, new Coord(10, y += 25));
 	    cameras.check(caminfomap.containsKey(curcam) ? caminfomap.get(curcam).name : curcam);
+	    
+	    opt_shadow = new CheckBox(new Coord(180, 225), tab, "Shadows"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    ui.gui.shadows = val; 
+		    ui.gui.togglesdw = true;
+		}
+		
+	    };
+	    opt_shadow.a = ui.gui.shadows;
 	}
 	
 

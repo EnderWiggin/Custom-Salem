@@ -34,6 +34,7 @@ import java.awt.image.BufferedImage;
 import static haven.Inventory.invsq;
 
 public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Console.Directory {
+    private static final String OPT_SHADOWS = "shadows";
     public final String chrid;
     private static final int fkeys[] = {KeyEvent.VK_F1, KeyEvent.VK_F2, KeyEvent.VK_F3, KeyEvent.VK_F4,
 	       KeyEvent.VK_F5, KeyEvent.VK_F6, KeyEvent.VK_F7, KeyEvent.VK_F8,
@@ -559,7 +560,8 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	}
     }
 
-    private boolean togglesdw = false;
+    public boolean togglesdw = true;
+    public boolean shadows = Utils.getprefb(OPT_SHADOWS, false);
     private void makemenu() {
 	mainmenu = new Widget(new Coord(135, sz.y - 26), new Coord(386, 26), this);
 	int x = 0;
@@ -642,15 +644,20 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
     private void togglesdw(GLConfig gc) {
 	if(togglesdw) {
 	    togglesdw = false;
-	    if(gc.deflight == Light.pslights) {
-		gc.deflight = Light.vlights;
-	    } else {
-		if(gc.shuse) {
-		    gc.deflight = Light.pslights;
-		} else {
-		    error("Shadow rendering requires a shader compatible video card.");
+	    if(shadows){
+		if (gc.deflight != Light.pslights){
+		    if(gc.shuse) {
+			gc.deflight = Light.pslights;
+		    } else {
+			error("Shadow rendering requires a shader compatible video card.");
+			shadows = false;
+		    }
 		}
+	    } else if(gc.deflight == Light.pslights){
+		gc.deflight = Light.vlights;
 	    }
+	    Utils.setprefb(OPT_SHADOWS, shadows);
+	    if(OptWnd.instance != null){OptWnd.instance.opt_shadow.a = shadows;}
 	}
     }
 
