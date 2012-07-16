@@ -1,5 +1,12 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 16.07.12:}}
+  * Added Option window. Opened by clicking on Options button. Contains this options:
+    - camera selection (ALT+C does not work now)
+    - shadows toggling
+    - humors displaying mode (ALT+V does not work now)
+    - sound volume
+ 
 $size[14]{$u{Update for 09.07.12:}}
   * Reworked Toolbar - now it uses default client's mechanics to store and activate actions. Actual changes:
     - combat actions now work same way as in default client when 
