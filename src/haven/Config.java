@@ -62,7 +62,8 @@ public class Config {
     public static String prefspec = "salem";
     public static String userhome = System.getProperty("user.home")+"/Salem";
     public static String version;
-    public static boolean plain_tempers = false;
+    public static boolean plain_tempers = Utils.getprefb("plain_tempers", false);
+    public static boolean show_tempers = Utils.getprefb("show_tempers", false);
     
     public static String currentCharName = "";
     static Properties window_props;

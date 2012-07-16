@@ -28,7 +28,6 @@ package haven;
 
 import java.awt.Color;
 import java.awt.font.TextAttribute;
-import java.awt.image.BufferedImage;
 
 public class Tempers extends Widget {
     public static final Tex bg = Resource.loadtex("gfx/hud/tempers");
@@ -55,7 +54,6 @@ public class Tempers extends Widget {
     Tex tt = null;
     Tex[] texts = null;
     private boolean mover = false;
-    private boolean mlock = false;
     
     public Tempers(Coord c, Widget parent) {
 	super(c, bg.sz(), parent);
@@ -148,7 +146,7 @@ public class Tempers extends Widget {
 	c0.y += step;
 	bar(g, dispval(hard[3], lmax[3]), c0, cols[3]);
 	
-	if(mover || mlock){
+	if(mover || Config.show_tempers){
 	    if(texts == null){
 		texts = new Tex[4];
 		for(int i = 0; i < 4; i++){
@@ -228,7 +226,12 @@ public class Tempers extends Widget {
 
     public boolean mousedown(Coord c, int button) {
 	if(Config.plain_tempers && button == 3){
-	    mlock = !mlock;
+	    if(OptWnd.instance != null){
+		OptWnd.instance.opt_show_tempers.set(!Config.show_tempers);
+	    } else {
+		Config.show_tempers = !Config.show_tempers;
+		Utils.setprefb("show_tempers", Config.show_tempers);
+	    }
 	    return false;
 	}
 	

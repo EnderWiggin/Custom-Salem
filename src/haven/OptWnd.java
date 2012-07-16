@@ -45,6 +45,7 @@ public class OptWnd extends Window {
 	}
     };
     CheckBox opt_shadow;
+    CheckBox opt_show_tempers;
 
     private static class CamInfo {
 	String name, desc;
@@ -99,6 +100,28 @@ public class OptWnd extends Window {
 	    editmode.add("PC",    new Coord(10, 50));
 	    if(Utils.getpref("editmode", "pc").equals("emacs")) editmode.check("Emacs");
 	    else                                                editmode.check("PC");
+	    
+	    int y = 100;
+	    new CheckBox(new Coord(0, y), tab, "Show humors as bars"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.plain_tempers = val;
+		    opt_show_tempers.enabled = val;
+		    Utils.setprefb("plain_tempers", val);
+		}
+	    }.a = Config.plain_tempers;
+	    
+	    opt_show_tempers = new CheckBox(new Coord(0, y += 30), tab, "Always show humor numbers"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.show_tempers = val;
+		    Utils.setprefb("show_tempers", val);
+		}
+	    };
+	    opt_show_tempers.a = Config.show_tempers;
+	    opt_show_tempers.enabled = Config.plain_tempers;
 	}
 
 	

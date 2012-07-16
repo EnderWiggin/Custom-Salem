@@ -29,6 +29,7 @@ package haven;
 public class CheckBox extends Widget {
     static Tex box, mark;
     public boolean a = false;
+    public boolean enabled = true;
     Text lbl;
 	
     static {
@@ -48,6 +49,7 @@ public class CheckBox extends Widget {
     }
 	
     public boolean mousedown(Coord c, int button) {
+	if(!enabled){return false;}
 	if(button != 1)
 	    return(false);
 	a = !a;
@@ -61,10 +63,14 @@ public class CheckBox extends Widget {
     }
 
     public void draw(GOut g) {
+	if(!enabled){
+	    g.chcolor(128, 128, 128, 255);
+	}
 	g.image(lbl.tex(), new Coord(box.sz().x, box.sz().y - lbl.sz().y));
 	g.image(box, Coord.z);
 	if(a)
 	    g.image(mark, Coord.z);
+	g.chcolor();
 	super.draw(g);
     }
     
