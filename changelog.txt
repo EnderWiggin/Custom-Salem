@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+ $size[14]{$u{Update for 18.07.12:}}
+  * Added highlighting of actions learned by purchasing skill. 
+    It will post names of learned actions into System chat and highlight action in menu until you  hover mouse over it.
+ 
 $size[14]{$u{Update for 16.07.12:}}
   * Added Option window. Opened by clicking on Options button. Contains this options:
     - camera selection (ALT+C does not work now)

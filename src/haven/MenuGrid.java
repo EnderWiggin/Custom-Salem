@@ -161,6 +161,8 @@ public class MenuGrid extends Widget {
 
     public void draw(GOut g) {
 	long now = System.currentTimeMillis();
+	int t = (int) (now % 1000);
+	int b = (int) (255*((t < 500)?(t):(1000-t))/500.0f);
 	for(int y = 0; y < gsz.y; y++) {
 	    for(int x = 0; x < gsz.x; x++) {
 		Coord p = bgsz.mul(new Coord(x, y));
@@ -168,7 +170,11 @@ public class MenuGrid extends Widget {
 		Pagina btn = layout[x][y];
 		if(btn != null) {
 		    Tex btex = btn.img.tex();
+		    if(btn.newp){
+			g.chcolor(b, 255, b, 255);
+		    }
 		    g.image(btex, p.add(1, 1));
+		    g.chcolor();
 		    if(btn.meter > 0) {
 			double m = btn.meter / 1000.0;
 			if(btn.dtime > 0)
@@ -243,6 +249,7 @@ public class MenuGrid extends Widget {
 	    if(h != pressed)
 		dragging = pressed;
 	}
+	if(curttp != null){curttp.newp = false;}
     }
 	
     private Pagina paginafor(Resource res) {

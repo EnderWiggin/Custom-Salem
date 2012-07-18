@@ -210,7 +210,7 @@ public class Glob {
 		if(act == '+') {
 		    String nm = msg.string();
 		    int ver = msg.uint16();
-		    Pagina pag = paginafor(Resource.load(nm, ver));
+		    final Pagina pag = paginafor(Resource.load(nm, ver));
 		    paginae.add(pag);
 		    pag.state(Pagina.State.ENABLED);
 		    pag.meter = 0;
@@ -224,6 +224,14 @@ public class Glob {
 			    pag.dtime = msg.int32();
 			} else if(t == '^') {
 			    pag.newp = true;
+			    Utils.defer(new Runnable() {
+				@Override
+				public void run() {
+				    pag.res().loadwait();
+				    String name = pag.res().layer(Resource.action).name;
+				    UI.instance.message(String.format("You gain access to '%s'!", name));
+				}
+			    });
 			}
 		    }
 		} else if(act == '-') {
