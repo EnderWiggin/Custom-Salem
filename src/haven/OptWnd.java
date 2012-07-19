@@ -122,6 +122,16 @@ public class OptWnd extends Window {
 	    };
 	    opt_show_tempers.a = Config.show_tempers;
 	    opt_show_tempers.enabled = Config.plain_tempers;
+	    
+	    new CheckBox(new Coord(0, y += 30), tab, "Store minimap"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.store_map = val;
+		    Utils.setprefb("store_map", val);
+		    if(val)ui.gui.mmap.cgrid = null;
+		}
+	    }.a = Config.store_map;
 	}
 
 	

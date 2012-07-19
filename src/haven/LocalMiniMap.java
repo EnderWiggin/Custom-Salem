@@ -41,8 +41,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -54,7 +52,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
     private Widget mapmenu;
-    private Coord cgrid = null;
+    public Coord cgrid = null;
     private final BufferedImage[] texes = new BufferedImage[256];
     private Coord off = new Coord();
     boolean rsm = false;
@@ -360,6 +358,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
     
     private void store(BufferedImage img, Coord cg) {
+	if(!Config.store_map){return;}
 	Coord c = cg.sub(sp);
 	String fileName = String.format("%s/map/%s/tile_%d_%d.png",Config.userhome, session, c.x, c.y);
 	File outputfile = new File(fileName);
@@ -373,12 +372,14 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    sp = plg;
 	    cache.clear();
 	    session = Utils.current_date();
-	    (new File(Config.userhome+"/map/" + session)).mkdirs();
-	    try {
-		Writer currentSessionFile = new FileWriter(Config.userhome+"/map/currentsession.js");
-		currentSessionFile.write("var currentSession = '" + session + "';\n");
-		currentSessionFile.close();
-	    } catch (IOException e) {}
+	    if(Config.store_map){
+		(new File(Config.userhome+"/map/" + session)).mkdirs();
+		try {
+		    Writer currentSessionFile = new FileWriter(Config.userhome+"/map/currentsession.js");
+		    currentSessionFile.write("var currentSession = '" + session + "';\n");
+		    currentSessionFile.close();
+		} catch (IOException e) {}
+	    }
 	}
 	cgrid = plg;
     }

@@ -64,6 +64,7 @@ public class Config {
     public static String version;
     public static boolean plain_tempers = Utils.getprefb("plain_tempers", false);
     public static boolean show_tempers = Utils.getprefb("show_tempers", false);
+    public static boolean store_map = Utils.getprefb("store_map", true);;
     
     public static String currentCharName = "";
     static Properties window_props;
