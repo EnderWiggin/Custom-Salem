@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+ $size[14]{$u{Update for 19.07.12:}}
+  * Added one more error logger. If client crashes/freezes and no error report dialog is shown, please find error.log file in client folder and send it's contents to TPABOBAP on Paradox forums.
+ 
  $size[14]{$u{Update for 18.07.12:}}
   * Added highlighting of actions learned by purchasing skill. 
     It will post names of learned actions into System chat and highlight action in menu until you  hover mouse over it.

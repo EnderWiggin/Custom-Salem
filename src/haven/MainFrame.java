@@ -26,6 +26,9 @@
 
 package haven;
 
+import haven.error.ErrorLogFormatter;
+import haven.error.LoggingOutputStream;
+
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Frame;
@@ -34,9 +37,11 @@ import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -44,6 +49,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class MainFrame extends Frame implements Runnable, Console.Directory {
     private static final String TITLE = String.format("Salem (modified by Ender v%s)", Config.version);
@@ -387,9 +398,11 @@ public class MainFrame extends Frame implements Runnable, Console.Directory {
 		    hg.interrupt();
 		}
 	    });
-	    System.out.println("Error handler is set up!");
 	    g = hg;
 	}
+	
+	initErrorLogs();
+	
 	Thread main = new HackThread(g, new Runnable() {
 		public void run() {
 		    main2(args);
@@ -398,6 +411,26 @@ public class MainFrame extends Frame implements Runnable, Console.Directory {
 	main.start();
     }
 	
+    private static void initErrorLogs() {
+	// initialize logging to go to rolling log file
+	LogManager logManager = LogManager.getLogManager();
+	logManager.reset();
+
+	// log file max size 10K, 3 rolling files, append-on-open
+	Handler fileHandler;
+	try {
+	    fileHandler = new FileHandler("%h/Salem/error_%g.log", 10000, 3, true);
+	    fileHandler.setFormatter(new ErrorLogFormatter());
+	    Logger.getLogger("").addHandler(fileHandler);
+	    OutputStream los = new LoggingOutputStream(Logger.getLogger("stderr"), Level.SEVERE);
+	    System.setErr(new PrintStream(los, true));  
+	} catch (SecurityException e) {
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+    }
+
     private static void dumplist(Collection<Resource> list, String fn) {
 	try {
 	    if(fn != null) {
