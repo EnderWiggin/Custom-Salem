@@ -31,9 +31,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GItem extends AWidget {
     public static volatile long infoUpdated = 0;
@@ -48,7 +46,9 @@ public class GItem extends AWidget {
 	Widget.addtype("item", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
 		    int res = (Integer)args[0];
-		    return(new GItem(parent, parent.ui.sess.getres(res)));
+		    GItem item = new GItem(parent, parent.ui.sess.getres(res));
+		    item.c = c;
+		    return item;
 		}
 	    });
     }
@@ -211,7 +211,15 @@ public class GItem extends AWidget {
 	}
 	return(null);
     }
-
+    
+    public String resname(){
+	Resource r = res.get();
+	if(r != null){
+	    return r.name;
+	}
+	return "";
+    }
+    
     public List<Info> info() {
 	if(info == null) {
 	    info = buildinfo(rawinfo);

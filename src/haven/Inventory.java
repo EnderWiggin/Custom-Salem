@@ -69,6 +69,26 @@ public class Inventory extends Widget implements DTarget {
 	}
     }
     
+    @Override
+    public boolean mousedown(Coord c, int button) {
+	if(button == 2){
+	    int i = 0;
+	    Coord ct = new Coord();
+	    System.out.println("sorting...");
+	    for(GItem item : getAll()){
+		item.wdgmsg("take", Coord.z);
+		ct.x = i%isz.x;
+		ct.y = i/isz.x;
+		wdgmsg("drop", ct);
+		//wdgmsg("drop", item.c);
+		System.out.println("i: "+i+", c0: "+item.c+", ct: "+ct+", "+item.resname());
+		i++;
+	    }
+	    return true;
+	}
+	return super.mousedown(c, button);
+    }
+
     public boolean mousewheel(Coord c, int amount) {
 	if(amount < 0)
 	    wdgmsg("xfer", -1, ui.modflags());
@@ -96,10 +116,14 @@ public class Inventory extends Widget implements DTarget {
     }
     
     public boolean drop(Coord cc, Coord ul) {
-	wdgmsg("drop", ul.add(sqsz.div(2)).div(invsq.sz()));
+	wdgmsg("drop", tilify(ul));
 	return(true);
     }
-	
+
+    private static Coord tilify(Coord c){
+	return c.add(sqsz.div(2)).div(invsq.sz());
+    }
+    
     public boolean iteminteract(Coord cc, Coord ul) {
 	return(false);
     }
@@ -109,5 +133,42 @@ public class Inventory extends Widget implements DTarget {
 	    isz = (Coord)args[0];
 	    sz = invsq.sz().add(new Coord(-1, -1)).mul(isz).add(new Coord(1, 1));
 	}
+    }
+    
+    public void wdgmsg(Widget sender, String msg, Object... args) {
+	if(msg.equals("transfer-same")){
+	    process(getSame((String) args[0]), "transfer");
+	} else if(msg.equals("drop-same")){
+	    process(getSame((String) args[0]), "drop");
+	} else {
+	    super.wdgmsg(sender, msg, args);
+	}
+    }
+
+    private void process(List<GItem> items, String action) {
+	for (GItem item : items){
+	    item.wdgmsg(action, Coord.z);
+	}
+    }
+
+    private List<GItem> getSame(String name) {
+	List<GItem> items = new ArrayList<GItem>();
+	for (Widget wdg = lchild; wdg != null; wdg = wdg.prev) {
+	    if (wdg.visible && wdg instanceof WItem) {
+		if (((WItem) wdg).item.resname().equals(name))
+		    items.add(((WItem) wdg).item);
+	    }
+	}
+	return items;
+    }
+    
+    private List<GItem> getAll() {
+	List<GItem> items = new ArrayList<GItem>();
+	for (Widget wdg = lchild; wdg != null; wdg = wdg.prev) {
+	    if (wdg.visible && wdg instanceof WItem) {
+		items.add(((WItem) wdg).item);
+	    }
+	}
+	return items;
     }
 }
