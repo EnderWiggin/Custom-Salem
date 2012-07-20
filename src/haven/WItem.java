@@ -55,7 +55,8 @@ public class WItem extends Widget implements DTarget {
 	BufferedImage img = nm.str.img;
 	Alchemy ch = find(Alchemy.class, info);
 	if(ch != null)
-	    img = GItem.catimgsh(5, img, ch.smallmeter());
+	    img = GItem.catimgsh(5, img, ch.smallmeter(),
+				 Text.std.renderf("(%d%% pure)", (int)(ch.purity() * 100)).img);
 	return(img);
     }
 

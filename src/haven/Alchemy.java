@@ -37,7 +37,16 @@ public class Alchemy extends GItem.Tip {
 	new Color(0, 128, 255),
 	new Color(255, 255, 0),
     };
+    public static final String[] names = {"Salt", "Mercury", "Sulphur", "Lead"};
+    public static final String[] tcolors;
     public final int[] a;
+    
+    static {
+	String[] buf = new String[colors.length];
+	for(int i = 0; i < colors.length; i++)
+	    buf[i] = String.format("%d,%d,%d", colors[i].getRed(), colors[i].getGreen(), colors[i].getBlue());
+	tcolors = buf;
+    }
     
     public enum Element {
 	SALT, MERC, SULF, LEAD
@@ -49,11 +58,21 @@ public class Alchemy extends GItem.Tip {
     }
     
     public BufferedImage longtip() {
-	return(Text.std.renderf("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f", a[0] / 100.0, a[1] / 100.0, a[2] / 100.0, a[3] / 100.0).img);
+	StringBuilder buf = new StringBuilder();
+	for(int i = 0; i < 4; i++) {
+	    if(i > 0)
+		buf.append(", ");
+	    buf.append(String.format("%s: $col[%s]{%.2f}", names[i], tcolors[i], a[i] / 100.0));
+	}
+	buf.append(String.format(" (%d%% pure)", (int)(purity() * 100)));
+	return(RichText.render(buf.toString(), 0).img);
     }
     
     public BufferedImage smallmeter() {
-	BufferedImage buf = TexI.mkbuf(new Coord(50, 12));
+	int max = 0;
+	for(int i = 0; i < 4; i++)
+	    max = Math.max(a[i], max);
+	BufferedImage buf = TexI.mkbuf(new Coord(max / 200, 12));
 	Graphics g = buf.getGraphics();
 	for(int i = 0; i < 4; i++) {
 	    g.setColor(colors[i]);
@@ -61,6 +80,13 @@ public class Alchemy extends GItem.Tip {
 	}
 	g.dispose();
 	return(buf);
+    }
+
+    public double purity() {
+	double p = 0.0;
+	for(int e : a)
+	    p += Math.pow(e / 10000.0, 2);
+	return(((p - 0.25) * 4.0) / 3.0);
     }
     
     public String toString() {
