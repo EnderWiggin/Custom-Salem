@@ -340,17 +340,19 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	
 	drawmarkers(g, c0);
 	synchronized(ui.sess.glob.party.memb) {
+	    try {
+		Tex tx = plx.layer(Resource.imgc).tex();
+		Coord negc = plx.layer(Resource.negc).cc;
 		for(Party.Member memb : ui.sess.glob.party.memb.values()) {
 		    Coord ptc = memb.getc();
 		    if(ptc == null)
 			continue;
 		    ptc = c0.add(ptc.div(tilesz));
-//		    g.chcolor(memb.col.getRed(), memb.col.getGreen(), memb.col.getBlue(), 128);
 		    g.chcolor(memb.col);
-		    g.image(plx.layer(Resource.imgc).tex(), ptc.add(plx.layer(Resource.negc).cc.inv()));
-		    //g.fellipse(ptc, new Coord(10,10));
+		    g.image(tx, ptc.sub(negc));
 		    g.chcolor();
 		}
+	    } catch (Loading e){}
 	    }
 	
 	g.gl.glPopMatrix();

@@ -38,6 +38,7 @@ public class Alchemy extends GItem.Tip {
 	new Color(255, 255, 0),
     };
     public final int[] a;
+    public double purity, salt, merc, sulf, lead;
     
     public enum Element {
 	SALT, MERC, SULF, LEAD
@@ -46,16 +47,16 @@ public class Alchemy extends GItem.Tip {
     public Alchemy(GItem item, int salt, int merc, int sulf, int lead) {
 	item.super();
 	this.a = new int[]{salt, merc, sulf, lead};
+	
+	this.salt = salt/100.0;
+	this.merc = merc/100.0;
+	this.sulf = sulf/100.0;
+	this.lead = lead/100.0;
+	purity = ((this.salt*this.salt + this.merc*this.merc + this.sulf*this.sulf + this.lead*this.lead)/10000.0)*12 - 2;
     }
     
     public BufferedImage longtip() {
-	double salt = a[0]/100.0;
-	double merc = a[1]/100.0;
-	double sulp = a[2]/100.0;
-	double lead = a[3]/100.0;
-	double purity = ((salt*salt + merc*merc + sulp*sulp + lead*lead)/10000.0)*12 - 2;
-	
-	String text = String.format("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f\nPurity: %.2f", salt, merc, sulp, lead, purity);
+	String text = String.format("Salt: %.2f, Mercury: %.2f, Sulphur: %.2f, Lead: %.2f\nPurity: %.2f", salt, merc, sulf, lead, purity);
 	return RichText.stdf.render(text).img;
     }
     

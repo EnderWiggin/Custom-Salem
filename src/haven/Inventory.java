@@ -71,21 +71,20 @@ public class Inventory extends Widget implements DTarget {
     
     @Override
     public boolean mousedown(Coord c, int button) {
-	if(button == 2){
-	    int i = 0;
-	    Coord ct = new Coord();
-	    System.out.println("sorting...");
-	    for(GItem item : getAll()){
-		item.wdgmsg("take", Coord.z);
-		ct.x = i%isz.x;
-		ct.y = i/isz.x;
-		wdgmsg("drop", ct);
-		//wdgmsg("drop", item.c);
-		System.out.println("i: "+i+", c0: "+item.c+", ct: "+ct+", "+item.resname());
-		i++;
-	    }
-	    return true;
-	}
+//	if(button == 2){
+//	    int i = 0;
+//	    Coord ct = new Coord();
+//	    List<GItem> items = getAll();
+//	    Collections.sort(items, GItem.comp);
+//	    for(GItem item : items){
+//		item.wdgmsg("take", Coord.z);
+//		ct.x = i%isz.x;
+//		ct.y = i/isz.x;
+//		wdgmsg("drop", ct);
+//		i++;
+//	    }
+//	    return true;
+//	}
 	return super.mousedown(c, button);
     }
 

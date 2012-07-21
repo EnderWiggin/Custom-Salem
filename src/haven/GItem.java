@@ -29,8 +29,10 @@ package haven;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class GItem extends AWidget {
@@ -51,6 +53,34 @@ public class GItem extends AWidget {
 		    return item;
 		}
 	    });
+    }
+    public static final NQComparator comp = new NQComparator();
+    public static class NQComparator implements Comparator<GItem> {
+	@Override
+	public int compare(GItem o1, GItem o2) {
+	    Collator coll = Collator.getInstance();
+	    int r = coll.compare(o1.resname(), o2.resname());
+	    if(r == 0){
+		double p1 = o1.purity();
+		double p2 = o2.purity();
+		if(p1 < p2){
+		    return 1;
+		} else if(p1 > p2) {
+		    return -1;
+		} else {
+		    return 0;
+		}
+	    }
+	    return r;
+	}
+	
+    }
+    
+    public double purity(){
+	Alchemy alch = find(Alchemy.class, info);
+	if(alch != null)
+	    return alch.purity;
+	return 0;
     }
     
     @Resource.PublishedCode(name = "tt")

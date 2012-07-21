@@ -218,6 +218,7 @@ public class Bootstrap implements UI.Receiver {
 	
     public void rcvmsg(int widget, String msg, Object... args) {
 	synchronized(msgs) {
+	    System.err.println(String.format("id:%d, msg:'%s'", widget, msg));
 	    msgs.add(new Message(widget, msg, args));
 	    msgs.notifyAll();
 	}
