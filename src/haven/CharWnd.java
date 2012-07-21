@@ -232,6 +232,7 @@ public class CharWnd extends Window {
 	    sb.max = skills.length - h;
 	    sel = -1;
 	    this.skills = skills;
+	    loading = true;
 	}
 	
 	public boolean mousewheel(Coord c, int amount) {
