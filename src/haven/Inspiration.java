@@ -30,13 +30,13 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Inspiration extends GItem.Tip {
+public class Inspiration extends ItemInfo.Tip {
     public final String[] attrs;
     public final int[] exp;
     public final int[] o;
     
-    public Inspiration(GItem item, String[] attrs, int[] exp) {
-	item.super();
+    public Inspiration(Owner owner, String[] attrs, int[] exp) {
+	super(owner);
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;

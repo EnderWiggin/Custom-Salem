@@ -30,7 +30,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Alchemy extends GItem.Tip {
+public class Alchemy extends ItemInfo.Tip {
     public static final Color[] colors = {
 	new Color(255, 0, 0),
 	new Color(0, 255, 0),
@@ -52,8 +52,8 @@ public class Alchemy extends GItem.Tip {
 	SALT, MERC, SULF, LEAD
     }
 
-    public Alchemy(GItem item, int salt, int merc, int sulf, int lead) {
-	item.super();
+    public Alchemy(Owner owner, int salt, int merc, int sulf, int lead) {
+	super(owner);
 	this.a = new int[]{salt, merc, sulf, lead};
     }
     

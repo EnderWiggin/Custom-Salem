@@ -74,7 +74,7 @@ public class Tempers extends Widget {
 	lmax = max;
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-	    FoodInfo food = GItem.find(FoodInfo.class, item.info());
+	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
 	    if(food != null) {
 		g.chcolor(foodc);
 		g.poly(mid.add(0, -dispval(soft[0] + food.tempers[0], max[0])),

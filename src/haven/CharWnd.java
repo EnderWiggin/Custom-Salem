@@ -307,7 +307,7 @@ public class CharWnd extends Window {
 	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		GItem item = ((WItem.ItemTip)ui.lasttip).item();
-		Inspiration insp = GItem.find(Inspiration.class, item.info());
+		Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
 		if(insp != null) {
 		    for(int i = 0; i < insp.attrs.length; i++) {
 			if(insp.attrs[i].equals(nm)) {
