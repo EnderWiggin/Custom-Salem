@@ -206,24 +206,20 @@ public class CharWnd extends Window {
 		    g.frect(new Coord(0, i * 20), new Coord(sz.x, 20));
 		    g.chcolor();
 		}
-		int astate = sk.afforded();
-		if(astate == 3)
-		    g.chcolor(255, 128, 128, 255);
-		else if(astate == 2)
-		    g.chcolor(255, 192, 128, 255);
-		else if(astate == 1)
-		    g.chcolor(255, 255, 128, 255);
-		try {
-		    g.image(sk.res.get().layer(Resource.imgc).tex(), new Coord(0, i * 20), new Coord(20, 20));
-		    g.atext(sk.res.get().layer(Resource.action).name, new Coord(25, i * 20 + 10), 0, 0.5);
-		} catch(Loading e) {
-		    WItem.missing.loadwait();
-		    g.image(WItem.missing.layer(Resource.imgc).tex(), new Coord(0, i * 20), new Coord(20, 20));
-		    g.atext("...", new Coord(25, i * 20 + 10), 0, 0.5);
-		}
-		g.chcolor();
+		drawsk(g, sk, new Coord(0, i * 20));
 	    }
 	    super.draw(g);
+	}
+	
+	protected void drawsk(GOut g, Skill sk, Coord c) {
+	    try {
+		g.image(sk.res.get().layer(Resource.imgc).tex(), c, new Coord(20, 20));
+		g.atext(sk.res.get().layer(Resource.action).name, c.add(25, 10), 0, 0.5);
+	    } catch(Loading e) {
+		WItem.missing.loadwait();
+		g.image(WItem.missing.layer(Resource.imgc).tex(), c, new Coord(20, 20));
+		g.atext("...", c.add(25, 10), 0, 0.5);
+	    }
 	}
 	
 	public void pop(Collection<Skill> nsk) {
@@ -261,7 +257,7 @@ public class CharWnd extends Window {
 	    changed(null);
 	}
     }
-
+    
     public class Attr extends Widget {
 	private final Coord
 	    imgc = new Coord(0, 1),
@@ -392,6 +388,18 @@ public class CharWnd extends Window {
 	    };
 	new Label(new Coord(250, 170), this, "Available:");
 	this.nsk = new SkillList(new Coord(250, 185), new Coord(170, 120), this) {
+		protected void drawsk(GOut g, Skill sk, Coord c) {
+		    int astate = sk.afforded();
+		    if(astate == 3)
+			g.chcolor(255, 128, 128, 255);
+		    else if(astate == 2)
+			g.chcolor(255, 192, 128, 255);
+		    else if(astate == 1)
+			g.chcolor(255, 255, 128, 255);
+		    super.drawsk(g, sk, c);
+		    g.chcolor();
+		}
+		
 		protected void changed(Skill sk) {
 		    if(sk != null)
 			csk.unsel();
@@ -408,6 +416,24 @@ public class CharWnd extends Window {
 	this.ski = new SkillInfo(new Coord(430, 30), new Coord(190, 275), this);
     }
     
+    private void decsklist(Collection<Skill> buf, Object[] args, int a) {
+	while(a < args.length) {
+	    String nm = (String)args[a++];
+	    Indir<Resource> res = ui.sess.getres((Integer)args[a++]);
+	    int n;
+	    for(n = 0; !((String)args[a + (n * 2)]).equals(""); n++);
+	    String[] costa = new String[n];
+	    int[] costv = new int[n];
+	    for(int i = 0; i < n; i++) {
+		costa[i] = (String)args[a + (i * 2)];
+		costv[i] = (Integer)args[a + (i * 2) + 1];
+	    }
+	    a += (n * 2) + 1;
+	    buf.add(new Skill(nm, res, costa, costv));
+	}
+    }
+    
+    private Collection<Skill> acccsk, accnsk;
     public void uimsg(String msg, Object... args) {
 	if(msg == "exp") {
 	    for(int i = 0; i < args.length; i += 4) {
@@ -422,37 +448,35 @@ public class CharWnd extends Window {
 		a.av = av;
 	    }
 	} else if(msg == "csk") {
-	    Collection<Skill> sk = new LinkedList<Skill>();
-	    for(int i = 0; i < args.length; i += 2) {
-		String nm = (String)args[i];
-		Indir<Resource> res = ui.sess.getres((Integer)args[i + 1]);
-		sk.add(new Skill(nm, res));
+	    /* One could argue that rmessages should have some
+	     * built-in fragmentation scheme. */
+	    boolean acc = ((Integer)args[0]) != 0;
+	    Collection<Skill> buf;
+	    if(acccsk != null) {
+		buf = acccsk;
+		acccsk = null;
+	    } else {
+		buf = new LinkedList<Skill>();
 	    }
-	    csk.pop(sk);
+	    decsklist(buf, args, 1);
+	    if(acc)
+		acccsk = buf;
+	    else
+		csk.pop(buf);
 	} else if(msg == "nsk") {
-	    Collection<Skill> sk = new LinkedList<Skill>();
-	    int i = 0;
-	    while(i < args.length) {
-		String nm = (String)args[i++];
-		Indir<Resource> res = ui.sess.getres((Integer)args[i++]);
-		List<String> costa = new LinkedList<String>();
-		List<Integer> costv = new LinkedList<Integer>();
-		while(true) {
-		    String anm = (String)args[i++];
-		    if(anm.equals(""))
-			break;
-		    Integer val = (Integer)args[i++];
-		    costa.add(anm);
-		    costv.add(val);
-		}
-		String[] costa2 = costa.toArray(new String[0]);
-		int[] costv2 = new int[costa2.length];
-		int o = 0;
-		for(Integer v : costv)
-		    costv2[o++] = v;
-		sk.add(new Skill(nm, res, costa2, costv2));
+	    boolean acc = ((Integer)args[0]) != 0;
+	    Collection<Skill> buf;
+	    if(accnsk != null) {
+		buf = accnsk;
+		accnsk = null;
+	    } else {
+		buf = new LinkedList<Skill>();
 	    }
-	    nsk.pop(sk);
+	    decsklist(buf, args, 1);
+	    if(acc)
+		accnsk = buf;
+	    else
+		nsk.pop(buf);
 	}
     }
 }
