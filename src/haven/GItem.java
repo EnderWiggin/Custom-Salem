@@ -27,73 +27,26 @@
 package haven;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-public class GItem extends AWidget {
-    public static volatile long infoUpdated = 0;
-    
+public class GItem extends AWidget implements ItemInfo.ResOwner {
+    public static volatile long infoUpdated;
     public Indir<Resource> res;
     public int meter = 0;
     public int num = -1;
     private Object[] rawinfo;
-    private List<Info> info = Collections.emptyList();
+    private List<ItemInfo> info = Collections.emptyList();
     
     static {
 	Widget.addtype("item", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
 		    int res = (Integer)args[0];
-		    GItem item = new GItem(parent, parent.ui.sess.getres(res));
-		    item.c = c;
-		    return item;
+		    return(new GItem(parent, parent.ui.sess.getres(res)));
 		}
 	    });
     }
-    public static final NQComparator comp = new NQComparator();
-    public static class NQComparator implements Comparator<GItem> {
-	@Override
-	public int compare(GItem o1, GItem o2) {
-	    Collator coll = Collator.getInstance();
-	    int r = coll.compare(o1.resname(), o2.resname());
-	    if(r == 0){
-		double p1 = o1.purity();
-		double p2 = o2.purity();
-		if(p1 < p2){
-		    return 1;
-		} else if(p1 > p2) {
-		    return -1;
-		} else {
-		    return 0;
-		}
-	    }
-	    return r;
-	}
-	
-    }
     
-    public double purity(){
-	Alchemy alch = find(Alchemy.class, info);
-	if(alch != null)
-	    return alch.purity;
-	return 0;
-    }
-    
-    @Resource.PublishedCode(name = "tt")
-    public static interface InfoFactory {
-	public Info build(GItem item, Object... args);
-    }
-    
-    public abstract class Info {
-	public GItem item() {
-	    return(GItem.this);
-	}
-    }
-
     public interface ColorInfo {
 	public Color olcol();
     }
@@ -102,61 +55,11 @@ public class GItem extends AWidget {
 	public int itemnum();
     }
 
-    public abstract class Tip extends Info {
-	public abstract BufferedImage longtip();
-    }
-    
-    public class AdHoc extends Tip {
-	public final Text str;
-	
-	public AdHoc(String str) {
-	    this.str = Text.render(str);
-	}
-	
-	public BufferedImage longtip() {
-	    return(str.img);
-	}
-    }
-
-    public class Name extends Tip {
-	public final Text str;
-	
-	public Name(Text str) {
-	    this.str = str;
-	}
-	
-	public Name(String str) {
-	    this(Text.render(str));
-	}
-	
-	public BufferedImage longtip() {
-	    return(str.img);
-	}
-    }
-    
-    public class Contents extends Tip {
-	public final List<Info> sub;
-	private final Text.Line ch = Text.render("Contents:");
-	
-	public Contents(List<Info> sub) {
-	    this.sub = sub;
-	}
-	
-	public BufferedImage longtip() {
-	    BufferedImage stip = GItem.longtip(sub);
-	    BufferedImage img = TexI.mkbuf(new Coord(stip.getWidth() + 10, stip.getHeight() + 15));
-	    Graphics g = img.getGraphics();
-	    g.drawImage(ch.img, 0, 0, null);
-	    g.drawImage(stip, 10, 15, null);
-	    g.dispose();
-	    return(img);
-	}
-    }
-    
-    public class Amount extends Info implements NumberInfo {
+    public class Amount extends ItemInfo implements NumberInfo {
 	private final int num;
 	
 	public Amount(int num) {
+	    super(GItem.this);
 	    this.num = num;
 	}
 	
@@ -165,114 +68,31 @@ public class GItem extends AWidget {
 	}
     }
     
-    public static BufferedImage catimgs(int margin, BufferedImage... imgs) {
-	int w = 0, h = -margin;
-	for(BufferedImage img : imgs) {
-	    if(img.getWidth() > w)
-		w = img.getWidth();
-	    h += img.getHeight() + margin;
-	}
-	BufferedImage ret = TexI.mkbuf(new Coord(w, h));
-	Graphics g = ret.getGraphics();
-	int y = 0;
-	for(BufferedImage img : imgs) {
-	    g.drawImage(img, 0, y, null);
-	    y += img.getHeight() + margin;
-	}
-	g.dispose();
-	return(ret);
-    }
-
-    public static BufferedImage catimgsh(int margin, BufferedImage... imgs) {
-	int w = -margin, h = 0;
-	for(BufferedImage img : imgs) {
-	    if(img.getHeight() > h)
-		h = img.getHeight();
-	    w += img.getWidth() + margin;
-	}
-	BufferedImage ret = TexI.mkbuf(new Coord(w, h));
-	Graphics g = ret.getGraphics();
-	int x = 0;
-	for(BufferedImage img : imgs) {
-	    g.drawImage(img, x, (h - img.getHeight()) / 2, null);
-	    x += img.getWidth() + margin;
-	}
-	g.dispose();
-	return(ret);
-    }
-
-    public static BufferedImage longtip(List<Info> info) {
-	List<BufferedImage> buf = new ArrayList<BufferedImage>();
-	for(Info ii : info) {
-	    if(ii instanceof GItem.Tip) {
-		GItem.Tip tip = (GItem.Tip)ii;
-		buf.add(tip.longtip());
-	    }
-	}
-	return(catimgs(0, buf.toArray(new BufferedImage[0])));
-    }
-
     public GItem(Widget parent, Indir<Resource> res) {
 	super(parent);
 	this.res = res;
     }
-    
-    public List<Info> buildinfo(Object[] rawinfo) {
-	List<Info> ret = new ArrayList<Info>();
-	for(Object o : rawinfo) {
-	    if(o instanceof Object[]) {
-		Object[] a = (Object[])o;
-		Resource ttres = ui.sess.getres((Integer)a[0]).get();
-		InfoFactory f = ttres.layer(Resource.CodeEntry.class).get(InfoFactory.class);
-		ret.add(f.build(this, a));
-	    } else if(o instanceof String) {
-		ret.add(new AdHoc((String)o));
-	    } else {
-		throw(new ClassCastException("Unexpected object type " + o.getClass() + " in item info array."));
-	    }
-	}
-	return(ret);
+
+    public Glob glob() {
+	return(ui.sess.glob);
     }
 
-    public static <T> T find(Class<T> cl, List<Info> il) {
-	for(Info inf : il) {
-	    if(cl.isInstance(inf))
-		return(cl.cast(inf));
-	}
-	return(null);
-    }
-    
-    public String resname(){
-	Resource r = res.get();
-	if(r != null){
-	    return r.name;
-	}
-	return "";
-    }
-    
-    public List<Info> info() {
-	if(info == null) {
-	    info = buildinfo(rawinfo);
-	}
+    public List<ItemInfo> info() {
+	if(info == null)
+	    info = ItemInfo.buildinfo(this, rawinfo);
 	return(info);
     }
     
-    private static String dump(Object arg) {
-	if(arg instanceof Object[]) {
-	    StringBuilder buf = new StringBuilder();
-	    buf.append("[");
-	    boolean f = true;
-	    for(Object a : (Object[])arg) {
-		if(!f)
-		    buf.append(", ");
-		buf.append(dump(a));
-		f = false;
-	    }
-	    buf.append("]");
-	    return(buf.toString());
-	} else {
-	    return(arg.toString());
+    public Resource resource() {
+	return(res.get());
+    }
+    
+    public String resname(){
+	Resource res = resource();
+	if(res != null){
+	    return res.name;
 	}
+	return "";
     }
 
     public void uimsg(String name, Object... args) {

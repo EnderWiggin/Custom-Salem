@@ -29,23 +29,21 @@ package haven;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-public class Inspiration extends GItem.Tip {
+public class Inspiration extends ItemInfo.Tip {
     public final String[] attrs;
     public final int[] exp;
     public final int[] o;
-    private final GItem item;
     
-    public Inspiration(GItem item, String[] attrs, int[] exp) {
-	item.super();
+    public Inspiration(Owner owner, String[] attrs, int[] exp) {
+	super(owner);
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;
-	this.item = item;
     }
     
     public BufferedImage longtip() {
 	StringBuilder sb = new StringBuilder();
-	Color[] cs = item.ui.gui.chrwdg.attrcols(attrs);
+	Color[] cs = UI.instance.gui.chrwdg.attrcols(attrs);
 	for (int i = 0; i < attrs.length; i++) {
 	    if (i > 0)
 		sb.append('\n');

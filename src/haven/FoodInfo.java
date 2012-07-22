@@ -30,11 +30,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class FoodInfo extends GItem.Tip {
+public class FoodInfo extends ItemInfo.Tip {
     public final int[] tempers;
     
-    public FoodInfo(GItem item, int[] tempers) {
-	item.super();
+    public FoodInfo(Owner owner, int[] tempers) {
+	super(owner);
 	this.tempers = tempers;
     }
     

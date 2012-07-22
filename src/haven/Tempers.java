@@ -114,7 +114,7 @@ public class Tempers extends Widget {
 	
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-	    FoodInfo food = GItem.find(FoodInfo.class, item.info());
+	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
 	    if(food != null) {
 		g.chcolor(foodc);
 		bar(g, dispval(soft[0] + food.tempers[0], lmax[0]), c0);
@@ -172,7 +172,7 @@ public class Tempers extends Widget {
 	w = wdiamond;
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-	    FoodInfo food = GItem.find(FoodInfo.class, item.info());
+	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
 	    if(food != null) {
 		g.chcolor(foodc);
 		g.poly(mid.add(0, -dispval(soft[0] + food.tempers[0], lmax[0])),

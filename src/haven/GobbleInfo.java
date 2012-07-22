@@ -30,7 +30,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class GobbleInfo extends GItem.Tip {
+public class GobbleInfo extends ItemInfo.Tip {
     private static final String[] colors;
     static {
 	String[] c = new String[Alchemy.colors.length];
@@ -42,8 +42,8 @@ public class GobbleInfo extends GItem.Tip {
     };
     public final int[][] evs;
     
-    public GobbleInfo(GItem item, int[][] evs) {
-	item.super();
+    public GobbleInfo(Owner owner, int[][] evs) {
+	super(owner);
 	this.evs = evs;
     }
     
