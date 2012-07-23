@@ -3,6 +3,7 @@ package haven;
 import static haven.Inventory.invsq;
 import static haven.WItem.missing;
 
+import haven.Glob.Pagina;
 import haven.Resource.AButton;
 
 import java.awt.Color;
@@ -359,22 +360,44 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	return res;
     }
     
+    private Resource curttr = null;
+    private boolean curttl = false;
+    private Text curtt = null;
+    private long hoverstart;
+    
     @Override
     public Object tooltip(Coord c, boolean again) {
 	int slot = beltslot(c);
-	if(slot  != -1){
+	long now = System.currentTimeMillis();
+	if(slot != -1) {
 	    slot = getbelt(slot);
-	    try {
-		if(gui.belt[slot] != null){
+	    if(gui.belt[slot] != null){
+		if(!again)
+		    hoverstart = now;
+		boolean ttl = (now - hoverstart) > 500;
+		try {
 		    Resource res = gui.belt[slot].get();
-		    Resource.AButton ad = res.layer(Resource.action);
-		    if(ad != null){
-			return ad.name;
+		    if((res != curttr) || (ttl != curttl)) {
+			curtt = rendertt(res, ttl);
+			curttr = res;
+			curttl = ttl;
 		    }
-		}
-	    }catch(Loading e){return "...";}
+		    return(curtt);
+		}catch(Loading e){return "...";}
+	    }
 	}
+	hoverstart = now;
 	return null;
+    }
+    
+    private static Text rendertt(Resource res, boolean withpg) {
+	Resource.AButton ad = res.layer(Resource.action);
+	Resource.Pagina pg = res.layer(Resource.pagina);
+	String tt = ad.name;
+	if(withpg && (pg != null)) {
+	    tt += "\n\n" + pg.text;
+	}
+	return(RichText.render(tt, 300));
     }
 
     @Override
