@@ -153,7 +153,7 @@ public abstract class ItemInfo {
 		buf.add(tip.longtip());
 	    }
 	}
-	return(catimgs(0, buf.toArray(new BufferedImage[0])));
+	return(catimgs(3, buf.toArray(new BufferedImage[0])));
     }
 
     public static <T> T find(Class<T> cl, List<ItemInfo> il) {

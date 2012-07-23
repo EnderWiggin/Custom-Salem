@@ -64,7 +64,8 @@ public class Alchemy extends ItemInfo.Tip {
 		buf.append(", ");
 	    buf.append(String.format("%s: $col[%s]{%.2f}", names[i], tcolors[i], a[i] / 100.0));
 	}
-	buf.append(String.format(" (%d%% pure)", (int)(purity() * 100)));
+	buf.append(String.format("\nMultiplier: %.2f", mult()));
+	buf.append(String.format("   (%d%% pure)", (int)(purity() * 100)));
 	return(RichText.render(buf.toString(), 0).img);
     }
     
@@ -87,6 +88,13 @@ public class Alchemy extends ItemInfo.Tip {
 	for(int e : a)
 	    p += Math.pow(e / 10000.0, 2);
 	return(((p - 0.25) * 4.0) / 3.0);
+    }
+    
+    private double mult() {
+	double p = 0.0;
+	for(int e : a)
+	    p += Math.pow(e / 10000.0, 2);
+	return 12*p - 2;
     }
     
     public String toString() {

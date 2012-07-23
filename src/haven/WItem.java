@@ -79,7 +79,7 @@ public class WItem extends Widget implements DTarget {
 	BufferedImage img = ItemInfo.longtip(info);
 	Resource.Pagina pg = item.res.get().layer(Resource.pagina);
 	if(pg != null)
-	    img = ItemInfo.catimgs(0, img, RichText.render("\n" + pg.text, 200).img);
+	    img = ItemInfo.catimgs(5, img, RichText.render(pg.text, 200).img);
 	return(img);
     }
     
