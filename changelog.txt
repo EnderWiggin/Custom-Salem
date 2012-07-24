@@ -2,6 +2,7 @@ $size[20]{$u{CHANGE LOG:}}
  
 $size[14]{$u{Update for 24.07.12:}}
   * fixed study bars
+  * made gluttony respect humors bar mode
  
 $size[14]{$u{Update for 23.07.12:}}
   * fixed flattening tool
