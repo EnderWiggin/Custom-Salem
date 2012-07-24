@@ -26,23 +26,32 @@
 
 package haven;
 
+import static haven.Tempers.bar;
+import static haven.Tempers.bgc;
+import static haven.Tempers.cols;
+import static haven.Tempers.softc;
+import static haven.Tempers.dispval;
+import static haven.Tempers.mid;
+import static haven.Tempers.wdiamond;
+import static haven.Tempers.wplain;
+
 import java.awt.Color;
+import java.awt.Font;
 
 public class Gobble extends Widget {
     static final Tex[] trigi = new Tex[4];
-    static final Color softc = new Color(255, 255, 255, 64);
     static final int l = 32;
-    static final Color[] cols = {
-	new Color(255, 0, 0, 255),
-	new Color(255, 255, 255, 255),
-	new Color(255, 255, 0, 255),
-	new Color(0, 64, 0, 255),
-    };
-    static final Text.Foundry vf = new Text.Foundry("Serif", 20);
+    static final Coord plainbg = Tempers.plainbg.add(0, 15);
+    static final Coord varsz = new Coord(40, 40);
+    static final Text.Foundry vf = new Text.Foundry(Font.SERIF, 20);
     public int[] lev = new int[4];
-    public Text var = vf.render("0");
+    Tex[] texts = null;
+    public Tex var = Tempers.text("Variance: 0");
     Tex ctrig = null;
     long trigt = 0;
+    private boolean mover;
+    private int lmax[] = {0, 0, 0, 0};
+    private static int w = wdiamond;
     static {
 	Text.Foundry f = new Text.Foundry("Serif", 30);
 	f.aa = true;
@@ -55,7 +64,6 @@ public class Gobble extends Widget {
     }
     
     public void draw(GOut g) {
-	g.image(Tempers.bg, Coord.z);
 	int[] attr = new int[4];
 	int max = 0;
 	for(int i = 0; i < 4; i++) {
@@ -64,8 +72,58 @@ public class Gobble extends Widget {
 		return;
 	    if(attr[i] > max)
 		max = attr[i];
+	    if(attr[i] > lmax[i]){
+		if(lmax[i] != 0)
+		    ui.message(String.format("You have raised %s!", Tempers.rnm[i]));
+		lmax[i] = attr[i];
+	    }
 	}
-	Coord mid = Tempers.mid;
+	
+	if(Config.plain_tempers){
+	    draw_plain(g, attr, max);
+	} else {
+	    draw_diamond(g, attr, max);
+	}
+    }
+    
+    private void draw_plain(GOut g, int[] attr, int max) {
+	int step = 15;
+	int b = 4;
+	Coord c0 = new Coord(4,b);
+	w = wplain;
+	
+	g.chcolor(bgc);
+	g.frect(Coord.z, plainbg);
+	g.chcolor();
+	
+	c0.y = b;
+	for(int i = 0; i<4; i++){
+	    bar(g, w, c0, softc);
+	    bar(g, dispval(lev[i], max), c0, cols[i]);
+	    c0.y += step;
+	}
+	
+	if(mover || Config.show_tempers){
+	    if(texts == null){
+		texts = new Tex[4];
+		for(int i = 0; i < 4; i++){
+		    String str = String.format("%s / %s (%s)", Utils.fpformat(lev[i], 3, 1), Utils.fpformat(max, 3, 1), Utils.fpformat(attr[i], 3, 1));
+		    texts[i] = Tempers.text(str);
+		}
+	    }
+
+	    c0.x = mid.x;
+	    c0.y = 10;
+	    for(int i = 0; i<4; i++){
+		g.aimage(texts[i], c0, 0.5, 0.5);
+		c0.y += step;
+	    }
+	    g.aimage(var, c0, 0.5, 0.5);
+	}
+    }
+    
+    private void draw_diamond(GOut g, int[] attr, int max) {
+	g.image(Tempers.bg, Coord.z);
 	g.chcolor(softc);
 	g.poly(mid.add(0, -((attr[0] * 35) / max)),
 	       mid.add(((attr[1] * 35) / max), 0),
@@ -93,11 +151,12 @@ public class Gobble extends Widget {
 	    }
 	}
 	g.aimage(Tempers.cross, mid, 0.5, 0.5);
-	g.aimage(var.tex(), mid.add(35, 0), 0, 0.5);
+	g.aimage(var, mid.add(35, 0), 0, 0.5);
     }
     
     public void updt(int[] n) {
 	this.lev = n;
+	texts = null;
     }
     
     public void trig(int a) {
@@ -106,6 +165,18 @@ public class Gobble extends Widget {
     }
     
     public void updv(int v) {
-	this.var = vf.render(Integer.toString(v));
+	if(Config.plain_tempers){
+	    this.var = Tempers.text(String.format("Variance: %d",v));
+	} else {
+	    this.var = vf.render(Integer.toString(v)).tex();
+	}
+    }
+
+    @Override
+    public void mousemove(Coord c) {
+	if(Config.plain_tempers){
+	    mover = c.isect(Coord.z, plainbg);
+	}
+	super.mousemove(c);
     }
 }

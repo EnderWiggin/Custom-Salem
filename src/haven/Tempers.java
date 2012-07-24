@@ -26,18 +26,23 @@
 
 package haven;
 
+import haven.RichText.Foundry;
+
 import java.awt.Color;
 import java.awt.font.TextAttribute;
 
 public class Tempers extends Widget {
+    static final Foundry tmprfnd = new RichText.Foundry(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12);
     public static final Tex bg = Resource.loadtex("gfx/hud/tempers");
     public static final Tex cross = Resource.loadtex("gfx/hud/tempersc");
     public static final Coord mid = new Coord(93, 38);
-    private static final int wdiamond = 35;
-    private static final int wplain = mid.x*2 - 8;
-    private static final Coord plainbg = new Coord(wplain+8, 67);
+    public static final int wdiamond = 35;
+    public static final int wplain = mid.x*2 - 8;
+    public static final Coord plainbg = new Coord(wplain+8, 67);
     static final Color softc = new Color(255, 255, 255, 96);
     static final Color foodc = new Color(255, 255, 0, 96);
+    public static final Color bgfc = new Color(64, 255, 192, 255);
+    public static final Color bgc = new Color(64, 96, 128, 222);
     static final int l = 32;
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
@@ -48,7 +53,7 @@ public class Tempers extends Widget {
 	new Color(64, 64, 64, 255),
     };
     int[] soft = new int[4], hard = new int[4];
-    int[] lmax = new int[4];
+    int[] lmax = {0, 0, 0, 0};
     boolean full = false;
     private static int w = wdiamond;
     Tex tt = null;
@@ -59,7 +64,7 @@ public class Tempers extends Widget {
 	super(c, bg.sz(), parent);
     }
     
-    private static int dispval(int val, int max) {
+    public static int dispval(int val, int max) {
 	if(val == 0)
 	    return(0);
 	return(Math.min(Math.max(1, (val * w) / max), w));
@@ -69,7 +74,7 @@ public class Tempers extends Widget {
 	g.frect(c, new Coord(value, 14));
     }
     
-    private static void bar(GOut g, int value, Coord c, Color col){
+    public static void bar(GOut g, int value, Coord c, Color col){
 	Color cl = g.getcolor();
 	g.chcolor(col);
 	bar(g, value, c);
@@ -106,59 +111,49 @@ public class Tempers extends Widget {
 	w = wplain;
 	
 	if(full){
-	    g.chcolor(64, 255, 192, 255);
+	    g.chcolor(bgfc);
 	} else {
-	    g.chcolor(64, 96, 128, 222);
+	    g.chcolor(bgc);
 	}
 	g.frect(Coord.z, plainbg);
-	
+	int i;
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
 	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
 	    if(food != null) {
 		g.chcolor(foodc);
-		bar(g, dispval(soft[0] + food.tempers[0], lmax[0]), c0);
-		c0.y += step;
-		bar(g, dispval(soft[1] + food.tempers[1], lmax[1]), c0);
-		c0.y += step;
-		bar(g, dispval(soft[2] + food.tempers[2], lmax[2]), c0);
-		c0.y += step;
-		bar(g, dispval(soft[3] + food.tempers[3], lmax[3]), c0);
+		for(i=0; i<4; i++){
+		    bar(g, dispval(soft[i] + food.tempers[i], lmax[i]), c0);
+		    c0.y += step;
+		}
 	    }
 	}
 	g.chcolor(softc);
 	c0.y = b;
-	bar(g, dispval(soft[0], lmax[0]), c0);
-	c0.y += step;
-	bar(g, dispval(soft[1], lmax[1]), c0);
-	c0.y += step;
-	bar(g, dispval(soft[2], lmax[2]), c0);
-	c0.y += step;
-	bar(g, dispval(soft[3], lmax[3]), c0);
+	for(i=0; i<4; i++){
+	    bar(g, dispval(soft[i], lmax[i]), c0);
+	    c0.y += step;
+	}
 	g.chcolor();
-	
+
 	c0.y = b;
-	bar(g, dispval(hard[0], lmax[0]), c0, cols[0]);
-	c0.y += step;
-	bar(g, dispval(hard[1], lmax[1]), c0, cols[1]);
-	c0.y += step;
-	bar(g, dispval(hard[2], lmax[2]), c0, cols[2]);
-	c0.y += step;
-	bar(g, dispval(hard[3], lmax[3]), c0, cols[3]);
+	for(i=0; i<4; i++){
+	    bar(g, dispval(hard[i], lmax[i]), c0, cols[i]);
+	    c0.y += step;
+	}
 	
 	if(mover || Config.show_tempers){
 	    if(texts == null){
 		texts = new Tex[4];
-		for(int i = 0; i < 4; i++){
+		for(i = 0; i < 4; i++){
 		    String str = String.format("%s / %s / %s", Utils.fpformat(hard[i], 3, 1), Utils.fpformat(soft[i], 3, 1), Utils.fpformat(lmax[i], 3, 1));
-//		    texts[i] = new TexI(RichText.render(str, 0, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12).img);
-		    texts[i] = new TexI(Utils.outline2(RichText.render(str, 0, TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12).img, new Color(220, 220, 220), false));
+		    texts[i] = text(str);
 		}
 	    }
 
 	    c0.x = mid.x;
 	    c0.y = 10;
-	    for(int i = 0; i<4; i++){
+	    for(i = 0; i<4; i++){
 		g.aimage(texts[i], c0, 0.5, 0.5);
 		c0.y += step;
 	    }
@@ -240,6 +235,10 @@ public class Tempers extends Widget {
 	    return(true);
 	}
 	return(super.mousedown(c, button));
+    }
+
+    public static TexI text(String str) {
+	return new TexI(Utils.outline2(tmprfnd.render(str).img, new Color(220, 220, 220), false));
     }
 
     @Override
