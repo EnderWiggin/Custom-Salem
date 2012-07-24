@@ -1,16 +1,24 @@
 $size[20]{$u{CHANGE LOG:}}
  
- $size[14]{$u{Update for 22.07.12:}}
+$size[14]{$u{Update for 24.07.12:}}
+  * fixed study bars
+ 
+$size[14]{$u{Update for 23.07.12:}}
+  * fixed flattening tool
+  * returned purity multiplier
+  * expand tooltip on Tool Belt items
+ 
+$size[14]{$u{Update for 22.07.12:}}
   * Added ability to mass-transfer items:
      - SHIFT+ALT+LClick will transfer all items that share icon with the one clicked on.
      - CTRL+ALT+LClick will drop all items that share icon eith the one clicked on.
   * Fixed possible crash on minimap
  
- $size[14]{$u{Update for 19.07.12:}}
+$size[14]{$u{Update for 19.07.12:}}
   * Added option to disable map saving.
   * Added one more error logger. If client crashes/freezes and no error report dialog is shown, please find error.log file in client folder and send it's contents to TPABOBAP on Paradox forums.
  
- $size[14]{$u{Update for 18.07.12:}}
+$size[14]{$u{Update for 18.07.12:}}
   * Added highlighting of actions learned by purchasing skill. 
     It will post names of learned actions into System chat and highlight action in menu until you  hover mouse over it.
  
