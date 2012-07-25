@@ -712,7 +712,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 //    }
     
     public void resize(Coord sz) {
-	super.resize(sz);
+	this.sz = sz;
 	menu.c = sz.sub(menu.sz);
 	menumenu.c = menu.c.add(menu.sz.x, 0).sub(menumenu.sz);
 	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
@@ -729,6 +729,7 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	if(fv != null)
 	    fv.c = new Coord(sz.x - Fightview.width, 0);
 	mainmenu.c = new Coord(135, sz.y - 26);
+	super.resize(sz);
     }
     
     public void presize() {
