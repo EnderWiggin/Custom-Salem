@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 26.07.12:}}
+  * added bar with quick access to hands, purse and back slots from Equipment
+ 
 $size[14]{$u{Update for 24.07.12:}}
   * fixed study bars
   * made gluttony respect humors bar mode

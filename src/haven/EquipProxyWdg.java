@@ -4,11 +4,11 @@ import static haven.Inventory.invsq;
 
 public class EquipProxyWdg extends Widget implements DTarget {
     protected static final IBox wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
-    private static final Coord sqsz = Inventory.sqsz.add(1,1);
+    private static final Coord sqsz = Inventory.sqsz.add(2,1);
     private int slots[];
     private Coord tlo, wbsz;
     public EquipProxyWdg(Coord c, int[] slots, Widget parent) {
-	super(c, sqsz.mul(slots.length, 1), parent);
+	super(c, sqsz.mul(slots.length, 1).sub(1,0), parent);
 	this.slots = slots;
 	tlo = wbox.tloff().inv();
 	wbsz = sz.add(wbox.bisz());
