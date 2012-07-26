@@ -2,6 +2,7 @@ $size[20]{$u{CHANGE LOG:}}
  
 $size[14]{$u{Update for 26.07.12:}}
   * added bar with quick access to hands, purse and back slots from Equipment
+  * changed progress meters on items from circles to colored bars
  
 $size[14]{$u{Update for 24.07.12:}}
   * fixed study bars
