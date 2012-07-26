@@ -115,12 +115,13 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	setcanfocus(true);
 	setfocusctl(true);
 	menu = new MenuGrid(Coord.z, this);
-	new Avaview(new Coord(10, 10), Avaview.dasz, this, plid, "avacam") {
+	new Avaview(new Coord(0, 0), Avaview.dasz, this, plid, "avacam") {
 	    public boolean mousedown(Coord c, int button) {
 		return(true);
 	    }
 	};
-	new Bufflist(new Coord(95, 50), this);
+	new Bufflist(new Coord(80, 40), this);
+	new EquipProxyWdg(new Coord(80, 2), new int[]{6, 7, 9, 14}, this);
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
 	syslog = new ChatUI.Log(chat, "System");
@@ -324,6 +325,17 @@ public class GameUI extends ConsoleHost implements /*DTarget, DropTarget,*/ Cons
 	} else {
 	    throw(new UI.UIException("Illegal gameui child", type, pargs));
 	}
+    }
+    
+    public Equipory getEquipory(){
+	if(equwnd != null){
+	    for(Widget wdg = equwnd.lchild; wdg != null; wdg = wdg.next){
+		if(wdg instanceof Equipory){
+		    return (Equipory) wdg;
+		}
+	    }
+	}
+	return null;
     }
     
     public void cdestroy(Widget w) {

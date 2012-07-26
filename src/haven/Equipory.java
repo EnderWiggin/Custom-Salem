@@ -27,6 +27,7 @@
 package haven;
 
 import java.util.*;
+
 import static haven.Inventory.invsq;
 
 public class Equipory extends Widget implements DTarget {
@@ -59,6 +60,7 @@ public class Equipory extends Widget implements DTarget {
 	}
     }
     Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
+    List<WItem> items;
 	
     static {
 	Widget.addtype("epry", new WidgetFactory() {
@@ -81,6 +83,10 @@ public class Equipory extends Widget implements DTarget {
 		}
 	    };
 	ava.color = null;
+	items = new ArrayList<WItem>(ecoords.length);
+	for(int i=0; i< ecoords.length; i++){
+	    items.add(null);
+	}
     }
 	
     public Widget makechild(String type, Object[] pargs, Object[] cargs) {
@@ -91,6 +97,7 @@ public class Equipory extends Widget implements DTarget {
 	    for(int i = 0; i < pargs.length; i++) {
 		int ep = (Integer)pargs[i];
 		v[i] = new WItem(ecoords[ep].add(1, 1), this, g);
+		items.set(ep, v[i]);
 	    }
 	    wmap.put(g, v);
 	}
@@ -101,8 +108,12 @@ public class Equipory extends Widget implements DTarget {
 	super.cdestroy(w);
 	if(w instanceof GItem) {
 	    GItem i = (GItem)w;
-	    for(WItem v : wmap.remove(i))
+	    for(WItem v : wmap.remove(i)){
 		ui.destroy(v);
+		int k = items.indexOf(v);
+		if(k != -1)
+		    items.set(k, null);
+	    }
 	}
     }
     
