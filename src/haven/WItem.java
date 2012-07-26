@@ -26,11 +26,11 @@
 
 package haven;
 
+import static haven.ItemInfo.find;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.*;
-import static haven.ItemInfo.find;
 
 public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
@@ -194,8 +194,11 @@ public class WItem extends Widget implements DTarget {
 	    }
 	    if(item.meter > 0) {
 		double a = ((double)item.meter) / 100.0;
-		g.chcolor(255, 255, 255, 64);
-		g.fellipse(sz.div(2), new Coord(15, 15), 90, (int)(90 + (360 * a)));
+		int r = (int) ((1-a)*255);
+		int gr = (int) (a*255);
+		g.chcolor(r, gr, 0, 255);
+		Coord bsz = new Coord(3,(int) (a*sz.y));
+		g.frect(sz.sub(bsz).add(2,2), bsz);
 		g.chcolor();
 	    }
 	    if(olcol() != null) {
