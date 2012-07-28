@@ -31,7 +31,7 @@ import java.util.*;
 import java.io.*;
 
 public class Session {
-    public static final int PVER = 18;
+    public static final int PVER = 19;
     
     public static final int MSG_SESS = 0;
     public static final int MSG_REL = 1;
@@ -86,6 +86,7 @@ public class Session {
     byte[] cookie;
     final Map<Integer, Indir<Resource>> rescache = new TreeMap<Integer, Indir<Resource>>();
     public final Glob glob;
+    public byte[] sesskey;
 	
     @SuppressWarnings("serial")
 	public class MessageException extends RuntimeException {
@@ -481,6 +482,8 @@ public class Session {
 		glob.map.tilemap(msg);
 	    } else if(msg.type == Message.RMSG_BUFF) {
 		glob.buffmsg(msg);
+	    } else if(msg.type == Message.RMSG_SESSKEY) {
+		sesskey = msg.bytes();
 	    } else {
 		throw(new MessageException("Unknown rmsg type: " + msg.type, msg));
 	    }
@@ -616,10 +619,11 @@ public class Session {
 				}
 			    }
 			    Message msg = new Message(MSG_SESS);
-			    msg.adduint16(1);
+			    msg.adduint16(2);
 			    msg.addstring("Salem");
 			    msg.adduint16(PVER);
 			    msg.addstring(username);
+			    msg.adduint16(cookie.length);
 			    msg.addbytes(cookie);
 			    sendmsg(msg);
 			    last = now;
