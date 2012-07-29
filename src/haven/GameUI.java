@@ -619,6 +619,9 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	if(key == ':') {
 	    entercmd();
 	    return(true);
+	} else if((Config.screenurl != null) && (ukey == 'S') && ((ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0)) {
+	    Screenshooter.take(this, Config.screenurl);
+	    return(true);
 	} else if((ukey == 'W') || (ukey == 'A') || (ukey == 'S') || (ukey == 'D')) {
 	    dwalkdown(ukey, ev);
 	    return(true);
