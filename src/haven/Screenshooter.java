@@ -62,6 +62,8 @@ public class Screenshooter extends Window {
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if((sender == this) && (msg == "close")) {
 	    ui.destroy(this);
+	} else {
+	    super.wdgmsg(sender, msg, args);
 	}
     }
     
