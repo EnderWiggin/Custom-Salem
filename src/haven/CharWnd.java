@@ -33,7 +33,9 @@ public class CharWnd extends Window {
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
+    public int cmod;
     private final SkillInfo ski;
+    private final Label cmodl;
     
     static {
 	Widget.addtype("chr", new WidgetFactory() {
@@ -370,13 +372,20 @@ public class CharWnd extends Window {
     }
 
     public CharWnd(Coord c, Widget parent) {
-	super(c, new Coord(620, 340), parent, "Character");
+	super(c, new Coord(620, 360), parent, "Character");
 	new Label(new Coord(0, 0), this, "Proficiencies:");
 	int y = 30;
 	for(String nm : attrorder) {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
 	    y += 20;
 	}
+	y += 10;
+	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
+	new Button(new Coord(200, y), 40, this, "Reset") {
+	    public void click() {
+		CharWnd.this.wdgmsg("lreset");
+	    }
+	};
 	new Label(new Coord(250, 0), this, "Skills:");
 	new Label(new Coord(250, 30), this, "Current:");
 	this.csk = new SkillList(new Coord(250, 45), new Coord(170, 120), this) {
@@ -477,6 +486,9 @@ public class CharWnd extends Window {
 		accnsk = buf;
 	    else
 		nsk.pop(buf);
+	} else if(msg == "cmod") {
+	    cmod = (Integer)args[0];
+	    cmodl.settext(String.format("Learning ability: %d%%", cmod));
 	}
     }
 }
