@@ -29,6 +29,7 @@ package haven;
 import java.util.*;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 import static haven.Inventory.invsq;
 
 public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.Directory {
@@ -577,27 +578,68 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 		togglesdw = true;
 	    }
 	};
-	menumenu = new Widget(Coord.z, new Coord(132, 33), this) {
+	menumenu = new Widget(Coord.z, new Coord(132, 66), this) {
 		public void draw(GOut g) {
 		    super.draw(g);
 		    try {
 			if(lblk != null) {
 			    Tex t = lblk.get().layer(Resource.imgc).tex();
-			    g.image(t, new Coord(99, 0));
+			    g.image(t, new Coord(33, 33));
 			    g.chcolor(0, 255, 0, 128);
-			    g.frect(new Coord(99, 0), t.sz());
+			    g.frect(new Coord(33, 33), t.sz());
 			    g.chcolor();
 			} else if(dblk != null) {
-			    g.image(dblk.get().layer(Resource.imgc).tex(), new Coord(99, 0));
+			    g.image(dblk.get().layer(Resource.imgc).tex(), new Coord(33, 33));
 			}
 		    } catch(Loading e) {}
 		}
 	    };
-	new MenuButton(new Coord(66, 0), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
+	new MenuButton(new Coord(0, 33), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
 	    public void click() {
 		act("blk");
 	    }
 	};
+	if(WebBrowser.self != null) {
+	    new IButton(new Coord(66, 0), menumenu, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd")) {
+		final URL base;
+		{
+		    try {
+			base = new URL("http://services.paradoxplaza.com/adam/storelette/salem");
+		    } catch(java.net.MalformedURLException e) {
+			throw(new Error(e));
+		    }
+		    tooltip = Text.render("Buy silver");
+		}
+		
+		private String encode(String in) {
+		    StringBuilder buf = new StringBuilder();
+		    byte[] enc;
+		    try {
+			enc = in.getBytes("utf-8");
+		    } catch(java.io.UnsupportedEncodingException e) {
+			/* ¦] */
+			throw(new Error(e));
+		    }
+		    for(byte c : enc) {
+			if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) ||
+			   ((c >= '0') && (c <= '9')) || (c == '.')) {
+			    buf.append((char)c);
+			} else {
+			    buf.append("%" + Utils.num2hex((c & 0xf0) >> 4) + Utils.num2hex(c & 0x0f));
+			}
+		    }
+		    return(buf.toString());
+		}
+		
+		public void click() {
+		    try {
+			WebBrowser.self.show(new URL(base.getProtocol(), base.getHost(), base.getPort(), base.getFile() + "?userid=" + encode(ui.sess.username)));
+		    } catch(java.net.MalformedURLException e) {
+			throw(new RuntimeException(e));
+		    }
+		}
+	    };
+	}
     }
     private void togglesdw(GLConfig gc) {
 	if(togglesdw) {
