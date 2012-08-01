@@ -30,14 +30,16 @@ import java.awt.Color;
 import java.util.*;
 
 public class CharWnd extends Window {
-    private static final Coord SZ_FULL = new Coord(620, 340);
-    private static final Coord SZ_SHORT = new Coord(240, 340);
+    private static final Coord SZ_FULL = new Coord(620, 360);
+    private static final Coord SZ_SHORT = new Coord(240, 360);
     public static final Map<String, String> attrnm;
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
+    public int cmod;
     private final SkillInfo ski;
     private final Widget container;
+    private final Label cmodl;
     private final Button btntoggle;
     
     public static final Color GREEN = new Color(0xaaeeaa);
@@ -425,6 +427,13 @@ public class CharWnd extends Window {
 	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
 	    y += 20;
 	}
+	y += 10;
+	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
+	new Button(new Coord(200, y), 40, this, "Reset") {
+	    public void click() {
+		CharWnd.this.wdgmsg("lreset");
+	    }
+	};
 	btntoggle = new Button(new Coord(180, 0), 30, this, "<<"){
 	    public void click() {
 		toggle();
@@ -538,6 +547,9 @@ public class CharWnd extends Window {
 		accnsk = buf;
 	    else
 		nsk.pop(buf);
+	} else if(msg == "cmod") {
+	    cmod = (Integer)args[0];
+	    cmodl.settext(String.format("Learning ability: %d%%", cmod));
 	}
     }
 }
