@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 02.08.12:}}
+  * added marker shape to radar config file. Shape can be defined in marker or group. If it is not defined in marker, group setting will be used. If no shape set circle shape will be used.
+    $size[13]{$b{I recommend to delete or rename your radar.xml to see new default settings.}}
+ 
 $size[14]{$u{Update for 26.07.12:}}
   * added bar with quick access to hands, purse and back slots from Equipment
   * changed progress meters on items from circles to colored bars

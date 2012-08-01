@@ -20,7 +20,7 @@
 	<marker match="gfx/terobjs/herbs/lavenderblewit" text="Lavender Blewit" color="#2F35F5" />
 	<marker match="gfx/terobjs/herbs/lobstermushroom" text="Lobster Mushroom" color="#FF8000" />
 	
-	<!-- other -->>
+	<!-- other -->
 	<marker match="gfx/terobjs/herbs/virginiasnail" text="Virginia Snail" show="true" color="#ffffb3" />
 	<marker match="gfx/terobjs/herbs/blackberry" text="Blackberries" color="#5F3299" />
 	<marker match="gfx/terobjs/blackberrybush" text="Blackberry Bush" color="#7647B3" />
