@@ -131,8 +131,8 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		}
 		BufferedImage tex = tileimg(t);
 		if(tex != null){
-		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x + ul.x, tex.getWidth()),
-						    Utils.floormod(c.y + ul.y, tex.getHeight())));
+		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x, tex.getWidth()),
+						    Utils.floormod(c.y, tex.getHeight())));
 		} else {
 		    return null;
 		}
