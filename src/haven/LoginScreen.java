@@ -109,7 +109,7 @@ public class LoginScreen extends Widget {
 	private Pwbox(String username, boolean save) {
 	    super(new Coord(345, 310), new Coord(170, 160), LoginScreen.this);
 	    setfocustab(true);
-	    new Label(new Coord(10, 10), this, "H&H User name", textf);
+	    new Label(new Coord(10, 10), this, "User name", textf);
 	    user = new TextEntry(new Coord(10, 30), new Coord(150, 20), this, username);
 	    new Label(new Coord(10, 60), this, "Password", textf);
 	    pass = new TextEntry(new Coord(10, 80), new Coord(150, 20), this, "");
