@@ -1,5 +1,7 @@
 package haven.minimap;
 
+import haven.minimap.Marker.Shape;
+
 import java.awt.*;
 
 public class ConfigMarker {
@@ -10,6 +12,7 @@ public class ConfigMarker {
     public boolean show;
     public String text;
     public boolean tooltip;
+    public Shape shape;
 
     public boolean hastext() {
         return text != null && text.length() != 0;

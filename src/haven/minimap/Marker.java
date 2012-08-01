@@ -2,18 +2,47 @@ package haven.minimap;
 
 import haven.*;
 
-import java.awt.*;
-
 public class Marker {
     public final String name;
     public final Gob gob;
     public final MarkerTemplate template;
-    private final Tex tex = Utils.generateMarkerTex();
+    private final Tex tex;
 
+    public static enum Shape{
+	CIRCLE(10),
+	TRIANGLE(13),
+	TRIANGLED(13),
+	DIAMOND(13),
+	SQUARE(9);
+	
+	public int sz;
+
+	Shape(int sz){
+	    this.sz = sz;
+	}
+	
+	public static Shape get(String val){
+	    if(val.equals("circle")){
+		return CIRCLE;
+	    } else if(val.equals("up")){
+		return TRIANGLE;
+	    } else if(val.equals("down")){
+		return TRIANGLED;
+	    } else if(val.equals("diamond")){
+		return DIAMOND;
+	    } else if(val.equals("square")){
+		return SQUARE;
+	    }
+	    return CIRCLE;
+	}
+	
+    }
+    
     public Marker(String name, Gob gob, MarkerTemplate template) {
         this.name = name;
         this.gob = gob;
         this.template = template;
+        this.tex = Utils.generateMarkerTex(template.shape);
     }
     
     public boolean hit(Coord c) {

@@ -55,7 +55,7 @@ class MarkerFactory {
     }
 
     private MarkerTemplate createTemplate(String resname, ConfigMarker cm) {
-        return new MarkerTemplate(cm.color, cm.show, cm.hastext() ? cm.text : resname, cm.tooltip);
+        return new MarkerTemplate(cm.color, cm.show, cm.hastext() ? cm.text : resname, cm.tooltip, cm.shape);
     }
 
     public void setConfig(RadarConfig config) {

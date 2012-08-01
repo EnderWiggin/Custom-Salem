@@ -2,6 +2,7 @@ package haven.minimap;
 
 import haven.Config;
 import haven.LoginScreen;
+import haven.minimap.Marker.Shape;
 
 import java.awt.*;
 import java.io.*;
@@ -81,6 +82,7 @@ public class RadarConfig {
         group.name = el.getAttribute("name");
         group.show = !el.getAttribute("show").equals("false");
         group.color = Utils.parseColor(el.getAttribute("color"));
+        group.shape = Shape.get(el.getAttribute("shape"));
 
         NodeList markerNodes = el.getElementsByTagName("marker");
         for (int i = 0; i < markerNodes.getLength(); i++) {
@@ -103,6 +105,9 @@ public class RadarConfig {
                 ? el.getAttribute("show").equals("true")
                 : group.show;
         marker.tooltip = el.hasAttribute("tooltip") && el.getAttribute("tooltip").equals("true");
+        marker.shape = el.hasAttribute("shape")
+                ? Shape.get(el.getAttribute("shape"))
+                : group.shape;
 
         if (el.hasAttribute("match")) {
             marker.match = el.getAttribute("match");

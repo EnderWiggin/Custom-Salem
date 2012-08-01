@@ -1,27 +1,69 @@
 <radarConfig>
-    <group name="herb" show="true" color="#ffff00">
-	<marker match="gfx/terobjs/herbs/smoothstone" tooltip="true" color="#aa00ff" />
-	<marker match="gfx/terobjs/herbs/chestnut" tooltip="true" color="#33bb55" />
-	<marker match="gfx/terobjs/herbs/oldlog" tooltip="true" color="#ff5555" />
-	<marker match="gfx/terobjs/herbs/driftwood" tooltip="true" color="#ff5555" />
-	<marker match="gfx/terobjs/herbs/newworldgourd" tooltip="true" color="#cc5533" />
-        <marker match="gfx/terobjs/herbs/arrowhead" tooltip="true" color="#11bc98" />
-	<marker match="gfx/terobjs/herbs/indianfeather" tooltip="true" color="#11bc98" />
-	<marker match="gfx/terobjs/herbs/waxingtoadstool" tooltip="true" color="#aaff00" />
-	<marker match="gfx/terobjs/herbs/blackberry" tooltip="true" color="#aaff00" />
-	<marker match="gfx/terobjs/herbs/lime" tooltip="true" color="#ff9911" />
-        <marker match="gfx/terobjs/herbs/autumngrass" tooltip="true" show="true" color="#e1e1e1" />
-        <!-- unknown forageables -->
-        <marker pattern="gfx/terobjs/herbs/.+" tooltip="true" show="true" />
-    </group>
-    <!-- animals -->
-    <group name="animals" show="true">
-    <marker pattern="gfx/kritter/cricket/.+" tooltip="true" color="#555555" />
-    <marker pattern="gfx/kritter/deer/.+" tooltip="true" color="#55d355" />
-    </group>
-    <!-- players -->
-    <group name="player" show="true">
-    </group>
-    <group name="custom" show="true">
-    </group>
+<group name="herb" show="true" tooltip="true" color="#ffff00">
+	<marker match="gfx/terobjs/herbs/lime" text="Lime" color="#ffb814" />
+	<marker match="gfx/terobjs/herbs/flint" text="Flint" color="#cecece" />
+	<marker match="gfx/terobjs/herbs/granite" text="Granite" color="#CA6744" />
+	<marker match="gfx/terobjs/herbs/coarsesalt" text="Coarse Salt" color="#cccccc" />
+	
+	<marker match="gfx/terobjs/herbs/autumngrass" text="Autumn Grass" color="#bab080" />
+	<marker match="gfx/terobjs/herbs/seaweed" text="Seaweed" color="#00bd97" />
+	
+	<!-- unknown forageables -->
+	<marker pattern="gfx/terobjs/herbs/.+" show="true" />
+</group>
+
+<group name="food" show="true" shape="down" tooltip="true" color="#ffff00">
+	<!-- shrooms -->
+	<marker match="gfx/terobjs/herbs/waxingtoadstool" text="Waxing Toadstool" color="#99E655" />
+	<marker match="gfx/terobjs/herbs/sugarcap" text="Sugar Caps" color="#eecc88" />
+	<marker match="gfx/terobjs/herbs/witchshroom" text="Witch's Hat" color="#696969" />
+	<marker match="gfx/terobjs/herbs/lavenderblewit" text="Lavender Blewit" color="#2F35F5" />
+	<marker match="gfx/terobjs/herbs/lobstermushroom" text="Lobster Mushroom" color="#FF8000" />
+	
+	<!-- other -->>
+	<marker match="gfx/terobjs/herbs/virginiasnail" text="Virginia Snail" show="true" color="#ffffb3" />
+	<marker match="gfx/terobjs/herbs/blackberry" text="Blackberries" color="#5F3299" />
+	<marker match="gfx/terobjs/blackberrybush" text="Blackberry Bush" color="#7647B3" />
+	<marker match="gfx/terobjs/herbs/huckleberry" text="Huckleberries" color="#5F6699" />
+	<marker match="gfx/terobjs/herbs/crowberry" text="Crowberry Stalk" color="#5F6699" />
+	<marker match="gfx/terobjs/herbs/wildgarlic" text="Wild Garlic" color="#FFF700" />
+	<marker match="gfx/terobjs/herbs/honeysucklekudzu" text="Honeysuckle Kudzu" color="#ee82ee" />
+	
+	<marker match="gfx/terobjs/herbs/oakworth" text="Oakworth" color="#44E644" />
+	<marker match="gfx/terobjs/herbs/lilypad" text="Lilypad Bulb" color="#9966E6" />
+	<marker match="gfx/terobjs/herbs/milkweed" text="Milkweed Roots" color="#00E600" />
+</group>
+
+<group name="curio" show="true" shape="up" tooltip="true" color="#ffff00">
+	<marker match="gfx/terobjs/herbs/smoothstone" text="Smooth Stone" color="#eeeeee" />
+	<marker match="gfx/terobjs/herbs/chestnut" text="Stray Chestnut" color="#66E633" />
+	<marker match="gfx/terobjs/herbs/oldlog" text="Singing Old Log" color="#FF7733" />
+	<marker match="gfx/terobjs/herbs/driftwood" text="Aged Driftwood" color="#ff9944" />
+	<marker match="gfx/terobjs/herbs/newworldgourd" text="New World Gourd" color="#ff9955" />
+	<marker match="gfx/terobjs/herbs/seashell" text="Beautiful Seashell" color="#4466bb" />
+	<marker match="gfx/terobjs/herbs/devilwort" text="Devil's Wort" color="#ED4444" />
+</group>
+
+<!-- animals -->
+<group name="animals" show="true" shape="diamond" color="#ffff00">
+	<marker pattern="gfx/kritter/rabbit/.+" text="Rabbit" color="#ffffee" />
+	<marker pattern="gfx/kritter/cricket/.+" text="Cricket" color="#aaffaa" />
+	<marker pattern="gfx/kritter/deer/.+" text="Deer" color="#e59363" />
+	<marker pattern="gfx/kritter/beaver/.+" text="Beaver" color="#6091ea" />
+	<marker pattern="gfx/kritter/bear/.+" text="Bear" color="#d35555" />
+	<marker pattern="gfx/kritter/rattler/.+" text="Timber Rattler" color="#ffaaaa" />
+
+	<!-- unknown animals -->
+	<marker pattern="gfx/kritter/.+" color="#ffaaff" />
+</group>
+
+<!-- players -->
+<group name="player" show="true">
+	<marker pattern="gfx/borka/body" shape="square" color="#FF4040" />
+</group>
+
+<group name="custom" shape="square" show="true">
+	<marker match="gfx/terobjs/herbs/arrowhead" text="Indian Arrowhead" color="#008E00" />
+	<marker match="gfx/terobjs/herbs/indianfeather" text="Indian Feather" color="#00CC00" />
+</group>
 </radarConfig>
