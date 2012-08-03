@@ -1,5 +1,7 @@
 package haven;
 
+import haven.MCache.Grid;
+
 import java.awt.event.KeyEvent;
 
 class FlatnessTool extends Window implements MapView.Grabber {
@@ -21,7 +23,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
     
     private static FlatnessTool instance; 
 
-    public FlatnessTool(MapView mv, String text, Coord c, Widget parent) {
+    public FlatnessTool(MapView mv, Coord c, Widget parent) {
         super(c, new Coord(150, 50), parent, title);
         this.map = this.ui.sess.glob.map;
         this.text = new Label(Coord.z, this, defaulttext);
@@ -34,7 +36,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
     
     public static FlatnessTool instance(UI ui) {
 	if(instance == null){
-	    instance = new FlatnessTool(ui.gui.map, null,  new Coord(100, 100), ui.root);
+	    instance = new FlatnessTool(ui.gui.map, new Coord(100, 100), ui.root);
 	}
 	return instance;
     }
@@ -61,6 +63,8 @@ class FlatnessTool extends Window implements MapView.Grabber {
         minheight = Float.MAX_VALUE;
         maxheight = -minheight;
         float h = 0;
+        long n = c2.sub(c1).abs().add(1,1).mul();
+        double mean = 0;
         Coord c = new Coord();
         for (c.x = c1.x; c.x <= c2.x; c.x++) {
             for (c.y = c1.y; c.y <= c2.y; c.y++) {
@@ -71,6 +75,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
         	if (h > maxheight) {
         	    maxheight = h;
         	}
+        	mean += (double)h/(double)n;
             }
         }
 
@@ -80,7 +85,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
         else {
             text += "Area isn't flat.";
         }
-        text += String.format(" Lowest: [%.2f], Highest: [%.2f].", minheight, maxheight);
+        text += String.format(" Lowest: [%.0f], Highest: [%.0f], Mean: [%.2f].", minheight, maxheight,mean);
 
         settext(text);
 

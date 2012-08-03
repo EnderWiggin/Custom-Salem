@@ -41,6 +41,7 @@ public class CharWnd extends Window {
     private final Widget container;
     private final Label cmodl;
     private final Button btntoggle;
+    private Button btnreset;
     
     public static final Color GREEN = new Color(0xaaeeaa);
     public static final Color GRAY = new Color(0xbda3a3);
@@ -429,7 +430,7 @@ public class CharWnd extends Window {
 	}
 	y += 10;
 	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
-	new Button(new Coord(200, y), 40, this, "Reset") {
+	btnreset = new Button(new Coord(580, y), 40, this, "Reset") {
 	    public void click() {
 		CharWnd.this.wdgmsg("lreset");
 	    }
@@ -481,6 +482,7 @@ public class CharWnd extends Window {
     
     protected void toggle() {
 	container.visible = !container.visible;
+	btnreset.visible = !btnreset.visible;
 	resize(container.visible?SZ_FULL:SZ_SHORT);
 	btntoggle.change(container.visible?"<<":">>");
     }
