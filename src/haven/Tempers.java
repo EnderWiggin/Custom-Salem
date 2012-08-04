@@ -109,7 +109,7 @@ public class Tempers extends Widget {
 	tt = null;
     }
     
-    public Object tooltip(Coord c, boolean again) {
+    public Object tooltip(Coord c, Widget prev) {
 	if(c.dist(mid) < l) {
 	    if(tt == null) {
 		StringBuilder buf = new StringBuilder();
