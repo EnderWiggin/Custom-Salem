@@ -1,9 +1,9 @@
 <radarConfig>
 <group name="herb" show="true" tooltip="true" color="#ffff00">
 	<marker match="gfx/terobjs/herbs/lime" text="Lime" color="#ffb814" />
-	<marker match="gfx/terobjs/herbs/flint" text="Flint" color="#cecece" />
+	<marker match="gfx/terobjs/herbs/flint" text="Flint" color="#aeaece" />
 	<marker match="gfx/terobjs/herbs/granite" text="Granite" color="#CA6744" />
-	<marker match="gfx/terobjs/herbs/coarsesalt" text="Coarse Salt" color="#cccccc" />
+	<marker match="gfx/terobjs/herbs/coarsesalt" text="Coarse Salt" color="#eeeeee" />
 	
 	<marker match="gfx/terobjs/herbs/autumngrass" text="Autumn Grass" color="#bab080" />
 	<marker match="gfx/terobjs/herbs/seaweed" text="Seaweed" color="#00bd97" />
@@ -50,8 +50,8 @@
 	<marker pattern="gfx/kritter/cricket/.+" text="Cricket" color="#aaffaa" />
 	<marker pattern="gfx/kritter/deer/.+" text="Deer" color="#e59363" />
 	<marker pattern="gfx/kritter/beaver/.+" text="Beaver" color="#6091ea" />
-	<marker pattern="gfx/kritter/bear/.+" text="Bear" color="#d35555" />
-	<marker pattern="gfx/kritter/rattler/.+" text="Timber Rattler" color="#ffaaaa" />
+	<marker pattern="gfx/kritter/bear/.+" text="Bear" color="#e34444" />
+	<marker pattern="gfx/kritter/rattler/.+" text="Timber Rattler" color="#ff8888" />
 
 	<!-- unknown animals -->
 	<marker pattern="gfx/kritter/.+" color="#ffaaff" />
@@ -59,11 +59,11 @@
 
 <!-- players -->
 <group name="player" show="true">
-	<marker pattern="gfx/borka/body" shape="square" color="#FF4040" />
+	<marker pattern="gfx/borka/body" shape="square" text="Player" color="#FF4040" />
 </group>
 
 <group name="custom" shape="square" show="true">
-	<marker match="gfx/terobjs/herbs/arrowhead" text="Indian Arrowhead" color="#008E00" />
-	<marker match="gfx/terobjs/herbs/indianfeather" text="Indian Feather" color="#00CC00" />
+	<marker match="gfx/terobjs/herbs/arrowhead" text="Indian Arrowhead" color="#008Eaa" />
+	<marker match="gfx/terobjs/herbs/indianfeather" text="Indian Feather" color="#33ffdd" />
 </group>
 </radarConfig>

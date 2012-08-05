@@ -1,5 +1,13 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 05.08.12:}}
+  * moved reset button to right side of char window
+  * made flatness tool show mean height
+  * added option to protect study
+  * increased chat font
+  * made shadows option save in salem.cfg
+  * fixed progress meter on items
+ 
 $size[14]{$u{Update for 02.08.12:}}
   * added marker shape to radar config file. Shape can be defined in marker or group. If it is not defined in marker, group setting will be used. If no shape set circle shape will be used.
     $size[13]{$b{I recommend to delete or rename your radar.xml to see new default settings.}}
