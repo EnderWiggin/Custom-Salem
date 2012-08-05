@@ -974,4 +974,12 @@ public class Utils {
 		}
 	    });
     }
+    
+    public static String timestamp() {
+	return new SimpleDateFormat("HH:mm").format(new Date());
+    }
+    
+    public static String timestamp(String text) {
+	return String.format("[%s] %s", timestamp(), text);
+    }
 }

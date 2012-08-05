@@ -185,10 +185,24 @@ public class FlowerMenu extends Widget {
 	
     public FlowerMenu(Coord c, Widget parent, String... options) {
 	super(c, Coord.z, parent);
-	opts = new Petal[options.length];
-	for(int i = 0; i < options.length; i++) {
-	    opts[i] = new Petal(options[i]);
-	    opts[i].num = i;
+	Petal study = null;
+	if(Config.flower_study){
+	    for(int i = 0; i < options.length; i++) {
+		if(options[i].equals("Study")){
+		    study = new Petal(options[i]);
+		    study.num = i;
+		    break;
+		}
+	    }
+	}
+	if(study == null) {
+	    opts = new Petal[options.length];
+	    for(int i = 0; i < options.length; i++) {
+		opts[i] = new Petal(options[i]);
+		opts[i].num = i;
+	    }
+	} else {
+	    opts = new Petal[]{study};
 	}
 	organize(opts);
 	ui.grabmouse(this);
@@ -210,12 +224,23 @@ public class FlowerMenu extends Widget {
 	    ui.grabmouse(null);
 	    ui.grabkeys(null);
 	} else if(msg == "act") {
-	    anim = new Chosen(opts[(Integer)args[0]]);
+	    anim = new Chosen(opts[get((Integer)args[0])]);
 	    ui.grabmouse(null);
 	    ui.grabkeys(null);
 	}
     }
 	
+    private int get(int num) {
+	int i = 0;
+	for(Petal p : opts){
+	    if(p.num == num){
+		return i;
+	    }
+	    i++;
+	}
+	return 0;
+    }
+
     public void draw(GOut g) {
 	if(anim != null)
 	    anim.tick();

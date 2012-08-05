@@ -132,6 +132,21 @@ public class OptWnd extends Window {
 		    if(val)ui.gui.mmap.cgrid = null;
 		}
 	    }.a = Config.store_map;
+	    
+	    new CheckBox(new Coord(0, y += 30), tab, "Study protection"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.flower_study = val;
+		    Utils.setprefb("flower_study", val);
+		}
+
+		@Override
+		public Object tooltip(Coord c, boolean again) {
+		    return "Leave only 'Study' option in right-click menus, if they have one.";
+		}
+		
+	    }.a = Config.flower_study;
 	}
 
 	
@@ -177,12 +192,12 @@ public class OptWnd extends Window {
 		@Override
 		public void changed(boolean val) {
 		    super.changed(val);
-		    ui.gui.shadows = val; 
+		    Config.shadows = val; 
 		    ui.gui.togglesdw = true;
 		}
 		
 	    };
-	    opt_shadow.a = ui.gui.shadows;
+	    opt_shadow.a = Config.shadows;
 	}
 	
 

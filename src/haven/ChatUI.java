@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.awt.datatransfer.*;
 
 public class ChatUI extends Widget {
+    public static final int font_sz = 12;
     public static final RichText.Foundry fnd = new RichText.Foundry(new ChatParser(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 12, TextAttribute.FOREGROUND, Color.BLACK));
     public static final Text.Foundry qfnd = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 14), new java.awt.Color(192, 255, 192));
     public static final int selw = 100;
@@ -146,10 +147,12 @@ public class ChatUI extends Widget {
 	    private final Text t;
 	    
 	    public SimpleMessage(String text, Color col, int w) {
+		if(Config.timestamp)
+		    text = Utils.timestamp(text);
 		if(col == null)
-		    this.t = fnd.render(RichText.Parser.quote(text), w);
+		    this.t = fnd.render(RichText.Parser.quote(text), w, TextAttribute.SIZE, font_sz);
 		else
-		    this.t = fnd.render(RichText.Parser.quote(text), w, TextAttribute.FOREGROUND, col);
+		    this.t = fnd.render(RichText.Parser.quote(text), w, TextAttribute.FOREGROUND, col, TextAttribute.SIZE, font_sz);
 	    }
 	    
 	    public Text text() {
@@ -580,7 +583,11 @@ public class ChatUI extends Widget {
 		BuddyWnd.Buddy b = getparent(GameUI.class).buddies.find(from);
 		String nm = (b == null)?"???":(b.name);
 		if((r == null) || !nm.equals(cn)) {
-		    r = fnd.render(RichText.Parser.quote(String.format("%s: %s", nm, text)), w, TextAttribute.FOREGROUND, col);
+		    String msg = RichText.Parser.quote(String.format("%s: %s", nm, text));
+		    if(Config.timestamp){
+			msg = Utils.timestamp(msg);
+		    }
+		    r = fnd.render(msg, w, TextAttribute.FOREGROUND, col, TextAttribute.SIZE, font_sz);
 		    cn = nm;
 		}
 		return(r);

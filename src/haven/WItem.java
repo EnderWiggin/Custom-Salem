@@ -196,10 +196,12 @@ public class WItem extends Widget implements DTarget {
 		double a = ((double)item.meter) / 100.0;
 		int r = (int) ((1-a)*255);
 		int gr = (int) (a*255);
-		g.chcolor(r, gr, 0, 255);
-		Coord bsz = new Coord(3,(int) (a*sz.y));
-		g.frect(sz.sub(bsz).add(2,2), bsz);
-		g.chcolor();
+		Coord s2 = sz.add(2,2);
+		GOut g2 = g.reclipl(Coord.z, s2);
+		g2.chcolor(r, gr, 0, 255);
+		Coord bsz = new Coord(4, (int) (a*s2.y));
+		g2.frect(s2.sub(bsz), bsz);
+		g2.chcolor();
 	    }
 	    if(olcol() != null) {
 		if(cmask != res) {
