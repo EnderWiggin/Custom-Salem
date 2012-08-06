@@ -32,6 +32,7 @@ import java.awt.font.TextAttribute;
 import haven.Resource.AButton;
 import haven.Glob.Pagina;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class MenuGrid extends Widget {
     public final static Tex bg = Resource.loadtex("gfx/hud/invsq");
@@ -155,7 +156,17 @@ public class MenuGrid extends Widget {
 	    tt += " [" + ad.hk + "]";
 	if(withpg && (pg != null)) {
 	    tt += "\n\n" + pg.text;
+
+	    //inspirationals gain
+	    Map<String, Integer> props = Wiki.get(ad.name);
+	    if(props != null){
+		for(Entry<String, Integer> e : props.entrySet()){
+		    if(e.getValue() > 0)
+			tt += String.format("\n%s: %d", CharWnd.attrnm.get(e.getKey()), e.getValue());
+		}
+	    }
 	}
+	
 	return(ttfnd.render(tt, 300));
     }
 
@@ -205,6 +216,7 @@ public class MenuGrid extends Widget {
 	
     private Pagina curttp = null;
     private boolean curttl = false;
+    private Map<String, Integer> ttprops = null;
     private Text curtt = null;
     private long hoverstart;
     public Object tooltip(Coord c, boolean again) {
@@ -214,7 +226,8 @@ public class MenuGrid extends Widget {
 	    if(!again)
 		hoverstart = now;
 	    boolean ttl = (now - hoverstart) > 500;
-	    if((pag != curttp) || (ttl != curttl)) {
+	    Map<String, Integer> p = Wiki.get(pag.res().layer(Resource.action).name);
+	    if((pag != curttp) || (ttl != curttl) || p != ttprops) {
 		curtt = rendertt(pag.res(), ttl);
 		curttp = pag;
 		curttl = ttl;

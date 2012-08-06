@@ -9,6 +9,8 @@ import haven.Resource.AButton;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ToolBeltWdg extends Window implements DropTarget{
     private static final Coord invsz = invsq.sz();
@@ -364,6 +366,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     private boolean curttl = false;
     private Text curtt = null;
     private long hoverstart;
+    private Map<String, Integer> ttprops = null;
     
     @Override
     public Object tooltip(Coord c, boolean again) {
@@ -377,7 +380,8 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		boolean ttl = (now - hoverstart) > 500;
 		try {
 		    Resource res = gui.belt[slot].get();
-		    if((res != curttr) || (ttl != curttl)) {
+		    Map<String, Integer> p = Wiki.get(res.layer(Resource.action).name);
+		    if((res != curttr) || (ttl != curttl) || p != ttprops) {
 			curtt = rendertt(res, ttl);
 			curttr = res;
 			curttl = ttl;
@@ -396,6 +400,15 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	String tt = ad.name;
 	if(withpg && (pg != null)) {
 	    tt += "\n\n" + pg.text;
+
+	    //inspirationals gain
+	    Map<String, Integer> props = Wiki.get(ad.name);
+	    if(props != null){
+		for(Entry<String, Integer> e : props.entrySet()){
+		    if(e.getValue() > 0)
+			tt += String.format("\n%s: %d", CharWnd.attrnm.get(e.getKey()), e.getValue());
+		}
+	    }
 	}
 	return(RichText.render(tt, 300));
     }

@@ -1,7 +1,6 @@
 package haven.minimap;
 
 import haven.Config;
-import haven.LoginScreen;
 import haven.minimap.Marker.Shape;
 
 import java.awt.*;
