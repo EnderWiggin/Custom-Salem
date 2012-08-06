@@ -33,7 +33,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
 
 public class UI {
-    private static final SimpleDateFormat datef = new SimpleDateFormat("[HH:mm] ");
     public static UI instance;
     public GameUI gui;
     public RootWidget root;
@@ -315,7 +314,6 @@ public class UI {
 
     public void message(String str) {
 	if((cons!=null) && (gui!=null)){
-	    str = datef.format(new Date(System.currentTimeMillis())) + str;
 //	    cons.out.println(str);
 	    gui.error(str);
 	}
