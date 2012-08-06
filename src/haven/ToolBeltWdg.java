@@ -402,13 +402,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	    tt += "\n\n" + pg.text;
 
 	    //inspirationals gain
-	    Map<String, Integer> props = Wiki.get(ad.name);
-	    if(props != null){
-		for(Entry<String, Integer> e : props.entrySet()){
-		    if(e.getValue() > 0)
-			tt += String.format("\n%s: %d", CharWnd.attrnm.get(e.getKey()), e.getValue());
-		}
-	    }
+	    tt += MenuGrid.getXPgain(ad.name);
 	}
 	return(RichText.render(tt, 300));
     }
