@@ -144,7 +144,20 @@ public class MenuGrid extends Widget {
 	    pagseq = ui.sess.glob.pagseq;
 	}
     }
-	
+    
+    public static String getXPgain(String name){
+	String text = "";
+	Map<String, Integer> props = Wiki.get(name);
+	if(props != null){
+	    for(String attr : CharWnd.attrorder){
+		Integer val;
+		if(props.containsKey(attr) && (val = props.get(attr)) != null && val > 0)
+		    text += String.format("\n%s: %d", CharWnd.attrnm.get(attr), val);
+	    }
+	}
+	return text;
+    }
+    
     private static Text rendertt(Resource res, boolean withpg) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
@@ -158,13 +171,7 @@ public class MenuGrid extends Widget {
 	    tt += "\n\n" + pg.text;
 
 	    //inspirationals gain
-	    Map<String, Integer> props = Wiki.get(ad.name);
-	    if(props != null){
-		for(Entry<String, Integer> e : props.entrySet()){
-		    if(e.getValue() > 0)
-			tt += String.format("\n%s: %d", CharWnd.attrnm.get(e.getKey()), e.getValue());
-		}
-	    }
+	    tt += getXPgain(ad.name);
 	}
 	
 	return(ttfnd.render(tt, 300));
