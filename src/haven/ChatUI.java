@@ -889,6 +889,9 @@ public class ChatUI extends Widget {
 		rqpre = pre.length();
 	    }
 	    c = br.sub(0, 20);
+	    g.chcolor(24, 24, 16, 200);
+	    g.frect(c, rqline.tex().sz());
+	    g.chcolor();
 	    g.image(rqline.tex(), c);
 	    int lx = rqline.advance(qline.point + rqpre);
 	    g.line(new Coord(br.x + lx + 1, br.y - 18), new Coord(br.x + lx + 1, br.y - 6), 1);
@@ -905,6 +908,10 @@ public class ChatUI extends Widget {
 		}
 		if((c.y -= n.msg.sz().y) < br.y - h)
 		    break;
+		
+		g.chcolor(24, 24, 16, 200);
+		g.frect(c, n.chnm.tex().sz().add(n.msg.tex().sz().x + selw, 0));
+		g.chcolor();
 		g.image(n.chnm.tex(), c, br.sub(0, h), br.add(selw - 10, 0));
 		g.image(n.msg.tex(), c.add(selw, 0));
 	    }

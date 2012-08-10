@@ -26,6 +26,7 @@
 
 package haven;
 
+import haven.Resource.Loading;
 import haven.RichText.Foundry;
 
 import java.awt.Color;
@@ -167,7 +168,11 @@ public class Tempers extends Widget {
 	w = wdiamond;
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
+	    FoodInfo food = null;
+	    try{
+		food = ItemInfo.find(FoodInfo.class, item.info());
+	    } catch (Loading e){}
+	    
 	    if(food != null) {
 		g.chcolor(foodc);
 		g.poly(mid.add(0, -dispval(soft[0] + food.tempers[0], lmax[0])),
