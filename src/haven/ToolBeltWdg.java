@@ -369,13 +369,13 @@ public class ToolBeltWdg extends Window implements DropTarget{
     private Map<String, Integer> ttprops = null;
     
     @Override
-    public Object tooltip(Coord c, boolean again) {
+    public Object tooltip(Coord c, Widget prev) {
 	int slot = beltslot(c);
 	long now = System.currentTimeMillis();
 	if(slot != -1) {
 	    slot = getbelt(slot);
 	    if(gui.belt[slot] != null){
-		if(!again)
+		if(prev != this)
 		    hoverstart = now;
 		boolean ttl = (now - hoverstart) > 500;
 		try {

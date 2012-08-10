@@ -52,15 +52,15 @@ public class EquipProxyWdg extends Widget implements DTarget {
     }
     
     @Override
-    public Object tooltip(Coord c, boolean again) {
+    public Object tooltip(Coord c, Widget prev) {
 	Equipory e = ui.gui.getEquipory();
 	if(e != null){
 	    WItem w = e.items.get(slot(c));
 	    if(w != null){
-		return w.tooltip(c, again);
+		return w.tooltip(c, prev);
 	    }
 	}
-	return super.tooltip(c, again);
+	return super.tooltip(c, prev);
     }
 
     @Override
