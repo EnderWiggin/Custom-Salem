@@ -209,9 +209,7 @@ public class Tempers extends Widget {
 	texts = null;
     }
     
-    
-    
-    public Object tooltip(Coord c, boolean again) {
+    public Object tooltip(Coord c, Widget prev) {
 	if(!Config.plain_tempers && (c.dist(mid) < l)) {
 	    if(tt == null) {
 		StringBuilder buf = new StringBuilder();

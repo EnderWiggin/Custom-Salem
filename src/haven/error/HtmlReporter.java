@@ -36,7 +36,7 @@ public class HtmlReporter {
     public static final NumberFormat ifmt = NumberFormat.getInstance();
     public static final String[] idxprops = {
 	"java.vendor", "java.version",
-	"os.arch", "os.name", "os.version",
+	"os.arch", "os.name", "os.version", "gl.vendor",
 	"thnm", "usr",
     };
     public static final Class[] boring = {
@@ -344,8 +344,8 @@ public class HtmlReporter {
     }
 
     public static void main(String[] args) throws Exception {
-	File indir = new File("/srv/haven/errors");
-	File outdir = new File("/srv/www/haven/errors");
+	File indir = new File(args[0]);
+	File outdir = new File(args[1]);
 	Map<File, Report> reports = new HashMap<File, Report>();
 	Map<File, Exception> failed = new HashMap<File, Exception>();
 	
