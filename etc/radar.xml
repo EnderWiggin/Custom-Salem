@@ -31,23 +31,25 @@
 	
 	<marker match="gfx/terobjs/herbs/oakworth" text="Oakworth" color="#44E644" />
 	<marker match="gfx/terobjs/herbs/lilypad" text="Lilypad Bulb" color="#9966E6" />
-	<marker match="gfx/terobjs/herbs/milkweed" text="Milkweed Roots" color="#00E600" />
+	<marker match="gfx/terobjs/herbs/milkweed" text="Milkweed Roots" color="#33E677" />
 </group>
 
 <group name="curio" show="true" shape="up" tooltip="true" color="#ffff00">
 	<marker match="gfx/terobjs/herbs/smoothstone" text="Smooth Stone" color="#eeeeee" />
 	<marker match="gfx/terobjs/herbs/chestnut" text="Stray Chestnut" color="#66E633" />
-	<marker match="gfx/terobjs/herbs/oldlog" text="Singing Old Log" color="#FF7733" />
-	<marker match="gfx/terobjs/herbs/driftwood" text="Aged Driftwood" color="#ff9944" />
+	<marker match="gfx/terobjs/herbs/oldlog" text="Singing Old Log" color="#FF5533" />
+	<marker match="gfx/terobjs/herbs/driftwood" text="Aged Driftwood" color="#ff3355" />
 	<marker match="gfx/terobjs/herbs/newworldgourd" text="New World Gourd" color="#ff9955" />
 	<marker match="gfx/terobjs/herbs/seashell" text="Beautiful Seashell" color="#4466bb" />
 	<marker match="gfx/terobjs/herbs/devilwort" text="Devil's Wort" color="#ED4444" />
+	<marker match="gfx/terobjs/tumbleweed" text="Tumbleweed" color="#885A06" />
 </group>
 
 <!-- animals -->
 <group name="animals" show="true" shape="diamond" color="#ffff00">
 	<marker pattern="gfx/kritter/rabbit/.+" text="Rabbit" color="#ffffee" />
 	<marker pattern="gfx/kritter/cricket/.+" text="Cricket" color="#aaffaa" />
+	<marker pattern="gfx/kritter/turkey/.+" text="Turkey" color="#8888ff" />
 	<marker pattern="gfx/kritter/deer/.+" text="Deer" color="#e59363" />
 	<marker pattern="gfx/kritter/beaver/.+" text="Beaver" color="#6091ea" />
 	<marker pattern="gfx/kritter/bear/.+" text="Bear" color="#e34444" />

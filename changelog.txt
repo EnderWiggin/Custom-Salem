@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 11.08.12:}}
+  * fixed chat channel selection when there's many channels open
+  * added close channel button
+ 
 $size[14]{$u{Update for 10.08.12:}}
   * fixed possible crash when clicking with bucket on clay through
   * added background to quick-chat
