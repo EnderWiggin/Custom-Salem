@@ -57,7 +57,7 @@ public class EquipProxyWdg extends Widget implements DTarget {
 	if(e != null){
 	    WItem w = e.items.get(slot(c));
 	    if(w != null){
-		return w.tooltip(c, prev);
+		return w.tooltip(c, (prev == this)?w:prev);
 	    }
 	}
 	return super.tooltip(c, prev);
