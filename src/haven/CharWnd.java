@@ -305,22 +305,24 @@ public class CharWnd extends Window {
 		g.chcolor(0, 0, 128, 255);
 	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
 	    if(ui.lasttip instanceof WItem.ItemTip) {
-		GItem item = ((WItem.ItemTip)ui.lasttip).item();
-		Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
-		if(insp != null) {
-		    for(int i = 0; i < insp.attrs.length; i++) {
-			if(insp.attrs[i].equals(nm)) {
-			    int w = Math.min(((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100),
-					     expsz.x - 2);
-			    if(insp.exp[i] > (attr.comp * 100))
-				g.chcolor(255, 255, 0, 255);
-			    else
-				g.chcolor(255, 192, 0, 255);
-			    g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
-			    break;
+		try {
+		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
+		    Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
+		    if(insp != null) {
+			for(int i = 0; i < insp.attrs.length; i++) {
+			    if(insp.attrs[i].equals(nm)) {
+				int w = Math.min(((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100),
+						 expsz.x - 2);
+				if(insp.exp[i] > (attr.comp * 100))
+				    g.chcolor(255, 255, 0, 255);
+				else
+				    g.chcolor(255, 192, 0, 255);
+				g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
+				break;
+			    }
 			}
 		    }
-		}
+		} catch(Loading e) {}
 	    }
 	    if(nsk.sel >= 0) {
 		Skill sk = nsk.skills[nsk.sel];

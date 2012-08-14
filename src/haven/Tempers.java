@@ -73,15 +73,17 @@ public class Tempers extends Widget {
 	}
 	lmax = max;
 	if(ui.lasttip instanceof WItem.ItemTip) {
-	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
-	    if(food != null) {
-		g.chcolor(foodc);
-		g.poly(mid.add(0, -dispval(soft[0] + food.tempers[0], max[0])),
-		       mid.add(dispval(soft[1] + food.tempers[1], max[1]), 0),
-		       mid.add(0, dispval(soft[2] + food.tempers[2], max[2])),
-		       mid.add(-dispval(soft[3] + food.tempers[3], max[3]), 0));
-	    }
+	    try {
+		GItem item = ((WItem.ItemTip)ui.lasttip).item();
+		FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
+		if(food != null) {
+		    g.chcolor(foodc);
+		    g.poly(mid.add(0, -dispval(soft[0] + food.tempers[0], max[0])),
+			   mid.add(dispval(soft[1] + food.tempers[1], max[1]), 0),
+			   mid.add(0, dispval(soft[2] + food.tempers[2], max[2])),
+			   mid.add(-dispval(soft[3] + food.tempers[3], max[3]), 0));
+		}
+	    } catch(Loading e) {}
 	}
 	g.chcolor(softc);
 	g.poly(mid.add(0, -dispval(soft[0], max[0])),
