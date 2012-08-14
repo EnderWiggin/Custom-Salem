@@ -27,8 +27,9 @@
 package haven;
 
 import java.util.*;
-import java.io.InputStream;
+import java.io.*;
 import javax.sound.sampled.*;
+import dolda.xiphutil.*;
 
 public class Audio {
     public static boolean enabled = true;
@@ -50,20 +51,29 @@ public class Audio {
     }
 
     public interface CS {
-	public boolean get(double[] sample);
+	public int get(double[][] sample);
     }
     
     public static class DataClip implements CS {
-	private InputStream clip;
-	private double vol, sp;
-	private int ack = 0;
-	private double[] ov = new double[2];
+	public final int rate;
 	public boolean eof;
+	public double vol, sp;
+	private InputStream clip;
+	private final int trate;
+	private int ack = 0;
+	private final byte[] buf = new byte[256];
+	private int dp = 0, dl = 0;
 
-	public DataClip(InputStream clip, double vol, double sp) {
+	public DataClip(InputStream clip, int rate, double vol, double sp) {
 	    this.clip = clip;
+	    this.rate = rate;
 	    this.vol = vol;
 	    this.sp = sp;
+	    this.trate = (int)fmt.getSampleRate();
+	}
+
+	public DataClip(InputStream clip, double vol, double sp) {
+	    this(clip, 44100, vol, sp);
 	}
 	
 	public DataClip(InputStream clip) {
@@ -78,37 +88,52 @@ public class Audio {
 	    }
 	}
 	
-	public boolean get(double[] sm) {
+	public int get(double[][] buf) {
+	    if(eof)
+		return(-1);
 	    try {
-		ack += 44100.0 * sp;
-		while(ack >= 44100) {
-		    for(int i = 0; i < 2; i++) {
-			int b1 = clip.read();
-			int b2 = clip.read();
-			if((b1 < 0) || (b2 < 0)) {
-			    synchronized(this) {
-				eof = true;
-				notifyAll();
+		for(int off = 0; off < buf[0].length; off++) {
+		    ack += rate * sp;
+		    while(ack >= trate) {
+			for(int i = 0; i < 2; i++) {
+			    if(dl - dp < 2) {
+				if(dl > dp) {
+				    this.buf[0] = this.buf[dp];
+				    dl = 1;
+				} else {
+				    dl = 0;
+				}
+				while(dl < 2) {
+				    int ret = clip.read(this.buf, dl, this.buf.length - dl);
+				    if(ret < 0) {
+					synchronized(this) {
+					    eof = true;
+					    notifyAll();
+					}
+					return(off);
+				    }
+				    dl += ret;
+				}
+				dp = 0;
 			    }
-			    return(false);
+			    int b1 = this.buf[dp++] & 0xff;
+			    int b2 = this.buf[dp++] & 0xff;
+			    int v = b1 + (b2 << 8);
+			    if(v >= 32768)
+				v -= 65536;
+			    buf[i][off] = ((double)v / 32768.0) * vol;
 			}
-			int v = b1 + (b2 << 8);
-			if(v >= 32768)
-			    v -= 65536;
-			ov[i] = ((double)v / 32768.0) * vol;
+			ack -= trate;
 		    }
-		    ack -= 44100;
 		}
-	    } catch(java.io.IOException e) {
+		return(buf[0].length);
+	    } catch(IOException e) {
 		synchronized(this) {
 		    eof = true;
 		    notifyAll();
 		}
-		return(false);
+		return(-1);
 	    }
-	    for(int i = 0; i < 2; i++)
-		sm[i] = ov[i];
-	    return(true);
 	}
     }
 	
@@ -122,23 +147,30 @@ public class Audio {
 	    srate = (int)fmt.getSampleRate();
 	}
 	
-	private void fillbuf(byte[] buf, int off, int len) {
-	    double[] val = new double[nch];
-	    double[] sm = new double[nch];
-	    while(len > 0) {
-		for(int i = 0; i < nch; i++)
-		    val[i] = 0;
-		for(Iterator<CS> i = clips.iterator(); i.hasNext();) {
-		    CS cs = i.next();
-		    if(!cs.get(sm)) {
+	private void fillbuf(byte[] dst, int off, int len) {
+	    int ns = len / (2 * nch);
+	    double[][] val = new double[nch][ns];
+	    double[][] buf = new double[nch][ns];
+	    clip: for(Iterator<CS> i = clips.iterator(); i.hasNext();) {
+		int left = ns;
+		CS cs = i.next();
+		int boff = 0;
+		while(left > 0) {
+		    int ret = cs.get(buf);
+		    if(ret < 0) {
 			i.remove();
-			continue;
+			continue clip;
 		    }
-		    for(int ch = 0; ch < nch; ch++)
-			val[ch] += sm[ch];
+		    for(int ch = 0; ch < nch; ch++) {
+			for(int sm = 0; sm < ret; sm++)
+			    val[ch][sm + boff] += buf[ch][sm];
+		    }
+		    left -= ret;
 		}
-		for(int i = 0; i < nch; i++) {
-		    int iv = (int)(val[i] * volume * 32767.0);
+	    }
+	    for(int i = 0; i < ns; i++) {
+		for(int o = 0; o < nch; o++) {
+		    int iv = (int)(val[o][i] * volume * 32767.0);
 		    if(iv < 0) {
 			if(iv < -32768)
 			    iv = -32768;
@@ -147,9 +179,8 @@ public class Audio {
 			if(iv > 32767)
 			    iv = 32767;
 		    }
-		    buf[off++] = (byte)(iv & 0xff);
-		    buf[off++] = (byte)((iv & 0xff00) >> 8);
-		    len -= 2;
+		    dst[off++] = (byte)(iv & 0xff);
+		    dst[off++] = (byte)((iv & 0xff00) >> 8);
 		}
 	    }
 	}
@@ -217,7 +248,7 @@ public class Audio {
     }
 
     public static void play(byte[] clip, double vol, double sp) {
-	play(new DataClip(new java.io.ByteArrayInputStream(clip), vol, sp));
+	play(new DataClip(new ByteArrayInputStream(clip), vol, sp));
     }
     
     public static void play(byte[] clip) {
@@ -231,7 +262,7 @@ public class Audio {
 	ckpl();
     }
 
-    public static void playres(Resource res) {
+    private static void playres(Resource res) {
 	Collection<Resource.Audio> clips = res.layers(Resource.audio);
 	int s = (int)(Math.random() * clips.size());
 	Resource.Audio clip = null;
@@ -240,7 +271,11 @@ public class Audio {
 	    if(--s < 0)
 		break;
 	}
-	play(clip.clip);
+	try {
+	    play(new VorbisStream(new ByteArrayInputStream(clip.coded)).pcmstream(), 1.0, 1.0);
+	} catch(IOException e) {
+	    throw(new RuntimeException(e));
+	}
     }
 
     public static void play(final Resource clip) {
@@ -266,14 +301,14 @@ public class Audio {
 	    });
     }
     
-    public static byte[] readclip(InputStream in) throws java.io.IOException {
+    public static byte[] readclip(InputStream in) throws IOException {
 	AudioInputStream cs;
 	try {
 	    cs = AudioSystem.getAudioInputStream(fmt, AudioSystem.getAudioInputStream(in));
 	} catch(UnsupportedAudioFileException e) {
-	    throw(new java.io.IOException("Unsupported audio encoding"));
+	    throw(new IOException("Unsupported audio encoding"));
 	}
-	java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
+	ByteArrayOutputStream buf = new ByteArrayOutputStream();
 	byte[] bbuf = new byte[65536];
 	while(true) {
 	    int rv = cs.read(bbuf);
@@ -290,7 +325,7 @@ public class Audio {
 	    if(args[i].equals("-b")) {
 		bufsize = Integer.parseInt(args[++i]);
 	    } else {
-		DataClip c = new DataClip(new java.io.FileInputStream(args[i]));
+		DataClip c = new DataClip(new FileInputStream(args[i]));
 		clips.add(c);
 	    }
 	}
