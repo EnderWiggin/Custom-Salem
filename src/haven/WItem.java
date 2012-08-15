@@ -108,10 +108,6 @@ public class WItem extends Widget implements DTarget {
 	public Tex get() {
 	    return(tex);
 	}
-	
-	public void set(Tex val) {
-	    throw(new UnsupportedOperationException());
-	}
     }
     
     public class ShortTip extends ItemTip {

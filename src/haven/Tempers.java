@@ -120,7 +120,11 @@ public class Tempers extends Widget {
 	int i;
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-	    FoodInfo food = ItemInfo.find(FoodInfo.class, item.info());
+	    FoodInfo food = null;
+	    try{
+		food = ItemInfo.find(FoodInfo.class, item.info());
+	    } catch (Loading e){}
+	    
 	    if(food != null) {
 		g.chcolor(foodc);
 		for(i=0; i<4; i++){

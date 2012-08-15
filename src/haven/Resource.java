@@ -38,7 +38,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class Resource implements Comparable<Resource>, Prioritized, Serializable {
-    private static Map<String, Resource> cache = new TreeMap<String, Resource>();
+    private final static Map<String, Resource> cache;
     private static Loader loader;
     private static CacheSource prscache;
     public static ThreadGroup loadergroup = null;
@@ -66,11 +66,16 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
 
     static {
+	if(Config.softres)
+	    cache = new CacheMap<String, Resource>();
+	else
+	    cache = new TreeMap<String, Resource>();
+    }
+
+    static {
 	try {
 	    chainloader(new Loader(new FileSource(new File(Config.userhome+"/custom_res"))));
-	} catch(Exception e) {}
-	
-	try {
+	    
 	    String dir = Config.resdir;
 	    if(dir == null)
 		dir = System.getenv("SALEM_RESDIR");
@@ -94,6 +99,24 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     public ResSource source;
     private transient Indir<Resource> indir = null;
     int prio = 0;
+
+    public static class Spec implements Indir<Resource> {
+	public final String name;
+	public final int ver;
+
+	public Spec(String name, int ver) {
+	    this.name = name;
+	    this.ver = ver;
+	}
+
+	public Resource get(int prio) {
+	    return(load(name, ver));
+	}
+	
+	public Resource get() {
+	    return(get(0));
+	}
+    }
 
     private Resource(String name, int ver) {
 	this.name = name;
@@ -171,11 +194,15 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
     
     public static int numloaded() {
-	return(cache.size());
+	synchronized(cache) {
+	    return(cache.size());
+	}
     }
     
     public static Collection<Resource> cached() {
-	return(cache.values());
+	synchronized(cache) {
+	    return(cache.values());
+	}
     }
 	
     public static Resource load(String name, int ver) {
@@ -1061,14 +1088,14 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     static {ltypes.put("codeentry", CodeEntry.class);}
 	
     public class Audio extends Layer {
-	transient public byte[] clip;
+	transient public byte[] coded;
 	    
 	public Audio(byte[] buf) {
-	    try {
-		clip = Utils.readall(new VorbisDecoder(new ByteArrayInputStream(buf)));
-	    } catch(IOException e) {
-		throw(new LoadException(e, Resource.this));
-	    }
+	    coded = buf;
+	    /*
+	      clip = Utils.readall(new VorbisDecoder(new ByteArrayInputStream(buf)));
+	      System.err.println(Resource.this.name + ": " + clip.length);
+	    */
 	}
 	    
 	public void init() {}

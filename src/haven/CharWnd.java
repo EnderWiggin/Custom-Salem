@@ -343,23 +343,25 @@ public class CharWnd extends Window {
 	    g.frect(expc, expsz);
 	    
 	    if(ui.lasttip instanceof WItem.ItemTip) {
-		GItem item = ((WItem.ItemTip)ui.lasttip).item();
-		Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
-		if(insp != null) {
-		    for(int i = 0; i < insp.attrs.length; i++) {
-			if(insp.attrs[i].equals(nm)) {
-			    int w = ((expsz.x - 2) * (insp.exp[i]+sexp)) / (attr.comp * 100);
-			    if(w >= expsz.x - 2) {
-				w = expsz.x - 2;
-				g.chcolor(GAIN_FULL);
-			    } else {
-				g.chcolor(GAIN_SMALL);
+		try {
+		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
+		    Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
+		    if(insp != null) {
+			for(int i = 0; i < insp.attrs.length; i++) {
+			    if(insp.attrs[i].equals(nm)) {
+				int w = ((expsz.x - 2) * (insp.exp[i]+sexp)) / (attr.comp * 100);
+				if(w >= expsz.x - 2) {
+				    w = expsz.x - 2;
+				    g.chcolor(GAIN_FULL);
+				} else {
+				    g.chcolor(GAIN_SMALL);
+				}
+				g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
+				break;
 			    }
-			    g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
-			    break;
 			}
 		    }
-		}
+		} catch(Loading e) {}
 	    }
 	    
 	    g.chcolor(FILL_GHOST);

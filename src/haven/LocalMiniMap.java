@@ -53,7 +53,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
     public final MapView mv;
     private Widget mapmenu;
     public Coord cgrid = null;
-    private final BufferedImage[] texes = new BufferedImage[256];
     private Coord off = new Coord();
     boolean rsm = false;
     boolean dm = false;
@@ -97,10 +96,10 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
     }
 
-    private BufferedImage tileimg(int t) {
+    private BufferedImage tileimg(int t, BufferedImage[] texes) {
 	BufferedImage img = texes[t];
 	if(img == null) {
-	    Resource r = ui.sess.glob.map.sets[t];
+	    Resource r = ui.sess.glob.map.tilesetr(t);
 	    if(r == null)
 		return(null);
 	    try{
@@ -117,6 +116,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
     
     public BufferedImage drawmap(Coord ul, Coord sz) {
+	BufferedImage[] texes = new BufferedImage[256];
 	MCache m = ui.sess.glob.map;
 	BufferedImage buf = TexI.mkbuf(sz);
 	Coord c = new Coord();
@@ -129,7 +129,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		} catch (LoadingMap e) {
 		    return null;
 		}
-		BufferedImage tex = tileimg(t);
+		BufferedImage tex = tileimg(t, texes);
 		if(tex != null){
 		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x, tex.getWidth()),
 						    Utils.floormod(c.y, tex.getHeight())));
