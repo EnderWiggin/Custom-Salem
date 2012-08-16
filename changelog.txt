@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 16.08.12:}}
+  * added displaying of torch fuel and fishing equipment wear as bars on it's icon
+ 
 $size[14]{$u{Update for 11.08.12:}}
   * fixed chat channel selection when there's many channels open
   * added close channel button
