@@ -240,7 +240,7 @@ public class WItem extends Widget implements DTarget {
 	if(!heuristic) {return;}
 	
 	long now = System.currentTimeMillis();
-	if(now - last_heur > 2500){
+	if(now - last_heur > 500){
 	    last_heur = now;
 	    heur_meters = ItemInfo.getMeters(item.info());
 	}
@@ -248,14 +248,15 @@ public class WItem extends Widget implements DTarget {
 
 	int k = 0;
 	Coord s2 = sz.add(2, 2);
+	GOut g2 = g.reclipl(Coord.z, s2);
 	for (Integer meter : heur_meters){
 	    double a = ((double)meter) / 100.0;
 	    int r = (int) ((1-a)*255);
 	    int gr = (int) (a*255);
-	    g.chcolor(r, gr, 0, 255);
+	    g2.chcolor(r, gr, 0, 255);
 	    Coord bsz = new Coord(4, (int) (a*s2.y));
-	    g.frect(new Coord(bsz.x*k, s2.y - bsz.y), bsz);
-	    g.chcolor();
+	    g2.frect(new Coord(bsz.x*k, s2.y - bsz.y), bsz);
+	    g2.chcolor();
 	    k++;
 	}
 	
