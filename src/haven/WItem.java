@@ -202,13 +202,14 @@ public class WItem extends Widget implements DTarget {
 		double a = ((double)item.meter) / 100.0;
 		int r = (int) ((1-a)*255);
 		int gr = (int) (a*255);
-		Coord s2 = sz.add(2,2);
+		Coord s2 = sz.add(2, 2);
 		GOut g2 = g.reclipl(Coord.z, s2);
 		g2.chcolor(r, gr, 0, 255);
 		Coord bsz = new Coord(4, (int) (a*s2.y));
 		g2.frect(s2.sub(bsz), bsz);
 		g2.chcolor();
 	    }
+	    heuristics(g);
 	    if(olcol.get() != null) {
 		if(cmask != res) {
 		    mask = null;
@@ -228,6 +229,45 @@ public class WItem extends Widget implements DTarget {
 	}
     }
     
+    long last_heur = 0;
+    boolean heuristic = false, heur_checked = false;
+    List<Integer> heur_meters;
+    private void heuristics(GOut g) {
+	if(!heur_checked){
+	    heuristic = isheuristic();
+	    heur_checked = true;
+	}
+	if(!heuristic) {return;}
+	
+	long now = System.currentTimeMillis();
+	if(now - last_heur > 2500){
+	    last_heur = now;
+	    heur_meters = ItemInfo.getMeters(item.info());
+	}
+	if(heur_meters == null){return;}
+
+	int k = 0;
+	Coord s2 = sz.add(2, 2);
+	for (Integer meter : heur_meters){
+	    double a = ((double)meter) / 100.0;
+	    int r = (int) ((1-a)*255);
+	    int gr = (int) (a*255);
+	    g.chcolor(r, gr, 0, 255);
+	    Coord bsz = new Coord(4, (int) (a*s2.y));
+	    g.frect(new Coord(bsz.x*k, s2.y - bsz.y), bsz);
+	    g.chcolor();
+	    k++;
+	}
+	
+    }
+
+    private boolean isheuristic() {
+	if(ItemInfo.getMeters(item.info()).size() > 0){
+	    return true;
+	}
+        return false;
+    }
+
     public boolean mousedown(Coord c, int btn) {
 	if(btn == 1) {
 	    if(ui.modshift){

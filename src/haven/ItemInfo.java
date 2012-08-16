@@ -27,6 +27,8 @@
 package haven;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
 
@@ -199,5 +201,25 @@ public abstract class ItemInfo {
 	} else {
 	    return(arg.toString());
 	}
+    }
+    
+    static final Pattern meter_patt = Pattern.compile("(\\d+)%");
+    public static List<Integer> getMeters(List<ItemInfo> infos){
+	List<Integer> res = new ArrayList<Integer>();
+	for (ItemInfo info : infos){
+	    if(info instanceof Contents){
+		Contents cnt = (Contents) info;
+		res.addAll(getMeters(cnt.sub));
+	    } else if (info instanceof AdHoc){
+		AdHoc ah = (AdHoc) info;
+		try{
+		    Matcher m = meter_patt.matcher(ah.str.text);
+		    if(m.find()){
+			res.add(Integer.parseInt(m.group(1)));
+		    }
+		}catch(Exception e){}
+	    }
+	}
+	return res;
     }
 }
