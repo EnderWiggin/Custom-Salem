@@ -200,6 +200,7 @@ public class MainFrame extends Frame implements Runnable, Console.Directory {
 
     public MainFrame(Coord isz) {
 	super(TITLE);
+	JarSignersHardLinker.go();
 	instance = this;
 	Coord sz;
 	if(isz == null) {
