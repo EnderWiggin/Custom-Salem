@@ -38,11 +38,13 @@ public abstract class Sprite implements Rendered {
     static {
 	factories.add(SkelSprite.fact);
 	factories.add(StaticSprite.fact);
+	factories.add(AudioSprite.fact);
     }
     
     public interface Owner {
 	public Random mkrandoom();
 	public Resource.Neg getneg();
+	public Glob glob();
     }
     
     public static class FactMaker implements Resource.PublishedCode.Instancer {

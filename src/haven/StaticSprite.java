@@ -33,7 +33,10 @@ public class StaticSprite extends Sprite {
     
     public static final Factory fact = new Factory() {
 	    public Sprite create(Owner owner, Resource res, Message sdt) {
-		return(new StaticSprite(owner, res, sdt));
+		if((res.layer(FastMesh.MeshRes.class) != null) ||
+		   (res.layer(RenderLink.Res.class) != null))
+		    return(new StaticSprite(owner, res, sdt));
+		return(null);
 	    }
 	};
     
@@ -59,6 +62,8 @@ public class StaticSprite extends Sprite {
 	}
 	for(RenderLink.Res lr : res.layers(RenderLink.Res.class))
 	    rl.add(lr.l.make());
+	if(res.layer(Resource.audio, "amb") != null)
+	    rl.add(new ActAudio.Ambience(res));
 	return(rl.toArray(new Rendered[0]));
     }
 

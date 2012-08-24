@@ -81,13 +81,20 @@ public class Audio {
 	}
 	
 	public void finwait() throws InterruptedException {
-	    synchronized(this) {
-		if(eof)
-		    return;
-		wait();
+	    while(!eof) {
+		synchronized(this) {
+		    wait();
+		}
 	    }
 	}
 	
+	protected void eof() {
+	    synchronized(this) {
+		eof = true;
+		notifyAll();
+	    }
+	}
+
 	public int get(double[][] buf) {
 	    if(eof)
 		return(-1);
@@ -95,27 +102,21 @@ public class Audio {
 		for(int off = 0; off < buf[0].length; off++) {
 		    ack += rate * sp;
 		    while(ack >= trate) {
-			for(int i = 0; i < 2; i++) {
-			    if(dl - dp < 2) {
-				if(dl > dp) {
-				    this.buf[0] = this.buf[dp];
-				    dl = 1;
-				} else {
-				    dl = 0;
+			if(dl - dp < 4) {
+			    for(int i = 0; i < dl - dp; i++)
+				this.buf[i] = this.buf[dp + i];
+			    dl -= dp;
+			    while(dl < 4) {
+				int ret = clip.read(this.buf, dl, this.buf.length - dl);
+				if(ret < 0) {
+				    eof();
+				    return(off);
 				}
-				while(dl < 2) {
-				    int ret = clip.read(this.buf, dl, this.buf.length - dl);
-				    if(ret < 0) {
-					synchronized(this) {
-					    eof = true;
-					    notifyAll();
-					}
-					return(off);
-				    }
-				    dl += ret;
-				}
-				dp = 0;
+				dl += ret;
 			    }
+			    dp = 0;
+			}
+			for(int i = 0; i < 2; i++) {
 			    int b1 = this.buf[dp++] & 0xff;
 			    int b2 = this.buf[dp++] & 0xff;
 			    int v = b1 + (b2 << 8);
@@ -128,10 +129,7 @@ public class Audio {
 		}
 		return(buf[0].length);
 	    } catch(IOException e) {
-		synchronized(this) {
-		    eof = true;
-		    notifyAll();
-		}
+		eof();
 		return(-1);
 	    }
 	}
@@ -271,6 +269,8 @@ public class Audio {
     }
     
     public static void play(CS clip) {
+	if(clip == null)
+	    throw(new NullPointerException());
 	synchronized(ncl) {
 	    ncl.add(clip);
 	}
@@ -283,16 +283,18 @@ public class Audio {
 	    pl.stop(clip);
     }
     
-    public static void play(final InputStream clip, final double vol, final double sp) {
-	play(new DataClip(clip, vol, sp));
+    public static DataClip play(InputStream clip, final double vol, final double sp) {
+	DataClip cs = new DataClip(clip, vol, sp);
+	play(cs);
+	return(cs);
     }
 
-    public static void play(byte[] clip, double vol, double sp) {
-	play(new DataClip(new ByteArrayInputStream(clip), vol, sp));
+    public static DataClip play(byte[] clip, double vol, double sp) {
+	return(play(new ByteArrayInputStream(clip), vol, sp));
     }
     
-    public static void play(byte[] clip) {
-	play(clip, 1.0, 1.0);
+    public static DataClip play(byte[] clip) {
+	return(play(clip, 1.0, 1.0));
     }
     
     public static void queue(Runnable d) {
@@ -302,7 +304,7 @@ public class Audio {
 	ckpl();
     }
 
-    private static void playres(Resource res) {
+    public static DataClip playres(Resource res) {
 	Collection<Resource.Audio> clips = res.layers(Resource.audio);
 	int s = (int)(Math.random() * clips.size());
 	Resource.Audio clip = null;
@@ -311,11 +313,7 @@ public class Audio {
 	    if(--s < 0)
 		break;
 	}
-	try {
-	    play(new VorbisStream(new ByteArrayInputStream(clip.coded)).pcmstream(), 1.0, 1.0);
-	} catch(IOException e) {
-	    throw(new RuntimeException(e));
-	}
+	return(play(clip.pcmstream(), 1.0, 1.0));
     }
 
     public static void play(final Resource clip) {
