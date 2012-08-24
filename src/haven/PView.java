@@ -98,6 +98,8 @@ public abstract class PView extends Widget {
 	rstate.prep(buf);
 	pstate.prep(buf);
 	camera().prep(buf);
+	if(ui.audio != null)
+	    ui.audio.prep(buf);
 	return(buf);
     }
 

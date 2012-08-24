@@ -33,7 +33,7 @@ import dolda.xiphutil.*;
 
 public class Audio {
     public static boolean enabled = true;
-    private static Thread player;
+    private static Player player;
     public static final AudioFormat fmt = new AudioFormat(44100, 16, 2, true, false);
     private static Collection<CS> ncl = new LinkedList<CS>();
     private static Object queuemon = new Object();
@@ -81,13 +81,20 @@ public class Audio {
 	}
 	
 	public void finwait() throws InterruptedException {
-	    synchronized(this) {
-		if(eof)
-		    return;
-		wait();
+	    while(!eof) {
+		synchronized(this) {
+		    wait();
+		}
 	    }
 	}
 	
+	protected void eof() {
+	    synchronized(this) {
+		eof = true;
+		notifyAll();
+	    }
+	}
+
 	public int get(double[][] buf) {
 	    if(eof)
 		return(-1);
@@ -95,27 +102,21 @@ public class Audio {
 		for(int off = 0; off < buf[0].length; off++) {
 		    ack += rate * sp;
 		    while(ack >= trate) {
-			for(int i = 0; i < 2; i++) {
-			    if(dl - dp < 2) {
-				if(dl > dp) {
-				    this.buf[0] = this.buf[dp];
-				    dl = 1;
-				} else {
-				    dl = 0;
+			if(dl - dp < 4) {
+			    for(int i = 0; i < dl - dp; i++)
+				this.buf[i] = this.buf[dp + i];
+			    dl -= dp;
+			    while(dl < 4) {
+				int ret = clip.read(this.buf, dl, this.buf.length - dl);
+				if(ret < 0) {
+				    eof();
+				    return(off);
 				}
-				while(dl < 2) {
-				    int ret = clip.read(this.buf, dl, this.buf.length - dl);
-				    if(ret < 0) {
-					synchronized(this) {
-					    eof = true;
-					    notifyAll();
-					}
-					return(off);
-				    }
-				    dl += ret;
-				}
-				dp = 0;
+				dl += ret;
 			    }
+			    dp = 0;
+			}
+			for(int i = 0; i < 2; i++) {
 			    int b1 = this.buf[dp++] & 0xff;
 			    int b2 = this.buf[dp++] & 0xff;
 			    int v = b1 + (b2 << 8);
@@ -128,13 +129,29 @@ public class Audio {
 		}
 		return(buf[0].length);
 	    } catch(IOException e) {
-		synchronized(this) {
-		    eof = true;
-		    notifyAll();
-		}
+		eof();
 		return(-1);
 	    }
 	}
+    }
+    
+    public static double[][] pcmi2f(byte[] pcm, int ch) {
+	if(pcm.length % (ch * 2) != 0)
+	    throw(new IllegalArgumentException("Uneven samples in PCM data"));
+	int sm = pcm.length / (ch * 2);
+	double[][] ret = new double[ch][sm];
+	int off = 0;
+	for(int i = 0; i < sm; i++) {
+	    for(int o = 0; o < ch; o++) {
+		int b1 = pcm[off++] & 0xff;
+		int b2 = pcm[off++] & 0xff;
+		int v = b1 + (b2 << 8);
+		if(v >= 32768)
+		    v -= 65536;
+		ret[o][i] = (double)v / 32768.0;
+	    }
+	}
+	return(ret);
     }
 	
     private static class Player extends HackThread {
@@ -151,21 +168,23 @@ public class Audio {
 	    int ns = len / (2 * nch);
 	    double[][] val = new double[nch][ns];
 	    double[][] buf = new double[nch][ns];
-	    clip: for(Iterator<CS> i = clips.iterator(); i.hasNext();) {
-		int left = ns;
-		CS cs = i.next();
-		int boff = 0;
-		while(left > 0) {
-		    int ret = cs.get(buf);
-		    if(ret < 0) {
-			i.remove();
-			continue clip;
+	    synchronized(clips) {
+		clip: for(Iterator<CS> i = clips.iterator(); i.hasNext();) {
+		    int left = ns;
+		    CS cs = i.next();
+		    int boff = 0;
+		    while(left > 0) {
+			int ret = cs.get(buf);
+			if(ret < 0) {
+			    i.remove();
+			    continue clip;
+			}
+			for(int ch = 0; ch < nch; ch++) {
+			    for(int sm = 0; sm < ret; sm++)
+				val[ch][sm + boff] += buf[ch][sm];
+			}
+			left -= ret;
 		    }
-		    for(int ch = 0; ch < nch; ch++) {
-			for(int sm = 0; sm < ret; sm++)
-			    val[ch][sm + boff] += buf[ch][sm];
-		    }
-		    left -= ret;
 		}
 	    }
 	    for(int i = 0; i < ns; i++) {
@@ -181,6 +200,17 @@ public class Audio {
 		    }
 		    dst[off++] = (byte)(iv & 0xff);
 		    dst[off++] = (byte)((iv & 0xff00) >> 8);
+		}
+	    }
+	}
+
+	public void stop(CS clip) {
+	    synchronized(clips) {
+		for(Iterator<CS> i = clips.iterator(); i.hasNext();) {
+		    if(i.next() == clip) {
+			i.remove();
+			return;
+		    }
 		}
 	    }
 	}
@@ -207,9 +237,11 @@ public class Audio {
 			    r.run();
 		    }
 		    synchronized(ncl) {
-			for(CS cs : ncl)
-			    clips.add(cs);
-			ncl.clear();
+			synchronized(clips) {
+			    for(CS cs : ncl)
+				clips.add(cs);
+			    ncl.clear();
+			}
 		    }
 		    fillbuf(buf, 0, 1024);
 		    for(int off = 0; off < buf.length; off += line.write(buf, off, buf.length - off));
@@ -237,22 +269,32 @@ public class Audio {
     }
     
     public static void play(CS clip) {
+	if(clip == null)
+	    throw(new NullPointerException());
 	synchronized(ncl) {
 	    ncl.add(clip);
 	}
 	ckpl();
     }
+
+    public static void stop(CS clip) {
+	Player pl = player;
+	if(pl != null)
+	    pl.stop(clip);
+    }
     
-    public static void play(final InputStream clip, final double vol, final double sp) {
-	play(new DataClip(clip, vol, sp));
+    public static DataClip play(InputStream clip, final double vol, final double sp) {
+	DataClip cs = new DataClip(clip, vol, sp);
+	play(cs);
+	return(cs);
     }
 
-    public static void play(byte[] clip, double vol, double sp) {
-	play(new DataClip(new ByteArrayInputStream(clip), vol, sp));
+    public static DataClip play(byte[] clip, double vol, double sp) {
+	return(play(new ByteArrayInputStream(clip), vol, sp));
     }
     
-    public static void play(byte[] clip) {
-	play(clip, 1.0, 1.0);
+    public static DataClip play(byte[] clip) {
+	return(play(clip, 1.0, 1.0));
     }
     
     public static void queue(Runnable d) {
@@ -262,7 +304,7 @@ public class Audio {
 	ckpl();
     }
 
-    private static void playres(Resource res) {
+    public static DataClip playres(Resource res) {
 	Collection<Resource.Audio> clips = res.layers(Resource.audio);
 	int s = (int)(Math.random() * clips.size());
 	Resource.Audio clip = null;
@@ -271,11 +313,7 @@ public class Audio {
 	    if(--s < 0)
 		break;
 	}
-	try {
-	    play(new VorbisStream(new ByteArrayInputStream(clip.coded)).pcmstream(), 1.0, 1.0);
-	} catch(IOException e) {
-	    throw(new RuntimeException(e));
-	}
+	return(play(clip.pcmstream(), 1.0, 1.0));
     }
 
     public static void play(final Resource clip) {

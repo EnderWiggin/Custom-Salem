@@ -226,6 +226,8 @@ public class HavenPanel extends GLCanvas implements Runnable {
     }
 	
     UI newui(Session sess) {
+	if(ui != null)
+	    ui.destroy();
 	ui = new UI(new Coord(w, h), sess);
 	ui.root.gprof = prof;
 	if(getParent() instanceof Console.Directory)
@@ -413,6 +415,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 		if(curf != null)
 		    curf.tick("dsp");
 		uglyjoglhack();
+		ui.audio.cycle();
 		if(curf != null)
 		    curf.tick("aux");
 		frames++;
@@ -437,7 +440,10 @@ public class HavenPanel extends GLCanvas implements Runnable {
 		if(Thread.interrupted())
 		    throw(new InterruptedException());
 	    }
-	} catch(InterruptedException e) {}
+	} catch(InterruptedException e) {
+	} finally {
+	    ui.destroy();
+	}
     }
 	
     public GraphicsConfiguration getconf() {

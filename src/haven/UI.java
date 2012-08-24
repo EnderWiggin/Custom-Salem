@@ -49,6 +49,7 @@ public class UI {
     public Console cons = new WidgetConsole();
     private Collection<AfterDraw> afterdraws = new LinkedList<AfterDraw>();
     public MenuGrid mnu;
+    public final ActAudio audio = new ActAudio();
     
     {
 	lastevent = lasttick = System.currentTimeMillis();
@@ -317,5 +318,9 @@ public class UI {
 //	    cons.out.println(str);
 	    gui.error(str);
 	}
+    }
+
+    public void destroy() {
+	audio.clear();
     }
 }
