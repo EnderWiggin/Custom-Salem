@@ -39,6 +39,7 @@ import java.net.*;
 public class Screenshooter extends Window {
     public final URL tgt;
     public final TexI[] ss;
+    private final TextEntry comment;
     private final CheckBox decobox;
     private final int w, h;
     private Label prog;
@@ -60,8 +61,9 @@ public class Screenshooter extends Window {
 		upload();
 	    }
 	};
-	Coord csz = contentsz();
-	resize(new Coord(Math.max(csz.x, 300), csz.y));
+	Label clbl = new Label(new Coord(0, h + 5), this, "If you wish, leave a comment:");
+	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), new Coord(w + 130, 20), this, "");
+	pack();
     }
     
     public void wdgmsg(Widget sender, String msg, Object... args) {
@@ -74,7 +76,7 @@ public class Screenshooter extends Window {
     
     public void cdraw(GOut g) {
 	TexI tex = ss[this.decobox.a?1:0];
-	g.image(tex, new Coord(0, (asz.y - h) / 2), new Coord(w, h));
+	g.image(tex, Coord.z, new Coord(w, h));
     }
     
     public class Uploader extends HackThread {
@@ -163,7 +165,8 @@ public class Screenshooter extends Window {
 	public void upload(TexI ss) throws IOException {
 	    setstate("Connecting...");
 	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    ImageIO.write(ss.back, "PNG", buf);
+	    /* XXX: For some reason, JPEG doesn't seem to work properly. */
+	    writepng(buf, ss.back, comment.text);
 	    byte[] data = buf.toByteArray();
 	    buf = null;
 	    URLConnection conn = (URLConnection)tgt.openConnection();
