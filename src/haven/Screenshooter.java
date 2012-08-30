@@ -30,6 +30,9 @@ import java.util.*;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.imageio.*;
+import javax.imageio.metadata.*;
+import javax.imageio.stream.*;
+import org.w3c.dom.*;
 import java.io.*;
 import java.net.*;
 
@@ -114,6 +117,47 @@ public class Screenshooter extends Window {
 		    ui.destroy(prog);
 		prog = new Label(btnc.sub(0, 15), Screenshooter.this, t);
 	    }
+	}
+
+	private void writepng(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
+	    ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
+	    IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
+	    if(comment != null) {
+		Node root = dat.getAsTree("javax_imageio_1.0");
+		Element cmt = new IIOMetadataNode("TextEntry");
+		cmt.setAttribute("keyword", "Title");
+		cmt.setAttribute("value", comment);
+		cmt.setAttribute("encoding", "utf-8");
+		cmt.setAttribute("language", "");
+		cmt.setAttribute("compression", "none");
+		Node tlist = new IIOMetadataNode("Text");
+		tlist.appendChild(cmt);
+		root.appendChild(tlist);
+		dat.setFromTree("javax_imageio_1.0", root);
+	    }
+	    ImageOutputStream iout = ImageIO.createImageOutputStream(out);
+	    wr.setOutput(iout);
+	    wr.write(new IIOImage(img, null, dat));
+	}
+
+	private void writejpeg(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
+	    ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
+	    IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
+	    if(comment != null) {
+		Node root = dat.getAsTree("javax_imageio_1.0");
+		Element cmt = new IIOMetadataNode("TextEntry");
+		cmt.setAttribute("keyword", "comment");
+		cmt.setAttribute("value", comment);
+		Node tlist = new IIOMetadataNode("Text");
+		tlist.appendChild(cmt);
+		root.appendChild(tlist);
+		dat.setFromTree("javax_imageio_1.0", root);
+	    }
+	    ImageOutputStream iout = ImageIO.createImageOutputStream(out);
+	    wr.setOutput(iout);
+	    wr.write(new IIOImage(img, null, dat));
 	}
 
 	public void upload(TexI ss) throws IOException {
