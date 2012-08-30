@@ -48,7 +48,9 @@ public class Screenshooter extends Window {
 	this.ss = ss;
 	this.w = Math.min(200 * ss[0].sz().x / ss[0].sz().y, 150);
 	this.h = w * ss[0].sz().y / ss[0].sz().x;
-	this.decobox = new CheckBox(new Coord(w, (h / 2) - CheckBox.box.sz().y + 5), this, "Include interface");
+	this.decobox = new CheckBox(new Coord(w, (h / 2) - CheckBox.box.sz().y + 5), this, "Include interface") {
+		public void changed(boolean val) {}
+	    };
 	btnc = new Coord(w + 5, h - 19);
 	btn = new Button(btnc, 125, this, "Upload") {
 	    public void click() {
