@@ -96,14 +96,15 @@ public abstract class PView extends Widget {
     protected GLState.Buffer basic(GOut g) {
 	GLState.Buffer buf = g.st.copy();
 	rstate.prep(buf);
-	pstate.prep(buf);
+	if(pstate != null)
+	    pstate.prep(buf);
 	camera().prep(buf);
 	if(ui.audio != null)
 	    ui.audio.prep(buf);
 	return(buf);
     }
 
-    protected abstract Camera camera();
+    protected abstract GLState camera();
     protected abstract void setup(RenderList rls);
     
     protected Projection makeproj() {
@@ -158,8 +159,12 @@ public abstract class PView extends Widget {
 		curf.tick("cls");
 	    GL gl = g.gl;
 	    Color cc = clearcolor();
-	    gl.glClearColor((float)cc.getRed() / 255f, (float)cc.getGreen() / 255f, (float)cc.getBlue() / 255f, (float)cc.getAlpha() / 255f);
-	    gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT);
+	    if(cc == null) {
+		gl.glClear(gl.GL_DEPTH_BUFFER_BIT);
+	    } else {
+		gl.glClearColor((float)cc.getRed() / 255f, (float)cc.getGreen() / 255f, (float)cc.getBlue() / 255f, (float)cc.getAlpha() / 255f);
+		gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT);
+	    }
 	    g.st.time = 0;
 	    rls.render(g);
 	    if(curf != null) {

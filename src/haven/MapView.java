@@ -56,13 +56,14 @@ public class MapView extends PView implements DTarget {
 	void mmousemove(Coord mc);
     }
     
-    public abstract class Camera extends haven.Camera {
-	private boolean loading;
+    public abstract class Camera extends GLState.Abstract {
+	protected haven.Camera view = new haven.Camera(Matrix4f.identity());
+	protected Projection proj = new Projection(Matrix4f.identity());
 	
 	public Camera() {
-	    super(Matrix4f.identity());
+	    resized();
 	}
-	
+
 	public boolean click(Coord sc) {
 	    return(false);
 	}
@@ -73,25 +74,23 @@ public class MapView extends PView implements DTarget {
 	}
 	
 	public void resized() {
+	    float field = 0.5f;
+	    float aspect = ((float)sz.y) / ((float)sz.x);
+	    proj.update(Projection.makefrustum(new Matrix4f(), -field, field, -aspect * field, aspect * field, 1, 5000));
+	}
+
+	public void prep(Buffer buf) {
+	    proj.prep(buf);
+	    view.prep(buf);
 	}
 	
-	public abstract Matrix4f compute();
 	public abstract float angle();
-	
-	public Matrix4f fin(Matrix4f p) {
-	    if(loading)
-		throw(new Loading());
-	    return(super.fin(p));
-	}
-	
-	public void tick(double dt) {
-	    update(compute());
-	}
+	public abstract void tick(double dt);
     }
     
     private class FollowCam extends Camera {
 	private final float fr = 0.0f, h = 10.0f;
-	private float ca, cd, da;
+	private float ca, cd;
 	private Coord3f curc = null;
 	private float elev, telev;
 	private float angl, tangl;
@@ -99,16 +98,14 @@ public class MapView extends PView implements DTarget {
 	private float anglorig;
 	
 	private FollowCam() {
-	    elev = telev = (float)Math.PI / 4.0f;
+	    elev = telev = (float)Math.PI / 6.0f;
 	    angl = tangl = 0.0f;
 	}
 	
 	public void resized() {
 	    ca = (float)sz.y / (float)sz.x;
 	    cd = 400.0f * ca;
-	    da = (float)Math.atan(ca * 0.5f);
 	}
-	{resized();}
 	
 	public boolean click(Coord c) {
 	    anglorig = tangl;
@@ -121,7 +118,17 @@ public class MapView extends PView implements DTarget {
 	    tangl = tangl % ((float)Math.PI * 2.0f);
 	}
 
+	private double f0 = 0.2, f1 = 0.5, f2 = 0.9;
+	private double fl = Math.sqrt(2);
+	private double fa = ((fl * (f1 - f0)) - (f2 - f0)) / (fl - 2);
+	private double fb = ((f2 - f0) - (2 * (f1 - f0))) / (fl - 2);
+	private float field(float elev) {
+	    double a = elev / (Math.PI / 4);
+	    return((float)(f0 + (fa * a) + (fb * Math.sqrt(a))));
+	}
+
 	private float dist(float elev) {
+	    float da = (float)Math.atan(ca * field(elev));
 	    return((float)(((cd - (h / Math.tan(elev))) * Math.sin(elev - da) / Math.sin(da)) - (h / Math.sin(elev))));
 	}
 
@@ -158,19 +165,17 @@ public class MapView extends PView implements DTarget {
 		tangl = curc.xyangle(cambase);
 	    }
 	    
-	    super.tick(dt);
+	    float field = field(elev);
+	    view.update(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
+	    proj.update(Projection.makefrustum(new Matrix4f(), -field, field, -ca * field, ca * field, 1, 5000));
 	}
 
-	public Matrix4f compute() {
-	    return(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
-	}
-	
 	public float angle() {
 	    return(angl);
 	}
 	
 	private static final float maxang = (float)(Math.PI / 2 - 0.1);
-	private static final float mindist = 10.0f;
+	private static final float mindist = 50.0f;
 	public boolean wheel(Coord c, int amount) {
 	    float fe = telev;
 	    telev += amount * telev * 0.02f;
@@ -179,6 +184,10 @@ public class MapView extends PView implements DTarget {
 	    if(dist(telev) < mindist)
 		telev = fe;
 	    return(true);
+	}
+
+	public String toString() {
+	    return(String.format("%f %f %f", elev, dist(elev), field(elev)));
 	}
     }
 
@@ -189,10 +198,10 @@ public class MapView extends PView implements DTarget {
 	private Coord dragorig = null;
 	private float elevorig, anglorig;
 
-	public Matrix4f compute() {
+	public void tick(double dt) {
 	    Coord3f cc = getcc();
 	    cc.y = -cc.y;
-	    return(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
+	    view.update(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
 	}
 	
 	public float angle() {
@@ -342,9 +351,8 @@ public class MapView extends PView implements DTarget {
 	    }
 	};
 
-    public Camera camera() {
-	return(camera);
-    }
+    public GLState camera()         {return(camera);}
+    protected Projection makeproj() {return(null);}
 
     private Coord3f smapcc = null;
     private Light.PSLights.ShadowMap smap = null;
@@ -636,12 +644,13 @@ public class MapView extends PView implements DTarget {
 	g.chcolor();
     }
 
+    private boolean camload = false;
     public void draw(GOut g) {
 	glob.map.sendreqs();
 	if((olftimer != 0) && (olftimer < System.currentTimeMillis()))
 	    unflashol();
 	try {
-	    if(camera.loading)
+	    if(camload)
 		throw(new MCache.LoadingMap());
 	    undelay(delayed, g);
 	    super.draw(g);
@@ -660,11 +669,11 @@ public class MapView extends PView implements DTarget {
     }
     
     public void tick(double dt) {
-	camera.loading = false;
+	camload = false;
 	try {
 	    camera.tick(dt);
 	} catch(Loading e) {
-	    camera.loading = true;
+	    camload = true;
 	}
 	if(placing != null)
 	    placing.ctick((int)(dt * 1000));
