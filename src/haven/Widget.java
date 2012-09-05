@@ -41,6 +41,7 @@ public class Widget {
     public Resource cursor = null;
     public Object tooltip = null;
     private Widget prevtt;
+    public final Collection<Anim> anims = new LinkedList<Anim>();
     static Map<String, WidgetFactory> types = new TreeMap<String, WidgetFactory>();
     static Class<?>[] barda = {Img.class, TextEntry.class, MapView.class, FlowerMenu.class,
 			       Window.class, Button.class, Inventory.class, GItem.class, Listbox.class,
@@ -98,13 +99,14 @@ public class Widget {
     }
     
     public static WidgetFactory gettype(String name) {
+	long start = System.currentTimeMillis();
 	WidgetFactory f;
 	try {
 	    f = gettype2(name);
 	} catch(InterruptedException e) {
 	    /* XXX: This is not proper behavior. On the other hand,
 	     * InterruptedException should not be checked. :-/ */
-	    throw(new RuntimeException("Interrupted while loading resource widget", e));
+	    throw(new RuntimeException("Interrupted while loading resource widget (took " + (System.currentTimeMillis() - start) + " ms)", e));
 	}
 	if(f == null)
 	    throw(new RuntimeException("No such widget type: " + name));
@@ -301,10 +303,15 @@ public class Widget {
 	}
     }
 	
+    public void reqdestroy() {
+	destroy();
+    }
+
     public void destroy() {
 	if(canfocus)
 	    setcanfocus(false);
 	parent.cdestroy(this);
+	unlink();
     }
     
     public void cdestroy(Widget w) {
@@ -435,6 +442,13 @@ public class Widget {
 	for(Widget wdg = child; wdg != null; wdg = next) {
 	    next = wdg.next;
 	    wdg.tick(dt);
+	}
+	/* It would be very nice to do these things in harmless mix-in
+	 * classes, but alas, this is Java. */
+	for(Iterator<Anim> i = anims.iterator(); i.hasNext();) {
+	    Anim anim = i.next();
+	    if(anim.tick(dt))
+		i.remove();
 	}
     }
 
@@ -797,5 +811,38 @@ public class Widget {
 	else
 	    hide();
 	return(show);
+    }
+
+    public abstract class Anim {
+	public Anim() {
+	    synchronized(ui) {
+		anims.add(this);
+	    }
+	}
+
+	public abstract boolean tick(double dt);
+    }
+
+    public abstract class NormAnim extends Anim {
+	private double a = 0.0;
+	private final double s;
+	
+	public NormAnim(double s) {
+	    this.s = 1.0 / s;
+	}
+
+	public boolean tick(double dt) {
+	    a += dt;
+	    double na = a * s;
+	    if(na >= 1.0) {
+		ntick(1.0);
+		return(true);
+	    } else {
+		ntick(na);
+		return(false);
+	    }
+	}
+
+	public abstract void ntick(double a);
     }
 }
