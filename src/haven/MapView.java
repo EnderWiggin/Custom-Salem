@@ -70,15 +70,16 @@ public class MapView extends PView implements DTarget {
 	void mmousemove(Coord mc);
     }
     
-    public static abstract class Camera extends haven.Camera {
-	private boolean loading;
+    public static abstract class Camera extends GLState.Abstract {
+	protected haven.Camera view = new haven.Camera(Matrix4f.identity());
+	protected Projection proj = new Projection(Matrix4f.identity());
 	protected MapView mv;
 	
 	public Camera(MapView mv) {
-	    super(Matrix4f.identity());
 	    this.mv = mv;
+	    resized();
 	}
-	
+
 	public boolean click(Coord sc) {
 	    return(false);
 	}
@@ -89,29 +90,27 @@ public class MapView extends PView implements DTarget {
 	}
 	
 	public void resized() {
+	    float field = 0.5f;
+	    float aspect = ((float)mv.sz.y) / ((float)mv.sz.x);
+	    proj.update(Projection.makefrustum(new Matrix4f(), -field, field, -aspect * field, aspect * field, 1, 5000));
+	}
+
+	public void prep(Buffer buf) {
+	    proj.prep(buf);
+	    view.prep(buf);
 	}
 	
-	public abstract Matrix4f compute();
 	public abstract float angle();
-	
-	public Matrix4f fin(Matrix4f p) {
-	    if(loading)
-		throw(new Loading());
-	    return(super.fin(p));
+	public abstract void tick(double dt);
 	}
 	
-	public void tick(double dt) {
-	    update(compute());
-	}
-    }
-    
     private static class FollowCam extends Camera {
 	public FollowCam(MapView mv) {
 	    super(mv);
 	}
 
 	private final float fr = 0.0f, h = 10.0f;
-	private float ca, cd, da;
+	private float ca, cd;
 	private Coord3f curc = null;
 	private float elev = (float)Math.PI / 4.0f;
 	private float angl = 0.0f;
@@ -121,9 +120,7 @@ public class MapView extends PView implements DTarget {
 	public void resized() {
 	    ca = (float)mv.sz.y / (float)mv.sz.x;
 	    cd = 400.0f * ca;
-	    da = (float)Math.atan(ca * 0.5f);
 	}
-	{resized();}
 	
 	public boolean click(Coord c) {
 	    anglorig = angl;
@@ -136,11 +133,22 @@ public class MapView extends PView implements DTarget {
 	    angl = angl % ((float)Math.PI * 2.0f);
 	}
 
-	private float dist(float elev) {
-	    return((float)(((cd - (h / Math.tan(elev))) * Math.sin(elev - da) / Math.sin(da)) - (h / Math.sin(elev))));
+	private double f0 = 0.2, f1 = 0.5, f2 = 0.9;
+	private double fl = Math.sqrt(2);
+	private double fa = ((fl * (f1 - f0)) - (f2 - f0)) / (fl - 2);
+	private double fb = ((f2 - f0) - (2 * (f1 - f0))) / (fl - 2);
+	private float field(float elev) {
+	    double a = elev / (Math.PI / 4);
+	    return((float)(f0 + (fa * a) + (fb * Math.sqrt(a))));
 	}
 
-	public Matrix4f compute() {
+	private float dist(float elev) {
+	    float da = (float)Math.atan(ca * field(elev));
+	    return((float)(((cd - (h / Math.tan(elev))) * Math.sin(elev - da) / Math.sin(da)) - (h / Math.sin(elev))));
+	}
+	
+	@Override
+	public void tick(double dt) {
 	    Coord3f cc = mv.getcc();
 	    cc.y = -cc.y;
 	    if(curc == null)
@@ -155,7 +163,7 @@ public class MapView extends PView implements DTarget {
 		curc = new Coord3f(nx, ny, cc.z);
 		angl = curc.xyangle(cambase);
 	    }
-	    return(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
+	    view.update(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
 	}
 	
 	public float angle() {
@@ -186,16 +194,14 @@ public class MapView extends PView implements DTarget {
 	
 	public SmoothFollowCam(MapView mv) {
 	    super(mv);
-	    elev = telev = (float)Math.PI / 4.0f;
+	    elev = telev = (float)Math.PI / 6.0f;
 	    angl = tangl = 0.0f;
 	}
 	
 	public void resized() {
 	    ca = (float)mv.sz.y / (float)mv.sz.x;
 	    cd = 400.0f * ca;
-	    da = (float)Math.atan(ca * 0.5f);
 	}
-	{resized();}
 	
 	public boolean click(Coord c) {
 	    anglorig = tangl;
@@ -208,7 +214,17 @@ public class MapView extends PView implements DTarget {
 	    tangl = tangl % ((float)Math.PI * 2.0f);
 	}
 
+	private double f0 = 0.2, f1 = 0.5, f2 = 0.9;
+	private double fl = Math.sqrt(2);
+	private double fa = ((fl * (f1 - f0)) - (f2 - f0)) / (fl - 2);
+	private double fb = ((f2 - f0) - (2 * (f1 - f0))) / (fl - 2);
+	private float field(float elev) {
+	    double a = elev / (Math.PI / 4);
+	    return((float)(f0 + (fa * a) + (fb * Math.sqrt(a))));
+	}
+
 	private float dist(float elev) {
+	    float da = (float)Math.atan(ca * field(elev));
 	    return((float)(((cd - (h / Math.tan(elev))) * Math.sin(elev - da) / Math.sin(da)) - (h / Math.sin(elev))));
 	}
 
@@ -245,19 +261,17 @@ public class MapView extends PView implements DTarget {
 		tangl = curc.xyangle(cambase);
 	    }
 	    
-	    super.tick(dt);
+	    float field = field(elev);
+	    view.update(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
+	    proj.update(Projection.makefrustum(new Matrix4f(), -field, field, -ca * field, ca * field, 1, 5000));
 	}
 
-	public Matrix4f compute() {
-	    return(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
-	}
-	
 	public float angle() {
 	    return(angl);
 	}
 	
 	private static final float maxang = (float)(Math.PI / 2 - 0.1);
-	private static final float mindist = 10.0f;
+	private static final float mindist = 50.0f;
 	public boolean wheel(Coord c, int amount) {
 	    float fe = telev;
 	    telev += amount * telev * 0.02f;
@@ -267,6 +281,10 @@ public class MapView extends PView implements DTarget {
 		telev = fe;
 	    return(true);
 	}
+
+	public String toString() {
+	    return(String.format("%f %f %f", elev, dist(elev), field(elev)));
+    }
     }
 
     private static class FreeCam extends Camera {
@@ -280,10 +298,10 @@ public class MapView extends PView implements DTarget {
 	private Coord dragorig = null;
 	private float elevorig, anglorig;
 	
-	public Matrix4f compute() {
+	public void tick(double dt) {
 	    Coord3f cc = mv.getcc();
 	    cc.y = -cc.y;
-	    return(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
+	    view.update(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
 	}
 	
 	public float angle() {
@@ -438,9 +456,8 @@ public class MapView extends PView implements DTarget {
 	    }
 	};
 
-    public Camera camera() {
-	return(camera);
-    }
+    public GLState camera()         {return(camera);}
+    protected Projection makeproj() {return(null);}
 
     private Coord3f smapcc = null;
     private Light.PSLights.ShadowMap smap = null;
@@ -732,12 +749,13 @@ public class MapView extends PView implements DTarget {
 	g.chcolor();
     }
 
+    private boolean camload = false;
     public void draw(GOut g) {
 	glob.map.sendreqs();
 	if((olftimer != 0) && (olftimer < System.currentTimeMillis()))
 	    unflashol();
 	try {
-	    if(camera.loading)
+	    if(camload)
 		throw(new MCache.LoadingMap());
 	    undelay(delayed, g);
 	    super.draw(g);
@@ -756,11 +774,11 @@ public class MapView extends PView implements DTarget {
     }
     
     public void tick(double dt) {
-	camera.loading = false;
+	camload = false;
 	try {
 	    camera.tick(dt);
 	} catch(Loading e) {
-	    camera.loading = true;
+	    camload = true;
 	}
 	if(placing != null)
 	    placing.ctick((int)(dt * 1000));

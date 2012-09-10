@@ -30,12 +30,16 @@ import java.util.*;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.imageio.*;
+import javax.imageio.metadata.*;
+import javax.imageio.stream.*;
+import org.w3c.dom.*;
 import java.io.*;
 import java.net.*;
 
 public class Screenshooter extends Window {
     public final URL tgt;
     public final TexI[] ss;
+    private final TextEntry comment;
     private final CheckBox decobox;
     private final int w, h;
     private Label prog;
@@ -48,15 +52,18 @@ public class Screenshooter extends Window {
 	this.ss = ss;
 	this.w = Math.min(200 * ss[0].sz().x / ss[0].sz().y, 150);
 	this.h = w * ss[0].sz().y / ss[0].sz().x;
-	this.decobox = new CheckBox(new Coord(w, (h / 2) - CheckBox.box.sz().y + 5), this, "Include interface");
+	this.decobox = new CheckBox(new Coord(w, (h / 2) - CheckBox.box.sz().y + 5), this, "Include interface") {
+		public void changed(boolean val) {}
+	    };
 	btnc = new Coord(w + 5, h - 19);
 	btn = new Button(btnc, 125, this, "Upload") {
 	    public void click() {
 		upload();
 	    }
 	};
-	Coord csz = contentsz();
-	resize(new Coord(Math.max(csz.x, 300), csz.y));
+	Label clbl = new Label(new Coord(0, h + 5), this, "If you wish, leave a comment:");
+	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), new Coord(w + 130, 20), this, "");
+	pack();
     }
     
     public void wdgmsg(Widget sender, String msg, Object... args) {
@@ -69,7 +76,7 @@ public class Screenshooter extends Window {
     
     public void cdraw(GOut g) {
 	TexI tex = ss[this.decobox.a?1:0];
-	g.image(tex, new Coord(0, (asz.y - h) / 2), new Coord(w, h));
+	g.image(tex, Coord.z, new Coord(w, h));
     }
     
     public class Uploader extends HackThread {
@@ -114,10 +121,52 @@ public class Screenshooter extends Window {
 	    }
 	}
 
+	private void writepng(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
+	    ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
+	    IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
+	    if(comment != null) {
+		Node root = dat.getAsTree("javax_imageio_1.0");
+		Element cmt = new IIOMetadataNode("TextEntry");
+		cmt.setAttribute("keyword", "Title");
+		cmt.setAttribute("value", comment);
+		cmt.setAttribute("encoding", "utf-8");
+		cmt.setAttribute("language", "");
+		cmt.setAttribute("compression", "none");
+		Node tlist = new IIOMetadataNode("Text");
+		tlist.appendChild(cmt);
+		root.appendChild(tlist);
+		dat.setFromTree("javax_imageio_1.0", root);
+	    }
+	    ImageOutputStream iout = ImageIO.createImageOutputStream(out);
+	    wr.setOutput(iout);
+	    wr.write(new IIOImage(img, null, dat));
+	}
+
+	private void writejpeg(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
+	    ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
+	    IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
+	    if(comment != null) {
+		Node root = dat.getAsTree("javax_imageio_1.0");
+		Element cmt = new IIOMetadataNode("TextEntry");
+		cmt.setAttribute("keyword", "comment");
+		cmt.setAttribute("value", comment);
+		Node tlist = new IIOMetadataNode("Text");
+		tlist.appendChild(cmt);
+		root.appendChild(tlist);
+		dat.setFromTree("javax_imageio_1.0", root);
+	    }
+	    ImageOutputStream iout = ImageIO.createImageOutputStream(out);
+	    wr.setOutput(iout);
+	    wr.write(new IIOImage(img, null, dat));
+	}
+
 	public void upload(TexI ss) throws IOException {
 	    setstate("Connecting...");
 	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    ImageIO.write(ss.back, "PNG", buf);
+	    /* XXX: For some reason, JPEG doesn't seem to work properly. */
+	    writepng(buf, ss.back, comment.text);
 	    byte[] data = buf.toByteArray();
 	    buf = null;
 	    URLConnection conn = (URLConnection)tgt.openConnection();
