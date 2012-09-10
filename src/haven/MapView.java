@@ -112,7 +112,7 @@ public class MapView extends PView implements DTarget {
 	private final float fr = 0.0f, h = 10.0f;
 	private float ca, cd;
 	private Coord3f curc = null;
-	private float elev = (float)Math.PI / 4.0f;
+	private float elev = (float)Math.PI / 6.0f;
 	private float angl = 0.0f;
 	private Coord dragorig = null;
 	private float anglorig;
@@ -163,7 +163,10 @@ public class MapView extends PView implements DTarget {
 		curc = new Coord3f(nx, ny, cc.z);
 		angl = curc.xyangle(cambase);
 	    }
+	    
+	    float field = field(elev);
 	    view.update(PointedCam.compute(curc.add(0.0f, 0.0f, h), dist(elev), elev, angl));
+	    proj.update(Projection.makefrustum(new Matrix4f(), -field, field, -ca * field, ca * field, 1, 5000));
 	}
 	
 	public float angle() {
