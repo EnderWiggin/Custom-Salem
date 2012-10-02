@@ -191,7 +191,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	}
 	
 	public void draw(GOut g) {
-	    g.chcolor(Color.BLACK);
+	    g.chcolor(24, 24, 16, 200);
 	    g.frect(Coord.z, sz);
 	    g.chcolor();
 	    synchronized(buddies) {

@@ -91,8 +91,9 @@ public class ChatUI extends Widget {
 
     public static class ChatParser extends RichText.Parser {
 	public static final Pattern urlpat = Pattern.compile("\\b((https?://)|(www\\.[a-z0-9_.-]+\\.[a-z0-9_.-]+))[a-z0-9/_.~#%+?&:*=-]*", Pattern.CASE_INSENSITIVE);
-	public static final Map<? extends Attribute, ?> urlstyle = RichText.fillattrs(TextAttribute.FOREGROUND, new Color(64, 64, 255),
-										      TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+	public static final Map<? extends Attribute, ?> urlstyle = RichText.fillattrs(TextAttribute.FOREGROUND, new Color(64,175,255),
+										      TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON,
+												TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
 	
 	public ChatParser(Object... args) {
 	    super(args);
@@ -207,7 +208,7 @@ public class ChatUI extends Widget {
 	}
 	
 	public void draw(GOut g) {
-	    g.chcolor(24, 24, 16, 255);
+	    g.chcolor(24, 24, 16, 200);
 	    g.frect(Coord.z, sz);
 	    g.chcolor();
 	    int y = 0;
@@ -680,16 +681,20 @@ public class ChatUI extends Widget {
     
     public static class PrivChat extends EntryChannel {
 	private final int other;
+	public static final Color[] gc = new Color[] {
+	new Color(230,48,32),
+	new Color(64,180,200),
+    };
 	
 	public class InMessage extends SimpleMessage {
 	    public InMessage(String text, int w) {
-		super(text, BuddyWnd.gc[2], w);
+		super(text, PrivChat.gc[0], w);
 	    }
 	}
 
 	public class OutMessage extends SimpleMessage {
 	    public OutMessage(String text, int w) {
-		super(text, BuddyWnd.gc[3], w);
+		super(text, PrivChat.gc[1], w);
 	    }
 	}
 
