@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 
 public class Window extends Widget implements DTarget {
+    private static final String OPT_POS = "_pos";
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     static Tex cl = Resource.loadtex("gfx/hud/cleft");
     static Tex cm = Resource.loadtex("gfx/hud/cmain");
@@ -54,6 +55,7 @@ public class Window extends Widget implements DTarget {
     public Coord doff;
     public IButton cbtn;
     public boolean justclose = false;
+    protected final String name;
 	
     static {
 	Widget.addtype("wnd", new WidgetFactory() {
@@ -78,8 +80,12 @@ public class Window extends Widget implements DTarget {
 	this.rbo = rbo;
 	cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
 	cbtn.recthit = true;
-	if(cap != null)
+	if(cap != null){
 	    this.cap = cf.render(cap, cc);
+	    name = cap;
+	} else {
+	    name = null;
+	}
 	sz = sz.add(tlo).add(rbo).add(wbox.bisz()).add(mrgn.mul(2));
 	this.sz = sz;
 	atl = wbox.tloff().add(tlo);
@@ -88,6 +94,7 @@ public class Window extends Widget implements DTarget {
 	placecbtn();
 	setfocustab(true);
 	parent.setfocus(this);
+	loadOpts();
     }
 	
     public Window(Coord c, Coord sz, Widget parent, String cap) {
@@ -190,6 +197,7 @@ public class Window extends Widget implements DTarget {
     public boolean mouseup(Coord c, int button) {
 	if(dm) {
 	    canceldm();
+	    storeOpt(OPT_POS, this.c);
 	} else {
 	    super.mouseup(c, button);
 	}
@@ -250,5 +258,44 @@ public class Window extends Widget implements DTarget {
 	    return(ret);
 	else
 	    return("");
+    }
+    
+    protected void storeOpt(String opt, String value){
+	if(name == null){return;}
+	Config.setWindowOpt(name+opt, value);
+    }
+    
+    protected void storeOpt(String opt, Coord value){
+	storeOpt(opt, value.toString());
+    }
+    
+    protected void storeOpt(String opt, boolean value){
+	if(name == null){return;}
+	Config.setWindowOpt(name+opt, value);
+    }
+    
+    protected Coord getOptCoord(String opt, Coord def){
+	synchronized (Config.window_props) {
+	    try {
+		return new Coord(Config.window_props.getProperty(name+opt, def.toString()));
+	    } catch (Exception e){
+		return def;
+	    }
+	}
+    }
+    
+    protected boolean getOptBool(String opt, boolean def){
+	synchronized (Config.window_props) {
+	    try {
+		return Config.window_props.getProperty(name+opt, null).equals("true");
+	    } catch (Exception e){
+		return def;
+	    }
+	}
+    }
+    
+    protected void loadOpts(){
+	if(name == null){return;}
+	c = getOptCoord(OPT_POS, c);
     }
 }

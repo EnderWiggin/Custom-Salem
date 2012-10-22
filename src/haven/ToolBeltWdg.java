@@ -2,17 +2,16 @@ package haven;
 
 import static haven.Inventory.invsq;
 import static haven.WItem.missing;
-
-import haven.Glob.Pagina;
 import haven.Resource.AButton;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class ToolBeltWdg extends Window implements DropTarget{
+    private static final String OPT_FLIPPED = "_flipped";
+    private static final String OPT_LOCKED = "_locked";
     private static final Coord invsz = invsq.sz();
     private static final int COUNT = 12;
     private static final int BELTS = 6;
@@ -26,13 +25,12 @@ public class ToolBeltWdg extends Window implements DropTarget{
     GameUI gui;
     private int curbelt = 0;
     private int start = 0;
-    boolean locked = false, flipped = false;
+    boolean locked, flipped;
     private Resource pressed, dragging;
     private int preslot;
     private IButton lockbtn, flipbtn, minus, plus;
     public final int beltkeys[];
     private Tex[] nums;
-    private final String name;
     private Coord beltNumC;
     
     static {
@@ -44,10 +42,10 @@ public class ToolBeltWdg extends Window implements DropTarget{
     }
     
     public ToolBeltWdg(GameUI parent, String name, int beltn, final int[] keys) {
-	super(new Coord(5, 500), Coord.z, parent, null);
+	super(new Coord(5, 500), Coord.z, parent, name);
+	cap = null;
 	gui = parent;
 	start = beltn;
-	this.name = name;
 	beltkeys = keys;
 	mrgn = new Coord(0,0);
 	cbtn.visible = false;
@@ -55,9 +53,8 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	
 	init();
     }
-
+    
     private void init() {
-	loadOpts();
 	lockbtn = new IButton(Coord.z, this, locked?ilockc:ilocko, locked?ilocko:ilockc, locked?ilockch:ilockoh) {
 	    public void click() {
 		locked = !locked;
@@ -70,7 +67,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		    down = ilockc;
 		    hover = ilockoh;
 		}
-		Config.setWindowOpt(name+"_locked", locked);
+		storeOpt(OPT_LOCKED, locked);
 	    }
 	};
 	lockbtn.recthit = true;
@@ -102,21 +99,20 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	}
     }
     
-    private void loadOpts() {
+    @Override
+    protected  void loadOpts() {
+	super.loadOpts();
 	synchronized (Config.window_props) {
-	    if(Config.window_props.getProperty(name+"_locked", "false").equals("true")) {
-		locked = true;
-	    }
-	    if(Config.window_props.getProperty(name+"_flipped", "false").equals("true")) {
+	    locked = getOptBool(OPT_LOCKED, false);
+	    if(getOptBool(OPT_FLIPPED, false)) {
 		flip();
 	    }
-	    c = new Coord(Config.window_props.getProperty(name+"_pos", c.toString()));
 	}
     }
     
     private void flip() {
 	flipped = !flipped;
-	Config.setWindowOpt(name+"_flipped", flipped);
+	storeOpt(OPT_FLIPPED, flipped);
 	resize();
     }
 

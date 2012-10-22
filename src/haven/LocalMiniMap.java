@@ -48,6 +48,7 @@ import java.util.TreeMap;
 import javax.imageio.ImageIO;
 
 public class LocalMiniMap extends Window implements Console.Directory{
+    private static final String OPT_SZ = "_sz";
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
@@ -212,10 +213,11 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv, Widget mapmenu) {
-	super(c, sz, parent, "Minimap");
+	super(c, sz, parent, "mmap");
+	cap = null;
 	this.mapmenu = mapmenu;
+	mapmenu.c = c.add(0,-18);
 	this.mv = mv;
-	loadOpts();
 	cmdmap.put("radar", new Console.Command() {
             public void run(Console console, String[] args) throws Exception {
                 if (args.length == 2) {
@@ -238,12 +240,10 @@ public class LocalMiniMap extends Window implements Console.Directory{
         });
     }
     
-    private void loadOpts() {
-	synchronized (Config.window_props) {
-	    c = new Coord(Config.window_props.getProperty("mmap_pos", c.toString()));
-	    sz = new Coord(Config.window_props.getProperty("mmap_sz", sz.toString()));
-	    mapmenu.c = c.add(0,-18);
-	}
+    @Override
+    protected void loadOpts() {
+	super.loadOpts();
+	sz = getOptCoord(OPT_SZ, sz);
     }
     
     public void toggleHeight(){
@@ -434,9 +434,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     public boolean mouseup(Coord c, int button) {
-	if(super.dm){
-	    Config.setWindowOpt("mmap_pos", this.c.toString());
-	}
 	if(button == 2){
 	    off.x = off.y = 0;
 	    return true;
@@ -451,7 +448,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	if (rsm){
 	    ui.grabmouse(null);
 	    rsm = false;
-	    Config.setWindowOpt("mmap_sz", sz.toString());
+	    storeOpt(OPT_SZ, sz);
 	} else {
 	    super.mouseup(c, button);
 	}
