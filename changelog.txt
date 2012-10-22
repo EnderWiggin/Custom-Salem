@@ -1,5 +1,12 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 22.10.12:}}
+  * made all windows save their position
+  * Merged Trojanz's changes: 
+    - Chat transparency
+    - kin window transparency
+    - slightly edited pm text colors and hyperlink color.
+ 
 $size[14]{$u{Update for 16.08.12:}}
   * added displaying of torch fuel and fishing equipment wear as bars on it's icon
  
