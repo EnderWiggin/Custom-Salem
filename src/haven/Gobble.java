@@ -51,49 +51,7 @@ public class Gobble extends Widget {
     }
     
     public Gobble(Coord c, Widget parent) {
-	super(c, Tempers.bg.sz(), parent);
-    }
-    
-    public void draw(GOut g) {
-	g.image(Tempers.bg, Coord.z);
-	int[] attr = new int[4];
-	int max = 0;
-	for(int i = 0; i < 4; i++) {
-	    attr[i] = ui.sess.glob.cattr.get(Tempers.anm[i]).comp;
-	    if(attr[i] == 0)
-		return;
-	    if(attr[i] > max)
-		max = attr[i];
-	}
-	Coord mid = Tempers.mid;
-	g.chcolor(softc);
-	g.poly(mid.add(0, -((attr[0] * 35) / max)),
-	       mid.add(((attr[1] * 35) / max), 0),
-	       mid.add(0, ((attr[2] * 35) / max)),
-	       mid.add(-((attr[3] * 35) / max), 0));
-	g.chcolor();
-	double[] cur = new double[4];
-	for(int i = 0; i < 4; i++) {
-	    cur[i] = (double)lev[i] / (double)max;
-	    if(cur[i] < 0.1)
-		cur[i] = 0.1;
-	}
-	g.poly2(mid.add(0, -(int)(cur[0] * 35)), cols[0],
-		mid.add((int)(cur[1] * 35), 0), cols[1],
-		mid.add(0, (int)(cur[2] * 35)), cols[2],
-		mid.add(-(int)(cur[3] * 35), 0), cols[3]);
-	if(ctrig != null) {
-	    long now = System.currentTimeMillis();
-	    if(now - trigt > 1000) {
-		ctrig = null;
-	    } else {
-		g.chcolor(255, 255, 255, (int)((255 * (1000 - (now - trigt))) / 1000));
-		g.aimage(ctrig, mid, 0.5, 0.5);
-		g.chcolor();
-	    }
-	}
-	g.aimage(Tempers.cross, mid, 0.5, 0.5);
-	g.aimage(var.tex(), mid.add(35, 0), 0, 0.5);
+	super(c, Utils.imgsz(Tempers.bg), parent);
     }
     
     public void updt(int[] n) {
