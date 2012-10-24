@@ -37,7 +37,7 @@ public class Tempers extends SIWidget {
     public static final BufferedImage rcap = Resource.loadimg("gfx/hud/tempers/rcap");
     static final Color softc = new Color(64, 64, 64);
     static final Color foodc = new Color(128, 128, 0);
-    static final Coord[] mc = {new Coord(293, 9), new Coord(293, 33), new Coord(233, 33), new Coord(233, 9)};
+    static final Coord[] mc = {new Coord(295, 11), new Coord(295, 35), new Coord(235, 35), new Coord(235, 11)};
     static final Coord boxc = new Coord(96, 0), boxsz = new Coord(339, 62);
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
@@ -95,7 +95,7 @@ public class Tempers extends SIWidget {
     }
 
     private static WritableRaster rmeter(Raster tex, int val, int max) {
-	int w = 1 + (val * (tex.getWidth() - 1)) / Math.max(max, 1);
+	int w = 1 + (Math.min(val, max) * (tex.getWidth() - 1)) / Math.max(max, 1);
 	WritableRaster bar = copy(tex);
 	gayblit(bar, 3, new Coord(w - rcap.getWidth(), 0), rcap.getRaster(), 0, Coord.z);
 	for(int y = 0; y < bar.getHeight(); y++) {
@@ -106,7 +106,7 @@ public class Tempers extends SIWidget {
     }
 
     private static WritableRaster lmeter(Raster tex, int val, int max) {
-	int w = 1 + (val * (tex.getWidth() - 1)) / Math.max(max, 1);
+	int w = 1 + (Math.min(val, max) * (tex.getWidth() - 1)) / Math.max(max, 1);
 	WritableRaster bar = copy(tex);
 	gayblit(bar, 3, new Coord(bar.getWidth() - w, 0), lcap.getRaster(), 0, Coord.z);
 	for(int y = 0; y < bar.getHeight(); y++) {
