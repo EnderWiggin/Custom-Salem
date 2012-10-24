@@ -37,8 +37,8 @@ public class Window extends Widget implements DTarget {
     private static final Tex tright = Resource.loadtex("gfx/hud/wnd/tright");
     private static final BufferedImage[] cbtni = new BufferedImage[] {
 	Resource.loadimg("gfx/hud/wnd/cbtn"),
-	Resource.loadimg("gfx/hud/wnd/cbtn"),
-	Resource.loadimg("gfx/hud/wnd/cbtn")};
+	Resource.loadimg("gfx/hud/wnd/cbtnd"),
+	Resource.loadimg("gfx/hud/wnd/cbtnh")};
     public static final Color cc = new Color(248, 230, 190);
     public static final Text.Furnace cf = new Text.Imager(new Text.Foundry(new Font("Serif", Font.BOLD, 15), cc).aa(true)) {
 	    protected BufferedImage proc(Text text) {
@@ -127,7 +127,7 @@ public class Window extends Widget implements DTarget {
     }
 
     public void draw(GOut g) {
-	g.chcolor(0, 0, 0, 128);
+	g.chcolor(0, 0, 0, 224);
 	g.frect(ctl, csz);
 	g.chcolor();
 	cdraw(g.reclip(xlate(Coord.z, true), asz));
