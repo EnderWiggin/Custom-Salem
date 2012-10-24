@@ -259,11 +259,6 @@ public class OptWnd extends Window {
 	camname2type.put(title, camtype);
     }
 
-    public void wdgmsg(Widget sender, String msg, Object... args) {
-	if(sender == cbtn)
-	    super.wdgmsg(sender, msg, args);
-    }
-
     public class Frame extends Widget {
 	private IBox box;
 

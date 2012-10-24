@@ -28,29 +28,36 @@ package haven;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
+import static haven.PUtils.*;
 
 public class Window extends Widget implements DTarget {
-    static Tex bg = Resource.loadtex("gfx/hud/bgtex");
-    static Tex topblob = Resource.loadtex("gfx/hud/tmain");
-    static Tex botblob = Resource.loadtex("gfx/hud/bmain");
-    static BufferedImage[] cbtni = new BufferedImage[] {
-	Resource.loadimg("gfx/hud/cbtn"),
-	Resource.loadimg("gfx/hud/cbtnd"),
-	Resource.loadimg("gfx/hud/cbtnh")}; 
-    static Color cc = Color.YELLOW;
-    static Text.Foundry cf = new Text.Foundry(new Font("Serif", Font.PLAIN, 12));
+    private static final Tex tleft = Resource.loadtex("gfx/hud/wnd/tleft");
+    private static final Tex tmain = Resource.loadtex("gfx/hud/wnd/tmain");
+    private static final Tex tright = Resource.loadtex("gfx/hud/wnd/tright");
+    private static final BufferedImage[] cbtni = new BufferedImage[] {
+	Resource.loadimg("gfx/hud/wnd/cbtn"),
+	Resource.loadimg("gfx/hud/wnd/cbtn"),
+	Resource.loadimg("gfx/hud/wnd/cbtn")};
+    public static final Color cc = new Color(248, 230, 190);
+    public static final Text.Furnace cf = new Text.Imager(new Text.Foundry(new Font("Serif", Font.BOLD, 15), cc).aa(true)) {
+	    protected BufferedImage proc(Text text) {
+		return(rasterimg(blurmask2(text.img.getRaster(), 1, 1, Color.BLACK)));
+	    }
+	};
     public static final IBox swbox = new IBox("gfx/hud", "stl", "str", "sbl", "sbr", "sextv", "sextv", "sexth", "sexth");
-    private static final IBox wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
-    boolean dt = false;
-    Text cap;
-    boolean dm = false;
-    public Coord atl, asz, wsz;
-    public Coord tlo, rbo;
+    private static final IBox wbox = new IBox("gfx/hud/wnd", "tl", "tr", "bl", "br", "vl", "vr", "ht", "hb");
+    private static final IBox topless = new IBox(Tex.empty, Tex.empty, wbox.cbl, wbox.cbr, wbox.bl, wbox.br, Tex.empty, wbox.bb);
+    private static final int th = tleft.sz().y, tdh = th - tmain.sz().y, tc = tdh + 18;
+    private static final Coord capc = new Coord(20, th - 3);
     public Coord mrgn = new Coord(20, 20);
-    public Coord doff;
-    public IButton cbtn;
-	
+    private final Text cap;
+    private boolean dt = false;
+    private boolean dm = false;
+    public Coord ctl, csz, atl, asz;
+    private Coord doff;
+    private IButton cbtn;
+
     static {
 	Widget.addtype("wnd", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
@@ -62,62 +69,18 @@ public class Window extends Widget implements DTarget {
 	    });
     }
 
-    private void placecbtn() {
-	cbtn.c = xlate(new Coord(tlo.x + wsz.x - Utils.imgsz(cbtni[0]).x, tlo.y), false);
-    }
-	
-    public Window(Coord c, Coord sz, Widget parent, String cap, Coord tlo, Coord rbo) {
+    public Window(Coord c, Coord sz, Widget parent, String cap) {
 	super(c, new Coord(0, 0), parent);
-	this.tlo = tlo;
-	this.rbo = rbo;
 	cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
 	if(cap != null)
-	    this.cap = cf.render(cap, cc);
-	sz = sz.add(tlo).add(rbo).add(wbox.bisz()).add(mrgn.mul(2));
-	this.sz = sz;
-	atl = wbox.tloff().add(tlo);
-	wsz = sz.sub(tlo).sub(rbo);
-	asz = wsz.sub(wbox.bisz()).sub(mrgn.mul(2));
-	placecbtn();
+	    this.cap = cf.render(cap);
+	else
+	    this.cap = null;
+	resize(sz);
 	setfocustab(true);
 	parent.setfocus(this);
     }
-	
-    public Window(Coord c, Coord sz, Widget parent, String cap) {
-	this(c, sz, parent, cap, new Coord(0, 0), new Coord(0, 0));
-    }
-	
-    public void cdraw(GOut g) {
-    }
-	
-    public void draw(GOut og) {
-	GOut g = og.reclip(tlo, wsz);
-	Coord bgul = wbox.tloff();
-	Coord bgsz = wsz.sub(wbox.bisz());
-	Coord bgc = new Coord();
-	for(bgc.y = 0; bgc.y < bgsz.y; bgc.y += bg.sz().y) {
-	    for(bgc.x = 0; bgc.x < bgsz.x; bgc.x += bg.sz().x)
-		g.image(bg, bgc.add(bgul), bgul, bgsz);
-	}
-	cdraw(og.reclip(xlate(Coord.z, true), sz));
-	wbox.draw(g, Coord.z, wsz);
-	if(wsz.x > wbox.ctl.sz().x + wbox.ctr.sz().x + 0 + topblob.sz().x) {
-	    g.image(topblob, new Coord((wsz.x - topblob.sz().x) / 2, 0));
-	    g.image(botblob, new Coord((wsz.x - botblob.sz().x) / 2, wsz.y - botblob.sz().y));
-	}
-	/*
-	if(cap != null) {
-	    GOut cg = og.reclip(new Coord(0, -7), sz.add(0, 7));
-	    int w = cap.tex().sz().x;
-	    cg.image(cl, new Coord((sz.x / 2) - (w / 2) - cl.sz().x, 0));
-	    cg.image(cm, new Coord((sz.x / 2) - (w / 2), 0), new Coord(w, cm.sz().y));
-	    cg.image(cr, new Coord((sz.x / 2) + (w / 2), 0));
-	    cg.image(cap.tex(), new Coord((sz.x / 2) - (w / 2), 0));
-	}
-	*/
-	super.draw(og);
-    }
-	
+
     public Coord contentsz() {
 	Coord max = new Coord(0, 0);
 	for(Widget wdg = child; wdg != null; wdg = wdg.next) {
@@ -135,17 +98,62 @@ public class Window extends Widget implements DTarget {
     public void pack() {
 	resize(contentsz());
     }
-    
+
+    private void placecbtn() {
+	Coord sz = Utils.imgsz(cbtni[0]);
+	cbtn.c = xlate(new Coord(this.sz.x - 10 - sz.x, tc - (sz.y / 2)), false);
+    }
+
     public void resize(Coord sz) {
-	sz = sz.add(tlo).add(rbo).add(wbox.bisz()).add(mrgn.mul(2));
+	sz = sz.add(topless.bisz()).add(0, th).add(mrgn.mul(2));
 	this.sz = sz;
-	wsz = sz.sub(tlo).sub(rbo);
-	asz = wsz.sub(wbox.bisz()).sub(mrgn.mul(2));
+	ctl = topless.btloff().add(0, th);
+	csz = sz.sub(topless.bisz()).sub(0, th);
+	atl = ctl.add(mrgn);
+	asz = csz.sub(mrgn.mul(2));
 	placecbtn();
 	for(Widget ch = child; ch != null; ch = ch.next)
 	    ch.presize();
     }
-	
+
+    public Coord xlate(Coord c, boolean in) {
+	if(in)
+	    return(c.add(atl));
+	else
+	    return(c.sub(atl));
+    }
+
+    public void cdraw(GOut g) {
+    }
+
+    public void draw(GOut g) {
+	g.chcolor(0, 0, 0, 128);
+	g.frect(ctl, csz);
+	g.chcolor();
+	cdraw(g.reclip(xlate(Coord.z, true), asz));
+	topless.draw(g, new Coord(0, th), sz.sub(0, th));
+	g.image(tleft, Coord.z);
+	Coord tmul = new Coord(tleft.sz().x, tdh);
+	Coord tmbr = new Coord(sz.x - tright.sz().x, th);
+	for(int x = tmul.x; x < tmbr.x; x += tmain.sz().x) {
+	    g.image(tmain, new Coord(x, tdh), tmul, tmbr);
+	}
+	g.image(tright, new Coord(sz.x - tright.sz().x, tdh));
+	if(cap != null)
+	    g.image(cap.tex(), capc.sub(0, cap.sz().y));
+	/*
+	if(cap != null) {
+	    GOut cg = og.reclip(new Coord(0, -7), sz.add(0, 7));
+	    int w = cap.tex().sz().x;
+	    cg.image(cl, new Coord((sz.x / 2) - (w / 2) - cl.sz().x, 0));
+	    cg.image(cm, new Coord((sz.x / 2) - (w / 2), 0), new Coord(w, cm.sz().y));
+	    cg.image(cr, new Coord((sz.x / 2) + (w / 2), 0));
+	    cg.image(cap.tex(), new Coord((sz.x / 2) - (w / 2), 0));
+	}
+	*/
+	super.draw(g);
+    }
+
     public void uimsg(String msg, Object... args) {
 	if(msg == "pack") {
 	    pack();
@@ -155,21 +163,13 @@ public class Window extends Widget implements DTarget {
 	    super.uimsg(msg, args);
 	}
     }
-	
-    public Coord xlate(Coord c, boolean in) {
-	Coord ctl = wbox.tloff();
-	if(in)
-	    return(c.add(ctl).add(tlo).add(mrgn));
-	else
-	    return(c.add(ctl.inv()).add(tlo.inv()).add(mrgn.inv()));
-    }
-	
+
     public boolean mousedown(Coord c, int button) {
 	parent.setfocus(this);
 	raise();
 	if(super.mousedown(c, button))
 	    return(true);
-	if(!c.isect(tlo, sz.add(tlo.inv()).add(rbo.inv())))
+	if(c.y < tdh)
 	    return(false);
 	if(button == 1) {
 	    ui.grabmouse(this);
@@ -178,7 +178,7 @@ public class Window extends Widget implements DTarget {
 	}
 	return(true);
     }
-	
+
     public boolean mouseup(Coord c, int button) {
 	if(dm) {
 	    ui.grabmouse(null);
@@ -188,7 +188,7 @@ public class Window extends Widget implements DTarget {
 	}
 	return(true);
     }
-	
+
     public void mousemove(Coord c) {
 	if(dm) {
 	    this.c = this.c.add(c.add(doff.inv()));
@@ -204,7 +204,7 @@ public class Window extends Widget implements DTarget {
 	    super.wdgmsg(sender, msg, args);
 	}
     }
-	
+
     public boolean type(char key, java.awt.event.KeyEvent ev) {
 	if(key == 27) {
 	    wdgmsg("close");
@@ -212,7 +212,7 @@ public class Window extends Widget implements DTarget {
 	}
 	return(super.type(key, ev));
     }
-	
+
     public boolean drop(Coord cc, Coord ul) {
 	if(dt) {
 	    wdgmsg("drop", cc);
@@ -220,11 +220,11 @@ public class Window extends Widget implements DTarget {
 	}
 	return(false);
     }
-	
+
     public boolean iteminteract(Coord cc, Coord ul) {
 	return(false);
     }
-    
+
     public Object tooltip(Coord c, Widget prev) {
 	Object ret = super.tooltip(c, prev);
 	if(ret != null)
