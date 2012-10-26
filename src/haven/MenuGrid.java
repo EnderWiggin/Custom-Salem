@@ -34,8 +34,6 @@ import haven.Glob.Pagina;
 import java.util.*;
 
 public class MenuGrid extends Widget {
-    public final static Tex bg = Resource.loadtex("gfx/hud/invsq");
-    public final static Coord bgsz = bg.sz().add(-1, -1);
     public final Pagina next = paginafor(Resource.load("gfx/hud/sc-next"));
     public final Pagina bk = paginafor(Resource.load("gfx/hud/sc-back"));
     public final static RichText.Foundry ttfnd = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
@@ -93,7 +91,7 @@ public class MenuGrid extends Widget {
     }
 	
     public MenuGrid(Coord c, Widget parent) {
-	super(c, bgsz.mul(gsz).add(1, 1), parent);
+	super(c, Inventory.invsz(gsz), parent);
     }
 	
     private static Comparator<Pagina> sorter = new Comparator<Pagina>() {
@@ -151,21 +149,21 @@ public class MenuGrid extends Widget {
 
     public void draw(GOut g) {
 	long now = System.currentTimeMillis();
+	Inventory.invsq(g, Coord.z, gsz);
 	for(int y = 0; y < gsz.y; y++) {
 	    for(int x = 0; x < gsz.x; x++) {
-		Coord p = bgsz.mul(new Coord(x, y));
-		g.image(bg, p);
+		Coord p = Inventory.sqoff(new Coord(x, y));
 		Pagina btn = layout[x][y];
 		if(btn != null) {
 		    Tex btex = btn.img.tex();
-		    g.image(btex, p.add(1, 1));
+		    g.image(btex, p);
 		    if(btn.meter > 0) {
 			double m = btn.meter / 1000.0;
 			if(btn.dtime > 0)
 			    m += (1 - m) * (double)(now - btn.gettime) / (double)btn.dtime;
 			m = Utils.clip(m, 0, 1);
 			g.chcolor(255, 255, 255, 128);
-			g.fellipse(p.add(bgsz.div(2)), bgsz.div(2), 90, (int)(90 + (360 * m)));
+			g.fellipse(p.add(Inventory.isqsz.div(2)), Inventory.isqsz.div(2), 90, (int)(90 + (360 * m)));
 			g.chcolor();
 		    }
 		    if(btn == pressed) {
@@ -211,7 +209,7 @@ public class MenuGrid extends Widget {
     }
 
     private Pagina bhit(Coord c) {
-	Coord bc = c.div(bgsz);
+	Coord bc = Inventory.sqroff(c);
 	if((bc.x >= 0) && (bc.y >= 0) && (bc.x < gsz.x) && (bc.y < gsz.y))
 	    return(layout[bc.x][bc.y]);
 	else

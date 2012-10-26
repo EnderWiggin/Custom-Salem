@@ -31,6 +31,7 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import static haven.Inventory.invsq;
+import static haven.Inventory.sqsz;
 
 public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.Directory {
     public final String chrid;
@@ -755,14 +756,14 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	private Coord beltc(int i) {
 	    return(new Coord(/* ((sz.x - (invsq.sz().x * 12) - (2 * 11)) / 2) */
 			     135
-			     + ((invsq.sz().x + 2) * i)
+			     + ((sqsz.x + 2) * i)
 			     + (10 * (i / 4)),
-			     sz.y - 26 - invsq.sz().y - 2));
+			     sz.y - 26 - sqsz.y - 2));
 	}
     
 	private int beltslot(Coord c) {
 	    for(int i = 0; i < 12; i++) {
-		if(c.isect(beltc(i), invsq.sz()))
+		if(c.isect(beltc(i), sqsz))
 		    return(i + (curbelt * 12));
 	    }
 	    return(-1);
@@ -772,16 +773,16 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    for(int i = 0; i < 12; i++) {
 		int slot = i + (curbelt * 12);
 		Coord c = beltc(i);
-		g.image(invsq, beltc(i));
+		invsq(g, beltc(i));
 		try {
 		    if(belt[slot] != null)
 			g.image(belt[slot].get().layer(Resource.imgc).tex(), c.add(1, 1));
 		} catch(Loading e) {}
 		g.chcolor(156, 180, 158, 255);
-		FastText.aprintf(g, c.add(invsq.sz()), 1, 1, "F%d", i + 1);
+		FastText.aprintf(g, c.add(sqsz), 1, 1, "F%d", i + 1);
 		g.chcolor();
 	    }
-	    return(invsq.sz().y);
+	    return(sqsz.y);
 	}
 	
 	public boolean click(Coord c, int button) {
@@ -842,14 +843,14 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	private Coord beltc(int i) {
 	    return(new Coord(/* ((sz.x - (invsq.sz().x * 12) - (2 * 11)) / 2) */
 			     135
-			     + ((invsq.sz().x + 2) * i)
+			     + ((sqsz.x + 2) * i)
 			     + (10 * (i / 5)),
-			     sz.y - 26 - invsq.sz().y - 2));
+			     sz.y - 26 - sqsz.y - 2));
 	}
     
 	private int beltslot(Coord c) {
 	    for(int i = 0; i < 10; i++) {
-		if(c.isect(beltc(i), invsq.sz()))
+		if(c.isect(beltc(i), sqsz))
 		    return(i + (curbelt * 12));
 	    }
 	    return(-1);
@@ -859,16 +860,16 @@ public class GameUI extends ConsoleHost implements DTarget, DropTarget, Console.
 	    for(int i = 0; i < 10; i++) {
 		int slot = i + (curbelt * 12);
 		Coord c = beltc(i);
-		g.image(invsq, beltc(i));
+		invsq(g, beltc(i));
 		try {
 		    if(belt[slot] != null)
 			g.image(belt[slot].get().layer(Resource.imgc).tex(), c.add(1, 1));
 		} catch(Loading e) {}
 		g.chcolor(156, 180, 158, 255);
-		FastText.aprintf(g, c.add(invsq.sz()), 1, 1, "%d", (i + 1) % 10);
+		FastText.aprintf(g, c.add(sqsz), 1, 1, "%d", (i + 1) % 10);
 		g.chcolor();
 	    }
-	    return(invsq.sz().y);
+	    return(sqsz.y);
 	}
 	
 	public boolean click(Coord c, int button) {
