@@ -47,6 +47,15 @@ public class PUtils {
 	return(Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, sz.x, sz.y, 4, null));
     }
 
+    public static WritableRaster copy(Raster src) {
+	int w = src.getWidth(), h = src.getHeight(), b = src.getNumBands();
+	WritableRaster ret = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, w, h, b, null);
+	int[] buf = new int[w * h];
+	for(int i = 0; i < b; i++)
+	    ret.setSamples(0, 0, w, h, i, src.getSamples(0, 0, w, h, i, buf));
+	return(ret);
+    }
+
     public static BufferedImage rasterimg(WritableRaster img) {
 	return(new BufferedImage(TexI.glcm, img, false, null));
     }
@@ -127,6 +136,39 @@ public class PUtils {
 	return(dst);
     }
 
+    public static WritableRaster blit(WritableRaster dst, Raster src, Coord off) {
+	int w = src.getWidth(), h = src.getHeight(), b = src.getNumBands();
+	for(int y = 0; y < h; y++) {
+	    int dy = y + off.y;
+	    for(int x = 0; x < w; x++) {
+		int dx = x + off.x;
+		for(int i = 0; i < b; i++)
+		    dst.setSample(dx, dy, i, src.getSample(x, y, i));
+	    }
+	}
+	return(dst);
+    }
+
+    public static WritableRaster gayblit(WritableRaster dst, int dband, Coord doff, Raster src, int sband, Coord soff) {
+	if(doff.x < 0) {
+	    soff = soff.add(-doff.x, 0);
+	    doff = doff.add(-doff.x, 0);
+	}
+	if(doff.y < 0) {
+	    soff = soff.add(0, -doff.x);
+	    doff = doff.add(0, -doff.x);
+	}
+	int w = Math.min(src.getWidth() - soff.x, dst.getWidth() - doff.x), h = Math.min(src.getHeight() - soff.y, dst.getHeight() - doff.y);
+	for(int y = 0; y < h; y++) {
+	    int sy = y + soff.y, dy = y + doff.y;
+	    for(int x = 0; x < w; x++) {
+		int sx = x + soff.x, dx = x + doff.x;
+		dst.setSample(dx, dy, dband, (dst.getSample(dx, dy, dband) * src.getSample(sx, sy, sband)) / 255);
+	    }
+	}
+	return(dst);
+    }
+
     public static WritableRaster alphablit(WritableRaster dst, Raster src, Coord off) {
 	int w = src.getWidth(), h = src.getHeight();
 	for(int y = 0; y < h; y++) {
@@ -140,6 +182,18 @@ public class PUtils {
 	    }
 	}
 	return(dst);
+    }
+
+    public static WritableRaster colmul(WritableRaster img, Color col) {
+	int w = img.getWidth(), h = img.getHeight();
+	int[] bm = {col.getRed(), col.getGreen(), col.getBlue(), col.getAlpha()};
+	for(int y = 0; y < h; y++) {
+	    for(int x = 0; x < w; x++) {
+		for(int b = 0; b < 4; b++)
+		    img.setSample(x, y, b, (img.getSample(x, y, b) * bm[b]) / 255);
+	    }
+	}
+	return(img);
     }
 
     public static WritableRaster copyband(WritableRaster dst, int dband, Coord doff, Raster src, int sband, Coord soff, Coord sz) {
@@ -191,7 +245,7 @@ public class PUtils {
 		dst.setSample(x, y, 0, (col.getRed()   * val) / 255);
 		dst.setSample(x, y, 1, (col.getGreen() * val) / 255);
 		dst.setSample(x, y, 2, (col.getBlue()  * val) / 255);
-		dst.setSample(x, y, 3, a);
+		dst.setSample(x, y, 3, (col.getAlpha() * a) / 255);
 	    }
 	}
 	return(ret);
