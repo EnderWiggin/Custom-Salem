@@ -195,14 +195,14 @@ public class CharWnd extends Window {
 	protected Skill listitem(int idx) {return(skills[idx]);}
 	protected int listitems() {return(skills.length);}
 
-	protected void drawitem(GOut g, Skill sk, Coord c) {
+	protected void drawitem(GOut g, Skill sk) {
 	    try {
-		g.image(sk.res.get().layer(Resource.imgc).tex(), c, new Coord(20, 20));
-		g.atext(sk.res.get().layer(Resource.action).name, c.add(25, 10), 0, 0.5);
+		g.image(sk.res.get().layer(Resource.imgc).tex(), Coord.z, new Coord(20, 20));
+		g.atext(sk.res.get().layer(Resource.action).name, new Coord(25, 10), 0, 0.5);
 	    } catch(Loading e) {
 		WItem.missing.loadwait();
-		g.image(WItem.missing.layer(Resource.imgc).tex(), c, new Coord(20, 20));
-		g.atext("...", c.add(25, 10), 0, 0.5);
+		g.image(WItem.missing.layer(Resource.imgc).tex(), Coord.z, new Coord(20, 20));
+		g.atext("...", new Coord(25, 10), 0, 0.5);
 	    }
 	}
 	
@@ -362,7 +362,7 @@ public class CharWnd extends Window {
 	    };
 	new Label(new Coord(250, 170), this, "Available:");
 	this.nsk = new SkillList(new Coord(250, 185), 170, 6, this) {
-		protected void drawitem(GOut g, Skill sk, Coord c) {
+		protected void drawitem(GOut g, Skill sk) {
 		    int astate = sk.afforded();
 		    if(astate == 3)
 			g.chcolor(255, 128, 128, 255);
@@ -370,7 +370,7 @@ public class CharWnd extends Window {
 			g.chcolor(255, 192, 128, 255);
 		    else if(astate == 1)
 			g.chcolor(255, 255, 128, 255);
-		    super.drawitem(g, sk, c);
+		    super.drawitem(g, sk);
 		    g.chcolor();
 		}
 		
