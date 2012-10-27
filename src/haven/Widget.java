@@ -44,7 +44,7 @@ public class Widget {
     public final Collection<Anim> anims = new LinkedList<Anim>();
     static Map<String, WidgetFactory> types = new TreeMap<String, WidgetFactory>();
     static Class<?>[] barda = {Img.class, TextEntry.class, MapView.class, FlowerMenu.class,
-			       Window.class, Button.class, Inventory.class, GItem.class, Listbox.class,
+			       Window.class, Button.class, Inventory.class, GItem.class,
 			       Makewindow.class, Chatwindow.class, Textlog.class, Equipory.class, IButton.class,
 			       Avaview.class, NpcChat.class, CharWnd.class,
 			       Label.class, Progress.class, VMeter.class, Partyview.class,
@@ -310,8 +310,8 @@ public class Widget {
     public void destroy() {
 	if(canfocus)
 	    setcanfocus(false);
-	parent.cdestroy(this);
 	unlink();
+	parent.cdestroy(this);
     }
     
     public void cdestroy(Widget w) {

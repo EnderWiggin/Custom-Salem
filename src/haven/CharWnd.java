@@ -159,10 +159,7 @@ public class CharWnd extends Window {
 	return(r);
     }
 
-    public static class SkillList extends Widget {
-	private int h;
-	private Scrollbar sb;
-	private int sel;
+    public static class SkillList extends Listbox<Skill> {
 	public Skill[] skills = new Skill[0];
 	private boolean loading = false;
 	private final Comparator<Skill> skcomp = new Comparator<Skill>() {
@@ -184,36 +181,21 @@ public class CharWnd extends Window {
 	    }
 	};
 	
-	public SkillList(Coord c, Coord sz, Widget parent) {
-	    super(c, sz, parent);
-	    h = sz.y / 20;
-	    sel = -1;
-	    sb = new Scrollbar(new Coord(sz.x, 0), sz.y, this, 0, 0);
+	public SkillList(Coord c, int w, int h, Widget parent) {
+	    super(c, parent, w, h, 20);
 	}
 	
-	public void draw(GOut g) {
+	public void tick(double dt) {
 	    if(loading) {
 		loading = false;
 		Arrays.sort(skills, skcomp);
 	    }
-	    g.chcolor(0, 0, 0, 255);
-	    g.frect(Coord.z, sz);
-	    g.chcolor();
-	    for(int i = 0; i < h; i++) {
-		if(i + sb.val >= skills.length)
-		    continue;
-		Skill sk = skills[i + sb.val];
-		if(i + sb.val == sel) {
-		    g.chcolor(255, 255, 0, 128);
-		    g.frect(new Coord(0, i * 20), new Coord(sz.x, 20));
-		    g.chcolor();
-		}
-		drawsk(g, sk, new Coord(0, i * 20));
-	    }
-	    super.draw(g);
 	}
-	
-	protected void drawsk(GOut g, Skill sk, Coord c) {
+
+	protected Skill listitem(int idx) {return(skills[idx]);}
+	protected int listitems() {return(skills.length);}
+
+	protected void drawitem(GOut g, Skill sk, Coord c) {
 	    try {
 		g.image(sk.res.get().layer(Resource.imgc).tex(), c, new Coord(20, 20));
 		g.atext(sk.res.get().layer(Resource.action).name, c.add(25, 10), 0, 0.5);
@@ -228,35 +210,13 @@ public class CharWnd extends Window {
 	    Skill[] skills = nsk.toArray(new Skill[0]);
 	    sb.val = 0;
 	    sb.max = skills.length - h;
-	    sel = -1;
+	    sel = null;
 	    this.skills = skills;
 	    loading = true;
 	}
 	
-	public boolean mousewheel(Coord c, int amount) {
-	    sb.ch(amount);
-	    return(true);
-	}
-	
-	public boolean mousedown(Coord c, int button) {
-	    if(super.mousedown(c, button))
-		return(true);
-	    if(button == 1) {
-		sel = (c.y / 20) + sb.val;
-		if(sel >= skills.length)
-		    sel = -1;
-		changed((sel < 0)?null:skills[sel]);
-		return(true);
-	    }
-	    return(false);
-	}
-	
-	protected void changed(Skill sk) {
-	}
-	
-	public void unsel() {
-	    sel = -1;
-	    changed(null);
+	public void change(Skill sk) {
+	    sel = sk;
 	}
     }
     
@@ -324,8 +284,8 @@ public class CharWnd extends Window {
 		    }
 		} catch(Loading e) {}
 	    }
-	    if(nsk.sel >= 0) {
-		Skill sk = nsk.skills[nsk.sel];
+	    if(nsk.sel != null) {
+		Skill sk = nsk.sel;
 		for(int i = 0; i < sk.costa.length; i++) {
 		    if(sk.costa[i].equals(nm)) {
 			int w = Math.min(((expsz.x - 2) * sk.costv[i]) / (attr.comp * 100),
@@ -390,16 +350,19 @@ public class CharWnd extends Window {
 	};
 	new Label(new Coord(250, 0), this, "Skills:");
 	new Label(new Coord(250, 30), this, "Current:");
-	this.csk = new SkillList(new Coord(250, 45), new Coord(170, 120), this) {
-		protected void changed(Skill sk) {
+	this.csk = new SkillList(new Coord(250, 45), 170, 6, this) {
+		public void change(Skill sk) {
+		    Skill p = sel;
+		    super.change(sk);
 		    if(sk != null)
-			nsk.unsel();
-		    ski.setsk(sk);
+			nsk.change(null);
+		    if((sk != null) || (p != null))
+			ski.setsk(sk);
 		}
 	    };
 	new Label(new Coord(250, 170), this, "Available:");
-	this.nsk = new SkillList(new Coord(250, 185), new Coord(170, 120), this) {
-		protected void drawsk(GOut g, Skill sk, Coord c) {
+	this.nsk = new SkillList(new Coord(250, 185), 170, 6, this) {
+		protected void drawitem(GOut g, Skill sk, Coord c) {
 		    int astate = sk.afforded();
 		    if(astate == 3)
 			g.chcolor(255, 128, 128, 255);
@@ -407,20 +370,23 @@ public class CharWnd extends Window {
 			g.chcolor(255, 192, 128, 255);
 		    else if(astate == 1)
 			g.chcolor(255, 255, 128, 255);
-		    super.drawsk(g, sk, c);
+		    super.drawitem(g, sk, c);
 		    g.chcolor();
 		}
 		
-		protected void changed(Skill sk) {
+		public void change(Skill sk) {
+		    Skill p = sel;
+		    super.change(sk);
 		    if(sk != null)
-			csk.unsel();
-		    ski.setsk(sk);
+			csk.change(null);
+		    if((sk != null) || (p != null))
+			ski.setsk(sk);
 		}
 	    };
 	new Button(new Coord(250, 310), 50, this, "Buy") {
 	    public void click() {
-		if(nsk.sel >= 0) {
-		    CharWnd.this.wdgmsg("buy", nsk.skills[nsk.sel].nm);
+		if(nsk.sel != null) {
+		    CharWnd.this.wdgmsg("buy", nsk.sel.nm);
 		}
 	    }
 	};
