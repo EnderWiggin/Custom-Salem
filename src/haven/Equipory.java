@@ -120,7 +120,6 @@ public class Equipory extends Widget implements DTarget {
 
 		protected java.awt.Color clearcolor() {return(null);}
 	    };
-	ava.color = null;
 	new Boxen();
     }
 	

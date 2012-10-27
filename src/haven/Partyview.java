@@ -36,7 +36,7 @@ public class Partyview extends Widget {
     Party party = ui.sess.glob.party;
     Map<Long, Member> om = null;
     Member ol = null;
-    Map<Member, Avaview> avs = new HashMap<Member, Avaview>();
+    Map<Member, FramedAva> avs = new HashMap<Member, FramedAva>();
     Button leave = null;
 	
     static {
@@ -59,9 +59,9 @@ public class Partyview extends Widget {
 	    for(final Member m : (om = party.memb).values()) {
 		if(m.gobid == ign)
 		    continue;
-		Avaview w = avs.get(m);
+		FramedAva w = avs.get(m);
 		if(w == null) {
-		    w = new Avaview(Coord.z, new Coord(27, 27), this, m.gobid, "avacam") {
+		    w = new FramedAva(Coord.z, new Coord(36, 36), this, m.gobid, "avacam") {
 			    private Tex tooltip = null;
 			    
 			    public Object tooltip(Coord c, Widget prev) {
@@ -83,9 +83,9 @@ public class Partyview extends Widget {
 		ui.destroy(avs.get(m));
 		avs.remove(m);
 	    }
-	    List<Map.Entry<Member, Avaview>> wl = new ArrayList<Map.Entry<Member, Avaview>>(avs.entrySet());
-	    Collections.sort(wl, new Comparator<Map.Entry<Member, Avaview>>() {
-		    public int compare(Entry<Member, Avaview> a, Entry<Member, Avaview> b) {
+	    List<Map.Entry<Member, FramedAva>> wl = new ArrayList<Map.Entry<Member, FramedAva>>(avs.entrySet());
+	    Collections.sort(wl, new Comparator<Map.Entry<Member, FramedAva>>() {
+		    public int compare(Entry<Member, FramedAva> a, Entry<Member, FramedAva> b) {
 			long aid = a.getKey().gobid, bid = b.getKey().gobid;
 			if(aid < bid)
 			    return(-1);
@@ -95,12 +95,12 @@ public class Partyview extends Widget {
 		    }
 		});
 	    int i = 0;
-	    for(Map.Entry<Member, Avaview> e : wl) {
-		e.getValue().c = new Coord((i % 2) * 43, (i / 2) * 43 + 24);
+	    for(Map.Entry<Member, FramedAva> e : wl) {
+		e.getValue().c = new Coord((i % 2) * 38, (i / 2) * 38);
 		i++;
 	    }
 	}
-	for(Map.Entry<Member, Avaview> e : avs.entrySet()) {
+	for(Map.Entry<Member, FramedAva> e : avs.entrySet()) {
 	    e.getValue().color = e.getKey().col;
 	}
 	if((avs.size() > 0) && (leave == null)) {

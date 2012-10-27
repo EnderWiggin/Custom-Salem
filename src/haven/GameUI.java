@@ -106,7 +106,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	setcanfocus(true);
 	setfocusctl(true);
 	menu = new MenuGrid(Coord.z, this);
-	new Avaview(new Coord(10, 10), Avaview.dasz, this, plid, "avacam") {
+	new FramedAva(new Coord(10, 10), Avaview.dasz, this, plid, "avacam") {
 	    public boolean mousedown(Coord c, int button) {
 		return(true);
 	    }
