@@ -36,7 +36,7 @@ public class Button extends SIWidget {
     static final BufferedImage br = Resource.loadimg("gfx/hud/buttons/tbtn/right");
     static final BufferedImage ut = Resource.loadimg("gfx/hud/buttons/tbtn/utex");
     static final Color defcol = new Color(248, 240, 193);
-    static final Text.Foundry tf = new Text.Foundry(new Font("Sans", Font.PLAIN, 12), defcol);
+    static final Text.Foundry tf = new Text.Foundry(new Font("Sans", Font.PLAIN, 11), defcol);
     public static final int h = ut.getHeight();
     public Text text;
     public BufferedImage cont;
