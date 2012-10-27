@@ -343,7 +343,7 @@ public class CharWnd extends Window {
 	}
 	y += 10;
 	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
-	new Button(new Coord(200, y), 40, this, "Reset") {
+	new Button(new Coord(190, y), 50, this, "Reset") {
 	    public void click() {
 		CharWnd.this.wdgmsg("lreset");
 	    }
@@ -360,8 +360,8 @@ public class CharWnd extends Window {
 			ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(250, 170), this, "Available:");
-	this.nsk = new SkillList(new Coord(250, 185), 170, 6, this) {
+	new Label(new Coord(250, 180), this, "Available:");
+	this.nsk = new SkillList(new Coord(250, 195), 170, 6, this) {
 		protected void drawitem(GOut g, Skill sk) {
 		    int astate = sk.afforded();
 		    if(astate == 3)
@@ -383,14 +383,14 @@ public class CharWnd extends Window {
 			ski.setsk(sk);
 		}
 	    };
-	new Button(new Coord(250, 310), 50, this, "Buy") {
+	new Button(new Coord(250, 340), 50, this, "Buy") {
 	    public void click() {
 		if(nsk.sel != null) {
 		    CharWnd.this.wdgmsg("buy", nsk.sel.nm);
 		}
 	    }
 	};
-	this.ski = new SkillInfo(new Coord(430, 30), new Coord(190, 275), this);
+	this.ski = new SkillInfo(new Coord(430, 45), new Coord(190, 278), this);
     }
     
     private void decsklist(Collection<Skill> buf, Object[] args, int a) {
