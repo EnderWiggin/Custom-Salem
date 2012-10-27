@@ -27,17 +27,20 @@
 package haven;
 
 import java.awt.Color;
+import static haven.Window.fbox;
 
 public abstract class Listbox<T> extends Widget {
     public final int h, itemh;
     public final Scrollbar sb;
+    public final Color sell = new Color(52, 35, 36);
+    public final Color selr = new Color(178, 93, 91);
     public T sel;
 
     public Listbox(Coord c, Widget parent, int w, int h, int itemh) {
-	super(c, new Coord(w, h * itemh), parent);
+	super(c, new Coord(w, h * itemh).add(fbox.bisz()), parent);
 	this.h = h;
 	this.itemh = itemh;
-	this.sb = new Scrollbar(new Coord(sz.x, 0), sz.y, this, 0, 0);
+	this.sb = new Scrollbar(new Coord(sz.x - fbox.br.sz().x, fbox.bt.sz().y), sz.y - fbox.bt.sz().y - fbox.bb.sz().y, this, 0, 0);
     }
 
     protected abstract T listitem(int i);
@@ -46,7 +49,10 @@ public abstract class Listbox<T> extends Widget {
 
     protected void drawsel(GOut g) {
 	g.chcolor(255, 255, 0, 128);
-	g.frect(Coord.z, g.sz);
+	g.poly2(Coord.z, sell,
+		new Coord(0, g.sz.y), sell,
+		g.sz, selr,
+		new Coord(g.sz.x, 0), selr);
 	g.chcolor();
     }
 
@@ -55,13 +61,15 @@ public abstract class Listbox<T> extends Widget {
 	g.chcolor(Color.BLACK);
 	g.frect(Coord.z, sz);
 	g.chcolor();
+	fbox.draw(g, Coord.z, sz);
+	Coord off = fbox.btloff();
 	int n = listitems();
 	for(int i = 0; i < h; i++) {
 	    int idx = i + sb.val;
 	    if(idx >= n)
 		break;
 	    T item = listitem(idx);
-	    GOut ig = g.reclip(new Coord(0, i * itemh), new Coord(sz.x, itemh));
+	    GOut ig = g.reclip(off.add(0, i * itemh), new Coord(sz.x, itemh).sub(fbox.bl.sz().x + fbox.br.sz().x + sb.sz.x, 0));
 	    if(item == sel)
 		drawsel(ig);
 	    drawitem(ig, item);
