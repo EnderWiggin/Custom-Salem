@@ -31,7 +31,7 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import static haven.Inventory.invsq;
-import static haven.Inventory.sqsz;
+import static haven.Inventory.isqsz;
 
 public class GameUI extends ConsoleHost implements Console.Directory {
     public final String chrid;
@@ -734,32 +734,32 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	public int curbelt = 0;
 
 	public FKeyBelt(Coord c, Widget parent) {
-	    super(c, new Coord(450, 34), parent);
+	    super(c, Inventory.invsz(new Coord(12, 1)), parent);
 	}
 
 	private Coord beltc(int i) {
-	    return(new Coord(((sqsz.x + 2) * i) + (10 * (i / 4)), 0));
+	    return(Inventory.sqoff(new Coord(i, 0)));
 	}
     
 	private int beltslot(Coord c) {
 	    for(int i = 0; i < 12; i++) {
-		if(c.isect(beltc(i), sqsz))
+		if(c.isect(beltc(i), isqsz))
 		    return(i + (curbelt * 12));
 	    }
 	    return(-1);
 	}
     
 	public void draw(GOut g) {
+	    invsq(g, Coord.z, new Coord(12, 1));
 	    for(int i = 0; i < 12; i++) {
 		int slot = i + (curbelt * 12);
 		Coord c = beltc(i);
-		invsq(g, beltc(i));
 		try {
 		    if(belt[slot] != null)
 			g.image(belt[slot].get().layer(Resource.imgc).tex(), c.add(1, 1));
 		} catch(Loading e) {}
 		g.chcolor(156, 180, 158, 255);
-		FastText.aprintf(g, c.add(sqsz), 1, 1, "F%d", i + 1);
+		FastText.aprintf(g, c.add(isqsz), 1, 1, "F%d", i + 1);
 		g.chcolor();
 	    }
 	}
@@ -824,32 +824,32 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	public int curbelt = 0;
 
 	public NKeyBelt(Coord c, Widget parent) {
-	    super(c, new Coord(368, 34), parent);
+	    super(c, Inventory.invsz(new Coord(10, 1)), parent);
 	}
 	
 	private Coord beltc(int i) {
-	    return(new Coord(((sqsz.x + 2) * i) + (10 * (i / 5)), 0));
+	    return(Inventory.sqoff(new Coord(i, 0)));
 	}
     
 	private int beltslot(Coord c) {
 	    for(int i = 0; i < 10; i++) {
-		if(c.isect(beltc(i), sqsz))
+		if(c.isect(beltc(i), isqsz))
 		    return(i + (curbelt * 12));
 	    }
 	    return(-1);
 	}
     
 	public void draw(GOut g) {
+	    invsq(g, Coord.z, new Coord(10, 1));
 	    for(int i = 0; i < 10; i++) {
 		int slot = i + (curbelt * 12);
 		Coord c = beltc(i);
-		invsq(g, beltc(i));
 		try {
 		    if(belt[slot] != null)
 			g.image(belt[slot].get().layer(Resource.imgc).tex(), c.add(1, 1));
 		} catch(Loading e) {}
 		g.chcolor(156, 180, 158, 255);
-		FastText.aprintf(g, c.add(sqsz), 1, 1, "%d", (i + 1) % 10);
+		FastText.aprintf(g, c.add(isqsz), 1, 1, "%d", (i + 1) % 10);
 		g.chcolor();
 	    }
 	}
