@@ -27,6 +27,7 @@
 package haven;
 
 import java.awt.Color;
+import static haven.Window.fbox;
 
 public class RichTextBox extends Widget {
     public Color bg = Color.BLACK;
@@ -38,7 +39,7 @@ public class RichTextBox extends Widget {
 	super(c, sz, parent);
 	this.fnd = fnd;
 	this.text = fnd.render(text, sz.x - 20);
-	this.sb = new Scrollbar(new Coord(sz.x, 0), sz.y, this, 0, this.text.sz().y + 20 - sz.y);
+	this.sb = new Scrollbar(new Coord(sz.x - fbox.br.sz().x, fbox.bt.sz().y), sz.y - fbox.bt.sz().y - fbox.bb.sz().y, this, 0, this.text.sz().y + 20 - sz.y);
     }
     
     public RichTextBox(Coord c, Coord sz, Widget parent, String text, Object... attrs) {
@@ -52,6 +53,7 @@ public class RichTextBox extends Widget {
 	    g.chcolor();
 	}
 	g.image(text.tex(), new Coord(10, 10 - sb.val));
+	fbox.draw(g, Coord.z, sz);
 	super.draw(g);
     }
     
