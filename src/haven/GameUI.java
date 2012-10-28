@@ -46,7 +46,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private Text lasterr;
     private long errtime;
     private Window invwnd, equwnd, makewnd;
-    private Widget mainmenu, menumenu, mapmenu;
+    private Widget mainmenu, menumenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
     public Polity polity;
@@ -106,12 +106,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	setcanfocus(true);
 	setfocusctl(true);
 	menu = new MenuGrid(Coord.z, this);
-	new FramedAva(new Coord(10, 10), Avaview.dasz, this, plid, "avacam") {
+	new FramedAva(new Coord(2, 2), Avaview.dasz, this, plid, "avacam") {
 	    public boolean mousedown(Coord c, int button) {
 		return(true);
 	    }
 	};
-	new Bufflist(new Coord(95, 50), this);
+	new Bufflist(new Coord(80, 2), this);
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
 	syslog = new ChatUI.Log(chat, "System");
@@ -185,43 +185,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    Coord cc = (Coord)cargs[0];
 	    map = new MapView(Coord.z, sz, this, cc, plid);
 	    map.lower();
-	    if(mmap != null) {
+	    if(mmap != null)
 		ui.destroy(mmap);
-		ui.destroy(mapmenu);
-	    }
-	    mmap = new LocalMiniMap(new Coord(0, sz.y - 125), new Coord(125, 125), this, map);
-	    mapmenu = new Widget(mmap.c.add(0, -18), new Coord(mmap.sz.x, 18), this);
-	    new MenuButton(new Coord(0, 0), mapmenu, "cla", -1, "Display personal claims") {
-		boolean v = false;
-		
-		public void click() {
-		    if(!v) {
-			map.enol(0, 1);
-			v = true;
-		    } else {
-			map.disol(0, 1);
-			v = false;
-		    }
-		}
-	    };
-	    new MenuButton(new Coord(18, 0), mapmenu, "tow", -1, "Display town claims") {
-		boolean v = false;
-		
-		public void click() {
-		    if(!v) {
-			map.enol(2, 3);
-			v = true;
-		    } else {
-			map.disol(2, 3);
-			v = false;
-		    }
-		}
-	    };
-	    new MenuButton(new Coord(36, 0), mapmenu, "chat", 3, "Chat (Ctrl+C)") {
-		public void click() {
-		    chat.toggle();
-		}
-	    };
+	    mmap = new LocalMiniMap(new Coord(6, 8), new Coord(146, 146), mainmenu, map);
+	    mmap.lower();
 	    return(map);
 	} else if(place == "fight") {
 	    fv = (Fightview)gettype(type).create(new Coord(sz.x - Fightview.width, 0), this, cargs);
@@ -278,7 +245,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	} else if(place == "chat") {
 	    return(chat.makechild(type, new Object[] {}, cargs));
 	} else if(place == "party") {
-	    return(gettype(type).create(new Coord(10, 95), this, cargs));
+	    return(gettype(type).create(new Coord(2, 80), this, cargs));
 	} else if(place == "misc") {
 	    return(gettype(type).create((Coord)pargs[1], this, cargs));
 	} else {
@@ -302,7 +269,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     Text progt = null;
     public void draw(GOut g) {
 	boolean beltp = !chat.expanded;
-	mainmenu.show(beltp);
 	beltwdg.show(beltp);
 	super.draw(g);
 	togglesdw(g.gc);
@@ -313,26 +279,25 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    g.aimage(progt.tex(), new Coord(sz.x / 2, (sz.y * 4) / 10), 0.5, 0.5);
 	}
 	int by = sz.y;
-	if(mainmenu.visible)
-	    by = Math.min(by, mainmenu.c.y);
 	if(chat.expanded)
 	    by = Math.min(by, chat.c.y);
 	if(beltwdg.visible)
 	    by = Math.min(by, beltwdg.c.y);
+	int bx = mainmenu.sz.x + 10;
 	if(cmdline != null) {
-	    drawcmd(g, new Coord(135, by -= 20));
+	    drawcmd(g, new Coord(bx, by -= 20));
 	} else if(lasterr != null) {
 	    if((System.currentTimeMillis() - errtime) > 3000) {
 		lasterr = null;
 	    } else {
 		g.chcolor(0, 0, 0, 192);
-		g.frect(new Coord(133, by - 22), lasterr.sz().add(4, 4));
+		g.frect(new Coord(bx - 2, by - 22), lasterr.sz().add(4, 4));
 		g.chcolor();
-		g.image(lasterr.tex(), new Coord(135, by -= 20));
+		g.image(lasterr.tex(), new Coord(bx, by -= 20));
 	    }
 	}
 	if(!chat.expanded) {
-	    chat.drawsmall(g, new Coord(135, by), 50);
+	    chat.drawsmall(g, new Coord(bx, by), 50);
 	}
     }
     
@@ -517,11 +482,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
 
+    private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     private boolean togglesdw = false;
     private void makemenu() {
-	mainmenu = new Widget(new Coord(135, sz.y - 26), new Coord(386, 26), this);
-	int x = 0;
-	new MenuButton(new Coord(x, 0), mainmenu, "inv", 9, "Inventory (Tab)") {
+	mainmenu = new Widget(new Coord(0, sz.y - menubg.sz().y), menubg.sz(), this);
+	new Img(Coord.z, menubg, mainmenu);
+	new MenuButton(new Coord(161, 8), mainmenu, "inv", 9, "Inventory (Tab)") {
 	    public void click() {
 		if((invwnd != null) && invwnd.show(!invwnd.visible)) {
 		    invwnd.raise();
@@ -529,8 +495,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }
 	};
-	x += 62;
-	new MenuButton(new Coord(x, 0), mainmenu, "equ", 5, "Equipment (Ctrl+E)") {
+	new MenuButton(new Coord(161, 66), mainmenu, "equ", 5, "Equipment (Ctrl+E)") {
 	    public void click() {
 		if((equwnd != null) && equwnd.show(!equwnd.visible)) {
 		    equwnd.raise();
@@ -538,8 +503,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }
 	};
-	x += 62;
-	new MenuButton(new Coord(x, 0), mainmenu, "chr", 20, "Studying (Ctrl+T)") {
+	new MenuButton(new Coord(161, 124), mainmenu, "chr", 20, "Studying (Ctrl+T)") {
 	    public void click() {
 		if((chrwdg != null) && chrwdg.show(!chrwdg.visible)) {
 		    chrwdg.raise();
@@ -548,8 +512,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }
 	};
-	x += 62;
-	new MenuButton(new Coord(x, 0), mainmenu, "bud", 2, "Buddy List (Ctrl+B)") {
+	new MenuButton(new Coord(219, 8), mainmenu, "bud", 2, "Buddy List (Ctrl+B)") {
 	    public void click() {
 		if((buddies != null) && buddies.show(!buddies.visible)) {
 		    buddies.raise();
@@ -558,8 +521,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }
 	};
-	x += 62;
-	new MenuButton(new Coord(x, 0), mainmenu, "pol", 16, "Town (Ctrl+P)") {
+	new MenuButton(new Coord(219, 66), mainmenu, "pol", 16, "Town (Ctrl+P)") {
 	    public void click() {
 		if((polity != null) && polity.show(!polity.visible)) {
 		    polity.raise();
@@ -568,10 +530,40 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }
 	};
-	x += 62;
-	new MenuButton(new Coord(x, 0), mainmenu, "opt", -1, "Options (Merely toggles shadows for now)") {
+	new MenuButton(new Coord(219, 124), mainmenu, "opt", -1, "Options (Merely toggles shadows for now)") {
 	    public void click() {
 		togglesdw = true;
+	    }
+	};
+	new MenuButton(new Coord(6, 160), mainmenu, "cla", -1, "Display personal claims") {
+	    boolean v = false;
+
+	    public void click() {
+		if(!v) {
+		    map.enol(0, 1);
+		    v = true;
+		} else {
+		    map.disol(0, 1);
+		    v = false;
+		}
+	    }
+	};
+	new MenuButton(new Coord(24, 160), mainmenu, "tow", -1, "Display town claims") {
+	    boolean v = false;
+
+	    public void click() {
+		if(!v) {
+		    map.enol(2, 3);
+		    v = true;
+		} else {
+		    map.disol(2, 3);
+		    v = false;
+		}
+	    }
+	};
+	new MenuButton(new Coord(42, 160), mainmenu, "chat", 3, "Chat (Ctrl+C)") {
+	    public void click() {
+		chat.toggle();
 	    }
 	};
 	menumenu = new Widget(Coord.z, new Coord(132, 66), this) {
@@ -694,20 +686,16 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	menu.c = sz.sub(menu.sz);
 	menumenu.c = menu.c.add(menu.sz.x, 0).sub(menumenu.sz);
 	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
-	chat.resize(sz.x - 125 - menu.sz.x);
-	chat.move(new Coord(125, sz.y));
+	chat.move(new Coord(mainmenu.sz.x, sz.y));
+	chat.resize(sz.x - chat.c.x - menu.sz.x);
 	if(gobble != null)
 	    gobble.c = new Coord((sz.x - gobble.sz.x) / 2, 0);
 	if(map != null)
 	    map.resize(sz);
-	if(mmap != null)
-	    mmap.c = new Coord(0, sz.y - mmap.sz.y);
-	if(mapmenu != null)
-	    mapmenu.c = mmap.c.add(0, -18);
 	if(fv != null)
 	    fv.c = new Coord(sz.x - Fightview.width, 0);
-	mainmenu.c = new Coord(135, sz.y - 26);
-	beltwdg.c = mainmenu.c.sub(0, beltwdg.sz.y + 5);
+	mainmenu.c = new Coord(0, sz.y - mainmenu.sz.y);
+	beltwdg.c = new Coord(mainmenu.sz.x + 10, sz.y - beltwdg.sz.y);
 	super.resize(sz);
     }
     
