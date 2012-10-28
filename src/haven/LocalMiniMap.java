@@ -132,9 +132,7 @@ public class LocalMiniMap extends Widget {
 		cur = f.get();
 	}
 	if(cur != null) {
-	    GOut g2 = g.reclip(Window.swbox.tloff(), sz.sub(Window.swbox.bisz()));
-	    g2.image(cur.img, cur.ul.sub(plt).add(sz.div(2)));
-	    Window.swbox.draw(g, Coord.z, sz);
+	    g.image(cur.img, cur.ul.sub(plt).add(sz.div(2)));
 	    try {
 		synchronized(ui.sess.glob.party.memb) {
 		    for(Party.Member m : ui.sess.glob.party.memb.values()) {
@@ -147,9 +145,9 @@ public class LocalMiniMap extends Widget {
 			if(ptc == null)
 			    continue;
 			ptc = ptc.div(tilesz).sub(plt).add(sz.div(2));
-			g2.chcolor(m.col.getRed(), m.col.getGreen(), m.col.getBlue(), 128);
-			g2.image(MiniMap.plx.layer(Resource.imgc).tex(), ptc.add(MiniMap.plx.layer(Resource.negc).cc.inv()));
-			g2.chcolor();
+			g.chcolor(m.col.getRed(), m.col.getGreen(), m.col.getBlue(), 128);
+			g.image(MiniMap.plx.layer(Resource.imgc).tex(), ptc.add(MiniMap.plx.layer(Resource.negc).cc.inv()));
+			g.chcolor();
 		    }
 		}
 	    } catch(Loading l) {}
