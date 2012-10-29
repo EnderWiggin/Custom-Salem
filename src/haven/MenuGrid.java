@@ -168,7 +168,7 @@ public class MenuGrid extends Widget {
 		    }
 		    if(btn == pressed) {
 			g.chcolor(new Color(0, 0, 0, 128));
-			g.frect(p.add(1, 1), btex.sz());
+			g.frect(p, btex.sz());
 			g.chcolor();
 		    }
 		}
