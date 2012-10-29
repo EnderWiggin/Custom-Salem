@@ -36,10 +36,18 @@ public class Window extends Widget implements DTarget {
     private static final Tex tleft = Resource.loadtex("gfx/hud/wnd/tleft");
     private static final Tex tmain = Resource.loadtex("gfx/hud/wnd/tmain");
     private static final Tex tright = Resource.loadtex("gfx/hud/wnd/tright");
-    private static final BufferedImage[] cbtni = new BufferedImage[] {
+    public static final BufferedImage[] cbtni = new BufferedImage[] {
 	Resource.loadimg("gfx/hud/wnd/cbtn"),
 	Resource.loadimg("gfx/hud/wnd/cbtnd"),
 	Resource.loadimg("gfx/hud/wnd/cbtnh")};
+    public static final BufferedImage[] lbtni = new BufferedImage[] {
+	Resource.loadimg("gfx/hud/wnd/lbtn"),
+	Resource.loadimg("gfx/hud/wnd/lbtnd"),
+	Resource.loadimg("gfx/hud/wnd/lbtnh")};
+    public static final BufferedImage[] rbtni = new BufferedImage[] {
+	Resource.loadimg("gfx/hud/wnd/rbtn"),
+	Resource.loadimg("gfx/hud/wnd/rbtnd"),
+	Resource.loadimg("gfx/hud/wnd/rbtnh")};
     public static final Color cc = new Color(248, 230, 190);
     public static final Text.Furnace cf = new Text.Imager(new Text.Foundry(new Font("Serif", Font.BOLD, 15), cc).aa(true)) {
 	    protected BufferedImage proc(Text text) {
