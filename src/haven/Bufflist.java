@@ -29,11 +29,11 @@ package haven;
 import java.awt.Color;
 
 public class Bufflist extends Widget {
-    static Tex frame = Resource.loadtex("gfx/hud/buffs/frame");
-    static Tex cframe = Resource.loadtex("gfx/hud/buffs/cframe");
-    static final Coord imgoff = new Coord(3, 3);
-    static final Coord ameteroff = new Coord(3, 36);
-    static final Coord ametersz = new Coord(30, 2);
+    static final Tex frame = Resource.loadtex("gfx/hud/buffs/frame");
+    static final Tex cframe = Resource.loadtex("gfx/hud/buffs/cframe");
+    static final Tex ameter = Resource.loadtex("gfx/hud/buffs/cbar");
+    static final Coord imgoff = new Coord(6, 6);
+    static final Coord ameteroff = new Coord(4, 52);
     static final int margin = 2;
     static final int num = 5;
     
@@ -60,11 +60,7 @@ public class Bufflist extends Widget {
 		Coord bc = new Coord(i * w, 0);
 		if(b.ameter >= 0) {
 		    g.image(cframe, bc);
-		    g.chcolor(Color.BLACK);
-		    g.frect(bc.add(ameteroff), ametersz);
-		    g.chcolor(Color.WHITE);
-		    g.frect(bc.add(ameteroff), new Coord((b.ameter * ametersz.x) / 100, ametersz.y));
-		    g.chcolor();
+		    g.image(ameter, bc.add(ameteroff), bc.add(ameteroff), new Coord((b.ameter * ameter.sz().x) / 100, ameter.sz().y));
 		} else {
 		    g.image(frame, bc);
 		}
