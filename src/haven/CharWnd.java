@@ -33,6 +33,7 @@ public class CharWnd extends Window {
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
+    public final Widget attrwdgs;
     public int cmod;
     private final SkillInfo ski;
     private final Label cmodl;
@@ -221,7 +222,7 @@ public class CharWnd extends Window {
     }
     
     public class Attr extends Widget {
-	private final Coord
+	public final Coord
 	    imgc = new Coord(0, 1),
 	    nmc = new Coord(17, 1),
 	    vc = new Coord(137, 1),
@@ -247,23 +248,16 @@ public class CharWnd extends Window {
 	    this.rnm = Text.render(attrnm.get(attr));
 	}
 	
-	public void draw(GOut g) {
-	    g.image(res.layer(Resource.imgc).tex(), imgc);
-	    g.image(rnm.tex(), nmc);
-	    if(attr.comp != cv)
-		rv = null;
-	    if(rv == null)
-		rv = Text.render(String.format("%d", cv = attr.comp));
-	    g.image(rv.tex(), vc);
+	public void drawmeter(GOut g, Coord c, Coord sz) {
 	    g.chcolor(0, 0, 0, 255);
-	    g.frect(expc, expsz);
+	    g.frect(c, sz);
 	    g.chcolor(64, 64, 64, 255);
-	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * sexp) / (attr.comp * 100), expsz.y - 2));
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
 	    if(av)
 		g.chcolor(0, (a == 1)?255:128, 0, 255);
 	    else
 		g.chcolor(0, 0, 128, 255);
-	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		try {
 		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
@@ -271,13 +265,13 @@ public class CharWnd extends Window {
 		    if(insp != null) {
 			for(int i = 0; i < insp.attrs.length; i++) {
 			    if(insp.attrs[i].equals(nm)) {
-				int w = Math.min(((expsz.x - 2) * insp.exp[i]) / (attr.comp * 100),
-						 expsz.x - 2);
+				int w = Math.min(((sz.x - 2) * insp.exp[i]) / (attr.comp * 100),
+						 sz.x - 2);
 				if(insp.exp[i] > (attr.comp * 100))
 				    g.chcolor(255, 255, 0, 255);
 				else
 				    g.chcolor(255, 192, 0, 255);
-				g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
+				g.frect(c.add(1, 1), new Coord(w, (sz.y / 2)));
 				break;
 			    }
 			}
@@ -288,13 +282,13 @@ public class CharWnd extends Window {
 		Skill sk = nsk.sel;
 		for(int i = 0; i < sk.costa.length; i++) {
 		    if(sk.costa[i].equals(nm)) {
-			int w = Math.min(((expsz.x - 2) * sk.costv[i]) / (attr.comp * 100),
-					 expsz.x - 2);
+			int w = Math.min(((sz.x - 2) * sk.costv[i]) / (attr.comp * 100),
+					 sz.x - 2);
 			if(sk.costv[i] > (attr.comp * 100))
 			    g.chcolor(255, 0, 0, 255);
 			else
 			    g.chcolor(128, 0, 0, 255);
-			g.frect(expc.add(1, expsz.y / 2), new Coord(w, (expsz.y / 2)));
+			g.frect(c.add(1, sz.y / 2), new Coord(w, (sz.y / 2)));
 			break;
 		    }
 		}
@@ -302,7 +296,18 @@ public class CharWnd extends Window {
 	    g.chcolor();
 	    if(rexp == null)
 		rexp = Text.render(String.format("%d/%d", sexp, attr.comp * 100));
-	    g.aimage(rexp.tex(), expc.add(expsz.x / 2, 1), 0.5, 0);
+	    g.aimage(rexp.tex(), c.add(sz.x / 2, 1), 0.5, 0);
+	}
+
+	public void draw(GOut g) {
+	    g.image(res.layer(Resource.imgc).tex(), imgc);
+	    g.image(rnm.tex(), nmc);
+	    if(attr.comp != cv)
+		rv = null;
+	    if(rv == null)
+		rv = Text.render(String.format("%d", cv = attr.comp));
+	    g.image(rv.tex(), vc);
+	    drawmeter(g, expc, expsz);
 	}
 	
 	private int a = 0;
@@ -336,12 +341,14 @@ public class CharWnd extends Window {
     public CharWnd(Coord c, Widget parent) {
 	super(c, new Coord(620, 360), parent, "Character");
 	new Label(new Coord(0, 0), this, "Proficiencies:");
-	int y = 30;
+	attrwdgs = new Widget(new Coord(0, 30), Coord.z, this);
+	int y = 0;
 	for(String nm : attrorder) {
-	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
+	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), attrwdgs));
 	    y += 20;
 	}
-	y += 10;
+	attrwdgs.pack();
+	y += attrwdgs.c.y + attrwdgs.c.y + 15;
 	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
 	new Button(new Coord(190, y), 50, this, "Reset") {
 	    public void click() {

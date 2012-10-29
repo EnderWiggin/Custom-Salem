@@ -241,6 +241,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	} else if(place == "chr") {
 	    chrwdg = (CharWnd)gettype(type).create(new Coord(100, 50), this, cargs);
 	    chrwdg.hide();
+	    fixattrview(chrwdg);
 	    return(chrwdg);
 	} else if(place == "chat") {
 	    return(chat.makechild(type, new Object[] {}, cargs));
@@ -261,6 +262,82 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    polity = null;
 	} else if(w == chrwdg) {
 	    chrwdg = null;
+	    attrview.destroy();
+	}
+    }
+
+    private Widget attrview;
+    private void fixattrview(final CharWnd cw) {
+	final IBox box = new IBox(Window.fbox.ctl, Tex.empty, Window.fbox.cbl, Tex.empty,
+				  Window.fbox.bl, Tex.empty, Window.fbox.bt, Window.fbox.bb);
+	CharWnd.Attr a = (CharWnd.Attr)cw.attrwdgs.child;
+	attrview = new Widget(Coord.z, new Coord(a.expsz.x, cw.attrwdgs.sz.y).add(10, 10).add(box.bisz()), this) {
+		boolean act = false;
+
+		{
+		    Widget cbtn = new IButton(Coord.z, this, Window.cbtni[0], Window.cbtni[1], Window.cbtni[2]) {
+			public void click() {
+			    act(false);
+			}
+		    };
+		    cbtn.c = new Coord(sz.x - cbtn.sz.x, box.bt.sz().y);
+		    int y = cbtn.c.y + cbtn.sz.y;
+		    Coord ctl = box.btloff().add(5, 5);
+		    for(CharWnd.Attr a = (CharWnd.Attr)cw.attrwdgs.child; a != null; a = (CharWnd.Attr)a.next) {
+			final CharWnd.Attr ca = a;
+			new Widget(ctl.add(0, y), a.expsz, this) {
+			    public void draw(GOut g) {
+				ca.drawmeter(g, Coord.z, sz);
+			    }
+			};
+			y += 20;
+		    }
+		}
+		
+		public void draw(GOut g) {
+		    if((fv != null) && !fv.lsrel.isEmpty())
+			return;
+		    g.chcolor(0, 0, 0, 128);
+		    g.frect(box.btloff(), sz.sub(box.bisz()));
+		    g.chcolor();
+		    super.draw(g);
+		    box.draw(g, Coord.z, sz);
+		}
+
+		public void presize() {
+		    attrview.c = new Coord(GameUI.this.sz.x - sz.x, (menu.c.y - sz.y) / 2);
+		}
+
+		public boolean show(boolean show) {
+		    return(super.show(show && act));
+		}
+
+		private void act(boolean act) {
+		    this.act = act;
+		    show(act);
+		}
+
+		{
+		    cw.addtwdg(new IButton(Coord.z, cw, Window.rbtni[0], Window.rbtni[1], Window.rbtni[2]) {
+			    public void click() {
+				act(true);
+				cw.hide();
+			    }
+			});
+		}
+	    };
+	attrview.presize();
+	attrview.hide();
+    }
+
+    private void togglecw() {
+	if(chrwdg != null) {
+	    if(chrwdg.show(!chrwdg.visible)) {
+		chrwdg.raise();
+		fitwdg(chrwdg);
+		setfocus(chrwdg);
+	    }
+	    attrview.show(!chrwdg.visible);
 	}
     }
     
@@ -505,11 +582,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	};
 	new MenuButton(new Coord(161, 124), mainmenu, "chr", 20, "Studying (Ctrl+T)") {
 	    public void click() {
-		if((chrwdg != null) && chrwdg.show(!chrwdg.visible)) {
-		    chrwdg.raise();
-		    fitwdg(chrwdg);
-		    setfocus(chrwdg);
-		}
+		togglecw();
 	    }
 	};
 	new MenuButton(new Coord(219, 8), mainmenu, "bud", 2, "Buddy List (Ctrl+B)") {
