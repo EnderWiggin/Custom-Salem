@@ -60,7 +60,7 @@ public class Window extends Widget implements DTarget {
     private static final IBox topless = new IBox(Tex.empty, Tex.empty, wbox.cbl, wbox.cbr, wbox.bl, wbox.br, Tex.empty, wbox.bb);
     private static final int th = tleft.sz().y, tdh = th - tmain.sz().y, tc = tdh + 18;
     private static final Coord capc = new Coord(20, th - 3);
-    public Coord mrgn = new Coord(20, 20);
+    public Coord mrgn = new Coord(10, 10);
     private final Text cap;
     private boolean dt = false;
     private boolean dm = false;
