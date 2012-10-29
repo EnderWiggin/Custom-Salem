@@ -29,6 +29,7 @@ package haven;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.*;
+import java.util.*;
 import static haven.PUtils.*;
 
 public class Window extends Widget implements DTarget {
@@ -57,7 +58,8 @@ public class Window extends Widget implements DTarget {
     private boolean dm = false;
     public Coord ctl, csz, atl, asz;
     private Coord doff;
-    private IButton cbtn;
+    private final IButton cbtn;
+    private final Collection<Widget> twdgs = new LinkedList<Widget>();
 
     static {
 	Widget.addtype("wnd", new WidgetFactory() {
@@ -72,7 +74,6 @@ public class Window extends Widget implements DTarget {
 
     public Window(Coord c, Coord sz, Widget parent, String cap) {
 	super(c, new Coord(0, 0), parent);
-	cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
 	if(cap != null)
 	    this.cap = cf.render(cap);
 	else
@@ -80,12 +81,14 @@ public class Window extends Widget implements DTarget {
 	resize(sz);
 	setfocustab(true);
 	parent.setfocus(this);
+	cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
+	addtwdg(cbtn);
     }
 
     public Coord contentsz() {
 	Coord max = new Coord(0, 0);
 	for(Widget wdg = child; wdg != null; wdg = wdg.next) {
-	    if(wdg == cbtn)
+	    if(twdgs.contains(wdg))
 		continue;
 	    Coord br = wdg.c.add(wdg.sz);
 	    if(br.x > max.x)
@@ -96,9 +99,15 @@ public class Window extends Widget implements DTarget {
 	return(max.sub(1, 1));
     }
 
-    private void placecbtn() {
-	Coord sz = Utils.imgsz(cbtni[0]);
-	cbtn.c = xlate(new Coord(this.sz.x - 10 - sz.x, tc - (sz.y / 2)), false);
+    private void placetwdgs() {
+	int x = sz.x - 5;
+	for(Widget ch : twdgs)
+	    ch.c = xlate(new Coord(x -= ch.sz.x + 5, tc - (ch.sz.y / 2)), false);
+    }
+
+    public void addtwdg(Widget wdg) {
+	twdgs.add(wdg);
+	placetwdgs();
     }
 
     public void resize(Coord sz) {
@@ -108,7 +117,7 @@ public class Window extends Widget implements DTarget {
 	csz = sz.sub(topless.bisz()).sub(0, th);
 	atl = ctl.add(mrgn);
 	asz = csz.sub(mrgn.mul(2));
-	placecbtn();
+	placetwdgs();
 	for(Widget ch = child; ch != null; ch = ch.next)
 	    ch.presize();
     }
