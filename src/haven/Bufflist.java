@@ -34,6 +34,7 @@ public class Bufflist extends Widget {
     static final Tex ameter = Resource.loadtex("gfx/hud/buffs/cbar");
     static final Coord imgoff = new Coord(6, 6);
     static final Coord ameteroff = new Coord(4, 52);
+    static final Coord cmeteroff = new Coord(20, 20), cmeterul = new Coord(-20, -20), cmeterbr = new Coord(20, 20);
     static final int margin = 2;
     static final int num = 5;
     
@@ -78,8 +79,9 @@ public class Bufflist extends Widget {
 			    double pt = ((double)(now - b.gettime)) / 1000.0;
 			    m *= (ot - pt) / ot;
 			}
-			g.chcolor(0, 0, 0, 128);
-			g.fellipse(bc.add(imgoff).add(img.sz().div(2)), img.sz().div(2), 90, (int)(90 + (360 * m)));
+			m = Utils.clip(m, 0.0, 1.0);
+			g.chcolor(255, 255, 255, 128);
+			g.prect(bc.add(imgoff).add(cmeteroff), cmeterul, cmeterbr, Math.PI * 2 * m);
 			g.chcolor();
 		    }
 		} catch(Loading e) {}

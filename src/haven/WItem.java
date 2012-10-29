@@ -198,7 +198,8 @@ public class WItem extends Widget implements DTarget {
 	    if(item.meter > 0) {
 		double a = ((double)item.meter) / 100.0;
 		g.chcolor(255, 255, 255, 64);
-		g.fellipse(sz.div(2), new Coord(15, 15), 90, (int)(90 + (360 * a)));
+		Coord half = Inventory.isqsz.div(2);
+		g.prect(half, half.inv(), half, a * Math.PI * 2);
 		g.chcolor();
 	    }
 	    if(olcol.get() != null) {
