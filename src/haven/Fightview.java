@@ -32,7 +32,7 @@ public class Fightview extends Widget {
     static Tex bg = Resource.loadtex("gfx/hud/bosq");
     static int height = 5;
     static int ymarg = 5;
-    static int width = 165;
+    static int width = bg.sz().x + 20;
     static Coord avasz = new Coord(36, 36);
     static Coord cavac = new Coord(width - Avaview.dasz.x - 10, 10);
     static Coord cgivec = new Coord(cavac.x - 35, cavac.y);
