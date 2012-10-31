@@ -37,7 +37,7 @@ public class Tempers extends SIWidget {
     public static final BufferedImage rcap = Resource.loadimg("gfx/hud/tempers/rcap");
     static final Color softc = new Color(64, 64, 64);
     static final Color foodc = new Color(128, 128, 0);
-    static final Coord[] mc = {new Coord(295, 11), new Coord(295, 35), new Coord(235, 35), new Coord(235, 11)};
+    static final Coord[] mc = {new Coord(295, 11), new Coord(235, 11), new Coord(235, 35), new Coord(295, 35)};
     static final Coord boxc = new Coord(96, 0), boxsz = new Coord(339, 62);
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
@@ -134,20 +134,20 @@ public class Tempers extends SIWidget {
 
 	if(lfood != null) {
 	    alphablit(dst, rfmeter(lfood, 0), mc[0]);
-	    alphablit(dst, rfmeter(lfood, 1), mc[1]);
+	    alphablit(dst, lfmeter(lfood, 1), mc[1].sub(bars[1].getWidth() - 1, 0));
 	    alphablit(dst, lfmeter(lfood, 2), mc[2].sub(bars[2].getWidth() - 1, 0));
-	    alphablit(dst, lfmeter(lfood, 3), mc[3].sub(bars[3].getWidth() - 1, 0));
+	    alphablit(dst, rfmeter(lfood, 3), mc[3]);
 	} else {
 	    if(soft[0] > hard[0]) alphablit(dst, rmeter(sbars[0].getRaster(), soft[0], lmax[0]), mc[0]);
-	    if(soft[1] > hard[1]) alphablit(dst, rmeter(sbars[1].getRaster(), soft[1], lmax[1]), mc[1]);
+	    if(soft[1] > hard[1]) alphablit(dst, lmeter(sbars[1].getRaster(), soft[1], lmax[1]), mc[1].sub(bars[1].getWidth() - 1, 0));
 	    if(soft[2] > hard[2]) alphablit(dst, lmeter(sbars[2].getRaster(), soft[2], lmax[2]), mc[2].sub(bars[2].getWidth() - 1, 0));
-	    if(soft[3] > hard[3]) alphablit(dst, lmeter(sbars[3].getRaster(), soft[3], lmax[3]), mc[3].sub(bars[3].getWidth() - 1, 0));
+	    if(soft[3] > hard[3]) alphablit(dst, rmeter(sbars[3].getRaster(), soft[3], lmax[3]), mc[3]);
 	}
 
 	alphablit(dst, rmeter(bars[0].getRaster(), hard[0], lmax[0]), mc[0]);
-	alphablit(dst, rmeter(bars[1].getRaster(), hard[1], lmax[1]), mc[1]);
+	alphablit(dst, lmeter(bars[1].getRaster(), hard[1], lmax[1]), mc[1].sub(bars[1].getWidth() - 1, 0));
 	alphablit(dst, lmeter(bars[2].getRaster(), hard[2], lmax[2]), mc[2].sub(bars[2].getWidth() - 1, 0));
-	alphablit(dst, lmeter(bars[3].getRaster(), hard[3], lmax[3]), mc[3].sub(bars[3].getWidth() - 1, 0));
+	alphablit(dst, rmeter(bars[3].getRaster(), hard[3], lmax[3]), mc[3]);
     }
     
     public void upds(int[] n) {
