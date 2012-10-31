@@ -96,10 +96,6 @@ public class Window extends Widget implements DTarget {
 	return(max.sub(1, 1));
     }
 
-    public void pack() {
-	resize(contentsz());
-    }
-
     private void placecbtn() {
 	Coord sz = Utils.imgsz(cbtni[0]);
 	cbtn.c = xlate(new Coord(this.sz.x - 10 - sz.x, tc - (sz.y / 2)), false);
