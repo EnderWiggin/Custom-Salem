@@ -110,6 +110,7 @@ public class GOut {
 	image(img.tex(), c.add(img.o));
     }
 
+    /* Draw texture at c, quite simply. */
     public void image(Tex tex, Coord c) {
 	if(tex == null)
 	    return;
@@ -118,12 +119,17 @@ public class GOut {
 	tex.crender(this, c.add(tx), ul, sz);
 	checkerr();
     }
-	
+
+    public void image(Indir<Tex> tex, Coord c) {
+	image(tex.get(), c);
+    }
+
     public void aimage(Tex tex, Coord c, double ax, double ay) {
 	Coord sz = tex.sz();
 	image(tex, c.add((int)((double)sz.x * -ax), (int)((double)sz.y * -ay)));
     }
-	
+
+    /* Draw texture at c, scaling it to sz. */
     public void image(Tex tex, Coord c, Coord sz) {
 	if(tex == null)
 	    return;
@@ -132,7 +138,8 @@ public class GOut {
 	tex.crender(this, c.add(tx), ul, this.sz, sz);
 	checkerr();
     }
-	
+
+    /* Draw texture at c, clipping everything outside ul to ul + sz. */
     public void image(Tex tex, Coord c, Coord ul, Coord sz) {
 	if(tex == null)
 	    return;
@@ -151,9 +158,13 @@ public class GOut {
 	tex.crender(this, c.add(this.tx), ul, br.sub(ul));
 	checkerr();
     }
-	
+
     private void vertex(Coord c) {
 	gl.glVertex2i(c.x + tx.x, c.y + tx.y);
+    }
+
+    private void vertex(float x, float y) {
+	gl.glVertex2f(x + tx.x, y + tx.y);
     }
 	
     public void apply() {
@@ -270,7 +281,7 @@ public class GOut {
     public void fellipse(Coord c, Coord r) {
 	fellipse(c, r, 0, 360);
     }
-	
+
     public void rect(Coord ul, Coord sz) {
 	Coord ur, bl, br;
 	ur = new Coord(ul.x + sz.x - 1, ul.y);
@@ -281,7 +292,59 @@ public class GOut {
 	line(br, bl, 1);
 	line(bl, ul, 1);
     }
-	
+
+    public void prect(Coord c, Coord ul, Coord br, double a) {
+	st.set(def2d);
+	state(color);
+	apply();
+	gl.glEnable(GL.GL_POLYGON_SMOOTH);
+	gl.glBegin(GL.GL_TRIANGLE_FAN);
+	vertex(c);
+	vertex(c.add(0, ul.y));
+	double p2 = Math.PI / 2;
+	all: {
+	    float tc;
+
+	    tc = (float)(Math.tan(a) * -ul.y);
+	    if((a > p2) || (tc > br.x)) {
+		vertex(c.x + br.x, c.y + ul.y);
+	    } else {
+		vertex(c.x + tc, c.y + ul.y);
+		break all;
+	    }
+
+	    tc = (float)(Math.tan(a - (Math.PI / 2)) * br.x);
+	    if((a > p2 * 2) || (tc > br.y)) {
+		vertex(c.x + br.x, c.y + br.y);
+	    } else {
+		vertex(c.x + br.x, c.y + tc);
+		break all;
+	    }
+
+	    tc = (float)(-Math.tan(a - Math.PI) * br.y);
+	    if((a > p2 * 3) || (tc < ul.x)) {
+		vertex(c.x + ul.x, c.y + br.y);
+	    } else {
+		vertex(c.x + tc, c.y + br.y);
+		break all;
+	    }
+
+	    tc = (float)(-Math.tan(a - (3 * Math.PI / 2)) * -ul.x);
+	    if((a > p2 * 4) || (tc < ul.y)) {
+		vertex(c.x + ul.x, c.y + ul.y);
+	    } else {
+		vertex(c.x + ul.x, c.y + tc);
+		break all;
+	    }
+
+	    tc = (float)(Math.tan(a) * -ul.y);
+	    vertex(c.x + tc, c.y + ul.y);
+	}
+	gl.glEnd();
+	gl.glDisable(GL.GL_POLYGON_SMOOTH);
+	checkerr();
+    }
+
     public void chcolor(Color c) {
 	if(c.equals(this.color.c))
 	    return;
