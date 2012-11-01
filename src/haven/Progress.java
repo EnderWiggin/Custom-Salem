@@ -26,29 +26,43 @@
 
 package haven;
 
-public class Progress extends Widget {
-    Text text;
-	
-    static {
-	Widget.addtype("prog", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Progress(c, parent, (Integer)args[0]));
-		}
-	    });
+import java.awt.image.*;
+import static haven.PUtils.*;
+
+public class Progress extends SIWidget {
+    public static final BufferedImage bg = Resource.loadimg("gfx/hud/prog/bg");
+    public static final BufferedImage fg = Resource.loadimg("gfx/hud/prog/fg");
+    public static final BufferedImage cap = Resource.loadimg("gfx/hud/prog/cap");
+    public static final Coord fgc = new Coord(2, 2);
+    public int prog;
+
+    public Progress(Coord c, Widget parent) {
+	super(c, imgsz(bg), parent);
     }
-	
-    public Progress(Coord c, Widget parent, int p) {
-	super(c, new Coord(75, 20), parent);
-	text = Text.renderf(FlowerMenu.pink, "%d%%", p);
+
+    public void draw(BufferedImage buf) {
+	WritableRaster dst = buf.getRaster();
+	blit(dst, bg.getRaster(), Coord.z);
+
+	int w = (prog * fg.getWidth()) / 100;
+	WritableRaster bar = copy(fg.getRaster());
+	gayblit(bar, 3, new Coord(w - cap.getWidth(), 0), cap.getRaster(), 0, Coord.z);
+	for(int y = 0; y < bar.getHeight(); y++) {
+	    for(int x = w; x < bar.getWidth(); x++)
+		bar.setSample(x, y, 3, 0);
+	}
+
+	alphablit(dst, bar, fgc);
     }
-	
-    public void draw(GOut g) {
-	g.image(text.tex(), new Coord(sz.x / 2 - text.tex().sz().x / 2, 0));
+
+    public void ch(int prog) {
+	this.prog = prog;
+	redraw();
     }
-	
+
     public void uimsg(String msg, Object... args) {
 	if(msg == "p") {
-	    text = Text.renderf(FlowerMenu.pink, "%d%%", (Integer)args[0]);
+	    ch((Integer)args[0]);
 	} else {
 	    super.uimsg(msg, args);
 	}
