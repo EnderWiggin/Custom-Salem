@@ -43,6 +43,8 @@ public class Gobble extends SIWidget {
     public Progress prog;
     private int[] lmax = new int[4];
     private int max;
+    private Tex lvlmask;
+    private long lvltime;
 
     public static class Event extends SIWidget {
 	public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/epbg");
@@ -243,6 +245,20 @@ public class Gobble extends SIWidget {
 	tooltip = RichText.render(tbuf.toString(), 0).tex();
     }
 
+    public void draw(GOut g) {
+	super.draw(g);
+	if(lvlmask != null) {
+	    long now = System.currentTimeMillis();
+	    if(now - lvltime > 1000) {
+		lvlmask.dispose();
+		lvlmask = null;
+	    } else {
+		g.chcolor(255, 255, 255, 255 - (int)((255 * (now - lvltime)) / 1000));
+		g.image(lvlmask, Coord.z);
+	    }
+	}
+    }
+
     private void cleareating() {
 	if(cevs != null) {
 	    for(Event ev : cevs)
@@ -278,6 +294,14 @@ public class Gobble extends SIWidget {
     }
 
     public void lvlup(int a) {
+	WritableRaster buf = imgraster(imgsz(bg));
+	if((a == 0) || (a == 3))
+	    alphablit(buf, rmeter(bars[a].getRaster(), 1, 1), mc[a]);
+	else
+	    alphablit(buf, lmeter(bars[a].getRaster(), 1, 1), mc[a].sub(bars[a].getWidth() - 1, 0));
+	imgblur(buf, 2, 2);
+	lvlmask = new TexI(rasterimg(buf));
+	lvltime = System.currentTimeMillis();
     }
 
     public void updv(int v) {
