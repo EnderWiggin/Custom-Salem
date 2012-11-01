@@ -212,7 +212,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(g);
 	} else if(place == "craft") {
 	    final Widget[] mk = {null};
-	    makewnd = new Window(new Coord(200, 100), Coord.z, this, "Crafting") {
+	    makewnd = new Window(new Coord(350, 100), Coord.z, this, "Crafting") {
 		    public void wdgmsg(Widget sender, String msg, Object... args) {
 			if((sender == this) && msg.equals("close")) {
 			    mk[0].wdgmsg("close");
@@ -435,6 +435,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    gobble.updv((Integer)args[0]);
 	} else if(msg == "gtrig") {
 	    gobble.trig((Integer)args[0]);
+	} else if(msg == "glvlup") {
+	    gobble.lvlup((Integer)args[0]);
+	} else if(msg == "ginfo") {
+	    gobble.eating(args);
+	} else if(msg == "gprog") {
+	    gobble.prog((Integer)args[0]);
 	} else if(msg == "polowner") {
 	    String o = (String)args[0];
 	    if(o.length() == 0)

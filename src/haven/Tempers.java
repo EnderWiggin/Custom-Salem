@@ -35,16 +35,22 @@ public class Tempers extends SIWidget {
     public static final BufferedImage[] bars, sbars, fbars;
     public static final BufferedImage lcap = Resource.loadimg("gfx/hud/tempers/lcap");
     public static final BufferedImage rcap = Resource.loadimg("gfx/hud/tempers/rcap");
+    public static final BufferedImage[] gbtni = {
+	Resource.loadimg("gfx/hud/tempers/gbtn"),
+	Resource.loadimg("gfx/hud/tempers/gbtn"),
+	Resource.loadimg("gfx/hud/tempers/gbtn"),
+    };
+    public static final Coord boxc = new Coord(96, 0), boxsz = new Coord(339, 62);
     static final Color softc = new Color(64, 64, 64);
     static final Color foodc = new Color(128, 128, 0);
     static final Coord[] mc = {new Coord(295, 11), new Coord(235, 11), new Coord(235, 35), new Coord(295, 35)};
-    static final Coord boxc = new Coord(96, 0), boxsz = new Coord(339, 62);
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
     int[] soft = new int[4], hard = new int[4];
     int[] lmax = new int[4];
     boolean full = false;
     Tex tt = null;
+    Widget gbtn;
 
     static {
 	int n = anm.length;
@@ -82,6 +88,41 @@ public class Tempers extends SIWidget {
 	}
 	lmax = max;
 
+	if(full && (gbtn == null)) {
+	    gbtn = new IButton(Coord.z, parent, gbtni[0], gbtni[1], gbtni[2]) {
+		    public void reqdestroy() {
+			new NormAnim(0.25) {
+			    public void ntick(double a) {
+				c = new Coord(Tempers.this.c.x + ((Tempers.this.sz.x - sz.x) / 2),
+					      (int)(Tempers.this.c.y + boxsz.y - (a * sz.y)));
+				if(a == 1.0)
+				    destroy();
+			    }
+			};
+		    }
+
+		    public void click() {
+			getparent(GameUI.class).act("gobble");
+		    }
+
+		    {
+			if(!Tempers.this.visible)
+			    hide();
+			new NormAnim(0.25) {
+			    public void ntick(double a) {
+				double f = Math.abs(1.0 - (6 * Math.pow(a, 2)) + (5 * Math.pow(a, 3)));
+				c = new Coord(Tempers.this.c.x + ((Tempers.this.sz.x - sz.x) / 2),
+					      (int)(Tempers.this.c.y + boxsz.y - (f * sz.y)));
+			    }
+			}.ntick(0.0);
+		    }
+		};
+	    raise();
+	} else if(!full && (gbtn != null)) {
+	    gbtn.reqdestroy();
+	    gbtn = null;
+	}
+
 	FoodInfo food = null;
 	if(ui.lasttip instanceof WItem.ItemTip) {
 	    try {
@@ -94,7 +135,17 @@ public class Tempers extends SIWidget {
 	}
     }
 
-    private static WritableRaster rmeter(Raster tex, int val, int max) {
+    public void show() {
+	if(gbtn != null)
+	    gbtn.show();
+    }
+
+    public void hide() {
+	if(gbtn != null)
+	    gbtn.hide();
+    }
+
+    public static WritableRaster rmeter(Raster tex, int val, int max) {
 	int w = 1 + (Math.min(val, max) * (tex.getWidth() - 1)) / Math.max(max, 1);
 	WritableRaster bar = copy(tex);
 	gayblit(bar, 3, new Coord(w - rcap.getWidth(), 0), rcap.getRaster(), 0, Coord.z);
@@ -105,7 +156,7 @@ public class Tempers extends SIWidget {
 	return(bar);
     }
 
-    private static WritableRaster lmeter(Raster tex, int val, int max) {
+    public static WritableRaster lmeter(Raster tex, int val, int max) {
 	int w = 1 + (Math.min(val, max) * (tex.getWidth() - 1)) / Math.max(max, 1);
 	WritableRaster bar = copy(tex);
 	gayblit(bar, 3, new Coord(bar.getWidth() - w, 0), lcap.getRaster(), 0, Coord.z);
@@ -162,6 +213,12 @@ public class Tempers extends SIWidget {
 	tt = null;
     }
     
+    public boolean mousedown(Coord c, int button) {
+	if(bg.getRaster().getSample(c.x, c.y, 3) > 128)
+	    return(true);
+	return(super.mousedown(c, button));
+    }
+
     public Object tooltip(Coord c, Widget prev) {
 	if(c.isect(boxc, boxsz)) {
 	    if(tt == null) {
@@ -173,13 +230,5 @@ public class Tempers extends SIWidget {
 	    return(tt);
 	}
 	return(null);
-    }
-
-    public boolean mousedown(Coord c, int button) {
-	if(c.isect(boxc, boxsz)) {
-	    getparent(GameUI.class).act("gobble");
-	    return(true);
-	}
-	return(super.mousedown(c, button));
     }
 }
