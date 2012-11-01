@@ -92,8 +92,9 @@ public abstract class Listbox<T> extends Widget {
     }
 
     public T itemat(Coord c) {
+	c = c.sub(fbox.btloff());
 	int idx = (c.y / itemh) + sb.val;
-	if(idx >= listitems())
+	if((idx < 0) || (idx >= listitems()))
 	    return(null);
 	return(listitem(idx));
     }
