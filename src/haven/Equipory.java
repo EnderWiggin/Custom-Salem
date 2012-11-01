@@ -32,7 +32,7 @@ import static haven.Inventory.sqlo;
 
 public class Equipory extends Widget implements DTarget {
     static Coord ecoords[] = {
-	new Coord(275, 0),
+	new Coord(250, 0),
 	new Coord(50, 70),
 	new Coord(250, 70),
 	new Coord(300, 70),
@@ -43,7 +43,7 @@ public class Equipory extends Widget implements DTarget {
 	null,
 	new Coord(0, 0),
 	new Coord(0, 210),
-	null,
+	new Coord(300, 0),
 	new Coord(300, 210),
 	null,
 	new Coord(0, 70),
@@ -61,7 +61,7 @@ public class Equipory extends Widget implements DTarget {
 	null,
 	Resource.loadtex("gfx/hud/inv/wallet"),
 	Resource.loadtex("gfx/hud/inv/coat"),
-	null,
+	Resource.loadtex("gfx/hud/inv/cape"),
 	Resource.loadtex("gfx/hud/inv/pants"),
 	null,
 	Resource.loadtex("gfx/hud/inv/back"),
