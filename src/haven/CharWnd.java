@@ -348,7 +348,7 @@ public class CharWnd extends Window {
 	    y += 20;
 	}
 	attrwdgs.pack();
-	y += attrwdgs.c.y + attrwdgs.c.y + 15;
+	y = attrwdgs.c.y + attrwdgs.sz.y + 15;
 	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
 	new Button(new Coord(190, y), 50, this, "Reset") {
 	    public void click() {

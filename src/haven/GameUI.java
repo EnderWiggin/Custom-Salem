@@ -271,7 +271,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	final IBox box = new IBox(Window.fbox.ctl, Tex.empty, Window.fbox.cbl, Tex.empty,
 				  Window.fbox.bl, Tex.empty, Window.fbox.bt, Window.fbox.bb);
 	CharWnd.Attr a = (CharWnd.Attr)cw.attrwdgs.child;
-	attrview = new Widget(Coord.z, new Coord(a.expsz.x, cw.attrwdgs.sz.y).add(10, 10).add(box.bisz()), this) {
+	final Coord moff = new Coord(20, 0);
+	attrview = new Widget(Coord.z, new Coord(a.expsz.x, cw.attrwdgs.sz.y).add(moff).add(10, Window.cbtni[0].getHeight() + 10).add(box.bisz()), this) {
 		boolean act = false;
 
 		{
@@ -285,9 +286,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    Coord ctl = box.btloff().add(5, 5);
 		    for(CharWnd.Attr a = (CharWnd.Attr)cw.attrwdgs.child; a != null; a = (CharWnd.Attr)a.next) {
 			final CharWnd.Attr ca = a;
-			new Widget(ctl.add(0, y), a.expsz, this) {
+			new Widget(ctl.add(0, y), a.expsz.add(moff), this) {
 			    public void draw(GOut g) {
-				ca.drawmeter(g, Coord.z, sz);
+				g.image(ca.res.layer(Resource.imgc).tex(), Coord.z);
+				ca.drawmeter(g, moff, ca.expsz);
 			    }
 			};
 			y += 20;
