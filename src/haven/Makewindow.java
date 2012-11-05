@@ -32,10 +32,10 @@ import java.awt.Color;
 
 public class Makewindow extends Widget {
     Widget obtn, cbtn;
-    List<Spec> inputs = Collections.emptyList();
-    List<Spec> outputs = Collections.emptyList();
+    Spec[] inputs = {};
+    Spec[] outputs = {};
     static Coord boff = new Coord(7, 9);
-    final int xoff = 40, yoff = 55;
+    final int xoff = 40, yoff = 60;
     public static final Text.Foundry nmf = new Text.Foundry(new Font("Serif", Font.PLAIN, 20));
 
     static {
@@ -63,67 +63,65 @@ public class Makewindow extends Widget {
 	super(c, Coord.z, parent);
 	Label nm = new Label(new Coord(0, 0), this, rcpnm, nmf);
 	nm.c = new Coord(sz.x - nm.sz.x, 0);
-	new Label(new Coord(0, 8), this, "Input:");
-	new Label(new Coord(0, 63), this, "Result:");
-	obtn = new Button(new Coord(290, 71), 60, this, "Craft");
-	cbtn = new Button(new Coord(360, 71), 60, this, "Craft All");
+	new Label(new Coord(0, 20), this, "Input:");
+	new Label(new Coord(0, 80), this, "Result:");
+	obtn = new Button(new Coord(290, 93), 60, this, "Craft");
+	cbtn = new Button(new Coord(360, 93), 60, this, "Craft All");
 	pack();
     }
 	
     public void uimsg(String msg, Object... args) {
 	if(msg == "inpop") {
-	    List<Spec> inputs = new LinkedList<Spec>();
-	    for(int i = 0; i < args.length; i += 2)
-		inputs.add(new Spec(ui.sess.getres((Integer)args[i]), (Integer)args[i + 1]));
+	    Spec[] inputs = new Spec[args.length / 2];
+	    for(int i = 0, a = 0; a < args.length; i++, a += 2)
+		inputs[i] = new Spec(ui.sess.getres((Integer)args[a]), (Integer)args[a + 1]);
 	    this.inputs = inputs;
 	} else if(msg == "opop") {
-	    List<Spec> outputs = new LinkedList<Spec>();
-	    for(int i = 0; i < args.length; i += 2)
-		outputs.add(new Spec(ui.sess.getres((Integer)args[i]), (Integer)args[i + 1]));
+	    Spec[] outputs = new Spec[args.length / 2];
+	    for(int i = 0, a = 0; a < args.length; i++, a += 2)
+		outputs[i] = new Spec(ui.sess.getres((Integer)args[a]), (Integer)args[a + 1]);
 	    this.outputs = outputs;
 	}
     }
 	
     public void draw(GOut g) {
 	Coord c = new Coord(xoff, 0);
-	for(Spec s : inputs) {
-	    Inventory.invsq(g, c);
+	Inventory.invsq(g, c, new Coord(inputs.length, 1));
+	for(int i = 0; i < inputs.length; i++) {
+	    Coord ic = c.add(Inventory.sqoff(new Coord(i, 0)));
+	    Spec s = inputs[i];
 	    try {
-		Resource res = s.res.get();
-		g.image(res.layer(Resource.imgc).tex(), c.add(1, 1));
+		g.image(s.res.get().layer(Resource.imgc).tex(), ic);
 	    } catch(Loading e) {
 	    }
 	    if(s.num != null)
-		g.aimage(s.num, c.add(33, 34), 1.0, 1.0);
-	    c = c.add(Inventory.sqsz.x, 0);
+		g.aimage(s.num, ic.add(Inventory.isqsz), 1.0, 1.0);
 	}
 	c = new Coord(xoff, yoff);
-	for(Spec s : outputs) {
-	    Inventory.invsq(g, c);
+	Inventory.invsq(g, c, new Coord(outputs.length, 1));
+	for(int i = 0; i < outputs.length; i++) {
+	    Coord ic = c.add(Inventory.sqoff(new Coord(i, 0)));
+	    Spec s = outputs[i];
 	    try {
-		Resource res = s.res.get();
-		g.image(res.layer(Resource.imgc).tex(), c.add(1, 1));
+		g.image(s.res.get().layer(Resource.imgc).tex(), ic);
 	    } catch(Loading e) {
 	    }
 	    if(s.num != null)
-		g.aimage(s.num, c.add(33, 34), 1.0, 1.0);
-	    c = c.add(Inventory.sqsz.x, 0);
+		g.aimage(s.num, ic.add(Inventory.isqsz), 1.0, 1.0);
 	}
 	super.draw(g);
     }
     
     public Object tooltip(Coord mc, Widget prev) {
 	Coord c = new Coord(xoff, 0);
-	for(Spec s : inputs) {
-	    if(mc.isect(c, Inventory.invsq.sz()))
-		return(s.res.get().layer(Resource.tooltip).t);
-	    c = c.add(31, 0);
+	for(int i = 0; i < inputs.length; i++) {
+	    if(mc.isect(c.add(Inventory.sqoff(new Coord(i, 0))), Inventory.isqsz))
+		return(inputs[i].res.get().layer(Resource.tooltip).t);
 	}
 	c = new Coord(xoff, yoff);
-	for(Spec s : outputs) {
-	    if(mc.isect(c, Inventory.invsq.sz()))
-		return(s.res.get().layer(Resource.tooltip).t);
-	    c = c.add(31, 0);
+	for(int i = 0; i < outputs.length; i++) {
+	    if(mc.isect(c.add(Inventory.sqoff(new Coord(i, 0))), Inventory.isqsz))
+		return(outputs[i].res.get().layer(Resource.tooltip).t);
 	}
 	return(null);
     }

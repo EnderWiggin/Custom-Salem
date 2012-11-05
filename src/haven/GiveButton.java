@@ -28,6 +28,7 @@ package haven;
 
 public class GiveButton extends Widget {
     public static Tex bg = Resource.loadtex("gfx/hud/combat/knapp/knapp");
+    public static Tex fr = Resource.loadtex("gfx/hud/combat/knapp/ram");
     public static Tex ol = Resource.loadtex("gfx/hud/combat/knapp/ol");
     public static Tex or = Resource.loadtex("gfx/hud/combat/knapp/or");
     public static Tex sl = Resource.loadtex("gfx/hud/combat/knapp/sl");
@@ -60,6 +61,7 @@ public class GiveButton extends Widget {
 	    g.chcolor(192, 255, 192, 255);
 	g.image(bg, Coord.z, sz);
 	g.chcolor();
+	g.image(fr, Coord.z, sz);
 	if((state & 1) != 0)
 	    g.image(ol, Coord.z, sz);
 	else

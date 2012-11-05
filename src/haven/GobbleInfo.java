@@ -41,10 +41,12 @@ public class GobbleInfo extends ItemInfo.Tip {
 	colors = c;
     };
     public final int[][] evs;
+    public final int time;
     
-    public GobbleInfo(Owner owner, int[][] evs) {
+    public GobbleInfo(Owner owner, int[][] evs, int time) {
 	super(owner);
 	this.evs = evs;
+	this.time = time;
     }
     
     public BufferedImage longtip() {

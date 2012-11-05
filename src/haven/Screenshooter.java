@@ -128,7 +128,7 @@ public class Screenshooter extends Window {
 	    if(comment != null) {
 		Node root = dat.getAsTree("javax_imageio_1.0");
 		Element cmt = new IIOMetadataNode("TextEntry");
-		cmt.setAttribute("keyword", "Title");
+		cmt.setAttribute("keyword", "Comment");
 		cmt.setAttribute("value", comment);
 		cmt.setAttribute("encoding", "utf-8");
 		cmt.setAttribute("language", "");

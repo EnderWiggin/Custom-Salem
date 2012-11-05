@@ -31,17 +31,14 @@ import java.util.*;
 
 public class CharWnd extends Window {
     private static final Coord SZ_FULL = new Coord(620, 360);
-    private static final Coord SZ_SHORT = new Coord(240, 360);
     public static final Map<String, String> attrnm;
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
+    public final Widget attrwdgs;
     public int cmod;
     private final SkillInfo ski;
-    private final Widget container;
     private final Label cmodl;
-    private final Button btntoggle;
-    private Button btnreset;
     
     public static final Color GREEN = new Color(0xaaeeaa);
     public static final Color GRAY = new Color(0xbda3a3);
@@ -203,10 +200,7 @@ public class CharWnd extends Window {
 	return c;
     }
     
-    public static class SkillList extends Widget {
-	private int h;
-	private Scrollbar sb;
-	private int sel;
+    public static class SkillList extends Listbox<Skill> {
 	public Skill[] skills = new Skill[0];
 	private boolean loading = false;
 	private final Comparator<Skill> skcomp = new Comparator<Skill>() {
@@ -228,43 +222,28 @@ public class CharWnd extends Window {
 	    }
 	};
 	
-	public SkillList(Coord c, Coord sz, Widget parent) {
-	    super(c, sz, parent);
-	    h = sz.y / 20;
-	    sel = -1;
-	    sb = new Scrollbar(new Coord(sz.x, 0), sz.y, this, 0, 0);
+	public SkillList(Coord c, int w, int h, Widget parent) {
+	    super(c, parent, w, h, 20);
 	}
 	
-	public void draw(GOut g) {
+	public void tick(double dt) {
 	    if(loading) {
 		loading = false;
 		Arrays.sort(skills, skcomp);
 	    }
-	    g.chcolor(0, 0, 0, 255);
-	    g.frect(Coord.z, sz);
-	    g.chcolor();
-	    for(int i = 0; i < h; i++) {
-		if(i + sb.val >= skills.length)
-		    continue;
-		Skill sk = skills[i + sb.val];
-		if(i + sb.val == sel) {
-		    g.chcolor(255, 255, 0, 128);
-		    g.frect(new Coord(0, i * 20), new Coord(sz.x, 20));
-		    g.chcolor();
 		}
-		drawsk(g, sk, new Coord(0, i * 20));
-	    }
-	    super.draw(g);
-	}
-	
-	protected void drawsk(GOut g, Skill sk, Coord c) {
+
+	protected Skill listitem(int idx) {return(skills[idx]);}
+	protected int listitems() {return(skills.length);}
+
+	protected void drawitem(GOut g, Skill sk) {
 	    try {
-		g.image(sk.res.get().layer(Resource.imgc).tex(), c, new Coord(20, 20));
-		g.atext(sk.res.get().layer(Resource.action).name, c.add(25, 10), 0, 0.5);
+		g.image(sk.res.get().layer(Resource.imgc).tex(), Coord.z, new Coord(20, 20));
+		g.atext(sk.res.get().layer(Resource.action).name, new Coord(25, 10), 0, 0.5);
 	    } catch(Loading e) {
 		WItem.missing.loadwait();
-		g.image(WItem.missing.layer(Resource.imgc).tex(), c, new Coord(20, 20));
-		g.atext("...", c.add(25, 10), 0, 0.5);
+		g.image(WItem.missing.layer(Resource.imgc).tex(), Coord.z, new Coord(20, 20));
+		g.atext("...", new Coord(25, 10), 0, 0.5);
 	    }
 	}
 	
@@ -272,40 +251,18 @@ public class CharWnd extends Window {
 	    Skill[] skills = nsk.toArray(new Skill[0]);
 	    sb.val = 0;
 	    sb.max = skills.length - h;
-	    sel = -1;
+	    sel = null;
 	    this.skills = skills;
 	    loading = true;
 	}
 	
-	public boolean mousewheel(Coord c, int amount) {
-	    sb.ch(amount);
-	    return(true);
+	public void change(Skill sk) {
+	    sel = sk;
 	}
-	
-	public boolean mousedown(Coord c, int button) {
-	    if(super.mousedown(c, button))
-		return(true);
-	    if(button == 1) {
-		sel = (c.y / 20) + sb.val;
-		if(sel >= skills.length)
-		    sel = -1;
-		changed((sel < 0)?null:skills[sel]);
-		return(true);
 	    }
-	    return(false);
-	}
 	
-	protected void changed(Skill sk) {
-	}
-	
-	public void unsel() {
-	    sel = -1;
-	    changed(null);
-	}
-    }
-    
     public class Attr extends Widget {
-	private final Coord
+	public final Coord
 	    imgc = new Coord(0, 1),
 	    nmc = new Coord(17, 1),
 	    vc = new Coord(137, 1),
@@ -331,6 +288,60 @@ public class CharWnd extends Window {
 	    this.rnm = Text.render(attrnm.get(attr));
 	}
 	
+	public void drawmeter(GOut g, Coord c, Coord sz) {
+	    g.chcolor(0, 0, 0, 255);
+	    g.frect(c, sz);
+	    g.chcolor(64, 64, 64, 255);
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
+	    if(av)
+		g.chcolor(0, (a == 1)?255:128, 0, 255);
+	    else
+		g.chcolor(0, 0, 128, 255);
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
+	    if(ui.lasttip instanceof WItem.ItemTip) {
+		try {
+		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
+		    Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
+		    if(insp != null) {
+			for(int i = 0; i < insp.attrs.length; i++) {
+			    if(insp.attrs[i].equals(nm)) {
+				int w = Math.min(((sz.x - 2) * insp.exp[i]) / (attr.comp * 100),
+						 sz.x - 2);
+				if(insp.exp[i] > (attr.comp * 100))
+				    g.chcolor(GAIN_ENOUGH);
+				else
+				    g.chcolor(GAIN_SMALL);
+
+				g.frect(c.add(1, 1), new Coord(w, (sz.y / 2)));
+				break;
+			    }
+			}
+		    }
+		} catch(Loading e) {}
+	    }
+	    if(nsk.sel != null) {
+		Skill sk = nsk.sel;
+		for(int i = 0; i < sk.costa.length; i++) {
+		    if(sk.costa[i].equals(nm)) {
+			int w = Math.min(((sz.x - 2) * sk.costv[i]) / (attr.comp * 100),
+					 sz.x - 2);
+			if(sk.costv[i] > (attr.comp * 100))
+			    g.chcolor(255, 0, 0, 255);
+			else
+			    g.chcolor(128, 0, 0, 255);
+
+			g.frect(c.add(1, sz.y / 2), new Coord(w, (sz.y / 2)));
+			break;
+		    }
+		}
+	    }
+	    g.chcolor();
+	    if(rexp == null)
+		rexp = Text.render(String.format("%d/%d", sexp, attr.comp * 100));
+	    g.aimage(rexp.tex(), c.add(sz.x / 2, 1), 0.5, 0);
+	}
+
+
 	public void draw(GOut g) {
 	    g.image(res.layer(Resource.imgc).tex(), imgc);
 	    g.image(rnm.tex(), nmc);
@@ -339,59 +350,7 @@ public class CharWnd extends Window {
 	    if(rv == null)
 		rv = Text.render(String.format("%d", cv = attr.comp));
 	    g.image(rv.tex(), vc);
-	    g.chcolor(0, 0, 0, 255);
-	    g.frect(expc, expsz);
-	    
-	    if(ui.lasttip instanceof WItem.ItemTip) {
-		try {
-		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
-		    Inspiration insp = ItemInfo.find(Inspiration.class, item.info());
-		    if(insp != null) {
-			for(int i = 0; i < insp.attrs.length; i++) {
-			    if(insp.attrs[i].equals(nm)) {
-				int w = ((expsz.x - 2) * (insp.exp[i]+sexp)) / (attr.comp * 100);
-				if(w >= expsz.x - 2) {
-				    w = expsz.x - 2;
-				    g.chcolor(GAIN_FULL);
-				} else {
-				    g.chcolor(GAIN_SMALL);
-				}
-				g.frect(expc.add(1, 1), new Coord(w, (expsz.y / 2)));
-				break;
-			    }
-			}
-		    }
-		} catch(Loading e) {}
-	    }
-	    
-	    g.chcolor(FILL_GHOST);
-	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * sexp) / (attr.comp * 100), expsz.y - 2));
-	    if(av)
-		g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
-	    else 
-		g.chcolor(FILL);
-	    g.frect(expc.add(1, 1), new Coord(((expsz.x - 2) * hexp) / (attr.comp * 100), expsz.y - 2));
-	    if(nsk.sel >= 0) {
-		Skill sk = nsk.skills[nsk.sel];
-		for(int i = 0; i < sk.costa.length; i++) {
-		    if(sk.costa[i].equals(nm)) {
-			int w = ((expsz.x - 2) * sk.costv[i]) / (attr.comp * 100);
-			if(w > expsz.x - 2) {
-			    w = expsz.x - 2;
-			    g.chcolor(REQ_NOT_ENOUGH);
-			} else {
-			    g.chcolor(REQ_ENOUGH);
-			}
-			g.frect(expc.add(1, expsz.y / 2), new Coord(w, (expsz.y / 2)));
-			break;
-		    }
-		}
-	    }
-	    g.chcolor();
-	    if(rexp == null){
-		rexp = Text.render(String.format("%d/%d", sexp, attr.comp * 100));
-	    }
-	    g.aimage(rexp.tex(), expc.add(expsz.x / 2, 1), 0.5, 0);
+	    drawmeter(g, expc, expsz);
 	}
 	
 	private int a = 0;
@@ -425,36 +384,35 @@ public class CharWnd extends Window {
     public CharWnd(Coord c, Widget parent) {
 	super(c, SZ_FULL, parent, "Character");
 	new Label(new Coord(0, 0), this, "Proficiencies:");
-	int y = 30;
+	attrwdgs = new Widget(new Coord(0, 30), Coord.z, this);
+	int y = 0;
 	for(String nm : attrorder) {
-	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), this));
+	    this.attrs.put(nm, new Attr(nm, new Coord(0, y), attrwdgs));
 	    y += 20;
 	}
-	y += 10;
+	attrwdgs.pack();
+	y = attrwdgs.c.y + attrwdgs.sz.y + 15;
 	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
-	btnreset = new Button(new Coord(580, y), 40, this, "Reset") {
+	new Button(new Coord(580, y), 40, this, "Reset") {
 	    public void click() {
 		CharWnd.this.wdgmsg("lreset");
 	    }
 	};
-	btntoggle = new Button(new Coord(180, 0), 30, this, "<<"){
-	    public void click() {
-		toggle();
-	    }
-	};
-	container = new Widget(Coord.z, sz, this);
-	new Label(new Coord(250, 0), container, "Skills:");
-	new Label(new Coord(250, 30), container, "Current:");
-	this.csk = new SkillList(new Coord(250, 45), new Coord(170, 120), container) {
-		protected void changed(Skill sk) {
+	new Label(new Coord(250, 0), this, "Skills:");
+	new Label(new Coord(250, 30), this, "Current:");
+	this.csk = new SkillList(new Coord(250, 45), 170, 6, this) {
+		public void change(Skill sk) {
+		    Skill p = sel;
+		    super.change(sk);
 		    if(sk != null)
-			nsk.unsel();
+			nsk.change(null);
+		    if((sk != null) || (p != null))
 		    ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(250, 170), container, "Available:");
-	this.nsk = new SkillList(new Coord(250, 185), new Coord(170, 120), container) {
-		protected void drawsk(GOut g, Skill sk, Coord c) {
+	new Label(new Coord(250, 180), this, "Available:");
+	this.nsk = new SkillList(new Coord(250, 195), 170, 6, this) {
+		protected void drawitem(GOut g, Skill sk) {
 		    int astate = sk.afforded();
 		    if(astate == 3)
 			g.chcolor(255, 128, 128, 255);
@@ -462,33 +420,29 @@ public class CharWnd extends Window {
 			g.chcolor(255, 192, 128, 255);
 		    else if(astate == 1)
 			g.chcolor(255, 255, 128, 255);
-		    super.drawsk(g, sk, c);
+		    super.drawitem(g, sk);
 		    g.chcolor();
 		}
 		
-		protected void changed(Skill sk) {
+		public void change(Skill sk) {
+		    Skill p = sel;
+		    super.change(sk);
 		    if(sk != null)
-			csk.unsel();
+			csk.change(null);
+		    if((sk != null) || (p != null))
 		    ski.setsk(sk);
 		}
 	    };
-	new Button(new Coord(250, 310), 50, container, "Buy") {
+	new Button(new Coord(250, 340), 50, this, "Buy") {
 	    public void click() {
-		if(nsk.sel >= 0) {
-		    CharWnd.this.wdgmsg("buy", nsk.skills[nsk.sel].nm);
+		if(nsk.sel != null) {
+		    CharWnd.this.wdgmsg("buy", nsk.sel.nm);
 		}
 	    }
 	};
-	this.ski = new SkillInfo(new Coord(430, 30), new Coord(190, 275), container);
+	this.ski = new SkillInfo(new Coord(430, 45), new Coord(190, 278), this);
     }
     
-    protected void toggle() {
-	container.visible = !container.visible;
-	btnreset.visible = !btnreset.visible;
-	resize(container.visible?SZ_FULL:SZ_SHORT);
-	btntoggle.change(container.visible?"<<":">>");
-    }
-
     private void decsklist(Collection<Skill> buf, Object[] args, int a) {
 	while(a < args.length) {
 	    String nm = (String)args[a++];

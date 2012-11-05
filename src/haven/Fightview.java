@@ -29,30 +29,30 @@ package haven;
 import java.util.*;
 
 public class Fightview extends Widget {
-    static Tex bg = Resource.loadtex("gfx/hud/bosq");
     static int height = 5;
-    static int ymarg = 5;
-    static int width = 165;
-    static Coord avasz = new Coord(27, 27);
+    static int iheight = 40;
+    static int ymarg = 2;
+    static int width = 170;
+    static Coord avasz = new Coord(36, 36);
     static Coord cavac = new Coord(width - Avaview.dasz.x - 10, 10);
-    static Coord cgivec = new Coord(cavac.x - 35, cavac.y);
+    static Coord cgivec = new Coord(cavac.x - 70, cavac.y);
     LinkedList<Relation> lsrel = new LinkedList<Relation>();
     public Relation current = null;
     public Indir<Resource> blk, batk, iatk;
     public long atkc = -1;
     public int off, def;
     private GiveButton curgive;
-    private Avaview curava;
+    private FramedAva curava;
     
     public class Relation {
         long gobid;
-        Avaview ava;
+        FramedAva ava;
 	GiveButton give;
         
         public Relation(long gobid) {
             this.gobid = gobid;
-            this.ava = new Avaview(Coord.z, avasz, Fightview.this, gobid, "avacam");
-	    this.give = new GiveButton(Coord.z, Fightview.this, 0, new Coord(15, 15));
+            this.ava = new FramedAva(Coord.z, avasz, Fightview.this, gobid, "avacam");
+	    this.give = new GiveButton(Coord.z, Fightview.this, 0, new Coord(30, 30));
         }
 	
 	public void give(int state) {
@@ -81,7 +81,7 @@ public class Fightview extends Widget {
     }
     
     public Fightview(Coord c, Widget parent) {
-        super(c, new Coord(width, (bg.sz().y + ymarg) * height), parent);
+        super(c, new Coord(width, (iheight + ymarg) * height), parent);
     }
 
     private void setcur(Relation rel) {
@@ -92,7 +92,7 @@ public class Fightview extends Widget {
 			    Fightview.this.wdgmsg("give", (int)current.gobid, args[0]);
 		    }
 		};
-	    curava = new Avaview(cavac, Avaview.dasz, this, rel.gobid, "avacam") {
+	    curava = new FramedAva(cavac, Avaview.dasz, this, rel.gobid, "avacam") {
 		    public void wdgmsg(String name, Object... args) {
 			if(name == "click")
 			    Fightview.this.wdgmsg("click", (int)current.gobid, args[0]);
@@ -105,7 +105,7 @@ public class Fightview extends Widget {
 	    curava = null;
 	} else if((current != null) && (rel != null)) {
 	    curgive.state = rel.give.state;
-	    curava.avagob = rel.gobid;
+	    curava.view.avagob = rel.gobid;
 	}
 	current = rel;
     }
@@ -119,17 +119,16 @@ public class Fightview extends Widget {
         int y = 10;
 	if(curava != null)
 	    y = curava.c.y + curava.sz.y + 10;
-	int x = width - bg.sz().x - 10;
+	int x = width - 90;
         for(Relation rel : lsrel) {
             if(rel == current) {
 		rel.show(false);
                 continue;
 	    }
-            g.image(bg, new Coord(x, y));
-            rel.ava.c = new Coord(x + 25, ((bg.sz().y - rel.ava.sz.y) / 2) + y);
+            rel.ava.c = new Coord(x + 45, 4 + y);
 	    rel.give.c = new Coord(x + 5, 4 + y);
 	    rel.show(true);
-            y += bg.sz().y + ymarg;
+            y += iheight + ymarg;
         }
         super.draw(g);
     }
@@ -152,7 +151,7 @@ public class Fightview extends Widget {
     }
     
     public void wdgmsg(Widget sender, String msg, Object... args) {
-        if(sender instanceof Avaview) {
+        if(sender instanceof FramedAva) {
             for(Relation rel : lsrel) {
                 if(rel.ava == sender)
                     wdgmsg("click", (int)rel.gobid, args[0]);

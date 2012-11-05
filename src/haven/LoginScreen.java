@@ -27,7 +27,9 @@
 package haven;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,13 +46,16 @@ public class LoginScreen extends Widget {
     Text error;
     Window log;
     IButton btn;
-    static Text.Foundry textf, textfs;
-    static Tex bg = Resource.loadtex("gfx/loginscr");
+    static final Text.Furnace textf, texte, textfs;
+    static final Tex bg = Resource.loadtex("gfx/loginscr");
+    static final Tex cbox = Resource.loadtex("gfx/hud/login/cbox");
+    static final Coord cboxc = new Coord((bg.sz().x - cbox.sz().x) / 2, 310);
     Text progress = null;
 	
     static {
-	textf = new Text.Foundry(new java.awt.Font("Sans", java.awt.Font.PLAIN, 16));
-	textfs = new Text.Foundry(new java.awt.Font("Sans", java.awt.Font.PLAIN, 14));
+	textf = new Text.Foundry(new Font("Sans", Font.BOLD, 16), Color.BLACK).aa(true);
+	texte = new Text.Foundry(new Font("Sans", Font.BOLD, 18), new Color(255, 0, 0)).aa(true);
+	textfs = new Text.Foundry(new Font("Sans", Font.BOLD, 14), Color.BLACK).aa(true);
     }
 	
     public LoginScreen(Widget parent) {
@@ -58,7 +63,7 @@ public class LoginScreen extends Widget {
 	setfocustab(true);
 	parent.setfocus(this);
 	new Img(Coord.z, bg, this);
-	
+	new Img(cboxc, cbox, this);
 	if(Config.isUpdate){
 	    showChangelog();
 	}
@@ -95,26 +100,25 @@ public class LoginScreen extends Widget {
     private static abstract class Login extends Widget {
 	private Login(Coord c, Coord sz, Widget parent) {
 	    super(c, sz, parent);
-	    new OptWnd.Frame(Coord.z, sz, new Color(33,33,33,200), this);
 	}
 	
 	abstract Object[] data();
 	abstract boolean enter();
     }
 
-    private class Pwbox extends Login {
+    private abstract class PwCommon extends Login {
 	TextEntry user, pass;
 	CheckBox savepass;
-		
-	private Pwbox(String username, boolean save) {
-	    super(new Coord(345, 310), new Coord(170, 160), LoginScreen.this);
+
+	private PwCommon(String username, boolean save) {
+	    super(cboxc, cbox.sz(), LoginScreen.this);
 	    setfocustab(true);
-	    new Label(new Coord(10, 10), this, "User name", textf);
-	    user = new TextEntry(new Coord(10, 30), new Coord(150, 20), this, username);
-	    new Label(new Coord(10, 60), this, "Password", textf);
-	    pass = new TextEntry(new Coord(10, 80), new Coord(150, 20), this, "");
+	    new Img(new Coord(35, 33), textf.render("User name").tex(), this);
+	    user = new TextEntry(new Coord(150, 35), new Coord(150, 20), this, username);
+	    new Img(new Coord(35, 73), textf.render("Password").tex(), this);
+	    pass = new TextEntry(new Coord(150, 75), new Coord(150, 20), this, "");
 	    pass.pw = true;
-	    savepass = new CheckBox(new Coord(10, 110), this, "Remember me");
+	    savepass = new CheckBox(new Coord(150, 105), this, "Remember me");
 	    savepass.a = save;
 	    if(user.text.equals(""))
 		setfocus(user);
@@ -123,89 +127,57 @@ public class LoginScreen extends Widget {
 	}
 	
 	public void wdgmsg(Widget sender, String name, Object... args) {
+	}
+		
+	boolean enter() {
+	    if(user.text.equals("")) {
+		setfocus(user);
+		return(false);
+	    } else if(pass.text.equals("")) {
+		setfocus(pass);
+		return(false);
+	    } else {
+		return(true);
+	    }
+	}
+
+	public boolean globtype(char k, KeyEvent ev) {
+	    if((k == 'r') && ((ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0)) {
+		savepass.set(!savepass.a);
+		return(true);
+	    }
+	    return(false);
+	}
+    }
+
+    private class Pwbox extends PwCommon {
+	private Pwbox(String username, boolean save) {
+	    super(username, save);
 	}
 		
 	Object[] data() {
 	    return(new Object[] {new AuthClient.NativeCred(user.text, pass.text), savepass.a});
 	}
-		
-	boolean enter() {
-	    if(user.text.equals("")) {
-		setfocus(user);
-		return(false);
-	    } else if(pass.text.equals("")) {
-		setfocus(pass);
-		return(false);
-	    } else {
-		return(true);
-	    }
-	}
-
-	public boolean globtype(char k, KeyEvent ev) {
-	    if((k == 'r') && ((ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0)) {
-		savepass.set(!savepass.a);
-		return(true);
-	    }
-	    return(false);
-	}
     }
-	
-    private class Pdxbox extends Login {
-	TextEntry user, pass;
-	CheckBox savepass;
 		
+    private class Pdxbox extends PwCommon {
 	private Pdxbox(String username, boolean save) {
-	    super(new Coord(345, 310), new Coord(170, 160), LoginScreen.this);
-	    setfocustab(true);
-	    new Label(new Coord(10, 10), this, "Paradox User name", textf);
-	    user = new TextEntry(new Coord(10, 30), new Coord(150, 20), this, username);
-	    new Label(new Coord(10, 60), this, "Password", textf);
-	    pass = new TextEntry(new Coord(10, 80), new Coord(150, 20), this, "");
-	    pass.pw = true;
-	    savepass = new CheckBox(new Coord(10, 110), this, "Remember me");
-	    savepass.a = save;
-	    if(user.text.equals(""))
-		setfocus(user);
-	    else
-		setfocus(pass);
-	}
-		
-	public void wdgmsg(Widget sender, String name, Object... args) {
-	}
-		
+	    super(username, save);
+	    }
+
 	Object[] data() {
 	    return(new Object[] {new ParadoxCreds(user.text, pass.text), savepass.a});
-	}
-		
-	boolean enter() {
-	    if(user.text.equals("")) {
-		setfocus(user);
-		return(false);
-	    } else if(pass.text.equals("")) {
-		setfocus(pass);
-		return(false);
-	    } else {
-		return(true);
 	    }
 	}
-
-	public boolean globtype(char k, KeyEvent ev) {
-	    if((k == 'r') && ((ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0)) {
-		savepass.set(!savepass.a);
-		return(true);
-	    }
-	    return(false);
-	}
-    }
 	
     private class Tokenbox extends Login {
 	Text label;
 	Button btn;
 		
 	private Tokenbox(String username) {
-	    super(new Coord(295, 310), new Coord(250, 70), LoginScreen.this);
-	    label = textfs.render("Identity is saved for " + username, java.awt.Color.WHITE);
-	    btn = new Button(new Coord(75, 40), 100, this, "Forget me");
+	    super(cboxc, cbox.sz(), LoginScreen.this);
+	    label = textfs.render("Identity is saved for " + username);
+	    btn = new Button(new Coord((sz.x - 100) / 2, 55), 100, this, "Forget me");
 	}
 		
 	Object[] data() {
@@ -225,8 +197,8 @@ public class LoginScreen extends Widget {
 	}
 		
 	public void draw(GOut g) {
+	    g.image(label.tex(), new Coord((sz.x - label.sz().x) / 2, 30));
 	    super.draw(g);
-	    g.image(label.tex(), new Coord((sz.x / 2) - (label.sz().x / 2), 10));
 	}
 	
 	public boolean globtype(char k, KeyEvent ev) {
@@ -238,9 +210,14 @@ public class LoginScreen extends Widget {
 	}
     }
 
+    static final BufferedImage[] loginb = {
+	Resource.loadimg("gfx/hud/buttons/loginu"),
+	Resource.loadimg("gfx/hud/buttons/logind"),
+	Resource.loadimg("gfx/hud/buttons/loginh"),
+    };
     private void mklogin() {
 	synchronized(ui) {
-	    btn = new IButton(new Coord(373, 470), this, Resource.loadimg("gfx/hud/buttons/loginu"), Resource.loadimg("gfx/hud/buttons/logind"));
+	    btn = new IButton(cboxc.add((cbox.sz().x - loginb[0].getWidth()) / 2, 140), this, loginb[0], loginb[1], loginb[2]);
 	    progress(null);
 	}
     }
@@ -250,7 +227,7 @@ public class LoginScreen extends Widget {
 	    if(this.error != null)
 		this.error = null;
 	    if(error != null)
-		this.error = textf.render(error, java.awt.Color.RED);
+		this.error = texte.render(error);
 	}
     }
     
@@ -259,7 +236,7 @@ public class LoginScreen extends Widget {
 	    if(progress != null)
 		progress = null;
 	    if(p != null)
-		progress = textf.render(p, java.awt.Color.WHITE);
+		progress = textf.render(p);
 	}
     }
     
@@ -349,10 +326,15 @@ public class LoginScreen extends Widget {
 	
     public void draw(GOut g) {
 	super.draw(g);
-	if(error != null)
-	    g.image(error.tex(), new Coord(420 - (error.sz().x / 2), 500));
+	if(error != null) {
+	    Coord c = new Coord((sz.x - error.sz().x) / 2, 290);
+	    g.chcolor(0, 0, 0, 224);
+	    g.frect(c.sub(4, 2), error.sz().add(8, 4));
+	    g.chcolor();
+	    g.image(error.tex(), c);
+	}
 	if(progress != null)
-	    g.image(progress.tex(), new Coord(420 - (progress.sz().x / 2), 350));
+	    g.image(progress.tex(), new Coord((sz.x - progress.sz().x) / 2, cboxc.y + ((cbox.sz().y - progress.sz().y) / 2)));
     }
 	
     public boolean type(char k, KeyEvent ev) {

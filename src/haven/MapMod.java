@@ -35,6 +35,7 @@ public class MapMod extends Window implements MapView.Grabber {
     Label text;
     Coord sc, c1, c2;
     TextEntry tilenm;
+    boolean dd;
     public final static String fmt = "Selected: %d" + (char)(0xD7) + "%d";
     
     static {
@@ -76,19 +77,19 @@ public class MapMod extends Window implements MapView.Grabber {
             ol.destroy();
         ol = map.new Overlay(tc, tc, 1 << 17);
         sc = tc;
-        dm = true;
+        dd = true;
         ui.grabmouse(getparent(GameUI.class).map);
 	return(true);
     }
 	
     public boolean mmouseup(Coord mc, int button) {
-        dm = false;
+        dd = false;
         ui.grabmouse(null);
 	return(true);
     }
 	
     public void mmousemove(Coord mc) {
-        if(!dm)
+        if(!dd)
             return;
         Coord tc = mc.div(MCache.tilesz);
         Coord c1 = new Coord(0, 0), c2 = new Coord(0, 0);

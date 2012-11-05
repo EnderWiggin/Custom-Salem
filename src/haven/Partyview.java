@@ -32,12 +32,17 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class Partyview extends Widget {
+    final static java.awt.image.BufferedImage[] pleave = {
+	Resource.loadimg("gfx/hud/pleave"),
+	Resource.loadimg("gfx/hud/pleave"),
+	Resource.loadimg("gfx/hud/pleave"),
+    };
     long ign;
     Party party = ui.sess.glob.party;
     Map<Long, Member> om = null;
     Member ol = null;
-    Map<Member, Avaview> avs = new HashMap<Member, Avaview>();
-    Button leave = null;
+    Map<Member, FramedAva> avs = new HashMap<Member, FramedAva>();
+    IButton leave = null;
 	
     static {
 	Widget.addtype("pv", new WidgetFactory() {
@@ -50,18 +55,18 @@ public class Partyview extends Widget {
     Partyview(Coord c, Widget parent, long ign) {
 	super(c, new Coord(84, 140), parent);
 	this.ign = ign;
-	update();
     }
 	
-    private void update() {
+    public void tick(double dt) {
 	if(party.memb != om) {
+	    int i = 0;
 	    Collection<Member> old = new HashSet<Member>(avs.keySet());
 	    for(final Member m : (om = party.memb).values()) {
 		if(m.gobid == ign)
 		    continue;
-		Avaview w = avs.get(m);
+		FramedAva w = avs.get(m);
 		if(w == null) {
-		    w = new Avaview(Coord.z, new Coord(27, 27), this, m.gobid, "avacam") {
+		    w = new FramedAva(Coord.z, new Coord(36, 36), this, m.gobid, "avacam") {
 			    private Tex tooltip = null;
 			    
 			    public Object tooltip(Coord c, Widget prev) {
@@ -83,9 +88,9 @@ public class Partyview extends Widget {
 		ui.destroy(avs.get(m));
 		avs.remove(m);
 	    }
-	    List<Map.Entry<Member, Avaview>> wl = new ArrayList<Map.Entry<Member, Avaview>>(avs.entrySet());
-	    Collections.sort(wl, new Comparator<Map.Entry<Member, Avaview>>() {
-		    public int compare(Entry<Member, Avaview> a, Entry<Member, Avaview> b) {
+	    List<Map.Entry<Member, FramedAva>> wl = new ArrayList<Map.Entry<Member, FramedAva>>(avs.entrySet());
+	    Collections.sort(wl, new Comparator<Map.Entry<Member, FramedAva>>() {
+		    public int compare(Entry<Member, FramedAva> a, Entry<Member, FramedAva> b) {
 			long aid = a.getKey().gobid, bid = b.getKey().gobid;
 			if(aid < bid)
 			    return(-1);
@@ -94,21 +99,24 @@ public class Partyview extends Widget {
 			return(0);
 		    }
 		});
-	    int i = 0;
-	    for(Map.Entry<Member, Avaview> e : wl) {
-		e.getValue().c = new Coord((i % 2) * 43, (i / 2) * 43 + 24);
+	    for(Map.Entry<Member, FramedAva> e : wl) {
+		e.getValue().c = new Coord((i % 2) * 38, (i / 2) * 38);
 		i++;
 	    }
+	    if(avs.size() > 0) {
+		if(leave == null) {
+		    leave = new IButton(Coord.z, this, pleave[0], pleave[1], pleave[2]);
+		    leave.tooltip = Text.render("Leave party");
+		}
+		leave.c = new Coord((i % 2) * 38, (i / 2) * 38);
+	    }
+	    if((avs.size() == 0) && (leave != null)) {
+		ui.destroy(leave);
+		leave = null;
+	    }
 	}
-	for(Map.Entry<Member, Avaview> e : avs.entrySet()) {
+	for(Map.Entry<Member, FramedAva> e : avs.entrySet()) {
 	    e.getValue().color = e.getKey().col;
-	}
-	if((avs.size() > 0) && (leave == null)) {
-	    leave = new Button(Coord.z, 84, this, "Leave party");
-	}
-	if((avs.size() == 0) && (leave != null)) {
-	    ui.destroy(leave);
-	    leave = null;
 	}
     }
 	
@@ -127,7 +135,6 @@ public class Partyview extends Widget {
     }
 	
     public void draw(GOut g) {
-	update();
 	super.draw(g);
     }
 }

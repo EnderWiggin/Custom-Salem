@@ -1,6 +1,6 @@
 package haven;
 
-import static haven.Inventory.invsq;
+import static haven.Inventory.sqlite;
 import static haven.WItem.missing;
 import haven.Resource.AButton;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 public class ToolBeltWdg extends Window implements DropTarget{
     private static final String OPT_FLIPPED = "_flipped";
     private static final String OPT_LOCKED = "_locked";
-    private static final Coord invsz = invsq.sz();
+    private static final Coord invsz = sqlite.sz();
     private static final int COUNT = 12;
     private static final int BELTS = 6;
     private static final Tex BELTNUMS[];
@@ -137,23 +137,24 @@ public class ToolBeltWdg extends Window implements DropTarget{
     }
 
     @Override
-    protected void placecbtn() {
+    protected void placetwdgs() {
+	super.placetwdgs();
 	if(flipped){
 	    if(flipbtn != null)
-		flipbtn.c = new Coord(asz.x - flipbtn.sz.x,0);
+		flipbtn.c = new Coord(asz.x - flipbtn.sz.x - 7, 0);
 	    if(plus != null)
-		plus.c = new Coord(-1, asz.y - plus.sz.y);
+		plus.c = new Coord(3, asz.y - plus.sz.y);
 	    if(minus != null) {
-		minus.c  = asz.sub(minus.sz).add(1, 0);
+		minus.c  = asz.sub(minus.sz).add(-3, 0);
 		beltNumC = plus.c.add(minus.c).add(minus.sz).div(2);
 	    }
 	} else {
 	    if(flipbtn != null)
-		flipbtn.c = new Coord(0, asz.y - flipbtn.sz.y);
+		flipbtn.c = new Coord(0, asz.y - flipbtn.sz.y - 7);
 	    if(plus != null)
-		plus.c = new Coord(asz.x - plus.sz.x, -1);
+		plus.c = new Coord(asz.x - plus.sz.x, 3);
 	    if(minus != null) {
-		minus.c  = asz.sub(minus.sz).add(0,1);
+		minus.c  = asz.sub(minus.sz).add(0,-3);
 		beltNumC = plus.c.add(minus.c).add(minus.sz).div(2);
 	    }
 	}
@@ -165,12 +166,12 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	for(int i = 0; i < COUNT; i++) {
 	    int slot = getbelt(i);
 	    Coord c = beltc(i);
-	    g.image(invsq, beltc(i));
+	    g.image(sqlite, beltc(i));
 	    Tex tex = null;
 	    try {
 		if(gui.belt[slot] != null)
 		    tex = gui.belt[slot].get().layer(Resource.imgc).tex();
-		g.image(tex, c.add(1, 1));
+		g.image(tex, c.add(4, 4));
 	    } catch(Loading e) {
 		missing.loadwait();
 		tex = missing.layer(Resource.imgc).tex();
@@ -327,18 +328,18 @@ public class ToolBeltWdg extends Window implements DropTarget{
     private Coord beltc(int i) {
 	if(flipped){
 	    return(new Coord(0, 
-		    ((invsz.y + 2) * i)
+		    ((invsz.y + 2) * i) 
 		    + (10 * (i / 4)) + ilockc.getWidth() + 2));
 	} else {
 	    
-	    return(new Coord(((invsz.x + 2) * i)
+	    return(new Coord(((invsz.x + 2) * i) 
 		    + (10 * (i / 4)) + ilockc.getWidth() + 2,
 		    0));
 	}
     }
     
     public int beltslot(Coord c){
-	c = c.sub(ac);
+	c = c.sub(ctl);
 	for(int i = 0; i<COUNT; i++){
 	    if(c.isect(beltc(i), invsz)){
 		return i;

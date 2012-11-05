@@ -44,19 +44,30 @@ public class Widget {
     public final Collection<Anim> anims = new LinkedList<Anim>();
     static Map<String, WidgetFactory> types = new TreeMap<String, WidgetFactory>();
     static Class<?>[] barda = {Img.class, TextEntry.class, MapView.class, FlowerMenu.class,
-			       Window.class, Button.class, Inventory.class, GItem.class, Listbox.class,
+			       Window.class, Button.class, Inventory.class, GItem.class,
 			       Makewindow.class, Chatwindow.class, Textlog.class, Equipory.class, IButton.class,
 			       Avaview.class, NpcChat.class, CharWnd.class,
 			       Label.class, Progress.class, VMeter.class, Partyview.class,
 			       MenuGrid.class, CheckBox.class,
 			       ISBox.class, Fightview.class, IMeter.class, MapMod.class,
 			       GiveButton.class, Charlist.class, BuddyWnd.class, Polity.class,
-			       Speedget.class, Bufflist.class, GameUI.class, Scrollport.class};
+			       Speedget.class, Bufflist.class, GameUI.class, Scrollport.class, SessWidget.class};
 	
     static {
 	addtype("cnt", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
 		    return(new Widget(c, (Coord)args[0], parent));
+		}
+	    });
+	addtype("ccnt", new WidgetFactory() {
+		public Widget create(Coord c, Widget parent, Object[] args) {
+		    Widget ret = new Widget(c, (Coord)args[0], parent) {
+			    public void presize() {
+				c = parent.sz.div(2).sub(sz.div(2));
+			    }
+			};
+		    ret.presize();
+		    return(ret);
 		}
 	    });
     }
@@ -310,8 +321,8 @@ public class Widget {
     public void destroy() {
 	if(canfocus)
 	    setcanfocus(false);
-	parent.cdestroy(this);
 	unlink();
+	parent.cdestroy(this);
     }
     
     public void cdestroy(Widget w) {
@@ -625,7 +636,7 @@ public class Widget {
 	return(false);
     }
     
-    public void pack() {
+    public Coord contentsz() {
 	Coord max = new Coord(0, 0);
 	for(Widget wdg = child; wdg != null; wdg = wdg.next) {
 	    Coord br = wdg.c.add(wdg.sz);
@@ -634,7 +645,11 @@ public class Widget {
 	    if(br.y > max.y)
 		max.y = br.y;
 	}
-	resize(max);
+	return(max);
+    }
+
+    public void pack() {
+	resize(contentsz());
     }
     
     public void resize(Coord sz) {

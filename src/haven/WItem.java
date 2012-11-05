@@ -45,10 +45,19 @@ public class WItem extends Widget implements DTarget {
 	this.item = item;
     }
     
+    private static Coord upsize(Coord sz) {
+	int w = sz.x, h = sz.y;
+	if((w % Inventory.sqsz.x) != 0)
+	    w = Inventory.sqsz.x * ((w / Inventory.sqsz.x) + 1);
+	if((h % Inventory.sqsz.y) != 0)
+	    h = Inventory.sqsz.y * ((h / Inventory.sqsz.y) + 1);
+	return(new Coord(w, h));
+    }
+
     public void drawmain(GOut g, Tex tex) {
 	g.image(tex, Coord.z);
 	if(tex != ltex) {
-	    resize(tex.sz());
+	    resize(upsize(tex.sz()));
 	    ltex = tex;
 	}
     }

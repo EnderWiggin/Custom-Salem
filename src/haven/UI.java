@@ -40,7 +40,7 @@ public class UI {
     public Map<Integer, Widget> widgets = new TreeMap<Integer, Widget>();
     public Map<Widget, Integer> rwidgets = new HashMap<Widget, Integer>();
     Receiver rcvr;
-    public Coord mc, lcc = Coord.z;
+    public Coord mc = Coord.z, lcc = Coord.z;
     public Session sess;
     public boolean modshift, modctrl, modmeta, modsuper;
     public Object lasttip;
@@ -57,6 +57,10 @@ public class UI {
 	
     public interface Receiver {
 	public void rcvmsg(int widget, String msg, Object... args);
+    }
+
+    public interface Runner {
+	public Session run(UI ui) throws InterruptedException;
     }
     
     public interface AfterDraw {

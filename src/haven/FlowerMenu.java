@@ -31,11 +31,12 @@ import java.awt.Font;
 import static java.lang.Math.PI;
 
 public class FlowerMenu extends Widget {
-    public static Color pink = new Color(255, 0, 128);
-    public static Tex pbg = Resource.loadtex("gfx/hud/bgtex");
-    static Color ptc = Color.WHITE;
+    public static final Tex pbgl = Resource.loadtex("gfx/hud/fpl");
+    public static final Tex pbgm = Resource.loadtex("gfx/hud/fpm");
+    public static final Tex pbgr = Resource.loadtex("gfx/hud/fpr");
+    static Color ptc = new Color(248, 240, 193);
     static Text.Foundry ptf = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 12));
-    static int ph = 30, ppl = 8;
+    static int ph = pbgm.sz().y, ppl = 8;
     Petal[] opts;
 	
     static {
@@ -74,9 +75,10 @@ public class FlowerMenu extends Widget {
 	}
 		
 	public void draw(GOut g) {
-	    g.chcolor(new Color(255, 255, 255, (int)(255 * a)));
-	    g.image(pbg, new Coord(3, 3), new Coord(3, 3), sz.add(new Coord(-6, -6)));
-	    Window.swbox.draw(g, Coord.z, sz);
+	    g.chcolor(255, 255, 255, (int)(255 * a));
+	    g.image(pbgl, Coord.z);
+	    g.image(pbgm, new Coord(pbgl.sz().x, 0), new Coord(sz.x - pbgl.sz().x - pbgr.sz().x, sz.y));
+	    g.image(pbgr, new Coord(sz.x - pbgr.sz().x, 0));
 	    g.image(text, sz.div(2).add(text.sz().div(2).inv()));
 	}
 		

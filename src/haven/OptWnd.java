@@ -102,17 +102,7 @@ public class OptWnd extends Window {
 	    else                                                editmode.check("PC");
 	    
 	    int y = 100;
-	    new CheckBox(new Coord(0, y), tab, "Show humors as bars"){
-		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.plain_tempers = val;
-		    opt_show_tempers.enabled = val;
-		    Utils.setprefb("plain_tempers", val);
-		}
-	    }.a = Config.plain_tempers;
-	    
-	    opt_show_tempers = new CheckBox(new Coord(0, y += 30), tab, "Always show humor numbers"){
+	    opt_show_tempers = new CheckBox(new Coord(0, y), tab, "Always show humor numbers"){
 		@Override
 		public void changed(boolean val) {
 		    super.changed(val);
@@ -121,7 +111,7 @@ public class OptWnd extends Window {
 		}
 	    };
 	    opt_show_tempers.a = Config.show_tempers;
-	    opt_show_tempers.enabled = Config.plain_tempers;
+	    //opt_show_tempers.enabled = Config.plain_tempers;
 	    
 	    new CheckBox(new Coord(0, y += 30), tab, "Store minimap"){
 		@Override
@@ -154,7 +144,7 @@ public class OptWnd extends Window {
 	    curcam = Utils.getpref("defcam", MapView.DEFCAM);
 	    tab = body.new Tab(new Coord(70, 0), 60, "Camera");
 
-	    new Label(new Coord(10, 40), tab, "Camera type:");
+	    new Label(new Coord(10, 30), tab, "Camera type:");
 	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 25), new Coord(210, 180), tab, "", foundry);
 	    caminfo.bg = new java.awt.Color(0, 0, 0, 64);
 	    addinfo("follow",       "Follow Cam",  "The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
@@ -224,7 +214,7 @@ public class OptWnd extends Window {
 		}};
 	}
 
-	new Frame(new Coord(-10, 20), new Coord(420, 330), this);
+	//new Frame(new Coord(-10, 20), new Coord(420, 330), this);
 	String last = Utils.getpref("optwndtab", "");
 	for(Tabs.Tab t : body.tabs) {
 	    if(t.btn.text.text.equals(last))

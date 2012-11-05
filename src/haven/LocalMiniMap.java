@@ -52,7 +52,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
-    private Widget mapmenu;
     public Coord cgrid = null;
     private Coord off = new Coord();
     boolean rsm = false;
@@ -212,11 +211,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	return(buf);
     }
 
-    public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv, Widget mapmenu) {
+    public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
 	super(c, sz, parent, "mmap");
 	cap = null;
-	this.mapmenu = mapmenu;
-	mapmenu.c = c.add(0,-18);
 	this.mv = mv;
 	cmdmap.put("radar", new Console.Command() {
             public void run(Console console, String[] args) throws Exception {
@@ -473,7 +470,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    //pack();
 	} else {
 	    super.mousemove(c);
-	    mapmenu.c = this.c.add(0,-18);
 	}
     }
 

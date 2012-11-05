@@ -32,20 +32,11 @@ import java.util.*;
 public class Avaview extends PView {
     public static final Tex missing = Resource.loadtex("gfx/hud/equip/missing");
     public static final Coord dasz = missing.sz();
-    public Color color = Color.WHITE;
     public long avagob;
     private Composited comp;
     private List<Composited.MD> cmod = null;
     private List<Composited.ED> cequ = null;
     private final String camnm;
-	
-    static {
-	Widget.addtype("av", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Avaview(c, dasz, parent, (Integer)args[0], "avacam"));
-		}
-	    });
-    }
 	
     public Avaview(Coord c, Coord sz, Widget parent, long avagob, String camnm) {
 	super(c, sz, parent);
@@ -53,14 +44,6 @@ public class Avaview extends PView {
 	this.avagob = avagob;
     }
     
-    public void uimsg(String msg, Object... args) {
-	if(msg == "upd") {
-	    this.avagob = (long)(Integer)args[0];
-	    return;
-	}
-	super.uimsg(msg, args);
-    }
-        
     private boolean missed = false;
     private Camera cam = null;
 
@@ -138,14 +121,5 @@ public class Avaview extends PView {
 	}
 	if(missed)
 	    g.image(missing, Coord.z, sz);
-	if(color != null) {
-	    g.chcolor(color);
-	    Window.swbox.draw(g, Coord.z, sz);
-	}
-    }
-	
-    public boolean mousedown(Coord c, int button) {
-	wdgmsg("click", button);
-	return(true);
     }
 }

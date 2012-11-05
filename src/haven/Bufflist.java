@@ -29,11 +29,12 @@ package haven;
 import java.awt.Color;
 
 public class Bufflist extends Widget {
-    static Tex frame = Resource.loadtex("gfx/hud/buffs/frame");
-    static Tex cframe = Resource.loadtex("gfx/hud/buffs/cframe");
-    static final Coord imgoff = new Coord(3, 3);
-    static final Coord ameteroff = new Coord(3, 36);
-    static final Coord ametersz = new Coord(30, 2);
+    static final Tex frame = Resource.loadtex("gfx/hud/buffs/frame");
+    static final Tex cframe = Resource.loadtex("gfx/hud/buffs/cframe");
+    static final Tex ameter = Resource.loadtex("gfx/hud/buffs/cbar");
+    static final Coord imgoff = new Coord(6, 6);
+    static final Coord ameteroff = new Coord(4, 52);
+    static final Coord cmeteroff = new Coord(20, 20), cmeterul = new Coord(-20, -20), cmeterbr = new Coord(20, 20);
     static final int margin = 2;
     static final int num = 5;
     
@@ -60,11 +61,7 @@ public class Bufflist extends Widget {
 		Coord bc = new Coord(i * w, 0);
 		if(b.ameter >= 0) {
 		    g.image(cframe, bc);
-		    g.chcolor(Color.BLACK);
-		    g.frect(bc.add(ameteroff), ametersz);
-		    g.chcolor(Color.WHITE);
-		    g.frect(bc.add(ameteroff), new Coord((b.ameter * ametersz.x) / 100, ametersz.y));
-		    g.chcolor();
+		    g.image(ameter, bc.add(ameteroff), bc.add(ameteroff), new Coord((b.ameter * ameter.sz().x) / 100, ameter.sz().y));
 		} else {
 		    g.image(frame, bc);
 		}
@@ -82,12 +79,13 @@ public class Bufflist extends Widget {
 			    double pt = ((double)(now - b.gettime)) / 1000.0;
 			    m *= (ot - pt) / ot;
 			}
-			g.chcolor(0, 0, 0, 128);
-			g.fellipse(bc.add(imgoff).add(img.sz().div(2)), img.sz().div(2), 90, (int)(90 + (360 * m)));
+			m = Utils.clip(m, 0.0, 1.0);
+			g.chcolor(255, 255, 255, 128);
+			g.prect(bc.add(imgoff).add(cmeteroff), cmeterul, cmeterbr, Math.PI * 2 * m);
 			g.chcolor();
 		    }
 		} catch(Loading e) {}
-		if(++i >= 5)
+		if(++i >= num)
 		    break;
 	    }
 	}
@@ -130,7 +128,7 @@ public class Bufflist extends Widget {
 			return("...");
 		    }
 		}
-		if(++i >= 5)
+		if(++i >= num)
 		    break;
 	    }
 	}
