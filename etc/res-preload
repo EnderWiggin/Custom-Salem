@@ -116,6 +116,8 @@ gfx/hud/prog/fg:1
 gfx/hud/sb:1
 gfx/hud/sbl:2
 gfx/hud/sbr:3
+gfx/hud/sc-back:4
+gfx/hud/sc-next:4
 gfx/hud/schain:2
 gfx/hud/sflarp:2
 gfx/hud/skills/arts:1
