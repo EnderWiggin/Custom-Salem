@@ -146,6 +146,7 @@ public class Tempers extends SIWidget {
     }
 
     public static WritableRaster rmeter(Raster tex, int val, int max) {
+	if(val < 0){ val = 0;}
 	int w = 1 + (Math.min(val, max) * (tex.getWidth() - 1)) / Math.max(max, 1);
 	WritableRaster bar = copy(tex);
 	gayblit(bar, 3, new Coord(w - rcap.getWidth(), 0), rcap.getRaster(), 0, Coord.z);
