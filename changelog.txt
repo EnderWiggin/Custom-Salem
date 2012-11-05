@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 05.11.12:}}
+  * Merged new UI from loftar
+ 
 $size[14]{$u{Update for 22.10.12:}}
   * made all windows save their position
   * Merged Trojanz's changes: 
