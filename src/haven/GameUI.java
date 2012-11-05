@@ -46,7 +46,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private Text lasterr;
     private long errtime;
     private Window invwnd, equwnd, makewnd;
-    private Widget mainmenu, menumenu;
+    private Widget mainmenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
     public Polity polity;
@@ -647,36 +647,56 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		chat.toggle();
 	    }
 	};
-	menumenu = new Widget(Coord.z, new Coord(132, 66), this) {
-		public void draw(GOut g) {
-		    super.draw(g);
-		    try {
-			if(lblk != null) {
-			    Tex t = lblk.get().layer(Resource.imgc).tex();
-			    g.image(t, new Coord(33, 33));
-			    g.chcolor(0, 255, 0, 128);
-			    g.frect(new Coord(33, 33), t.sz());
-			    g.chcolor();
-			} else if(dblk != null) {
-			    g.image(dblk.get().layer(Resource.imgc).tex(), new Coord(33, 33));
-			}
-		    } catch(Loading e) {}
-		}
-	    };
-	new MenuButton(new Coord(0, 33), menumenu, "blk", 19, "Toggle maneuver (Ctrl+S)") {
-	    public void click() {
-		act("blk");
+	new Widget(Coord.z, isqsz.add(Window.swbox.bisz()), this) {
+	    private final Tex none = Resource.loadtex("gfx/hud/blknone");
+	    private Tex mono;
+	    private Indir<Resource> monores;
+
+	    {
+		tooltip = Text.render("Toggle maneuver (Ctrl+S)");
 	    }
-	};
-	if(WebBrowser.self != null) {
-	    new IButton(new Coord(66, 0), menumenu, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd")) {
-		final URL base;
-		{
-		    try {
-			base = new URL("http://services.paradoxplaza.com/adam/storelette/salem");
-		    } catch(java.net.MalformedURLException e) {
-			throw(new Error(e));
+
+	    public void draw(GOut g) {
+		try {
+		    if(lblk != null) {
+			g.image(lblk.get().layer(Resource.imgc).tex(), Window.swbox.btloff());
+		    } else if(dblk != null) {
+			if(monores != dblk) {
+			    if(mono != null) mono.dispose();
+			    mono = new TexI(PUtils.monochromize(dblk.get().layer(Resource.imgc).img, new Color(128, 128, 128)));
+			    monores = dblk;
+			}
+			g.image(mono, Window.swbox.btloff());
+		    } else {
+			g.image(none, Window.swbox.btloff());
 		    }
+		} catch(Loading e) {
+		}
+		g.chcolor(133, 92, 62, 255);
+		Window.swbox.draw(g, Coord.z, sz);
+		g.chcolor();
+	    }
+
+	    public void presize() {
+		this.c = menu.c.add(menu.sz.x, 0).sub(this.sz);
+	    }
+
+	    public boolean globtype(char key, KeyEvent ev) {
+		if(key == 19) {
+		    act("blk");
+		    return(true);
+		}
+		return(super.globtype(key, ev));
+	    }
+
+	    public boolean mousedown(Coord c, int btn) {
+		act("blk");
+		return(true);
+	    }
+	}.presize();
+	if((Config.storeurl != null) && (WebBrowser.self != null)) {
+	    new IButton(Coord.z, this, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd"), Resource.loadimg("gfx/hud/cashh")) {
+		{
 		    tooltip = Text.render("Buy silver");
 		}
 		
@@ -701,13 +721,24 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 		
 		public void click() {
+		    URL base = Config.storeurl;
 		    try {
 			WebBrowser.self.show(new URL(base.getProtocol(), base.getHost(), base.getPort(), base.getFile() + "?userid=" + encode(ui.sess.username)));
 		    } catch(java.net.MalformedURLException e) {
 			throw(new RuntimeException(e));
 		    }
 		}
-	    };
+
+		public void presize() {
+		    this.c = mainmenu.c.sub(0, this.sz.y);
+		}
+
+		public Object tooltip(Coord c, Widget prev) {
+		    if(checkhit(c))
+			return(super.tooltip(c, prev));
+		    return(null);
+		}
+	    }.presize();
 	}
     }
     private void togglesdw(GLConfig gc) {
@@ -765,7 +796,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public void resize(Coord sz) {
 	this.sz = sz;
 	menu.c = sz.sub(menu.sz);
-	menumenu.c = menu.c.add(menu.sz.x, 0).sub(menumenu.sz);
 	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
 	chat.move(new Coord(mainmenu.sz.x, sz.y));
 	chat.resize(sz.x - chat.c.x - menu.sz.x);
