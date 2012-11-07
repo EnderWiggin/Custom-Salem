@@ -291,13 +291,6 @@ public class CharWnd extends Window {
 	public void drawmeter(GOut g, Coord c, Coord sz) {
 	    g.chcolor(0, 0, 0, 255);
 	    g.frect(c, sz);
-	    g.chcolor(64, 64, 64, 255);
-	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
-	    if(av)
-		g.chcolor(0, (a == 1)?255:128, 0, 255);
-	    else
-		g.chcolor(0, 0, 128, 255);
-	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		try {
 		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
@@ -305,13 +298,13 @@ public class CharWnd extends Window {
 		    if(insp != null) {
 			for(int i = 0; i < insp.attrs.length; i++) {
 			    if(insp.attrs[i].equals(nm)) {
-				int w = Math.min(((sz.x - 2) * insp.exp[i]) / (attr.comp * 100),
-						 sz.x - 2);
-				if(insp.exp[i] > (attr.comp * 100))
+				int w = ((sz.x - 2) * (insp.exp[i] + sexp)) / (attr.comp * 100);
+				if(w >= expsz.x - 2) {
+				    w = expsz.x - 2;
 				    g.chcolor(GAIN_ENOUGH);
-				else
+				} else {
 				    g.chcolor(GAIN_SMALL);
-
+				}
 				g.frect(c.add(1, 1), new Coord(w, (sz.y / 2)));
 				break;
 			    }
@@ -319,6 +312,15 @@ public class CharWnd extends Window {
 		    }
 		} catch(Loading e) {}
 	    }
+	    
+	    g.chcolor(FILL_GHOST);
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
+	    if(av)
+		g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
+	    else
+		g.chcolor(FILL);
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
+	    
 	    if(nsk.sel != null) {
 		Skill sk = nsk.sel;
 		for(int i = 0; i < sk.costa.length; i++) {
@@ -326,9 +328,9 @@ public class CharWnd extends Window {
 			int w = Math.min(((sz.x - 2) * sk.costv[i]) / (attr.comp * 100),
 					 sz.x - 2);
 			if(sk.costv[i] > (attr.comp * 100))
-			    g.chcolor(255, 0, 0, 255);
+			    g.chcolor(REQ_NOT_ENOUGH);
 			else
-			    g.chcolor(128, 0, 0, 255);
+			    g.chcolor(REQ_ENOUGH);
 
 			g.frect(c.add(1, sz.y / 2), new Coord(w, (sz.y / 2)));
 			break;

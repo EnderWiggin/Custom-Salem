@@ -211,12 +211,11 @@ public class WItem extends Widget implements DTarget {
 		double a = ((double)item.meter) / 100.0;
 		int r = (int) ((1-a)*255);
 		int gr = (int) (a*255);
-		Coord s2 = sz.add(2, 2);
-		GOut g2 = g.reclipl(Coord.z, s2);
-		g2.chcolor(r, gr, 0, 255);
+		Coord s2 = sz.sub(0, 4);
+		g.chcolor(r, gr, 0, 255);
 		Coord bsz = new Coord(4, (int) (a*s2.y));
-		g2.frect(s2.sub(bsz), bsz);
-		g2.chcolor();
+		g.frect(s2.sub(bsz).sub(4,0), bsz);
+		g.chcolor();
 	    }
 	    heuristics(g);
 	    if(olcol.get() != null) {
@@ -256,16 +255,15 @@ public class WItem extends Widget implements DTarget {
 	if(heur_meters == null){return;}
 
 	int k = 0;
-	Coord s2 = sz.add(2, 2);
-	GOut g2 = g.reclipl(Coord.z, s2);
+	Coord s2 = sz.sub(0, 4);
 	for (Integer meter : heur_meters){
 	    double a = ((double)meter) / 100.0;
 	    int r = (int) ((1-a)*255);
 	    int gr = (int) (a*255);
-	    g2.chcolor(r, gr, 0, 255);
+	    g.chcolor(r, gr, 0, 255);
 	    Coord bsz = new Coord(4, (int) (a*s2.y));
-	    g2.frect(new Coord(bsz.x*k, s2.y - bsz.y), bsz);
-	    g2.chcolor();
+	    g.frect(new Coord(bsz.x*k+1, s2.y - bsz.y), bsz);
+	    g.chcolor();
 	    k++;
 	}
 	
