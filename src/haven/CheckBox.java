@@ -44,7 +44,7 @@ public class CheckBox extends Widget {
     public CheckBox(Coord c, Widget parent, String lbl) {
 	super(c, box.sz(), parent);
 	this.lbl = lblf.render(lbl);
-	sz = box.sz().add(this.lbl.sz()).add(2, 0);
+	sz = new Coord(box.sz().x + 2 + this.lbl.sz().x, Math.max(box.sz().y, this.lbl.sz().y));
     }
 	
     public boolean mousedown(Coord c, int button) {
