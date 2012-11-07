@@ -98,6 +98,8 @@ public class Window extends Widget implements DTarget {
 	for(Widget wdg = child; wdg != null; wdg = wdg.next) {
 	    if(twdgs.contains(wdg))
 		continue;
+	    if(!wdg.visible)
+		continue;
 	    Coord br = wdg.c.add(wdg.sz);
 	    if(br.x > max.x)
 		max.x = br.x;
@@ -220,11 +222,13 @@ public class Window extends Widget implements DTarget {
     }
 
     public boolean type(char key, java.awt.event.KeyEvent ev) {
+	if(super.type(key, ev))
+	    return(true);
 	if(key == 27) {
 	    wdgmsg("close");
 	    return(true);
 	}
-	return(super.type(key, ev));
+	return(false);
     }
 
     public boolean drop(Coord cc, Coord ul) {
