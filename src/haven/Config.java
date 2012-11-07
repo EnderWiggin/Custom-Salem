@@ -78,6 +78,8 @@ public class Config {
     public static boolean timestamp = true;
     public static boolean shadows = false;
     public static boolean flower_study = Utils.getprefb("flower_study", false);
+    public static boolean antialiasing = false;
+    public static GLConfig glconf;
     
     static {
 	String p;
@@ -119,6 +121,7 @@ public class Config {
         isUpdate = !version.equals(ver);
         
         shadows = options.getProperty("shadows", "false").equals("true");
+        antialiasing = options.getProperty("antialiasing", "false").equals("true");
         
         if(isUpdate){
             saveOptions();
@@ -130,6 +133,7 @@ public class Config {
 	    //refresh from vars
 	    options.setProperty("version", version);
 	    options.setProperty("shadows", shadows?"true":"false");
+	    options.setProperty("antialiasing", antialiasing?"true":"false");
 	    
 	    //store it
 	    saveProps(options, "salem.cfg", "Salem config file");

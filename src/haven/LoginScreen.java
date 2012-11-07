@@ -42,7 +42,6 @@ public class LoginScreen extends Widget {
     Login cur;
     Login[] lgn;
     RadioGroup lgnType;
-    OptWnd.Frame frame;
     Text error;
     Window log;
     IButton btn;
@@ -241,10 +240,6 @@ public class LoginScreen extends Widget {
     }
     
     private void clear() {
-	if(frame != null){
-	    ui.destroy(frame);
-	    frame = null;
-	}
 	if(lgn != null){
 	    ui.destroy(lgn[0]);
 	    ui.destroy(lgn[1]);
@@ -279,29 +274,6 @@ public class LoginScreen extends Widget {
 		    cur = new Pwbox((String)args[0], (Boolean)args[1]);
 		} else if(Config.authmech.equals("paradox")) {
 		    cur = new Pdxbox((String)args[0], (Boolean)args[1]);
-		} else if(Config.authmech.equals("unsure")) {
-		    
-		    lgn = new Login[2];
-		    lgn[0] = new Pdxbox((String)args[0], (Boolean)args[1]);
-		    lgn[1] = new Pwbox((String)args[0], (Boolean)args[1]);
-		    
-		    frame = new OptWnd.Frame(new Coord(550, 350), new Coord(130, 120), new Color(33,33,33,200), this);
-		    new Label(new Coord(10,10), frame, "Your account type:");
-		    
-		    lgnType = new RadioGroup(frame){
-
-			@Override
-			public void changed(int btn, String lbl) {
-			    lgn[0].hide();
-			    lgn[1].hide();
-			    cur = lgn[btn];
-			    cur.show();
-			}
-			
-		    };
-		    lgnType.add("Paradox", new Coord(10, 30), true);
-		    lgnType.add("H&H", new Coord(10, 65), true);
-		    lgnType.check(0);
 		} else {
 		    throw(new RuntimeException("Unknown authmech `" + Config.authmech + "' specified"));
 		}

@@ -26,265 +26,139 @@
 
 package haven;
 
-import java.util.*;
-import java.awt.Color;
-import java.awt.font.TextAttribute;
 
 public class OptWnd extends Window {
-    public static final RichText.Foundry foundry = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
-    public static OptWnd instance = null;
-    private Tabs body;
-    private String curcam;
-    private Map<String, CamInfo> caminfomap = new HashMap<String, CamInfo>();
-    private Map<String, String> camname2type = new HashMap<String, String>();
-    private Comparator<String> camcomp = new Comparator<String>() {
-	public int compare(String a, String b) {
-	    if(a.startsWith("The ")) a = a.substring(4);
-	    if(b.startsWith("The ")) b = b.substring(4);
-	    return(a.compareTo(b));
-	}
-    };
-    CheckBox opt_shadow;
-    CheckBox opt_show_tempers;
+    public final Panel main;
+    public Panel current;
 
-    private static class CamInfo {
-	String name, desc;
-	Tabs.Tab args;
-	
-	public CamInfo(String name, String desc, Tabs.Tab args) {
-	    this.name = name;
-	    this.desc = desc;
-	    this.args = args;
+    public void chpanel(Panel p) {
+	if(current != null)
+	    current.hide();
+	(current = p).show();
+	pack();
+    }
+
+    public class PButton extends Button {
+	public final Panel tgt;
+	public final int key;
+
+	public PButton(Coord c, int w, Widget parent, String title, int key, Panel tgt) {
+	    super(c, w, parent, title);
+	    this.tgt = tgt;
+	    this.key = key;
+	}
+
+	public void click() {
+	    chpanel(tgt);
+	}
+
+	public boolean type(char key, java.awt.event.KeyEvent ev) {
+	    if((this.key != -1) && (key == this.key)) {
+		click();
+		return(true);
+	    }
+	    return(false);
+	}
+    }
+
+    public class Panel extends Widget {
+	public Panel(Coord sz) {
+	    super(Coord.z, sz, OptWnd.this);
+	    visible = false;
+	}
+    }
+
+    public class VideoPanel extends Panel {
+	public VideoPanel(Panel back) {
+	    super(new Coord(200, 200));
+	    new PButton(new Coord(0, 180), 200, this, "Back", 27, back);
+	}
+
+	public class CPanel extends Widget {
+	    public final GLConfig cf;
+
+	    public CPanel(GLConfig gcf) {
+		super(Coord.z, new Coord(200, 175), VideoPanel.this);
+		this.cf = gcf;
+		int y = 0;
+		new CheckBox(new Coord(0, y), this, "Render shadows") {
+		    {a = (cf.deflight == Light.pslights);}
+
+		    public void changed(boolean val) {
+			if(val) {
+			    if(cf.shuse) {
+				cf.deflight = Light.pslights;
+			    } else {
+				getparent(GameUI.class).error("Shadow rendering requires a shader compatible video card.");
+				a = false;
+			    }
+			} else {
+			    cf.deflight = Light.vlights;
+			}
+		    }
+		};
+		y += 20;
+		new CheckBox(new Coord(0, y), this, "Antialiasing") {
+		    {a = cf.fsaa;}
+
+		    public void changed(boolean val) {
+			if(val && !cf.havefsaa()) {
+			    getparent(GameUI.class).error("Your video card does not support antialiasing.");
+			    a = false;
+			    return;
+			}
+			cf.fsaa = val;
+		    }
+		};
+	    }
+	}
+
+	private CPanel curcf = null;
+	public void draw(GOut g) {
+	    if((curcf == null) || (g.gc != curcf.cf)) {
+		if(curcf != null)
+		    curcf.destroy();
+		curcf = new CPanel(g.gc);
+	    }
+	    super.draw(g);
 	}
     }
 
     public OptWnd(Coord c, Widget parent) {
-	super(c, new Coord(400, 340), parent, "Options");
-	justclose = true;
-	body = new Tabs(Coord.z, new Coord(400, 300), this) {
-		public void changed(Tab from, Tab to) {
-		    Utils.setpref("optwndtab", to.btn.text.text);
-		    from.btn.c.y = 0;
-		    to.btn.c.y = -2;
-		}};
-	Widget tab;
+	super(c, Coord.z, parent, "Options");
+	main = new Panel(new Coord(200, 200));
+	Panel video = new VideoPanel(main);
+	Panel audio = new Panel(new Coord(200, 200));
+	int y;
 
-	{ /* GENERAL TAB */
-	    tab = body.new Tab(new Coord(0, 0), 60, "General");
+	new PButton(new Coord(0, 0), 200, main, "Video settings", 'v', video);
+	new PButton(new Coord(0, 30), 200, main, "Audio settings", 'a', audio);
+	new Button(new Coord(0, 180), 200, main, "Log out") {
+	    public void click() {
+		getparent(GameUI.class).act("lo");
+	    }
+	};
 
-	    new Button(new Coord(0, 30), 125, tab, "Quit") {
-		public void click() {
-		    HackThread.tg().interrupt();
-		}};
-	    new Button(new Coord(0, 60), 125, tab, "Log out") {
-		public void click() {
-		    ui.sess.close();
-		}};
-	    /*
-	    new Button(new Coord(10, 100), 125, tab, "Toggle fullscreen") {
-		public void click() {
-		    if(ui.fsm != null) {
-			if(ui.fsm.hasfs()) ui.fsm.setwnd();
-			else               ui.fsm.setfs();
-		    }
-		}};
-	    */
+	y = 0;
+	new Label(new Coord(0, y), audio, "Audio volume");
+	y += 20;
+	new HSlider(new Coord(0, y), 200, audio, 0, 1000, (int)(Audio.volume * 1000)) {
+	    public void changed() {
+		Audio.setvolume(val / 1000.0);
+	    }
+	};
+	new PButton(new Coord(0, 180), 200, audio, "Back", 27, main);
 
-	    Widget editbox = new Frame(new Coord(310, 30), new Coord(90, 100), tab);
-	    new Label(new Coord(20, 10), editbox, "Edit mode:");
-	    RadioGroup editmode = new RadioGroup(editbox) {
-		    public void changed(int btn, String lbl) {
-			Utils.setpref("editmode", lbl.toLowerCase());
-		    }};
-	    editmode.add("Emacs", new Coord(10, 25));
-	    editmode.add("PC",    new Coord(10, 50));
-	    if(Utils.getpref("editmode", "pc").equals("emacs")) editmode.check("Emacs");
-	    else                                                editmode.check("PC");
-	    
-	    int y = 100;
-	    opt_show_tempers = new CheckBox(new Coord(0, y), tab, "Always show humor numbers"){
-		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.show_tempers = val;
-		    Utils.setprefb("show_tempers", val);
-		}
-	    };
-	    opt_show_tempers.a = Config.show_tempers;
-	    //opt_show_tempers.enabled = Config.plain_tempers;
-	    
-	    new CheckBox(new Coord(0, y += 25), tab, "Store minimap"){
-		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.store_map = val;
-		    Utils.setprefb("store_map", val);
-		    if(val)ui.gui.mmap.cgrid = null;
-		}
-	    }.a = Config.store_map;
-	    
-	    new CheckBox(new Coord(0, y += 25), tab, "Study protection"){
-		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.flower_study = val;
-		    Utils.setprefb("flower_study", val);
-		}
-
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Leave only 'Study' option in right-click menus, if they have one.";
-		}
-		
-	    }.a = Config.flower_study;
-	}
-
-	
-	{ //-* CAMERA TAB *-
-	    curcam = Utils.getpref("defcam", MapView.DEFCAM);
-	    tab = body.new Tab(new Coord(70, 0), 60, "Camera");
-
-	    new Label(new Coord(10, 30), tab, "Camera type:");
-	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 25), new Coord(210, 180), tab, "", foundry);
-	    caminfo.bg = new java.awt.Color(0, 0, 0, 64);
-	    addinfo("follow",       "Follow Cam",  "The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("sfollow",    "Follow Cam Smoothed", "The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("free",     "Freestyle",     "You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-
-	    final Tabs cambox = new Tabs(new Coord(100, 60), new Coord(300, 200), tab);
-	    
-	    final RadioGroup cameras = new RadioGroup(tab) {
-		    public void changed(int btn, String lbl) {
-			if(camname2type.containsKey(lbl))
-			    lbl = camname2type.get(lbl);
-			if(!lbl.equals(curcam)) {
-			    setcamera(lbl);
-			}
-			CamInfo inf = caminfomap.get(lbl);
-			if(inf == null) {
-			    cambox.showtab(null);
-			    caminfo.settext("");
-			} else {
-			    cambox.showtab(inf.args);
-			    caminfo.settext(String.format("$size[12]{%s}\n\n$col[200,175,150,255]{%s}", inf.name, inf.desc));
-			}
-		    }};
-	    List<String> clist = new ArrayList<String>();
-	    for(String camtype : MapView.camtypes.keySet())
-		clist.add(caminfomap.containsKey(camtype) ? caminfomap.get(camtype).name : camtype);
-	    Collections.sort(clist, camcomp);
-	    int y = 25;
-	    for(String camname : clist)
-		cameras.add(camname, new Coord(10, y += 25));
-	    cameras.check(caminfomap.containsKey(curcam) ? caminfomap.get(curcam).name : curcam);
-	    
-	    opt_shadow = new CheckBox(new Coord(180, 225), tab, "Shadows"){
-		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.shadows = val; 
-		    ui.gui.togglesdw = true;
-		}
-		
-	    };
-	    opt_shadow.a = Config.shadows;
-	}
-	
-
-	{ /* AUDIO TAB */
-	    tab = body.new Tab(new Coord(140, 0), 60, "Audio");
-
-	    new Label(new Coord(10, 40), tab, "Sound volume:");
-	    new Frame(new Coord(10, 65), new Coord(20, 206), tab);
-	    final Label sfxvol = new Label(new Coord(35, 69 + (int)(getsfxvol() * 1.86)),  tab, String.valueOf(100 - getsfxvol()) + " %");
-	    new Scrollbar(new Coord(25, 70), 196, tab, 0, 100) {{ val = getsfxvol(); }
-		public void changed() {
-		    Audio.setvolume((100 - val) / 100.0);
-		    sfxvol.c.y = 69 + (int)(val * 1.86);
-		    sfxvol.settext(String.valueOf(100 - val) + " %");
-		}
-		public boolean mousewheel(Coord c, int amount) {
-		    val = Utils.clip(val + amount, min, max);
-		    changed();
-		    return(true);
-		}};
-	    new CheckBox(new Coord(10, 280), tab, "Music enabled") {
-		public void changed(boolean val) {
-		    Music.enable(val);
-		}};
-	}
-
-	//new Frame(new Coord(-10, 20), new Coord(420, 330), this);
-	String last = Utils.getpref("optwndtab", "");
-	for(Tabs.Tab t : body.tabs) {
-	    if(t.btn.text.text.equals(last))
-		body.showtab(t);
-	}
-    }
-
-
-    private void setcamera(String camtype) {
-	curcam = camtype;
-	Utils.setpref("defcam", curcam);
-
-	MapView mv = ui.gui.map;
-	if(mv != null) {
-	    mv.setcam(curcam);
-	}
-    }
-
-    private int getsfxvol() {
-	return((int)(100 - Double.parseDouble(Utils.getpref("sfxvol", "1.0")) * 100));
-    }
-
-    private void addinfo(String camtype, String title, String text, Tabs.Tab args) {
-	caminfomap.put(camtype, new CamInfo(title, text, args));
-	camname2type.put(title, camtype);
+	chpanel(main);
     }
 
     public void wdgmsg(Widget sender, String msg, Object... args) {
-	if(sender == cbtn)
-	    super.wdgmsg(sender, msg, args);
+	if((sender == this) && (msg == "close"))
+	    hide();
     }
 
-    public static class Frame extends Widget {
-	private IBox box;
-	private Color bgcoplor;
-
-	public Frame(Coord c, Coord sz, Widget parent) {
-	    super(c, sz, parent);
-	    box = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
-	}
-	
-	public Frame(Coord c, Coord sz, Color bg, Widget parent) {
-	   this(c, sz, parent);
-	   bgcoplor = bg;
-	}
-
-	public void draw(GOut og) {
-	    GOut g = og.reclip(Coord.z, sz);
-	    if(bgcoplor != null){
-		g.chcolor(bgcoplor);
-		g.frect(box.tloff(), sz.sub(box.bisz()));
-	    }
-	    g.chcolor(150, 200, 125, 255);
-	    box.draw(g, Coord.z, sz);
-	    super.draw(og);
-	}
-    }
-
-    public static void toggle() {
-	UI ui = UI.instance;
-	if(instance == null){
-	    instance = new OptWnd(Coord.z, ui.gui);
-	} else {
-	    ui.destroy(instance);
-	}
-    }
-
-    @Override
-    public void destroy() {
-	instance = null;
-	super.destroy();
+    public void show() {
+	chpanel(main);
+	super.show();
     }
 }

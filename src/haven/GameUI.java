@@ -58,6 +58,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public CharWnd chrwdg;
     public Polity polity;
     public HelpWnd help;
+    public OptWnd opts;
     public Collection<GItem> hand = new LinkedList<GItem>();
     private WItem vhand;
     public ChatUI chat;
@@ -140,6 +141,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		public void close() {}
 		public void flush() {}
 	    });
+	opts = new OptWnd(sz.sub(200, 200).div(2), this);
+	opts.hide();
 	makemenu();
 	resize(sz);
     }
@@ -385,7 +388,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 //	boolean beltp = !chat.expanded;
 //	beltwdg.show(beltp);
 	super.draw(g);
-	togglesdw(g.gc);
+	togglevidoeopts(g.gc);
 	if(prog >= 0) {
 	    String progs = String.format("%d%%", prog);
 	    if((progt == null) || !progs.equals(progt.text))
@@ -604,7 +607,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     private static final Tex menubgfull = Resource.loadtex("gfx/hud/menubgfull");
-    public boolean togglesdw = true;
+    public boolean togglesdw = true, toggleaa = true;
     
     private class MainMenu extends Widget {
 	boolean full = true;
@@ -650,8 +653,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		},
 		new MenuButton(new Coord(62, 124), this, "opt", 15, "Options (Ctrl+O)") {
 		    public void click() {
-			//togglesdw = true;
-			OptWnd.toggle();
+			OptWnd2.toggle();
+//			if(opts.show(!opts.visible)) {
+//			    opts.raise();
+//			    fitwdg(opts);
+//			    setfocus(opts);
+//			}
 		    }
 		}
 	};
@@ -846,24 +853,38 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    mainmenu.toggle();
 	}
     }
-    private void togglesdw(GLConfig gc) {
-	if(togglesdw) {
-	    togglesdw = false;
-	    if(Config.shadows){
-		if (gc.deflight != Light.pslights){
-		    if(gc.shuse) {
-			gc.deflight = Light.pslights;
-		    } else {
-			error("Shadow rendering requires a shader compatible video card.");
-			Config.shadows = false;
-		    }
-		}
-	    } else if(gc.deflight == Light.pslights){
-		gc.deflight = Light.vlights;
-	    }
-	    Config.saveOptions();
-	    if(OptWnd.instance != null){OptWnd.instance.opt_shadow.a = Config.shadows;}
+    
+    private void togglevidoeopts(GLConfig gc){
+	if(togglesdw) {togglesdw(gc);}
+	if(toggleaa){toggleaa(gc);}
+    }
+    private void toggleaa(GLConfig gc) {
+	toggleaa = false;
+	if(Config.antialiasing && !gc.havefsaa()) {
+	    getparent(GameUI.class).error("Your video card does not support antialiasing.");
+	    Config.antialiasing = false;
 	}
+	gc.fsaa = Config.antialiasing;
+	Config.saveOptions();
+	if(OptWnd2.instance != null){OptWnd2.instance.opt_aa.a = Config.antialiasing;}
+    }
+
+    private void togglesdw(GLConfig gc) {
+	togglesdw = false;
+	if(Config.shadows){
+	    if (gc.deflight != Light.pslights){
+		if(gc.shuse) {
+		    gc.deflight = Light.pslights;
+		} else {
+		    error("Shadow rendering requires a shader compatible video card.");
+		    Config.shadows = false;
+		}
+	    }
+	} else if(gc.deflight == Light.pslights){
+	    gc.deflight = Light.vlights;
+	}
+	Config.saveOptions();
+	if(OptWnd2.instance != null){OptWnd2.instance.opt_shadow.a = Config.shadows;}
     }
 
     public boolean globtype(char key, KeyEvent ev) {
@@ -937,6 +958,23 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     
     public void act(String... args) {
 	wdgmsg("act", (Object[])args);
+    }
+
+    public void act(int mods, Coord mc, Gob gob, String... args) {
+	int n = args.length;
+	Object[] al = new Object[n];
+	System.arraycopy(args, 0, al, 0, n);
+	if(mc != null) {
+	    al = Utils.extend(al, al.length + 2);
+	    al[n++] = mods;
+	    al[n++] = mc;
+	    if(gob != null) {
+		al = Utils.extend(al, al.length + 2);
+		al[n++] = (int)gob.id;
+		al[n++] = gob.rc;
+	    }
+	}
+	wdgmsg("act", al);
     }
 
     public class FKeyBelt extends Belt implements DTarget, DropTarget {
