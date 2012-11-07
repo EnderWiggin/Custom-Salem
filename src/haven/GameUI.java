@@ -51,6 +51,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public CharWnd chrwdg;
     public Polity polity;
     public HelpWnd help;
+    public OptWnd opts;
     public Collection<GItem> hand = new LinkedList<GItem>();
     private WItem vhand;
     public ChatUI chat;
@@ -130,6 +131,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		public void close() {}
 		public void flush() {}
 	    });
+	opts = new OptWnd(sz.sub(200, 200).div(2), this);
+	opts.hide();
 	makemenu();
 	resize(sz);
     }
@@ -350,7 +353,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	boolean beltp = !chat.expanded;
 	beltwdg.show(beltp);
 	super.draw(g);
-	togglesdw(g.gc);
 	if(prog >= 0) {
 	    String progs = String.format("%d%%", prog);
 	    if((progt == null) || !progs.equals(progt.text))
@@ -568,7 +570,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     }
 
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
-    private boolean togglesdw = false;
     private void makemenu() {
 	mainmenu = new Widget(new Coord(0, sz.y - menubg.sz().y), menubg.sz(), this);
 	new Img(Coord.z, menubg, mainmenu);
@@ -611,9 +612,13 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }
 	};
-	new MenuButton(new Coord(219, 124), mainmenu, "opt", -1, "Options (Merely toggles shadows for now)") {
+	new MenuButton(new Coord(219, 124), mainmenu, "opt", 15, "Options") {
 	    public void click() {
-		togglesdw = true;
+		if(opts.show(!opts.visible)) {
+		    opts.raise();
+		    fitwdg(opts);
+		    setfocus(opts);
+		}
 	    }
 	};
 	new MenuButton(new Coord(6, 160), mainmenu, "cla", -1, "Display personal claims") {
@@ -739,20 +744,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    return(null);
 		}
 	    }.presize();
-	}
-    }
-    private void togglesdw(GLConfig gc) {
-	if(togglesdw) {
-	    togglesdw = false;
-	    if(gc.deflight == Light.pslights) {
-		gc.deflight = Light.vlights;
-	    } else {
-		if(gc.shuse) {
-		    gc.deflight = Light.pslights;
-		} else {
-		    error("Shadow rendering requires a shader compatible video card.");
-		}
-	    }
 	}
     }
 
