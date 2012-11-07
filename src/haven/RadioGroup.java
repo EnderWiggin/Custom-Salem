@@ -55,7 +55,7 @@ public class RadioGroup {
 	}
 
 	public boolean mousedown(Coord c, int button) {
-	    if(a || button != 1 || c.y < 16 || c.y > sz.y - 10)
+	    if(a || button != 1)
 		return(false);
 	    check(this);
 	    return(true);
@@ -64,7 +64,7 @@ public class RadioGroup {
 	public void changed(boolean val) {
 	    a = val;
 	    if(!skip_super)super.changed(val);
-	    lbl = Text.std.render(lbl.text, a ? java.awt.Color.YELLOW : java.awt.Color.WHITE);
+	    lbl = CheckBox.lblf.render(lbl.text, a ? java.awt.Color.YELLOW : java.awt.Color.WHITE);
 	}
     }
 

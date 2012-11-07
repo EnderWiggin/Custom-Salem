@@ -113,7 +113,7 @@ public class OptWnd extends Window {
 	    opt_show_tempers.a = Config.show_tempers;
 	    //opt_show_tempers.enabled = Config.plain_tempers;
 	    
-	    new CheckBox(new Coord(0, y += 30), tab, "Store minimap"){
+	    new CheckBox(new Coord(0, y += 25), tab, "Store minimap"){
 		@Override
 		public void changed(boolean val) {
 		    super.changed(val);
@@ -123,7 +123,7 @@ public class OptWnd extends Window {
 		}
 	    }.a = Config.store_map;
 	    
-	    new CheckBox(new Coord(0, y += 30), tab, "Study protection"){
+	    new CheckBox(new Coord(0, y += 25), tab, "Study protection"){
 		@Override
 		public void changed(boolean val) {
 		    super.changed(val);

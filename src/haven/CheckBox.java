@@ -29,7 +29,7 @@ package haven;
 public class CheckBox extends Widget {
     public static final Tex box = Resource.loadtex("gfx/hud/chkbox");
     public static final Tex act = Resource.loadtex("gfx/hud/chkboxa");
-    public static final Text.Furnace lblf = new Text.Foundry("Sans", 11);
+    public static final Text.Foundry lblf = new Text.Foundry("Sans", 11);
     public boolean a = false;
     public boolean enabled = true;
     Text lbl;
@@ -45,7 +45,7 @@ public class CheckBox extends Widget {
     public CheckBox(Coord c, Widget parent, String lbl) {
 	super(c, box.sz(), parent);
 	this.lbl = lblf.render(lbl);
-	sz = box.sz().add(this.lbl.sz()).add(2, 0);
+	sz = box.sz().add(this.lbl.sz().x + 2, 0);
     }
 	
     public boolean mousedown(Coord c, int button) {
