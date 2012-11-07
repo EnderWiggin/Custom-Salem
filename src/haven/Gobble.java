@@ -88,7 +88,7 @@ public class Gobble extends SIWidget {
 	}
 
 	public static WritableRaster evmeter(Raster tex, int val, int max) {
-	    int w = (Math.min(val, max) * tex.getWidth()) / Math.max(max, 1);
+	    int w = (Utils.clip(val, 0, max) * tex.getWidth()) / Math.max(max, 1);
 	    WritableRaster bar = imgraster(imgsz(tex));
 	    for(int y = 0; y < bar.getHeight(); y++) {
 		for(int x = 0; x < bar.getWidth(); x++)
