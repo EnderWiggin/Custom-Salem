@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 07.11.12:}}
+  * Fixed radio group clicks - camera mode selection works proper now
+  * curio gain bar in character window now drawn from current skill xp, not from the beginning of the bar
+  * fixed meters drawing over items
+  * made Humours and Gluttony bars display numbers if proper option is turned on
+ 
 $size[14]{$u{Update for 05.11.12:}}
   * Merged new UI from loftar
  
