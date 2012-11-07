@@ -26,11 +26,16 @@
 
 package haven;
 
+import haven.RichText.Foundry;
+
 import java.awt.Color;
+import java.awt.font.TextAttribute;
 import java.awt.image.*;
+
 import static haven.PUtils.*;
 
 public class Tempers extends SIWidget {
+    static final Foundry tmprfnd = new RichText.Foundry(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12);
     public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/bg");
     public static final BufferedImage[] bars, sbars, fbars;
     public static final BufferedImage lcap = Resource.loadimg("gfx/hud/tempers/lcap");
@@ -51,6 +56,7 @@ public class Tempers extends SIWidget {
     boolean full = false;
     Tex tt = null;
     public Widget gbtn;
+    private Tex[] texts = null;
 
     static {
 	int n = anm.length;
@@ -83,6 +89,7 @@ public class Tempers extends SIWidget {
 		full = false;
 	    if(max[i] != lmax[i]) {
 		redraw();
+		texts = null;
 		tt = null;
 	    }
 	}
@@ -202,13 +209,34 @@ public class Tempers extends SIWidget {
 	alphablit(dst, rmeter(bars[3].getRaster(), hard[3], lmax[3]), mc[3]);
     }
     
+    @Override
+    public void draw(GOut g) {
+	super.draw(g);
+	if(Config.show_tempers){
+	    int i;
+	    if(texts == null){
+		texts = new TexI[4];
+		for(i = 0; i < 4; i++){
+		    String str = String.format("%s / %s / %s", Utils.fpformat(hard[i], 3, 1), Utils.fpformat(soft[i], 3, 1), Utils.fpformat(lmax[i], 3, 1));
+		    texts[i] = text(str);
+		}
+	    }
+	    g.aimage(texts[0], mc[0].add(bars[0].getWidth()/2, bars[0].getHeight()/2 - 1), 0.5, 0.5);
+	    g.aimage(texts[1], mc[1].add(-bars[1].getWidth()/2, bars[1].getHeight()/2 - 1), 0.5, 0.5);
+	    g.aimage(texts[2], mc[2].add(-bars[2].getWidth()/2, bars[2].getHeight()/2 - 1), 0.5, 0.5);
+	    g.aimage(texts[3], mc[3].add(bars[3].getWidth()/2, bars[3].getHeight()/2 - 1), 0.5, 0.5);
+	}
+    }
+
     public void upds(int[] n) {
+	texts = null;
 	this.soft = n;
 	redraw();
 	tt = null;
     }
     
     public void updh(int[] n) {
+	texts = null;
 	this.hard = n;
 	redraw();
 	tt = null;
@@ -231,5 +259,9 @@ public class Tempers extends SIWidget {
 	    return(tt);
 	}
 	return(null);
+    }
+    
+    public static TexI text(String str) {
+	return new TexI(Utils.outline2(tmprfnd.render(str).img, new Color(240, 240, 240), false));
     }
 }

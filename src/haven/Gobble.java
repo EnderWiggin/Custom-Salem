@@ -45,6 +45,7 @@ public class Gobble extends SIWidget {
     private int max;
     private Tex lvlmask;
     private long lvltime;
+    Tex[] texts = null;
 
     public static class Event extends SIWidget {
 	public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/epbg");
@@ -127,7 +128,7 @@ public class Gobble extends SIWidget {
 	    BufferedImage pt = chmf.renderf("%d%%", prob).img;
 	    alphablit(dst, pt.getRaster(), chmc.add(imgsz(chm).sub(imgsz(pt)).div(2)));
 	}
-
+	
 	public void draw(GOut g) {
 	    if(alpha != 255)
 		g.chcolor(255, 255, 255, alpha);
@@ -174,8 +175,12 @@ public class Gobble extends SIWidget {
 	    lmax[i] = ui.sess.glob.cattr.get(Tempers.anm[i]).comp;
 	    if(lmax[i] == 0)
 		return;
-	    if(lmax[i] != this.lmax[i])
+	    if(lmax[i] != this.lmax[i]){
 		redraw();
+		if(this.lmax[i] != 0){
+		    ui.message(String.format("You have raised %s!", Tempers.rnm[i]));
+		}
+	    }
 	    max = Math.max(max, lmax[i]);
 	}
 	this.lmax = lmax;
@@ -258,6 +263,22 @@ public class Gobble extends SIWidget {
 		g.image(lvlmask, Coord.z);
 	    }
 	}
+	
+	if(Config.show_tempers){
+	    int i;
+	    if(texts == null){
+		texts = new TexI[4];
+		for(i = 0; i < 4; i++){
+		    int attr = ui.sess.glob.cattr.get(Tempers.anm[i]).comp;
+		    String str = String.format("%s / %s (%s)", Utils.fpformat(lev[i], 3, 1), Utils.fpformat(max, 3, 1), Utils.fpformat(attr, 3, 1));
+		    texts[i] = text(str);
+		}
+	    }
+	    g.aimage(texts[0], mc[0].add(bars[0].getWidth()/2, bars[0].getHeight()/2 - 1), 0.5, 0.5);
+	    g.aimage(texts[1], mc[1].add(-bars[1].getWidth()/2, bars[1].getHeight()/2 - 1), 0.5, 0.5);
+	    g.aimage(texts[2], mc[2].add(-bars[2].getWidth()/2, bars[2].getHeight()/2 - 1), 0.5, 0.5);
+	    g.aimage(texts[3], mc[3].add(bars[3].getWidth()/2, bars[3].getHeight()/2 - 1), 0.5, 0.5);
+	}
     }
 
     private void cleareating() {
@@ -280,6 +301,7 @@ public class Gobble extends SIWidget {
 
     public void updt(int[] n) {
 	this.lev = n;
+	texts = null;
 	redraw();
     }
 
