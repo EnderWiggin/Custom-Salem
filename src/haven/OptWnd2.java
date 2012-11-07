@@ -208,9 +208,8 @@ public class OptWnd2 extends Window {
 	    tab = body.new Tab(new Coord(140, 0), 60, "Audio");
 
 	    new Label(new Coord(10, 40), tab, "Sound volume:");
-	    new Frame(new Coord(10, 65), new Coord(20, 206), tab);
 
-	    new HSlider(new Coord(25, 70), 200, tab, 0, 1000, (int)(Audio.volume * 1000)) {
+	    new HSlider(new Coord(95, 45), 200, tab, 0, 1000, (int)(Audio.volume * 1000)) {
 		public void changed() {
 		    Audio.setvolume(val / 1000.0);
 		}
