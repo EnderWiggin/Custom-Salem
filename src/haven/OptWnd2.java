@@ -72,15 +72,18 @@ public class OptWnd2 extends Window {
 
 	{ /* GENERAL TAB */
 	    tab = body.new Tab(new Coord(0, 0), 60, "General");
-
 	    new Button(new Coord(0, 30), 125, tab, "Quit") {
 		public void click() {
 		    HackThread.tg().interrupt();
 		}};
-	    new Button(new Coord(0, 60), 125, tab, "Log out") {
+	    new Button(new Coord(135, 30), 125, tab, "Switch character") {
 		public void click() {
-		    ui.sess.close();
+		    ui.gui.act("lo", "cs");
 		}};
+	    new Button(new Coord(0, 60), 125, tab, "Log out") {
+		    public void click() {
+			ui.sess.close();
+		    }};
 	    /*
 	    new Button(new Coord(10, 100), 125, tab, "Toggle fullscreen") {
 		public void click() {

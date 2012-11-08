@@ -133,9 +133,19 @@ public class OptWnd extends Window {
 
 	new PButton(new Coord(0, 0), 200, main, "Video settings", 'v', video);
 	new PButton(new Coord(0, 30), 200, main, "Audio settings", 'a', audio);
-	new Button(new Coord(0, 180), 200, main, "Log out") {
+	new Button(new Coord(0, 120), 200, main, "Switch character") {
+	    public void click() {
+		getparent(GameUI.class).act("lo", "cs");
+	    }
+	};
+	new Button(new Coord(0, 150), 200, main, "Log out") {
 	    public void click() {
 		getparent(GameUI.class).act("lo");
+	    }
+	};
+	new Button(new Coord(0, 180), 200, main, "Close") {
+	    public void click() {
+		OptWnd.this.hide();
 	    }
 	};
 
@@ -153,8 +163,11 @@ public class OptWnd extends Window {
     }
 
     public void wdgmsg(Widget sender, String msg, Object... args) {
-	if((sender == this) && (msg == "close"))
+	if((sender == this) && (msg == "close")) {
 	    hide();
+	} else {
+	    super.wdgmsg(sender, msg, args);
+	}
     }
 
     public void show() {
