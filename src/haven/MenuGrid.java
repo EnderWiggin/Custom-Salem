@@ -37,7 +37,7 @@ public class MenuGrid extends Widget {
     public final Pagina next = paginafor(Resource.load("gfx/hud/sc-next"));
     public final Pagina bk = paginafor(Resource.load("gfx/hud/sc-back"));
     public final static RichText.Foundry ttfnd = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
-    private static Coord gsz = new Coord(3, 3);
+    private static Coord gsz = new Coord(4, 4);
     private Pagina cur, pressed, dragging, layout[][] = new Pagina[gsz.x][gsz.y];
     private int curoff = 0;
     private int pagseq = 0;
