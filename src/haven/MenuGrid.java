@@ -37,7 +37,7 @@ public class MenuGrid extends Widget {
     public final Pagina next = paginafor(Resource.load("gfx/hud/sc-next"));
     public final Pagina bk = paginafor(Resource.load("gfx/hud/sc-back"));
     public final static RichText.Foundry ttfnd = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
-    private static Coord gsz = new Coord(4, 4);
+    private static Coord gsz = new Coord(3, 3);
     private Pagina cur, pressed, dragging, layout[][] = new Pagina[gsz.x][gsz.y];
     private int curoff = 0;
     private int pagseq = 0;
@@ -289,10 +289,11 @@ public class MenuGrid extends Widget {
 	    this.cur = paginafor(this.cur.act().parent);
 	    curoff = 0;
 	} else if(r == next) {
-	    if((curoff + 14) >= cur.size())
+	    int off = gsz.x*gsz.y - 2;
+	    if((curoff + off) >= cur.size())
 		curoff = 0;
 	    else
-		curoff += 14;
+		curoff += off;
 	} else {
 	    String [] ad = r.act().ad;
 		if((ad == null) || (ad.length < 1)){return;}
@@ -353,12 +354,13 @@ public class MenuGrid extends Widget {
 	
     public boolean globtype(char k, KeyEvent ev) {
 	if(ev.isAltDown() || ev.isControlDown()){return false;}
+	k = (char) ev.getKeyCode();
 	if((k == 27) && (this.cur != null)) {
 	    this.cur = null;
 	    curoff = 0;
 	    updlayout();
 	    return(true);
-	} else if((k == 'N') && (layout[gsz.x - 2][gsz.y - 1] == next)) {
+	} else if((k == KeyEvent.VK_N) && (layout[gsz.x - 2][gsz.y - 1] == next)) {
 	    use(next);
 	    return(true);
 	}
