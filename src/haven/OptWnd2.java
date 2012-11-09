@@ -81,9 +81,9 @@ public class OptWnd2 extends Window {
 		    ui.gui.act("lo", "cs");
 		}};
 	    new Button(new Coord(0, 60), 125, tab, "Log out") {
-		    public void click() {
-			ui.sess.close();
-		    }};
+		public void click() {
+		    ui.gui.act("lo");
+		}};
 	    /*
 	    new Button(new Coord(10, 100), 125, tab, "Toggle fullscreen") {
 		public void click() {
@@ -296,5 +296,12 @@ public class OptWnd2 extends Window {
     public void destroy() {
 	instance = null;
 	super.destroy();
+    }
+
+    public static void close() {
+	if(instance != null){
+	    UI ui = UI.instance;
+	    ui.destroy(instance);
+	}
     }
 }

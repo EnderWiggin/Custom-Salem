@@ -5,6 +5,7 @@ $size[14]{$u{Update for 09.11.12:}}
     - Added switch character button
   * fixed size of toolbars
   * made MenuGrid react to key presses in any keyboard layout (e.g. Russian)
+  * fixed Options window not appearing properly after re-login or character switch
  
 $size[14]{$u{Update for 07.11.12:}}
   * Fixed radio group clicks - camera mode selection works proper now

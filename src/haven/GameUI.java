@@ -295,6 +295,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    attrview.destroy();
 	}
     }
+    
+    public void destroy() {
+	super.destroy();
+	OptWnd2.close();
+    }
 
     private Widget attrview;
     private void fixattrview(final CharWnd cw) {
