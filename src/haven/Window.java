@@ -136,7 +136,15 @@ public class Window extends Widget implements DTarget {
     }
 
     public void resize(Coord sz) {
-	IBox box = (cap == null)?wbox:topless;
+	IBox box;
+	int th;
+	if(cap == null){
+	    box = wbox;
+	    th = 0;
+	} else {
+	    box = topless;
+	    th = Window.th;
+	}
 	sz = sz.add(box.bisz()).add(0, th).add(mrgn.mul(2));
 	this.sz = sz;
 	ctl = box.btloff().add(0, th);
@@ -177,7 +185,7 @@ public class Window extends Widget implements DTarget {
 	    g.image(tright, new Coord(sz.x - tright.sz().x, tdh));
 	    g.image(cap.tex(), capc.sub(0, cap.sz().y));
 	} else {
-	    wbox.draw(g, new Coord(0, th), sz.sub(0, th));
+	    wbox.draw(g, Coord.z, sz);
 	}
 	/*
 	if(cap != null) {
@@ -207,7 +215,7 @@ public class Window extends Widget implements DTarget {
 	raise();
 	if(super.mousedown(c, button))
 	    return(true);
-	if(c.y < tdh)
+	if(c.y < tdh && cap != null)
 	    return(false);
 	if(button == 1) {
 	    ui.grabmouse(this);
