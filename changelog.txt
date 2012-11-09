@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 09.11.12:}}
+  * merged loftar's code
+    - Added switch character button
+  * fixed size of toolbars
+  * made MenuGrid react to key presses in any keyboard layout (e.g. Russian)
+ 
 $size[14]{$u{Update for 07.11.12:}}
   * Fixed radio group clicks - camera mode selection works proper now
   * curio gain bar in character window now drawn from current skill xp, not from the beginning of the bar
