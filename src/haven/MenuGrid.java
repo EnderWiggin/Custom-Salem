@@ -362,6 +362,7 @@ public class MenuGrid extends Widget {
 	    use(next);
 	    return(true);
 	}
+	k = (char) ev.getKeyCode();
 	Pagina r = hotmap.get(Character.toUpperCase(k));
 	if(r != null) {
 	    use(r);
