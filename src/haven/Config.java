@@ -80,6 +80,7 @@ public class Config {
     public static boolean flower_study = Utils.getprefb("flower_study", false);
     public static boolean antialiasing = false;
     public static GLConfig glconf;
+    public static String server;
     
     static {
 	String p;

@@ -356,10 +356,26 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	Window.swbox.draw(og, Coord.z, this.sz);
     }
     
+    private String mapfolder(){
+	return String.format("%s/map/%s/", Config.userhome, Config.server);
+    }
+    
+    private String mapfile(String file){
+	return String.format("%s%s", mapfolder(), file);
+    }
+    
+    private String mapsessfile(String file){
+	return String.format("%s%s/%s",mapfolder(), session, file);
+    }
+    
+    private String mapsessfolder(){
+	return mapsessfile("");
+    }
+    
     private void store(BufferedImage img, Coord cg) {
 	if(!Config.store_map){return;}
 	Coord c = cg.sub(sp);
-	String fileName = String.format("%s/map/%s/tile_%d_%d.png",Config.userhome, session, c.x, c.y);
+	String fileName = mapsessfile(String.format("tile_%d_%d.png", c.x, c.y));
 	File outputfile = new File(fileName);
 	try {
 	    ImageIO.write(img, "png", outputfile);
@@ -372,9 +388,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    cache.clear();
 	    session = Utils.current_date();
 	    if(Config.store_map){
-		(new File(Config.userhome+"/map/" + session)).mkdirs();
+		(new File(mapsessfolder())).mkdirs();
 		try {
-		    Writer currentSessionFile = new FileWriter(Config.userhome+"/map/currentsession.js");
+		    Writer currentSessionFile = new FileWriter(mapfile("currentsession.js"));
 		    currentSessionFile.write("var currentSession = '" + session + "';\n");
 		    currentSessionFile.close();
 		} catch (IOException e) {}
