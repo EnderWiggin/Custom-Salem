@@ -277,16 +277,17 @@ public class WItem extends Widget implements DTarget {
     }
 
     public boolean mousedown(Coord c, int btn) {
+	boolean inv = parent instanceof Inventory;
 	if(btn == 1) {
 	    if(ui.modshift){
 		if(ui.modmeta){
-		    wdgmsg("transfer-same", item.resname());
+		    if(inv){ wdgmsg("transfer-same", item.resname()); }
 		} else {
 		    item.wdgmsg("transfer", c);
 		}
 	    } else if(ui.modctrl) {
 		if(ui.modmeta){
-		    wdgmsg("drop-same", item.resname());
+		    if(inv){ wdgmsg("drop-same", item.resname()); }
 		} else {
 		    item.wdgmsg("drop", c);
 		}
