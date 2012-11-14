@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.ender.wiki.Wiki;
+
 public class Config {
     public static String authuser = getprop("haven.authuser", null);
     public static String authserv = getprop("haven.authserv", null);
@@ -109,6 +111,8 @@ public class Config {
 	version = (String) buildinfo.get("git-rev");
 	loadOptions();
 	window_props = loadProps("windows.conf");
+	
+	Wiki.init(getFile("cache"), 3);
     }
     
     public static void setCharName(String name){

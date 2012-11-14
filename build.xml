@@ -1,108 +1,109 @@
 <?xml version="1.0" ?>
 
 <project name="salem" default="deftgt">
-  <target name="build-env">
-    <mkdir dir="build" />
-    <mkdir dir="build/classes" />
-    <available property="has-res-jar" file="build/salem-res.jar" />
-    <available property="has-buildinfo" file="build/classes/buildinfo" />
-    <available property="unpacked-lib" file="build/classes-lib" />
-  </target>
-  
-  <target name="buildinfo" depends="build-env">
-    <tstamp>
-  	  <format property="gitrev" pattern="dd.MM.yyyy HH:mm"/>
-  	</tstamp>
-    <echo file="build/classes/buildinfo" xml:space="default">
+	<target name="build-env">
+		<mkdir dir="build" />
+		<mkdir dir="build/classes" />
+		<available property="has-res-jar" file="build/salem-res.jar" />
+		<available property="has-buildinfo" file="build/classes/buildinfo" />
+		<available property="unpacked-lib" file="build/classes-lib" />
+	</target>
+
+	<target name="buildinfo" depends="build-env">
+		<tstamp>
+			<format property="gitrev" pattern="dd.MM.yyyy HH:mm"/>
+		</tstamp>
+		<echo file="build/classes/buildinfo" xml:space="default">
       git-rev = ${gitrev}
     </echo>
-  </target>
+	</target>
 
-  <target name="salem-client" depends="build-env">
-    <javac srcdir="src" destdir="build/classes" debug="on"
+	<target name="salem-client" depends="build-env">
+		<javac srcdir="src" destdir="build/classes" debug="on"
 	   source="1.6" target="1.6" includeantruntime="no">
-      <classpath>
-	<pathelement path="lib/jogl.jar" />
-	<pathelement path="lib/gluegen-rt.jar" />
-	<pathelement path="lib/jnlp.jar" />
-	<pathelement path="lib/jorbis.jar" />
-	<pathelement path="lib/jogg.jar" />
-      </classpath>
-      <compilerarg value="-Xlint:unchecked" />
-      <!-- <compilerarg value="-Xbarda" /> -->
-    </javac>
-    <copy todir="build/classes">
-      <fileset dir="src" excludes="**/*.java" />
-    </copy>
-    <copy todir="build/classes/haven" file="etc/ressrv.crt" />
-    <copy todir="build/classes/haven" file="etc/authsrv.crt" />
-    <copy todir="build/classes/haven" file="etc/res-preload" />
-    <copy todir="build/classes/haven" file="etc/res-bgload" />
-    <copy todir="build/classes/haven" file="etc/icon.gif" />
-  </target>
-  
-  <target name="appletview" depends="build-env">
-    <copy file="etc/applet.html" todir="build" />
-  </target>
+			<classpath>
+				<pathelement path="lib/jogl.jar" />
+				<pathelement path="lib/gluegen-rt.jar" />
+				<pathelement path="lib/jnlp.jar" />
+				<pathelement path="lib/jorbis.jar" />
+				<pathelement path="lib/jogg.jar" />
+			</classpath>
+			<compilerarg value="-Xlint:unchecked" />
+			<!-- <compilerarg value="-Xbarda" /> -->
+		</javac>
+		<copy todir="build/classes">
+			<fileset dir="src" excludes="**/*.java" />
+		</copy>
+		<copy todir="build/classes/haven" file="etc/ressrv.crt" />
+		<copy todir="build/classes/haven" file="etc/authsrv.crt" />
+		<copy todir="build/classes/haven" file="etc/res-preload" />
+		<copy todir="build/classes/haven" file="etc/res-bgload" />
+		<copy todir="build/classes/haven" file="etc/icon.gif" />
+	</target>
 
-  <target name="lib-classes" depends="build-env" unless="unpacked-lib">
-    <mkdir dir="build/classes-lib" />
-    <unjar src="lib/jogg.jar" dest="build/classes-lib">
-      <patternset excludes="META-INF/**" />
-    </unjar>
-    <unjar src="lib/jorbis.jar" dest="build/classes-lib">
-      <patternset excludes="META-INF/**" />
-    </unjar>
-  </target>
+	<target name="appletview" depends="build-env">
+		<copy file="etc/applet.html" todir="build" />
+	</target>
 
-  <target name="resources">
-  	<exec executable="java" failifexecutionfails="false">
-  	  <arg line="-jar resources/LayerUtil.jar -re resources/src resources/compiled/res" />
-  	</exec>
-  	<jar destfile="build/client-res.jar" update="true">
-  	  <fileset dir="resources/compiled" />
-  	</jar>
-  </target>
+	<target name="lib-classes" depends="build-env" unless="unpacked-lib">
+		<mkdir dir="build/classes-lib" />
+		<unjar src="lib/jogg.jar" dest="build/classes-lib">
+			<patternset excludes="META-INF/**" />
+		</unjar>
+		<unjar src="lib/jorbis.jar" dest="build/classes-lib">
+			<patternset excludes="META-INF/**" />
+		</unjar>
+	</target>
 
-  <target name="jar" depends="salem-client,buildinfo,lib-classes,resources">
-    <jar destfile="build/salem.jar" update="true">
-      <fileset dir="build/classes" />
-      <fileset dir="build/classes-lib" />
-      <fileset file="changelog.txt"/>
-      <fileset file="etc/radar.xml"/>
-      <manifest>
-	<attribute name="Main-Class" value="haven.MainFrame" />
-	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />
-      </manifest>
-    </jar>
-    <chmod file="build/salem.jar" perm="a+x" />
-  </target>
-  
-  <target name="res-jar" depends="build-env" unless="has-res-jar">
-    <get src="http://plymouth.seatribe.se/java/salem-res.jar" dest="lib/salem-res.jar"
+	<target name="resources">
+		<exec executable="java" failifexecutionfails="false">
+			<arg line="-jar resources/LayerUtil.jar -re resources/src resources/compiled/res" />
+		</exec>
+		<jar destfile="build/client-res.jar" update="true">
+			<fileset dir="resources/compiled" />
+		</jar>
+	</target>
+
+	<target name="jar" depends="salem-client,buildinfo,lib-classes,resources">
+		<jar destfile="build/salem.jar" update="true">
+			<fileset dir="build/classes" />
+			<fileset dir="build/classes-lib" />
+			<fileset file="changelog.txt"/>
+			<fileset file="etc/radar.xml"/>
+			<manifest>
+				<attribute name="Main-Class" value="haven.MainFrame" />
+				<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />
+				<attribute name="Library-Path" value="jogl_lib.jar" />
+			</manifest>
+		</jar>
+		<chmod file="build/salem.jar" perm="a+x" />
+	</target>
+
+	<target name="res-jar" depends="build-env" unless="has-res-jar">
+		<get src="http://plymouth.seatribe.se/java/salem-res.jar" dest="lib/salem-res.jar"
 	 usetimestamp="true" />
-    <get src="http://plymouth.seatribe.se/java/builtin-res.jar" dest="lib/builtin-res.jar"
+		<get src="http://plymouth.seatribe.se/java/builtin-res.jar" dest="lib/builtin-res.jar"
 	 usetimestamp="true" />
-  </target>
-  
-  <target name="jars" depends="build-env, jar, res-jar">
-    <copy todir="build">
-      <fileset dir="lib">
-	<include name="jogl.jar" />
-	<include name="gluegen-rt.jar" />
-	<include name="salem-res.jar" />
-	<include name="builtin-res.jar" />
-      </fileset>
-    </copy>
-  </target>
-  
-  <target name="deftgt" depends="jars, appletview" />
+	</target>
 
-  <target name="run" depends="jars">
-    <java jar="build/salem.jar" fork="true" />
-  </target>
-  
-  <target name="clean">
-    <delete dir="build/classes" />
-  </target>
+	<target name="jars" depends="build-env, jar, res-jar">
+		<copy todir="build">
+			<fileset dir="lib">
+				<include name="jogl.jar" />
+				<include name="gluegen-rt.jar" />
+				<include name="salem-res.jar" />
+				<include name="builtin-res.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="deftgt" depends="jars, appletview" />
+
+	<target name="run" depends="jars">
+		<java jar="build/salem.jar" fork="true" />
+	</target>
+
+	<target name="clean">
+		<delete dir="build/classes" />
+	</target>
 </project>
