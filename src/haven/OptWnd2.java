@@ -141,6 +141,21 @@ public class OptWnd2 extends Window {
 		}
 		
 	    }.a = Config.flower_study;
+	    
+	    new CheckBox(new Coord(0, y += 25), tab, "Show purity as multiplier"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.pure_mult = val;
+		    Utils.setprefb("pure_mult", val);
+		}
+
+		@Override
+		public Object tooltip(Coord c, boolean again) {
+		    return "Makes purity displayed as multiplier on item icons";
+		}
+		
+	    }.a = Config.pure_mult;
 	}
 
 	

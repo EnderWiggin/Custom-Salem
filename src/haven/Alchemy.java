@@ -90,7 +90,7 @@ public class Alchemy extends ItemInfo.Tip {
 	return(((p - 0.25) * 4.0) / 3.0);
     }
     
-    private double mult() {
+    public double mult() {
 	double p = 0.0;
 	for(int e : a)
 	    p += Math.pow(e / 10000.0, 2);
@@ -99,5 +99,15 @@ public class Alchemy extends ItemInfo.Tip {
     
     public String toString() {
 	return(String.format("%d-%d-%d-%d", a[0], a[1], a[2], a[3]));
+    }
+
+    public Color color() {
+	int k = -1;
+	for(int i=0; i<4; i++){
+	    if(k < 0 || a[k] < a[i]){
+		k = i;
+	    }
+	}
+	return colors[k];
     }
 }

@@ -1,6 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
 $size[14]{$u{Update for 15.11.12:}}
+  * show number of items/weight inside container items (pouches, bags, purses)
+  * show purity of items when any modifier key (CTRL, ALT or SHIFT) pressed
+  * purity showing can be toggled to show purity multiplier, instead of percent in Options
   * use loftar's GLSettings to manage graphics preferences
   * fixed claim highlight buttons not changing their graphics when toggled on
   * fixed crash when trying to alt-transfer items from equipment screen (CTR-ALT and SHIFT-ALT clicking on items in equipment screen)
