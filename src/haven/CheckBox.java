@@ -52,8 +52,7 @@ public class CheckBox extends Widget {
 	if(!enabled){return false;}
 	if(button != 1)
 	    return(false);
-	a = !a;
-	changed(a);
+	set(!a);
 	return(true);
     }
     
