@@ -1,6 +1,5 @@
 package org.ender.wiki;
 
-import java.beans.XMLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -18,7 +17,7 @@ public class Item {
 
     public String toXML(){
 	StringBuilder builder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-	builder.append(String.format("<item name=\"%s\" >", name));
+	builder.append(String.format("<item name=\"%s\" >", name.replaceAll("&", "&amp;")));
 	if(required != null){ xml(builder, required, "required"); }
 	if(locations != null){ xml(builder, locations, "locations"); }
 	if(tech != null){ xml(builder, tech, "tech"); }
