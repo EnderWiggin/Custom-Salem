@@ -9,6 +9,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
+import org.ender.wiki.Item;
+import org.ender.wiki.Wiki;
+
 public class ToolBeltWdg extends Window implements DropTarget{
     private static final String OPT_FLIPPED = "_flipped";
     private static final String OPT_LOCKED = "_locked";
@@ -377,7 +380,8 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		boolean ttl = (now - hoverstart) > 500;
 		try {
 		    Resource res = gui.belt[slot].get();
-		    Map<String, Integer> p = Wiki.get(res.layer(Resource.action).name);
+		    Item itm = Wiki.get(res.layer(Resource.action).name);
+		    Map<String, Integer> p = (itm == null)?null:itm.attgive;
 		    if((res != curttr) || (ttl != curttl) || p != ttprops) {
 			curtt = rendertt(res, ttl);
 			curttr = res;

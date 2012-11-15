@@ -33,6 +33,9 @@ import haven.Resource.AButton;
 import haven.Glob.Pagina;
 import java.util.*;
 
+import org.ender.wiki.Item;
+import org.ender.wiki.Wiki;
+
 public class MenuGrid extends Widget {
     public final Pagina next = paginafor(Resource.load("gfx/hud/sc-next"));
     public final Pagina bk = paginafor(Resource.load("gfx/hud/sc-back"));
@@ -144,12 +147,15 @@ public class MenuGrid extends Widget {
     
     public static String getXPgain(String name){
 	String text = "";
-	Map<String, Integer> props = Wiki.get(name);
-	if(props != null){
-	    for(String attr : CharWnd.attrorder){
-		Integer val;
-		if(props.containsKey(attr) && (val = props.get(attr)) != null && val > 0)
-		    text += String.format("\n%s: %d", CharWnd.attrnm.get(attr), val);
+	Item itm = Wiki.get(name);
+	if(itm != null){
+	    Map<String, Integer> props = itm.attgive;
+	    if(props != null){
+		for(String attr : CharWnd.attrorder){
+		    Integer val;
+		    if(props.containsKey(attr) && (val = props.get(attr)) != null && val > 0)
+			text += String.format("\n%s: %d", CharWnd.attrnm.get(attr), val);
+		}
 	    }
 	}
 	return text;
@@ -230,7 +236,8 @@ public class MenuGrid extends Widget {
 	    if(prev != this)
 		hoverstart = now;
 	    boolean ttl = (now - hoverstart) > 500;
-	    Map<String, Integer> p = Wiki.get(pag.res().layer(Resource.action).name);
+	    Item itm = Wiki.get(pag.res().layer(Resource.action).name);
+	    Map<String, Integer> p = (itm == null)?null:itm.attgive;
 	    if((pag != curttp) || (ttl != curttl) || p != ttprops) {
 		curtt = rendertt(pag.res(), ttl);
 		curttp = pag;

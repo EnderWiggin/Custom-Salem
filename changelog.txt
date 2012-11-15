@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 10.11.12:}}
+  * maps now save in server-specific folders
+ 
 $size[14]{$u{Update for 09.11.12:}}
   * merged loftar's code
     - Added switch character button
