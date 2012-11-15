@@ -193,7 +193,22 @@ public class WItem extends Widget implements DTarget {
 	protected Tex find(List<ItemInfo> info) {
 	    GItem.NumberInfo ninf = ItemInfo.find(GItem.NumberInfo.class, info);
 	    if(ninf == null) return(null);
-	    return(new TexI(Utils.outline2(Text.render(Integer.toString(ninf.itemnum()), Color.WHITE).img, Utils.contrast(Color.WHITE))));
+	    return(new TexI(Utils.outline2(Text.render(Integer.toString(ninf.itemnum()), Color.WHITE).img, Color.DARK_GRAY)));
+	}
+    };
+    
+    public final AttrCache<Tex> heurnum = new AttrCache<Tex>() {
+	protected Tex find(List<ItemInfo> info) {
+	    String num= ItemInfo.getCount(info);
+	    if(num == null) return(null);
+	    return(new TexI(Utils.outline2(Text.render(num, Color.WHITE).img, Color.DARK_GRAY)));
+	}
+    };
+    
+    public final AttrCache<List<Integer>> heurmeter = new AttrCache<List<Integer>>() {
+	protected List<Integer> find(List<ItemInfo> info) {
+	    List<Integer> meters = ItemInfo.getMeters(info);
+	    return meters;
 	}
     };
     
@@ -206,11 +221,8 @@ public class WItem extends Widget implements DTarget {
 		g.atext(Integer.toString(item.num), tex.sz(), 1, 1);
 	    } else if(itemnum.get() != null) {
 		g.aimage(itemnum.get(), tex.sz(), 1, 1);
-	    } else {
-		String nn = ItemInfo.getCount(item.info());
-		if(nn != null){
-		    g.atext(nn, tex.sz(), 1, 1);
-		}
+	    } else if(heurnum.get() != null){
+		g.aimage(heurnum.get(), tex.sz(), 1, 1);
 	    }
 	    if(item.meter > 0) {
 		double a = ((double)item.meter) / 100.0;
@@ -222,7 +234,7 @@ public class WItem extends Widget implements DTarget {
 		g.frect(s2.sub(bsz).sub(4,0), bsz);
 		g.chcolor();
 	    }
-	    heuristics(g);
+	    heurmeters(g);
 	    if(olcol.get() != null) {
 		if(cmask != res) {
 		    mask = null;
@@ -242,26 +254,13 @@ public class WItem extends Widget implements DTarget {
 	}
     }
     
-    long last_heur = 0;
-    boolean heuristic = false, heur_checked = false;
-    List<Integer> heur_meters;
-    private void heuristics(GOut g) {
-	if(!heur_checked){
-	    heuristic = isheuristic();
-	    heur_checked = true;
-	}
-	if(!heuristic) {return;}
-	
-	long now = System.currentTimeMillis();
-	if(now - last_heur > 500){
-	    last_heur = now;
-	    heur_meters = ItemInfo.getMeters(item.info());
-	}
-	if(heur_meters == null){return;}
+    private void heurmeters(GOut g) {
+	List<Integer> meters = heurmeter.get();
+	if(meters == null){return;}
 
 	int k = 0;
 	Coord s2 = sz.sub(0, 4);
-	for (Integer meter : heur_meters){
+	for (Integer meter : meters){
 	    double a = ((double)meter) / 100.0;
 	    int r = (int) ((1-a)*255);
 	    int gr = (int) (a*255);
@@ -271,14 +270,6 @@ public class WItem extends Widget implements DTarget {
 	    g.chcolor();
 	    k++;
 	}
-	
-    }
-
-    private boolean isheuristic() {
-	if(ItemInfo.getMeters(item.info()).size() > 0){
-	    return true;
-	}
-        return false;
     }
 
     public boolean mousedown(Coord c, int btn) {

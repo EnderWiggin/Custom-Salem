@@ -303,12 +303,12 @@ public class MenuGrid extends Widget {
 		curoff += off;
 	} else {
 	    String [] ad = r.act().ad;
-		if((ad == null) || (ad.length < 1)){return;}
-		if(ad[0].equals("@")) {
-			usecustom(ad);
-		} else {
-			wdgmsg("act", (Object[])ad);
-		}
+	    if((ad == null) || (ad.length < 1)){return;}
+	    if(ad[0].equals("@")) {
+		usecustom(ad);
+	    } else {
+		wdgmsg("act", (Object[])ad);
+	    }
 	    this.cur = null;
 	    curoff = 0;
 	}
