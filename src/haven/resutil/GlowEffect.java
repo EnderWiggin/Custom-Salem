@@ -61,7 +61,7 @@ public class GlowEffect extends GLState implements GLState.GlobalState {
 		}
 		
 		public void reapply(GOut g) {
-		    GL gl = g.gl;
+		    GL2 gl = g.gl;
 		    gl.glUniform1i(g.st.prog.uniform("glowtex"), 0);
 		    gl.glUniform1f(g.st.prog.uniform("glowtex_xs"), 1.25f / lsz.x);
 		    gl.glUniform1f(g.st.prog.uniform("glowtex_ys"), 1.25f / lsz.y);
@@ -72,9 +72,9 @@ public class GlowEffect extends GLState implements GLState.GlobalState {
 		private final States.ColState col = new States.ColState(new Color(0, 0, 0, 0));
 		
 		public void apply(GOut g) {
-		    GL gl = g.gl;
+		    GL2 gl = g.gl;
 		    gl.glBlendColor(0.0f, 0.0f, 0.0f, 0.1f);
-		    gl.glBlendFunc(GL.GL_CONSTANT_ALPHA, GL.GL_ONE_MINUS_CONSTANT_ALPHA);
+		    gl.glBlendFunc(GL2.GL_CONSTANT_ALPHA, GL2.GL_ONE_MINUS_CONSTANT_ALPHA);
 		}
 
 		public void unapply(GOut g) {
