@@ -393,7 +393,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 //	boolean beltp = !chat.expanded;
 //	beltwdg.show(beltp);
 	super.draw(g);
-	togglevidoeopts(g.gc);
 	if(prog >= 0) {
 	    String progs = String.format("%d%%", prog);
 	    if((progt == null) || !progs.equals(progt.text))
@@ -612,7 +611,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     private static final Tex menubgfull = Resource.loadtex("gfx/hud/menubgfull");
-    public boolean togglesdw = true, toggleaa = true;
     
     private class MainMenu extends Widget {
 	boolean full = true;
@@ -694,7 +692,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	int y = mainmenu.sz.y - 21;
 	new MenuButton(new Coord(6, y), mainmenu, "cla", -1, "Display personal claims") {
 	    boolean v = false;
-
+	    {hover = down;}
 	    public void click() {
 		if(!v) {
 		    map.enol(0, 1);
@@ -703,11 +701,20 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    map.disol(0, 1);
 		    v = false;
 		}
+		toggle();
+	    }
+	    @Override
+	    protected void toggle() {
+		BufferedImage img = up;
+
+		up = hover;
+		hover = img;
+		down = img;
 	    }
 	};
 	new MenuButton(new Coord(24, y), mainmenu, "tow", -1, "Display town claims") {
 	    boolean v = false;
-
+	    {hover = down;}
 	    public void click() {
 		if(!v) {
 		    map.enol(2, 3);
@@ -716,6 +723,15 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    map.disol(2, 3);
 		    v = false;
 		}
+		toggle();
+	    }
+	    @Override
+	    protected void toggle() {
+		BufferedImage img = up;
+
+		up = hover;
+		hover = img;
+		down = img;
 	    }
 	};
 	new MenuButton(new Coord(42, y), mainmenu, "height", -1, "Display heightmap") {
@@ -859,39 +875,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
     
-    private void togglevidoeopts(GLConfig gc){
-	if(togglesdw) {togglesdw(gc);}
-	if(toggleaa){toggleaa(gc);}
-    }
-    private void toggleaa(GLConfig gc) {
-	toggleaa = false;
-	if(Config.antialiasing && !gc.havefsaa()) {
-	    getparent(GameUI.class).error("Your video card does not support antialiasing.");
-	    Config.antialiasing = false;
-	}
-	gc.fsaa = Config.antialiasing;
-	Config.saveOptions();
-	if(OptWnd2.instance != null){OptWnd2.instance.opt_aa.a = Config.antialiasing;}
-    }
-
-    private void togglesdw(GLConfig gc) {
-	togglesdw = false;
-	if(Config.shadows){
-	    if (gc.deflight != Light.pslights){
-		if(gc.shuse) {
-		    gc.deflight = Light.pslights;
-		} else {
-		    error("Shadow rendering requires a shader compatible video card.");
-		    Config.shadows = false;
-		}
-	    }
-	} else if(gc.deflight == Light.pslights){
-	    gc.deflight = Light.vlights;
-	}
-	Config.saveOptions();
-	if(OptWnd2.instance != null){OptWnd2.instance.opt_shadow.a = Config.shadows;}
-    }
-
     public boolean globtype(char key, KeyEvent ev) {
 	char ukey = Character.toUpperCase(key);
 	if(key == ':') {

@@ -185,25 +185,41 @@ public class OptWnd2 extends Window {
 	    y = 200;
 	    opt_shadow = new CheckBox(new Coord(180, y+=25), tab, "Shadows"){
 		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.shadows = val; 
-		    ui.gui.togglesdw = true;
+		public void set(boolean val) {
+		    if(val) {
+			try {
+			    Config.glcfg.light.set(GLSettings.Lights.PSLIGHT);
+			} catch(GLSettings.SettingException e) {
+			    val = false;
+			    getparent(GameUI.class).error(e.getMessage());
+			    return;
+			}
+		    } else {
+			Config.glcfg.light.set(GLSettings.Lights.VLIGHT);
+		    }
+		    a = val;
+		    Config.glcfg.save();
 		}
 	    };
-	    opt_shadow.a = Config.shadows;
-	    opt_shadow.enabled = Config.glconf.shuse;
+	    opt_shadow.a = Config.glcfg.light.val == GLSettings.Lights.PSLIGHT;
+	    opt_shadow.enabled = Config.glcfg.light.available(GLSettings.Lights.PSLIGHT);
 	    
 	    opt_aa = new CheckBox(new Coord(180, y+=25), tab, "Antialiasing"){
 		@Override
-		public void changed(boolean val) {
-		    super.changed(val);
-		    Config.antialiasing = val; 
-		    ui.gui.toggleaa = true;
+		public void set(boolean val) {
+		    try {
+			Config.glcfg.fsaa.set(val);
+		    } catch(GLSettings.SettingException e) {
+			val = false;
+			getparent(GameUI.class).error(e.getMessage());
+			return;
+		    }
+		    a = val;
+		    Config.glcfg.save();
 		}
 	    };
-	    opt_aa.a = Config.antialiasing;
-	    opt_aa.enabled = Config.glconf.havefsaa();
+	    opt_aa.a = Config.glcfg.fsaa.val;
+	    opt_aa.enabled = Config.glcfg.fsaa.available(true);
 	}
 	
 

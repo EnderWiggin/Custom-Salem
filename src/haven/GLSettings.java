@@ -65,6 +65,13 @@ public class GLSettings implements java.io.Serializable {
 	    validate(val);
 	    this.val = val;
 	}
+	public boolean available(T val){
+	    try{
+		validate(val);
+		return true;
+	    } catch (GLSettings.SettingException e){}
+	    return false;
+	}
     }
 
     public abstract class BoolSetting extends Setting<Boolean> {
