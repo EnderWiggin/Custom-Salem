@@ -77,39 +77,41 @@ public class OptWnd extends Window {
 	}
 
 	public class CPanel extends Widget {
-	    public final GLConfig cf;
+	    public final GLSettings cf;
 
-	    public CPanel(GLConfig gcf) {
+	    public CPanel(GLSettings gcf) {
 		super(Coord.z, new Coord(200, 175), VideoPanel.this);
 		this.cf = gcf;
 		int y = 0;
 		new CheckBox(new Coord(0, y), this, "Render shadows") {
-		    {a = (cf.deflight == Light.pslights);}
+		    {a = (cf.light.val == GLSettings.Lights.PSLIGHT);}
 
-		    public void changed(boolean val) {
+		    public void set(boolean val) {
 			if(val) {
-			    if(cf.shuse) {
-				cf.deflight = Light.pslights;
-			    } else {
-				getparent(GameUI.class).error("Shadow rendering requires a shader compatible video card.");
-				a = false;
+			    try {
+				cf.light.set(GLSettings.Lights.PSLIGHT);
+			    } catch(GLSettings.SettingException e) {
+				getparent(GameUI.class).error(e.getMessage());
+				return;
 			    }
 			} else {
-			    cf.deflight = Light.vlights;
+			    cf.light.set(GLSettings.Lights.VLIGHT);
 			}
+			a = val;
 		    }
 		};
 		y += 20;
 		new CheckBox(new Coord(0, y), this, "Antialiasing") {
-		    {a = cf.fsaa;}
+		    {a = cf.fsaa.val;}
 
-		    public void changed(boolean val) {
-			if(val && !cf.havefsaa()) {
-			    getparent(GameUI.class).error("Your video card does not support antialiasing.");
-			    a = false;
+		    public void set(boolean val) {
+			try {
+			    cf.fsaa.set(val);
+			} catch(GLSettings.SettingException e) {
+			    getparent(GameUI.class).error(e.getMessage());
 			    return;
 			}
-			cf.fsaa = val;
+			a = val;
 		    }
 		};
 	    }
@@ -117,10 +119,10 @@ public class OptWnd extends Window {
 
 	private CPanel curcf = null;
 	public void draw(GOut g) {
-	    if((curcf == null) || (g.gc != curcf.cf)) {
+	    if((curcf == null) || (g.gc.pref != curcf.cf)) {
 		if(curcf != null)
 		    curcf.destroy();
-		curcf = new CPanel(g.gc);
+		curcf = new CPanel(g.gc.pref);
 	    }
 	    super.draw(g);
 	}
