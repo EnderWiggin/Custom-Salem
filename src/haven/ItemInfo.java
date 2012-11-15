@@ -222,4 +222,32 @@ public abstract class ItemInfo {
 	}
 	return res;
     }
+    
+    static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+)[^%0-9]");
+    public static String getCount(List<ItemInfo> infos){
+	String res = null;
+	for (ItemInfo info : infos){
+	    if(info instanceof Contents){
+		Contents cnt = (Contents) info;
+		res = getCount(cnt.sub);
+	    } else if (info instanceof AdHoc){
+		AdHoc ah = (AdHoc) info;
+		try{
+		    Matcher m = count_patt.matcher(ah.str.text);
+		    if(m.find()){
+			res = m.group(1);
+		    }
+		}catch(Exception e){}
+	    } else if (info instanceof Name){
+		Name name = (Name) info;
+		try{
+		    Matcher m = count_patt.matcher(name.str.text);
+		    if(m.find()){
+			res = m.group(1);
+		    }
+		}catch(Exception e){}
+	    }
+	}
+	return res;
+    }
 }

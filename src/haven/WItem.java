@@ -206,6 +206,11 @@ public class WItem extends Widget implements DTarget {
 		g.atext(Integer.toString(item.num), tex.sz(), 1, 1);
 	    } else if(itemnum.get() != null) {
 		g.aimage(itemnum.get(), tex.sz(), 1, 1);
+	    } else {
+		String nn = ItemInfo.getCount(item.info());
+		if(nn != null){
+		    g.atext(nn, tex.sz(), 1, 1);
+		}
 	    }
 	    if(item.meter > 0) {
 		double a = ((double)item.meter) / 100.0;

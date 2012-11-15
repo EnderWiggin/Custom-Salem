@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 15.11.12:}}
+  * use loftar's GLSettings to manage graphics preferences
+  * fixed claim highlight buttons not changing their graphics when toggled on
+  * fixed crash when trying to alt-transfer items from equipment screen (CTR-ALT and SHIFT-ALT clicking on items in equipment screen)
+  * reworked wiki core -  it now has caching and stores more info
+ 
 $size[14]{$u{Update for 10.11.12:}}
   * maps now save in server-specific folders
  
