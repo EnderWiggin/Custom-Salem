@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 
+import org.ender.timer.Timer;
+
 public class Glob {
     public static final int GMSG_TIME = 0;
     public static final int GMSG_ASTRO = 1;
@@ -152,6 +154,8 @@ public class Glob {
 	    switch(t) {
 	    case GMSG_TIME:
 		time = msg.int32();
+		Timer.server = 1000*time;
+		Timer.local = System.currentTimeMillis();
 		break;
 	    case GMSG_LIGHT:
 		synchronized(this) {

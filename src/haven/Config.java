@@ -141,7 +141,11 @@ public class Config {
     }
 
     public static File getFile(String name) {
-	return new File(userhome+"/"+name);
+	return new File(userhome, name);
+    }
+    
+    public static File getFile() {
+	return new File(userhome);
     }
 
     private static int getint(String name, int def) {

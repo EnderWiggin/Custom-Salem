@@ -96,9 +96,10 @@ public class MenuGrid extends Widget {
     public MenuGrid(Coord c, Widget parent) {
 	super(c, Inventory.invsz(gsz), parent);
 	ui.mnu = this;
-//	Glob glob = ui.sess.glob;
-//	Collection<Pagina> p = glob.paginae;
-//	p.add(glob.paginafor(Resource.load("paginae/act/add")));
+	Glob glob = ui.sess.glob;
+	Collection<Pagina> p = glob.paginae;
+	p.add(glob.paginafor(Resource.load("paginae/act/add")));
+	p.add(glob.paginafor(Resource.load("paginae/add/timer")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/lol")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/raeg")));
@@ -327,6 +328,8 @@ public class MenuGrid extends Widget {
 	    String[] args = new String[ad.length - 2];
 	    System.arraycopy(ad, 2, args, 0, args.length);
 	    ui.gui.wdgmsg("act", (Object[])args);
+	} else if(ad[1].equals("timers")) {
+	    TimerPanel.toggle();
 	}
 	use(null);
     }
