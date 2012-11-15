@@ -98,6 +98,7 @@ public class OptWnd extends Window {
 			    cf.light.set(GLSettings.Lights.VLIGHT);
 			}
 			a = val;
+			cf.save();
 		    }
 		};
 		y += 20;
@@ -112,6 +113,7 @@ public class OptWnd extends Window {
 			    return;
 			}
 			a = val;
+			cf.save();
 		    }
 		};
 	    }
