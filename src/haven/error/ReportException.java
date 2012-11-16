@@ -24,48 +24,12 @@
  *  Boston, MA 02111-1307 USA
  */
 
-package haven;
+package haven.error;
 
-public class CheckBox extends Widget {
-    public static final Tex box = Resource.loadtex("gfx/hud/chkbox");
-    public static final Tex act = Resource.loadtex("gfx/hud/chkboxa");
-    public static final Text.Furnace lblf = new Text.Foundry("Sans", 11);
-    public boolean a = false;
-    Text lbl;
-	
-    static {
-	Widget.addtype("chk", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new CheckBox(c, parent, (String)args[0]));
-		}
-	    });
-    }
-	
-    public CheckBox(Coord c, Widget parent, String lbl) {
-	super(c, box.sz(), parent);
-	this.lbl = lblf.render(lbl);
-	sz = new Coord(box.sz().x + 2 + this.lbl.sz().x, Math.max(box.sz().y, this.lbl.sz().y));
-    }
-	
-    public boolean mousedown(Coord c, int button) {
-	if(button != 1)
-	    return(false);
-	set(!a);
-	return(true);
-    }
-    
-    public void set(boolean a) {
-	this.a = a;
-	changed(a);
-    }
+import java.io.*;
 
-    public void draw(GOut g) {
-	g.image(lbl.tex(), new Coord(box.sz().x + 2, (box.sz().y - lbl.sz().y) / 2));
-	g.image(a?act:box, Coord.z);
-	super.draw(g);
-    }
-    
-    public void changed(boolean val) {
-	wdgmsg("ch", a);
+public class ReportException extends IOException {
+    public ReportException(String message) {
+	super(message);
     }
 }
