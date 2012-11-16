@@ -108,7 +108,7 @@ public class ErrorHandler extends ThreadGroup {
 	    FileOutputStream fs = new FileOutputStream(Config.userhome+"/error.html");
 	    HtmlReporter.makereport(fs, r);
 	    fs.close();
-	    status.done();
+	    status.done(null, null);
 	}
 
 	private void dourlreport(Report r) throws IOException {
