@@ -1,8 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
  
 $size[14]{$u{Update for 16.11.12:}}
- * added displaying of learning ability on minimized character window
- * added ability to raise skills by clicking on them in minimized character window
+  * added ability to click on ingredients in crafting window to open recipe for clicked item
+  * fixed wrong MenuGrid activation when pressing F-keys
+  * added displaying of learning ability on minimized character window
+  * added ability to raise skills by clicking on them in minimized character window
  
 $size[14]{$u{Update for 15.11.12:}}
   * added timers. They can be accessed through lower-right menu (X->T)
