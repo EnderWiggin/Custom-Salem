@@ -5,6 +5,7 @@ $size[14]{$u{Update for 16.11.12:}}
  * added ability to raise skills by clicking on them in minimized character window
  
 $size[14]{$u{Update for 15.11.12:}}
+  * added timers. They can be accessed through lower-right menu (X->T)
   * show number of items/weight inside container items (pouches, bags, purses)
   * show purity of items when any modifier key (CTRL, ALT or SHIFT) pressed
   * purity showing can be toggled to show purity multiplier, instead of percent in Options

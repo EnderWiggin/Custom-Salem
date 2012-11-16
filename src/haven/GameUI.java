@@ -38,6 +38,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.ender.timer.TimerController;
+
 public class GameUI extends ConsoleHost implements Console.Directory {
     public final String chrid;
     private static final int fkeys[] = {KeyEvent.VK_F1, KeyEvent.VK_F2, KeyEvent.VK_F3, KeyEvent.VK_F4,
@@ -148,6 +150,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	opts = new OptWnd(sz.sub(200, 200).div(2), this);
 	opts.hide();
 	makemenu();
+	TimerController.init(Config.getFile());
 	resize(sz);
     }
 
