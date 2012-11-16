@@ -26,9 +26,10 @@
 
 package haven;
 
-import java.util.*;
-import java.awt.Font;
+import haven.Glob.Pagina;
+
 import java.awt.Color;
+import java.awt.Font;
 
 public class Makewindow extends Widget {
     Widget obtn, cbtn;
@@ -124,6 +125,19 @@ public class Makewindow extends Widget {
 		return(outputs[i].res.get().layer(Resource.tooltip).t);
 	}
 	return(null);
+    }
+    
+    @Override
+    public boolean mousedown(Coord c, int button) {
+	Object tt = tooltip(c, null);
+	if (tt != null || tt instanceof String){
+	    Pagina p = ui.mnu.paginafor((String)tt);
+	    if(p != null){
+		ui.mnu.use(p);
+		return true;
+	    }
+	}
+	return super.mousedown(c, button);
     }
 
     public void wdgmsg(Widget sender, String msg, Object... args) {

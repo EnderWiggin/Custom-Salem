@@ -281,11 +281,25 @@ public class MenuGrid extends Widget {
 	return(ui.sess.glob.paginafor(res));
     }
     
+    public Pagina paginafor(String name){
+	Set<Pagina> pags = ui.sess.glob.paginae;
+	for(Pagina p : pags){
+	    Resource res = p.res();
+	    if(res == null){continue;}
+	    AButton act = res.layer(Resource.action);
+	    if(act == null){continue;}
+	    if(name.equals(act.name)){
+		return p;
+	    }
+	}
+	return null;
+    }
+    
     public void useres(Resource r){
 	use(paginafor(r));
     }
     
-    private void use(Pagina r) {
+    public void use(Pagina r) {
 	Collection<Pagina> sub = new LinkedList<Pagina>(),
 	    cur = new LinkedList<Pagina>();
 	cons(r, sub);
@@ -315,7 +329,7 @@ public class MenuGrid extends Widget {
 	}
 	updlayout();
     }
-
+    
     @Override
     public void tick(double dt) {
 	if(loading || (pagseq != ui.sess.glob.pagseq))
