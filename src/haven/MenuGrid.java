@@ -365,6 +365,8 @@ public class MenuGrid extends Widget {
     public boolean globtype(char k, KeyEvent ev) {
 	if(ev.isAltDown() || ev.isControlDown()){return false;}
 	k = (char) ev.getKeyCode();
+	if(Character.toUpperCase(k) != k){return false;}
+	
 	if((k == 27) && (this.cur != null)) {
 	    this.cur = null;
 	    curoff = 0;
@@ -374,7 +376,7 @@ public class MenuGrid extends Widget {
 	    use(next);
 	    return(true);
 	}
-	Pagina r = hotmap.get(Character.toUpperCase(k));
+	Pagina r = hotmap.get(k);
 	if(r != null) {
 	    use(r);
 	    return(true);
