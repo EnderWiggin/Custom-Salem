@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 16.11.12:}}
+ * added displaying of learning ability on minimized character window
+ * added ability to raise skills by clicking on them in minimized character window
+ 
 $size[14]{$u{Update for 15.11.12:}}
   * show number of items/weight inside container items (pouches, bags, purses)
   * show purity of items when any modifier key (CTRL, ALT or SHIFT) pressed
