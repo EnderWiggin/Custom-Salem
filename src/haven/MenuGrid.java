@@ -281,11 +281,25 @@ public class MenuGrid extends Widget {
 	return(ui.sess.glob.paginafor(res));
     }
     
+    public Pagina paginafor(String name){
+	Set<Pagina> pags = ui.sess.glob.paginae;
+	for(Pagina p : pags){
+	    Resource res = p.res();
+	    if(res == null){continue;}
+	    AButton act = res.layer(Resource.action);
+	    if(act == null){continue;}
+	    if(name.equals(act.name)){
+		return p;
+	    }
+	}
+	return null;
+    }
+    
     public void useres(Resource r){
 	use(paginafor(r));
     }
     
-    private void use(Pagina r) {
+    public void use(Pagina r) {
 	Collection<Pagina> sub = new LinkedList<Pagina>(),
 	    cur = new LinkedList<Pagina>();
 	cons(r, sub);
@@ -315,7 +329,7 @@ public class MenuGrid extends Widget {
 	}
 	updlayout();
     }
-
+    
     @Override
     public void tick(double dt) {
 	if(loading || (pagseq != ui.sess.glob.pagseq))
@@ -365,6 +379,8 @@ public class MenuGrid extends Widget {
     public boolean globtype(char k, KeyEvent ev) {
 	if(ev.isAltDown() || ev.isControlDown()){return false;}
 	k = (char) ev.getKeyCode();
+	if(Character.toUpperCase(k) != k){return false;}
+	
 	if((k == 27) && (this.cur != null)) {
 	    this.cur = null;
 	    curoff = 0;
@@ -374,7 +390,7 @@ public class MenuGrid extends Widget {
 	    use(next);
 	    return(true);
 	}
-	Pagina r = hotmap.get(Character.toUpperCase(k));
+	Pagina r = hotmap.get(k);
 	if(r != null) {
 	    use(r);
 	    return(true);

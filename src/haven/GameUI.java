@@ -26,16 +26,19 @@
 
 package haven;
 
-import java.util.*;
+import static haven.Inventory.invsq;
+import static haven.Inventory.isqsz;
+
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.ender.timer.TimerController;
-
-import static haven.Inventory.invsq;
-import static haven.Inventory.isqsz;
 
 public class GameUI extends ConsoleHost implements Console.Directory {
     public final String chrid;
@@ -313,7 +316,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	final Coord moff = new Coord(20, 0);
 	attrview = new Widget(Coord.z, new Coord(a.expsz.x, cw.attrwdgs.sz.y).add(moff).add(10, Window.cbtni[0].getHeight() + 10).add(box.bisz()), this) {
 		boolean act = false;
-
+		Label la;
+		int cmod = 0;
 		{
 		    Widget cbtn = new IButton(Coord.z, this, Window.cbtni[0], Window.cbtni[1], Window.cbtni[2]) {
 			public void click() {
@@ -330,6 +334,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    };
 		    cbtn.c = new Coord(sz.x - Window.cbtni[0].getWidth() - cbtn.sz.x - 2, box.bt.sz().y);
 		    
+		    la = new Label(box.btloff(), this, "LA: ");
+		    
 		    Coord ctl = box.btloff().add(5, 5);
 		    for(CharWnd.Attr a = (CharWnd.Attr)cw.attrwdgs.child; a != null; a = (CharWnd.Attr)a.next) {
 			final CharWnd.Attr ca = a;
@@ -338,12 +344,26 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 				g.image(ca.res.layer(Resource.imgc).tex(), Coord.z);
 				ca.drawmeter(g, moff, ca.expsz);
 			    }
+			    @Override
+			    public boolean mousedown(Coord c, int button) {
+				boolean res = ca.mousedown(c.add(ca.expc), button);
+				ui.grabmouse(this);
+			        return res;
+			    }
+			    @Override
+			    public boolean mouseup(Coord c, int button) {
+			        return ca.mouseup(c.add(ca.expc), button);
+			    }
 			};
 			y += 20;
 		    }
 		}
     
 		public void draw(GOut g) {
+		    if(cmod != cw.cmod){
+			cmod = cw.cmod;
+			la.settext(String.format("LA: %d%%", cmod));
+		    }
 		    if((fv != null) && !fv.lsrel.isEmpty())
 			return;
 		    g.chcolor(0, 0, 0, 128);
