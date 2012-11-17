@@ -997,8 +997,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		int slot = i + (curbelt * 12);
 		Coord c = beltc(i);
 		try {
-		    if(belt[slot] != null)
-			g.image(belt[slot].get().layer(Resource.imgc).tex(), c);
+		    Indir<Resource> ir = belt[slot];
+		    if(ir != null)
+			g.image(ir.get().layer(Resource.imgc).tex(), c);
 		} catch(Loading e) {}
 		g.chcolor(156, 180, 158, 255);
 		FastText.aprintf(g, c.add(isqsz), 1, 1, "F%d", i + 1);
@@ -1087,8 +1088,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		int slot = i + (curbelt * 12);
 		Coord c = beltc(i);
 		try {
-		    if(belt[slot] != null)
-			g.image(belt[slot].get().layer(Resource.imgc).tex(), c);
+		    Indir<Resource> ir = belt[slot];
+		    if(ir != null)
+			g.image(ir.get().layer(Resource.imgc).tex(), c);
 		} catch(Loading e) {}
 		g.chcolor(156, 180, 158, 255);
 		FastText.aprintf(g, c.add(isqsz), 1, 1, "%d", (i + 1) % 10);

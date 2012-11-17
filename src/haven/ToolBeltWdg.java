@@ -172,8 +172,9 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	    g.image(sqlite, beltc(i));
 	    Tex tex = null;
 	    try {
-		if(gui.belt[slot] != null)
-		    tex = gui.belt[slot].get().layer(Resource.imgc).tex();
+		Indir<Resource> ir = gui.belt[slot];
+		if(ir != null)
+		    tex = ir.get().layer(Resource.imgc).tex();
 		g.image(tex, c.add(4, 4));
 	    } catch(Loading e) {
 		missing.loadwait();
@@ -356,8 +357,9 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	slot = getbelt(slot);
 	Resource res = null;
 	try {
-	    if(gui.belt[slot] != null)
-		res = gui.belt[slot].get();
+	    Indir<Resource> ir = gui.belt[slot];
+	    if(ir != null)
+		res = ir.get();
 	} catch (Loading e){}
 	return res;
     }
@@ -374,12 +376,13 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	long now = System.currentTimeMillis();
 	if(slot != -1) {
 	    slot = getbelt(slot);
-	    if(gui.belt[slot] != null){
+	    Indir<Resource> ir = gui.belt[slot];
+	    if(ir != null){
 		if(prev != this)
 		    hoverstart = now;
 		boolean ttl = (now - hoverstart) > 500;
 		try {
-		    Resource res = gui.belt[slot].get();
+		    Resource res = ir.get();
 		    Item itm = Wiki.get(res.layer(Resource.action).name);
 		    Map<String, Integer> p = (itm == null)?null:itm.attgive;
 		    if((res != curttr) || (ttl != curttl) || p != ttprops) {
