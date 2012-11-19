@@ -164,6 +164,7 @@ public class Glob {
 		    lightspc = msg.color();
 		    lightang = (msg.int32() / 1000000.0) * Math.PI * 2.0;
 		    lightelev = (msg.int32() / 1000000.0) * Math.PI * 2.0;
+		    DarknessWnd.update();
 		}
 		break;
 	    case GMSG_SKY:

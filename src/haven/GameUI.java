@@ -149,6 +149,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    });
 	opts = new OptWnd(sz.sub(200, 200).div(2), this);
 	opts.hide();
+	new DarknessWnd(this);
 	makemenu();
 	TimerController.init(Config.getFile());
 	resize(sz);
