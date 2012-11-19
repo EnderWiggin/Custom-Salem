@@ -46,8 +46,8 @@ public class Tempers extends SIWidget {
 	Resource.loadimg("gfx/hud/tempers/gbtn"),
     };
     public static final Coord boxc = new Coord(96, 0), boxsz = new Coord(339, 62);
-    static final Color softc = new Color(64, 64, 64);
-    static final Color foodc = new Color(128, 128, 0);
+    static final Color softc = new Color(168, 128, 200);
+    static final Color foodc = new Color(192, 160, 0);
     static final Coord[] mc = {new Coord(295, 11), new Coord(235, 11), new Coord(235, 35), new Coord(295, 35)};
     static final String[] anm = {"blood", "phlegm", "ybile", "bbile"};
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
