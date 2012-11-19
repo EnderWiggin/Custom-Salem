@@ -10,7 +10,7 @@ public class TimerPanel extends Window {
     
     public static void toggle(){
 	if(instance == null){
-	    instance = new TimerPanel(UI.instance.root);
+	    instance = new TimerPanel(UI.instance.gui);
 	} else {
 	    UI.instance.destroy(instance);
 	}
@@ -108,9 +108,14 @@ public class TimerPanel extends Window {
 
 	@Override
 	public void destroy() {
+	    instance = null;
 	    panel = null;
 	    super.destroy();
 	}
+	
+    }
+
+    public static void close() {
 	
     }
 }

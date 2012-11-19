@@ -213,10 +213,12 @@ public class OptWnd2 extends Window {
 			Config.glcfg.light.set(GLSettings.Lights.VLIGHT);
 		    }
 		    a = val;
+		    Config.shadows = val;
 		    Config.glcfg.save();
+		    Config.saveOptions();
 		}
 	    };
-	    opt_shadow.a = Config.glcfg.light.val == GLSettings.Lights.PSLIGHT;
+	    opt_shadow.a = Config.shadows;//Config.glcfg.light.val == GLSettings.Lights.PSLIGHT;
 	    opt_shadow.enabled = Config.glcfg.light.available(GLSettings.Lights.PSLIGHT);
 	    
 	    opt_aa = new CheckBox(new Coord(180, y+=25), tab, "Antialiasing"){
@@ -230,10 +232,11 @@ public class OptWnd2 extends Window {
 			return;
 		    }
 		    a = val;
+		    Config.fsaa = val;
 		    Config.glcfg.save();
 		}
 	    };
-	    opt_aa.a = Config.glcfg.fsaa.val;
+	    opt_aa.a = Config.fsaa;//Config.glcfg.fsaa.val;
 	    opt_aa.enabled = Config.glcfg.fsaa.available(true);
 	}
 	

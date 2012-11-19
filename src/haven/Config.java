@@ -27,6 +27,8 @@
 package haven;
 
 import static haven.Utils.getprop;
+import haven.GLSettings.Lights;
+import haven.GLSettings.SettingException;
 import haven.error.ErrorHandler;
 
 import java.io.File;
@@ -40,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.ender.timer.TimerController;
 import org.ender.wiki.Wiki;
 
 public class Config {
@@ -82,6 +85,8 @@ public class Config {
     public static boolean pure_mult = Utils.getprefb("pure_mult", false);
     public static GLSettings glcfg;
     public static String server;
+    protected static boolean shadows = false;
+    protected static boolean fsaa = false;
     
     static {
 	String p;
@@ -123,6 +128,8 @@ public class Config {
 	options = loadProps("salem.cfg");
         String ver = options.getProperty("version", "");
         isUpdate = !version.equals(ver);
+        shadows = options.getProperty("shadows", "false").equals("true");
+        fsaa = options.getProperty("fsaa", "false").equals("true");
         
         if(isUpdate){
             saveOptions();
@@ -133,7 +140,8 @@ public class Config {
 	synchronized (options) {
 	    //refresh from vars
 	    options.setProperty("version", version);
-	    
+	    options.setProperty("shadows", shadows?"true":"false");
+	    options.setProperty("fsaa", fsaa?"true":"false");
 	    //store it
 	    saveProps(options, "salem.cfg", "Salem config file");
 	}
@@ -284,5 +292,18 @@ public class Config {
 		defserv = opt.rest[0];
 	    }
 	}
+    }
+
+    public static void setglpref(GLSettings pref) {
+	glcfg = pref;
+	try{
+	    glcfg.fsaa.set(fsaa);
+	    glcfg.light.set(shadows?Lights.PSLIGHT:Lights.VLIGHT);
+	} catch(SettingException e){}
+    }
+
+    public static void setServer(String addr) {
+	server = addr;
+	TimerController.init(getFile(), server);
     }
 }

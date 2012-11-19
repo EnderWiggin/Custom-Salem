@@ -151,7 +151,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	opts.hide();
 	new DarknessWnd(this);
 	makemenu();
-	TimerController.init(Config.getFile());
 	resize(sz);
     }
 
@@ -307,6 +306,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public void destroy() {
 	super.destroy();
 	OptWnd2.close();
+	TimerPanel.close();
     }
 
     private Widget attrview;

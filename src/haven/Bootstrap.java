@@ -50,7 +50,7 @@ public class Bootstrap implements UI.Receiver, UI.Runner {
     }
 	
     public Bootstrap(String hostname, int port) {
-	Config.server = hostname;
+	Config.setServer(hostname);
 	this.hostname = hostname;
 	this.port = port;
     }
