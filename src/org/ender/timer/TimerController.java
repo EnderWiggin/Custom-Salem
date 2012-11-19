@@ -26,11 +26,12 @@ public class TimerController extends Thread {
 	super("Timer Thread");
 	options = new Properties();
 	timers = new ArrayList<Timer>();
+	setDaemon(true);
 	start();
     }
     
-    public static void init(File folder){
-	config = new File(folder, "timer.cfg");
+    public static void init(File folder, String server){
+	config = new File(folder, String.format("timer_%s.cfg", server));
 	getInstance().load();
     }
     

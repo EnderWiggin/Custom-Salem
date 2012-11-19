@@ -102,7 +102,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 			h.lsetprop("gl.caps", d.getChosenGLCapabilities().toString());
 			h.lsetprop("gl.conf", glconf);
 		    }
-		    Config.glcfg = glconf.pref;
+		    Config.setglpref(glconf.pref);
 		    gstate = new GLState() {
 			    public void apply(GOut g) {
 				GL gl = g.gl;
