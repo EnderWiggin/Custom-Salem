@@ -301,9 +301,4 @@ public class Config {
 	    glcfg.light.set(shadows?Lights.PSLIGHT:Lights.VLIGHT);
 	} catch(SettingException e){}
     }
-
-    public static void setServer(String addr) {
-	server = addr;
-	TimerController.init(getFile(), server);
-    }
 }

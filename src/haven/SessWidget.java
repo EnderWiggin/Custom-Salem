@@ -56,7 +56,7 @@ public class SessWidget extends AWidget {
 
     public SessWidget(Widget parent, final String addr, final int port, final byte[] cookie, final Object... args) {
 	super(parent);
-	Config.setServer(addr);
+	Config.server = addr;
 	conn = Defer.later(new Defer.Callable<Connection>() {
 		public Connection call() throws InterruptedException {
 		    InetAddress host;

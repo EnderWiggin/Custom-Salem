@@ -116,6 +116,8 @@ public class TimerPanel extends Window {
     }
 
     public static void close() {
-	
+	if(instance != null){
+	    instance.destroy();
+	}
     }
 }
