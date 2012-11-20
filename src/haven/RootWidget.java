@@ -41,6 +41,8 @@ public class RootWidget extends ConsoleHost {
     }
 	
     public boolean globtype(char key, KeyEvent ev) {
+	int code = ev.getKeyCode();
+	boolean ctrl = ev.isControlDown();
 	if(!super.globtype(key, ev)) {
 	    if(Config.profile && (key == '`')) {
 		new Profwnd(new Coord(100, 100), this, gprof, "Glob prof");
@@ -50,8 +52,10 @@ public class RootWidget extends ConsoleHost {
 		    new Profwnd(new Coord(100, 100), this, gi.map.prof, "MV prof");
 	    } else if(key == ':') {
 		entercmd();
-	    }else if((ev.getKeyCode() == KeyEvent.VK_L)&&(ev.isControlDown())){
+	    }else if((code == KeyEvent.VK_L || code == KeyEvent.VK_F) && ctrl){
                 FlatnessTool.instance(ui).toggle();
+	    }else if(code == KeyEvent.VK_D && ctrl){
+                DarknessWnd.toggle();
 	    } else if(key != 0) {
 		wdgmsg("gk", (int)key);
 	    }

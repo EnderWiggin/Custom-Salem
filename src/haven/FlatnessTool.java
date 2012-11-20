@@ -1,7 +1,5 @@
 package haven;
 
-import haven.MCache.Grid;
-
 import java.awt.event.KeyEvent;
 
 class FlatnessTool extends Window implements MapView.Grabber {
@@ -36,9 +34,16 @@ class FlatnessTool extends Window implements MapView.Grabber {
     
     public static FlatnessTool instance(UI ui) {
 	if(instance == null){
-	    instance = new FlatnessTool(ui.gui.map, new Coord(100, 100), ui.root);
+	    instance = new FlatnessTool(ui.gui.map, new Coord(100, 100), ui.gui);
 	}
 	return instance;
+    }
+    
+    public static void close(){
+	if(instance != null){
+	    instance.ui.destroy(instance);
+	    instance = null;
+	}
     }
     
     public void toggle(){
@@ -85,15 +90,11 @@ class FlatnessTool extends Window implements MapView.Grabber {
         else {
             text += "Area isn't flat.";
         }
-        text += String.format(" Lowest: [%.0f], Highest: [%.0f], Mean: [%.2f].", minheight, maxheight,mean);
+        text += String.format(" Lowest: [%.0f], Highest: [%.0f], Mean: [%.2f].", minheight, maxheight, mean);
 
         settext(text);
 
         this.pack();
-    }
-
-    public final void close() {
-        this.cbtn.click();
     }
 
     @Override
