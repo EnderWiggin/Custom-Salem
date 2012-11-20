@@ -1,6 +1,6 @@
 $size[20]{$u{CHANGE LOG:}}
  
- $size[14]{$u{Update for 16.11.12:}}
+ $size[14]{$u{Update for 20.11.12:}}
   * fixed timers when switching characters on different servers. Each server now has it's own set of timers.
   * fixed flatness tool when switching characters
   * flatness tool opens by CTRL+F in addition to CTRL+L
