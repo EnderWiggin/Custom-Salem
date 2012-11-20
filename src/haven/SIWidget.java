@@ -51,4 +51,10 @@ public abstract class SIWidget extends Widget {
 	    surf.dispose();
 	surf = null;
     }
+
+    @Override
+    public void resize(Coord sz) {
+	super.resize(sz);
+	redraw();
+    }
 }

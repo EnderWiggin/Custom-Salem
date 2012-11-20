@@ -30,27 +30,29 @@ import haven.Glob.Pagina;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.LinkedList;
 
 public class Makewindow extends Widget {
-    Widget obtn, cbtn;
+    Widget obtn, cbtn, bbtn;
     Spec[] inputs = {};
     Spec[] outputs = {};
+    static LinkedList<String> list = new LinkedList<String>();
     static Coord boff = new Coord(7, 9);
     final int xoff = 40, yoff = 60;
     public static final Text.Foundry nmf = new Text.Foundry(new Font("Serif", Font.PLAIN, 20));
 
     static {
 	Widget.addtype("make", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Makewindow(c, parent, (String)args[0]));
-		}
-	    });
+	    public Widget create(Coord c, Widget parent, Object[] args) {
+		return(new Makewindow(c, parent, (String)args[0]));
+	    }
+	});
     }
-    
+
     public static class Spec {
 	public Indir<Resource> res;
 	public Tex num;
-	
+
 	public Spec(Indir<Resource> res, int num) {
 	    this.res = res;
 	    if(num >= 0)
@@ -59,7 +61,7 @@ public class Makewindow extends Widget {
 		this.num = null;
 	}
     }
-	
+
     public Makewindow(Coord c, Widget parent, String rcpnm) {
 	super(c, Coord.z, parent);
 	Label nm = new Label(new Coord(0, 0), this, rcpnm, nmf);
@@ -68,9 +70,14 @@ public class Makewindow extends Widget {
 	new Label(new Coord(0, 80), this, "Result:");
 	obtn = new Button(new Coord(290, 93), 60, this, "Craft");
 	cbtn = new Button(new Coord(360, 93), 60, this, "Craft All");
+	if(list.size() > 0){
+	    bbtn = new Button(new Coord(220, 93), 60, this, list.peek());
+	    bbtn.pack();
+	    bbtn.c.x = 280 - bbtn.sz.x;
+	}
 	pack();
     }
-	
+
     public void uimsg(String msg, Object... args) {
 	if(msg == "inpop") {
 	    Spec[] inputs = new Spec[args.length / 2];
@@ -84,7 +91,7 @@ public class Makewindow extends Widget {
 	    this.outputs = outputs;
 	}
     }
-	
+
     public void draw(GOut g) {
 	Coord c = new Coord(xoff, 0);
 	Inventory.invsq(g, c, new Coord(inputs.length, 1));
@@ -112,13 +119,18 @@ public class Makewindow extends Widget {
 	}
 	super.draw(g);
     }
-    
+
     public Object tooltip(Coord mc, Widget prev) {
+	return tooltip(mc, prev, true);
+    }
+
+    public Object tooltip(Coord mc, Widget prev, boolean full) {
 	Coord c = new Coord(xoff, 0);
 	for(int i = 0; i < inputs.length; i++) {
 	    if(mc.isect(c.add(Inventory.sqoff(new Coord(i, 0))), Inventory.isqsz))
 		return(inputs[i].res.get().layer(Resource.tooltip).t);
 	}
+	if(!full){return null;}
 	c = new Coord(xoff, yoff);
 	for(int i = 0; i < outputs.length; i++) {
 	    if(mc.isect(c.add(Inventory.sqoff(new Coord(i, 0))), Inventory.isqsz))
@@ -126,18 +138,33 @@ public class Makewindow extends Widget {
 	}
 	return(null);
     }
-    
+
     @Override
     public boolean mousedown(Coord c, int button) {
-	Object tt = tooltip(c, null);
+	Object tt = tooltip(c, null, false);
 	if (tt != null || tt instanceof String){
 	    Pagina p = ui.mnu.paginafor((String)tt);
 	    if(p != null){
+		store();
 		ui.mnu.use(p);
 		return true;
 	    }
 	}
 	return super.mousedown(c, button);
+    }
+
+    private void store() {
+	try {
+	    list.push(outputs[0].res.get().layer(Resource.tooltip).t);
+	} catch (Exception e){e.printStackTrace();}
+    }
+
+    private void restore(){
+	try{
+	    String name = list.pop();
+	    Pagina p = ui.mnu.paginafor(name);
+	    ui.mnu.use(p);
+	} catch (Exception e){e.printStackTrace();}
     }
 
     public void wdgmsg(Widget sender, String msg, Object... args) {
@@ -151,9 +178,13 @@ public class Makewindow extends Widget {
 		wdgmsg("make", 1);
 	    return;
 	}
+	if(sender == bbtn) {
+	    restore();
+	    return;
+	}
 	super.wdgmsg(sender, msg, args);
     }
-    
+
     public boolean globtype(char ch, java.awt.event.KeyEvent ev) {
 	if(ch == '\n') {
 	    wdgmsg("make", ui.modctrl?1:0);
@@ -161,13 +192,13 @@ public class Makewindow extends Widget {
 	}
 	return(super.globtype(ch, ev));
     }
-    
+
     public static class MakePrep extends ItemInfo implements GItem.ColorInfo {
 	private final static Color olcol = new Color(0, 255, 0, 64);
 	public MakePrep(Owner owner) {
 	    super(owner);
 	}
-	
+
 	public Color olcol() {
 	    return(olcol);
 	}

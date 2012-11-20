@@ -1,5 +1,14 @@
 $size[20]{$u{CHANGE LOG:}}
  
+ $size[14]{$u{Update for 16.11.12:}}
+  * fixed timers when switching characters on different servers. Each server now has it's own set of timers.
+  * fixed flatness tool when switching characters
+  * flatness tool opens by CTRL+F in addition to CTRL+L
+  * added basic darkness tool opened by CTRL+D. Most useful value there is Elevation - it shows how high sun is.
+  * made shadows and antialiasing options save in salem.cfg once again, for easy restore to defaults
+  * adjusted soft and food bar colors for humors and gluttony
+  * added button to get back to previous craft if you clicked on ingredient in craft window
+ 
 $size[14]{$u{Update for 16.11.12:}}
   * added ability to click on ingredients in crafting window to open recipe for clicked item
   * fixed wrong MenuGrid activation when pressing F-keys

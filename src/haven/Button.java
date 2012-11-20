@@ -38,6 +38,7 @@ public class Button extends SIWidget {
     static final Color defcol = new Color(248, 240, 193);
     static final Text.Foundry tf = new Text.Foundry(new Font("Sans", Font.PLAIN, 11), defcol);
     public static final int h = ut.getHeight();
+    public static final int pad = bl.getWidth() + br.getWidth();
     public Text text;
     public BufferedImage cont;
     boolean a = false;
@@ -79,7 +80,7 @@ public class Button extends SIWidget {
 	
     public void draw(BufferedImage buf) {
 	Graphics g = buf.getGraphics();
-	int iw = sz.x - bl.getWidth() - br.getWidth();
+	int iw = sz.x - pad;
 	for(int x = 0; x < iw; x += ut.getWidth()) {
 	    int w = Math.min(ut.getWidth(), iw - x), ix = x + bl.getWidth();
 	    g.drawImage(ut, ix, 0, ix + w, ut.getHeight(), 0, 0, w, ut.getHeight(), null);
@@ -91,7 +92,12 @@ public class Button extends SIWidget {
 	    tc = tc.add(1, 1);
 	g.drawImage(cont, tc.x, tc.y, null);
     }
-	
+    
+    @Override
+    public Coord contentsz() {
+	return new Coord(text.sz().x + pad, h);
+    }
+
     public void change(String text, Color col) {
 	this.text = tf.render(text, col);
 	this.cont = this.text.img;
