@@ -309,7 +309,7 @@ public class OptWnd2 extends Window {
 	    GOut g = og.reclip(Coord.z, sz);
 	    if(bgcoplor != null){
 		g.chcolor(bgcoplor);
-		g.frect(box.tloff(), sz.sub(box.bisz()));
+		g.frect(box.btloff(), sz.sub(box.bisz()));
 	    }
 	    g.chcolor(150, 200, 125, 255);
 	    box.draw(g, Coord.z, sz);
