@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.minimap.Radar.GobBlink;
+
 import java.util.*;
 
 public class Gob implements Sprite.Owner, Rendered {
@@ -194,6 +196,11 @@ public class Gob implements Sprite.Owner, Rendered {
 	GobHealth hlt = getattr(GobHealth.class);
 	if(hlt != null)
 	    rl.prepc(hlt.getfx());
+	if(Config.blink){
+	    GobBlink blnk = getattr(GobBlink.class);
+	    if(blnk != null)
+		rl.prepc(blnk.getfx());
+	}
 	Drawable d = getattr(Drawable.class);
 	if(d != null)
 	    d.setup(rl);
@@ -277,4 +284,5 @@ public class Gob implements Sprite.Owner, Rendered {
 	}
     }
     public final GobLocation loc = new GobLocation();
+    
 }

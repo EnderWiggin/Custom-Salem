@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.*;
 
 import haven.*;
+import haven.Utils;
 
 public class Radar {
     private final MarkerFactory factory;
@@ -48,6 +49,7 @@ public class Radar {
         Marker m = factory.makeMarker(name, gob);
         if (m != null) {
             markers.put(gob.id, m);
+            gob.setattr(new GobBlink(gob));
             //System.out.println("Marker added: " + name);
         }
     }
@@ -107,5 +109,39 @@ public class Radar {
             this.gob = gob;
             this.res = res;
         }
+    }
+    
+    public static class GobBlink extends GAttrib {
+	Material.Colors fx;
+	int time = 0;
+	
+	public GobBlink(Gob gob) {
+	    super(gob);
+	    Color c = new Color(255, 100, 100, 100);
+	    fx = new Material.Colors();
+	    fx.amb = Utils.c2fa(c);
+	    fx.dif = Utils.c2fa(c);
+	    fx.emi = Utils.c2fa(c);
+	}
+
+	public void ctick(int dt) {
+	    int max = 2000;
+	    time = (time + dt)%max;
+	    float a = (float)time/max;
+	    if(a > 0.6f){
+		a = 0;
+	    } else if(a > 0.3f){
+		a = 2.0f - a/0.3f;
+	    } else {
+		a = a/0.3f;
+	    }
+	    fx.amb[3] = a;
+	    fx.dif[3] = a;
+	    fx.emi[3] = a;
+	}
+
+	public GLState getfx() {
+	    return(fx);
+	}
     }
 }

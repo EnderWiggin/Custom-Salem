@@ -172,6 +172,10 @@ public class Material extends GLState {
 	this(Light.deflight, new Colors(), tex.draw(), tex.clip());
     }
     
+    public Material(Tex tex, boolean bright) {
+	this(Light.deflight, new Colors(defamb, defdif, defspc, bright?new float[]{1.0f, 1.0f, 1.0f, 1.0f}:defemi, 0), tex.draw(), tex.clip());
+    }
+    
     public String toString() {
 	return(Arrays.asList(states).toString());
     }
