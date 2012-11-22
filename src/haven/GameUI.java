@@ -673,6 +673,15 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    }
 		},
 		new MenuButton(new Coord(62, 66), this, "pol", 16, "Town (Ctrl+P)") {
+		    final Tex gray = Resource.loadtex("gfx/hud/polgray");
+
+		    public void draw(GOut g) {
+			if(polity == null)
+			    g.image(gray, Coord.z);
+			else
+			    super.draw(g);
+		    }
+
 		    public void click() {
 			if((polity != null) && polity.show(!polity.visible)) {
 			    polity.raise();

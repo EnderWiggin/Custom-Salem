@@ -46,7 +46,7 @@ public class Equipory extends Widget implements DTarget {
 	new Coord(0, 210),
 	new Coord(300, 0),
 	new Coord(300, 210),
-	null,
+	new Coord(100, 0),
 	new Coord(0, 70),
 	new Coord(250, 210),
     };
