@@ -289,7 +289,7 @@ public class CharWnd extends Window {
 	}
 	
 	public void drawmeter(GOut g, Coord c, Coord sz) {
-	    g.chcolor(0, 0, 0, 255);
+	    g.chcolor(28, 28, 28, 255);
 	    g.frect(c, sz);
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		try {
