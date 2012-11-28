@@ -1,11 +1,16 @@
 $size[20]{$u{CHANGE LOG:}}
  
- $size[14]{$u{Update for 22.11.12:}}
+$size[14]{$u{Update for 28.11.12:}}
+  * added tilify mode toggled by CTRL+Z (all clicks will be made in center of tile)
+  * fixed proficiency expirience not updated after KO
+  * all proficiency changes are now logged into system messages
+ 
+$size[14]{$u{Update for 22.11.12:}}
   * merged loftar's changes
   * added option to make items detected by radar blink. Will be improved later.
   * made Flatness tool unaffected by lighting
  
- $size[14]{$u{Update for 20.11.12:}}
+$size[14]{$u{Update for 20.11.12:}}
   * fixed timers when switching characters on different servers. Each server now has it's own set of timers.
   * fixed flatness tool when switching characters
   * flatness tool opens by CTRL+F in addition to CTRL+L
