@@ -56,6 +56,9 @@ public class RootWidget extends ConsoleHost {
                 FlatnessTool.instance(ui).toggle();
 	    }else if(code == KeyEvent.VK_D && ctrl){
                 DarknessWnd.toggle();
+	    }else if(code == KeyEvent.VK_Z && ctrl){
+		Config.center = !Config.center;
+		ui.message(String.format("Tile centering in turned %s", Config.center?"ON":"OFF"));
 	    } else if(key != 0) {
 		wdgmsg("gk", (int)key);
 	    }

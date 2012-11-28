@@ -930,10 +930,12 @@ public class MapView extends PView implements DTarget {
 		if(grab.mmousedown(mc, clickb))
 		    return;
 	    }
-	    if(gob == null)
+	    if(gob == null){
+		if(Config.center){mc = mc.div(11).mul(11).add(5, 5);}
 		wdgmsg("click", pc, mc, clickb, ui.modflags());
-	    else
+	    } else {
 		wdgmsg("click", pc, mc, clickb, ui.modflags(), (int)gob.id, gob.rc, getid(tgt));
+	    }
 	}
     }
     

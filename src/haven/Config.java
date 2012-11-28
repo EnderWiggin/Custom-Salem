@@ -88,6 +88,7 @@ public class Config {
     public static String server;
     protected static boolean shadows = false;
     protected static boolean fsaa = false;
+    public static boolean center = false;
     
     static {
 	String p;
