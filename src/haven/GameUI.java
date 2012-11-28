@@ -740,6 +740,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			WebBrowser.self.show(new URL(base.getProtocol(), base.getHost(), base.getPort(), base.getFile() + "?userid=" + encode(ui.sess.username)));
 		    } catch(java.net.MalformedURLException e) {
 			throw(new RuntimeException(e));
+		    } catch(WebBrowser.BrowserException e) {
+			error("Could not launch browser.");
 		    }
 		}
 
