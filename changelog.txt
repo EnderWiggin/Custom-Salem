@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 30.11.12:}}
+  * added brightness slider to camera options
+ 
 $size[14]{$u{Update for 28.11.12:}}
   * added tilify mode toggled by CTRL+Z (all clicks will be made in center of tile)
   * fixed proficiency expirience not updated after KO

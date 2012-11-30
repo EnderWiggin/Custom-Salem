@@ -192,6 +192,13 @@ public class Utils {
 	}
     }
 
+    static void setpreff(String prefname, float val) {
+	try {
+	    prefs().putFloat(prefname, val);
+	} catch(SecurityException e) {
+	}
+    }
+    
     static Coord getprefc(String prefname, Coord def) {
 	try {
 	    String val = prefs().get(prefname, null);
@@ -225,6 +232,14 @@ public class Utils {
 	try {
 	    prefs().putByteArray(prefname, val);
 	} catch(SecurityException e) {
+	}
+    }
+    
+    static float getpreff(String prefname, float def) {
+	try {
+	    return(prefs().getFloat(prefname, def));
+	} catch(SecurityException e) {
+	    return(def);
 	}
     }
     
