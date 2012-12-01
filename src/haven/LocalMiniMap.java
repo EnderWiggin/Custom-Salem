@@ -103,11 +103,11 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    return(false);
 	}
     };
-    
+
     public static class MapTile {
 	public final Tex img;
 	public final Coord ul, c;
-	
+
 	public MapTile(Tex img, Coord ul, Coord c) {
 	    this.img = img;
 	    this.ul = ul;
@@ -133,7 +133,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	return(img);
     }
-    
+
     public BufferedImage drawmap(Coord ul, Coord sz) {
 	BufferedImage[] texes = new BufferedImage[256];
 	MCache m = ui.sess.glob.map;
@@ -151,16 +151,16 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		BufferedImage tex = tileimg(t, texes);
                 if(tex != null){
 		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x, tex.getWidth()),
-						    Utils.floormod(c.y, tex.getHeight())));
+			    Utils.floormod(c.y, tex.getHeight())));
 		} else {
 		    return null;
 		}
 		//Put a border around terrain transitions
 		try {
 		    if((m.gettile(c2.add(-1, 0)) > t) ||
-			(m.gettile(c2.add( 1, 0)) > t) ||
-			(m.gettile(c2.add(0, -1)) > t) ||
-			(m.gettile(c2.add(0,  1)) > t))
+			    (m.gettile(c2.add( 1, 0)) > t) ||
+			    (m.gettile(c2.add(0, -1)) > t) ||
+			    (m.gettile(c2.add(0,  1)) > t))
 			buf.setRGB(c.x, c.y, Color.BLACK.getRGB());
 		} catch (LoadingMap e) {
 		    continue;
@@ -169,7 +169,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	return(buf);
     }
-    
+
     private Future<BufferedImage> getheightmap(final Coord plg){
 	Future<BufferedImage> f = Defer.later(new Defer.Callable<BufferedImage> () {
 	    public BufferedImage call() {
@@ -178,7 +178,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	});
 	return f;
     }
-    
+
     public BufferedImage drawmap2(Coord plg) {
 	MCache m = ui.sess.glob.map;
 	Coord ul = (plg.sub(1, 1)).mul(cmaps);
@@ -186,7 +186,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	Coord c = new Coord();
 	int MAX = Integer.MIN_VALUE;
 	int MIN = Integer.MAX_VALUE;
-	
+
 	try{
 	    for(c.y = 0; c.y < hmsz.y; c.y++) {
 		for(c.x = 0; c.x < hmsz.x; c.x++) {
@@ -199,9 +199,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	} catch (LoadingMap e) {
 	    return null;
 	}
-	
+
 	int SIZE = MAX - MIN;
-	
+
 	for(c.y = 0; c.y < hmsz.y; c.y++) {
 	    for(c.x = 0; c.x < hmsz.x; c.x++) {
 		Coord c2 = ul.add(c);
@@ -218,10 +218,10 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		buf.setRGB(c.x, c.y, t);
 		try {
 		    if((m.getz(c2.add(-1, 0)) > (t2+11)) ||
-		       (m.getz(c2.add( 1, 0)) > (t2+11)) ||
-		       (m.getz(c2.add(0, -1)) > (t2+11)) ||
-		       (m.getz(c2.add(0,  1)) > (t2+11)))
-		        buf.setRGB(c.x, c.y, Color.RED.getRGB());
+			    (m.getz(c2.add( 1, 0)) > (t2+11)) ||
+			    (m.getz(c2.add(0, -1)) > (t2+11)) ||
+			    (m.getz(c2.add(0,  1)) > (t2+11)))
+			buf.setRGB(c.x, c.y, Color.RED.getRGB());
 		} catch (LoadingMap e) {
 		    continue;
 		}
@@ -235,33 +235,33 @@ public class LocalMiniMap extends Window implements Console.Directory{
         cap = null;
 	this.mv = mv;
 	cmdmap.put("radar", new Console.Command() {
-            public void run(Console console, String[] args) throws Exception {
-                if (args.length == 2) {
-                    String arg = args[1];
-                    if (arg.equals("on")) {
-                        radarenabled = true;
-                        return;
-                    }
-                    else if (arg.equals("off")) {
-                        radarenabled = false;
-                        return;
-                    }
-                    else if (arg.equals("reload")) {
-                        ui.sess.glob.oc.radar.reload();
-                        return;
-                    }
-                }
-                throw new Exception("No such setting");
-            }
-        });
+	    public void run(Console console, String[] args) throws Exception {
+		if (args.length == 2) {
+		    String arg = args[1];
+		    if (arg.equals("on")) {
+			radarenabled = true;
+			return;
+		    }
+		    else if (arg.equals("off")) {
+			radarenabled = false;
+			return;
+		    }
+		    else if (arg.equals("reload")) {
+			ui.sess.glob.oc.radar.reload();
+			return;
+		    }
+		}
+		throw new Exception("No such setting");
+	    }
+	});
     }
-    
+
     @Override
     protected void loadOpts() {
 	super.loadOpts();
 	sz = getOptCoord(OPT_SZ, sz);
     }
-    
+
     public void toggleHeight(){
 	if(height == 0){
 	    height = 0xb5000000;
@@ -270,9 +270,16 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	} else {
 	    height = 0;
 	}
+	clearheightmap();
+    }
+
+    private void clearheightmap() {
+	if(heightmap != null && heightmap.done() && heightmap.get() != null){
+	    heightmap.get().flush();
+	}
 	heightmap = null;
     }
-    
+
     public void draw(GOut og) {
 	Gob pl = ui.sess.glob.oc.getgob(mv.plgob);
 	if(pl == null)
@@ -282,15 +289,15 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	checkSession(plg);
 	if(!plg.equals(lastplg)){
 	    lastplg = plg;
-	    heightmap = null;
+	    clearheightmap();
 	}
 	if((height!=0) && (heightmap == null)){
 	    heightmap = getheightmap(plg);
 	}
-	
+
 	double scale = getScale();
 	Coord hsz = sz.div(scale);
-	
+
 	Coord tc = plt.add(off.div(scale));
 	Coord ulg = tc.div(cmaps);
 	int dy = -tc.y + (hsz.y / 2);
@@ -299,18 +306,18 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    ulg.x--;
 	while((ulg.y * cmaps.y) + dy > 0)
 	    ulg.y--;
-	
+
 	Coord s = bg.sz();
 	for(int y = 0; (y * s.y) < sz.y; y++) {
 	    for(int x = 0; (x * s.x) < sz.x; x++) {
 		og.image(bg, new Coord(x*s.x, y*s.y));
 	    }
 	}
-	
+
 	GOut g = og.reclipl(og.ul.mul((1-scale)/scale), hsz);
 	g.gl.glPushMatrix();
 	g.gl.glScaled(scale, scale, scale);
-	
+
 	Coord cg = new Coord();
 	synchronized(cache) {
 	    for(cg.y = ulg.y; (cg.y * cmaps.y) + dy < hsz.y; cg.y++) {
@@ -358,16 +365,16 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    }
 	}
 	Coord c0 = hsz.div(2).sub(tc);
-	
+
 	if((height!=0) && (heightmap != null) && heightmap.done()){
 	    BufferedImage img = heightmap.get();
 	    if(img != null){
 		g.image(img, c0.add(plg.sub(1,1).mul(cmaps)));
 	    } else {
-		heightmap = null;
+		clearheightmap();
 	    }
 	}
-	
+
 	drawmarkers(g, c0);
 	synchronized(ui.sess.glob.party.memb) {
 	    try {
@@ -383,28 +390,28 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		    g.chcolor();
 		}
 	    } catch (Loading e){}
-	    }
-	
+	}
+
 	g.gl.glPopMatrix();
 	Window.swbox.draw(og, Coord.z, this.sz);
     }
-    
+
     private String mapfolder(){
 	return String.format("%s/map/%s/", Config.userhome, Config.server);
     }
-    
+
     private String mapfile(String file){
 	return String.format("%s%s", mapfolder(), file);
     }
-    
+
     private String mapsessfile(String file){
 	return String.format("%s%s/%s",mapfolder(), session, file);
     }
-    
+
     private String mapsessfolder(){
 	return mapsessfile("");
     }
-    
+
     private void store(BufferedImage img, Coord cg) {
 	if(!Config.store_map){return;}
 	Coord c = cg.sub(sp);
@@ -501,18 +508,18 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     public double getScale() {
-        return scales[scale];
+	return scales[scale];
     }
 
     public void setScale(int scale) {
 	this.scale = Math.max(0,Math.min(scale,scales.length-1));
     }
-    
+
     public boolean mousedown(Coord c, int button) {
-//	if(folded) {
-//	    return super.mousedown(c, button);
-//	}
-	
+	//	if(folded) {
+	//	    return super.mousedown(c, button);
+	//	}
+
 	parent.setfocus(this);
 	raise();
 
@@ -521,22 +528,22 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
 	if(button == 3){
 	    if (m != null) {
-                mv.wdgmsg("click", this.c.add(c), mc, button, ui.modflags(), (int)m.gob.id, m.gob.rc, (-1));
-                return true;
-            }
-	    
+		mv.wdgmsg("click", this.c.add(c), mc, button, ui.modflags(), (int)m.gob.id, m.gob.rc, (-1));
+		return true;
+	    }
+
 	    dm = true;
 	    ui.grabmouse(this);
 	    doff = c;
 	    return true;
 	}
-	
+
 	if (button == 1) {
 	    if (m != null || ui.modctrl) {
-                mv.wdgmsg("click", Coord.z, mc, button, 0);
-                return true;
-            }
-	    
+		mv.wdgmsg("click", Coord.z, mc, button, 0);
+		return true;
+	    }
+
 	    ui.grabmouse(this);
 	    doff = c;
 	    if(c.isect(sz.sub(gzsz), gzsz)) {
@@ -552,13 +559,13 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    off.x = off.y = 0;
 	    return true;
 	}
-	
+
 	if(button == 3){
 	    dm = false;
 	    ui.grabmouse(null);
 	    return true;
 	}
-	
+
 	if (rsm){
 	    ui.grabmouse(null);
 	    rsm = false;
@@ -568,7 +575,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	return (true);
     }
-    
+
     public void mousemove(Coord c) {
 	Coord d;
 	if(dm){
@@ -577,7 +584,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    doff = c;
 	    return;
 	}
-	
+
 	if (rsm){
 	    d = c.sub(doff);
 	    sz = sz.add(d);
@@ -599,51 +606,51 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	return true;
     }
-    
-    private void drawmarkers(GOut g, Coord tc) {
-        if (!radarenabled)
-            return;
 
-        Radar radar = ui.sess.glob.oc.radar;
-        try {
-            for (Marker m : radar.getMarkers()) {
-                if (m.template.visible)
-                    m.draw(g, tc);
-            }
-        } catch (MCache.LoadingMap e) {
-        }
+    private void drawmarkers(GOut g, Coord tc) {
+	if (!radarenabled)
+	    return;
+
+	Radar radar = ui.sess.glob.oc.radar;
+	try {
+	    for (Marker m : radar.getMarkers()) {
+		if (m.template.visible)
+		    m.draw(g, tc);
+	    }
+	} catch (MCache.LoadingMap e) {
+	}
     }
-    
+
     private Coord uitomap(Coord c) {
-        return c.sub(sz.div(2)).add(off).div(getScale()).mul(MCache.tilesz).add(mv.cc);
+	return c.sub(sz.div(2)).add(off).div(getScale()).mul(MCache.tilesz).add(mv.cc);
     }
-    
+
     private Marker getmarkerat(Coord c) {
-        if (radarenabled) {
-            Radar radar = ui.sess.glob.oc.radar;
-            try {
-                Coord mc = uitomap(c);
-                for (Marker m : radar.getMarkers()) {
-                    if (m.template.visible && m.hit(mc))
-                        return m;
-                }
-            } catch (MCache.LoadingMap e) {
-            }
-        }
-        return null;
+	if (radarenabled) {
+	    Radar radar = ui.sess.glob.oc.radar;
+	    try {
+		Coord mc = uitomap(c);
+		for (Marker m : radar.getMarkers()) {
+		    if (m.template.visible && m.hit(mc))
+			return m;
+		}
+	    } catch (MCache.LoadingMap e) {
+	    }
+	}
+	return null;
     }
 
     @Override
     public Object tooltip(Coord c, boolean again) {
-        Marker m = getmarkerat(c);
-        if (m != null)
-            return m.template.tooltip;
-        return null;
+	Marker m = getmarkerat(c);
+	if (m != null)
+	    return m.template.tooltip;
+	return null;
     }
 
     @Override
     public Map<String, Console.Command> findcmds() {
-        return cmdmap;
+	return cmdmap;
     }
 
     @Override
