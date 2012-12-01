@@ -26,6 +26,7 @@
 
 package haven;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class Glob {
     public double lightang = 0.0, lightelev = 0.0;
     public Indir<Resource> sky1 = null, sky2 = null;
     public double skyblend = 0.0;
+    public java.awt.Color origamb = null;
     
     public Glob(Session sess) {
 	this.sess = sess;
@@ -76,10 +78,11 @@ public class Glob {
 	public void update(int base, int comp) {
 	    if((base == this.base) && (comp == this.comp))
 		return;
+	    Integer old = this.comp;
 	    this.base = base;
 	    this.comp = comp;
 	    setChanged();
-	    notifyObservers(null);
+	    notifyObservers(old);
 	}
     }
     
@@ -159,12 +162,12 @@ public class Glob {
 		break;
 	    case GMSG_LIGHT:
 		synchronized(this) {
-		    lightamb = msg.color();
+		    origamb = msg.color();
 		    lightdif = msg.color();
 		    lightspc = msg.color();
 		    lightang = (msg.int32() / 1000000.0) * Math.PI * 2.0;
 		    lightelev = (msg.int32() / 1000000.0) * Math.PI * 2.0;
-		    DarknessWnd.update();
+		    brighten();
 		}
 		break;
 	    case GMSG_SKY:
@@ -197,6 +200,13 @@ public class Glob {
 	}
     }
 	
+    public synchronized void brighten() {
+	float hsb[] = Color.RGBtoHSB(origamb.getRed(), origamb.getGreen(), origamb.getBlue(), null);
+	hsb[2] = 1.0f - (1.0f - hsb[2])/(Config.brighten*Config.maxbright + 1.0f);
+	lightamb = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+	DarknessWnd.update();
+    }
+
     public Pagina paginafor(Resource res) {
 	if(res == null)
 	    return(null);

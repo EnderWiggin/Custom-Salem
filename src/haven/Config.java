@@ -88,6 +88,8 @@ public class Config {
     public static String server;
     protected static boolean shadows = false;
     protected static boolean fsaa = false;
+    public static boolean center = false;
+    public static float brighten = Utils.getpreff("brighten", 0.0f), maxbright = 2.0f;
     
     static {
 	String p;
@@ -301,5 +303,10 @@ public class Config {
 	    glcfg.fsaa.set(fsaa);
 	    glcfg.light.set(shadows?Lights.PSLIGHT:Lights.VLIGHT);
 	} catch(SettingException e){}
+    }
+
+    public static void setBrighten(float val) {
+	brighten = val;
+	Utils.setpreff("brighten", val);
     }
 }

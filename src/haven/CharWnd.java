@@ -261,7 +261,7 @@ public class CharWnd extends Window {
 	}
 	    }
 	
-    public class Attr extends Widget {
+    public class Attr extends Widget implements Observer {
 	public final Coord
 	    imgc = new Coord(0, 1),
 	    nmc = new Coord(17, 1),
@@ -286,10 +286,11 @@ public class CharWnd extends Window {
 		this.tooltip = RichText.render(pag.text, 300);
 	    this.attr = ui.sess.glob.cattr.get(nm);
 	    this.rnm = Text.render(attrnm.get(attr));
+	    this.attr.addObserver(this);
 	}
 	
 	public void drawmeter(GOut g, Coord c, Coord sz) {
-	    g.chcolor(0, 0, 0, 255);
+	    g.chcolor(28, 28, 28, 255);
 	    g.frect(c, sz);
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		try {
@@ -380,6 +381,17 @@ public class CharWnd extends Window {
 	
 	public void buy() {
 	    CharWnd.this.wdgmsg("sattr", nm);
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+	    int delta = attr.comp - (Integer) arg;
+	    if(delta == 0){return;}
+	    rexp = null;
+	    ui.message(String.format("Your '%s' profficiency %s to %d",
+		    attrnm.get(nm),
+		    (delta>0?"increased":"decreased"),
+		    attr.comp));
 	}
     }
 

@@ -62,7 +62,7 @@ public class OptWnd2 extends Window {
     public OptWnd2(Coord c, Widget parent) {
 	super(c, new Coord(400, 340), parent, "Options");
 	justclose = true;
-	body = new Tabs(Coord.z, new Coord(400, 300), this) {
+	body = new Tabs(Coord.z, new Coord(400, 340), this) {
 		public void changed(Tab from, Tab to) {
 		    Utils.setpref("optwndtab", to.btn.text.text);
 		    from.btn.c.y = 0;
@@ -253,6 +253,15 @@ public class OptWnd2 extends Window {
 	    };
 	    opt_aa.a = Config.fsaa;//Config.glcfg.fsaa.val;
 	    opt_aa.enabled = Config.glcfg.fsaa.available(true);
+	    
+	    y = tab.sz.y - 20;
+	    new Label(new Coord(10, y), tab, "Brightness:");
+	    new HSlider(new Coord(85, y+5), 200, tab, 0, 1000, (int)(Config.brighten * 1000)) {
+		public void changed() {
+		    Config.setBrighten(val/1000.0f);
+		    ui.sess.glob.brighten();
+		}
+	    };
 	}
 	
 
