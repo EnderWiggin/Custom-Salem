@@ -310,7 +310,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 		public void presize() {
-		    attrview.c = new Coord(GameUI.this.sz.x - sz.x, (menu.c.y - sz.y) / 2);
+		    c = new Coord(GameUI.this.sz.x - sz.x, (menu.c.y - sz.y) / 2);
 		}
 
 		public boolean show(boolean show) {
@@ -318,7 +318,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 		private void act(boolean act) {
-		    this.act = act;
+		    Utils.setprefb("attrview", this.act = act);
 		    show(act);
 		}
 
@@ -329,10 +329,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 				cw.hide();
 			    }
 			});
+		    presize();
+		    act(Utils.getprefb("attrview", false));
 		}
 	    };
-	attrview.presize();
-	attrview.hide();
     }
 
     private void togglecw() {
@@ -740,6 +740,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			WebBrowser.self.show(new URL(base.getProtocol(), base.getHost(), base.getPort(), base.getFile() + "?userid=" + encode(ui.sess.username)));
 		    } catch(java.net.MalformedURLException e) {
 			throw(new RuntimeException(e));
+		    } catch(WebBrowser.BrowserException e) {
+			error("Could not launch browser.");
 		    }
 		}
 

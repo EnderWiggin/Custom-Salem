@@ -127,6 +127,25 @@ public class LoginScreen extends Widget {
 	    return(new Object[] {new ParadoxCreds(user.text, pass.text), savepass.a});
 	}
     }
+
+    private abstract class WebCommon extends Login {
+	private WebCommon() {
+	    super(cboxc, cbox.sz(), LoginScreen.this);
+	}
+
+	boolean enter() {
+	    return(true);
+	}
+    }
+
+    private class Amazonbox extends WebCommon {
+	Object[] data() {
+	    return(new Object[] {new BrowserAuth() {
+		    public String method() {return("amz");}
+		    public String name() {return("Amazon user");}
+		}, false});
+	}
+    }
 	
     private class Tokenbox extends Login {
 	Text label;
@@ -225,6 +244,8 @@ public class LoginScreen extends Widget {
 		    cur = new Pwbox((String)args[0], (Boolean)args[1]);
 		} else if(Config.authmech.equals("paradox")) {
 		    cur = new Pdxbox((String)args[0], (Boolean)args[1]);
+		} else if(Config.authmech.equals("amz")) {
+		    cur = new Amazonbox();
 		} else {
 		    throw(new RuntimeException("Unknown authmech `" + Config.authmech + "' specified"));
 		}
