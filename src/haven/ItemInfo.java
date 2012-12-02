@@ -247,6 +247,7 @@ public abstract class ItemInfo {
 		    }
 		}catch(Exception e){}
 	    }
+	    if(res != null){return res;}
 	}
 	return res;
     }
