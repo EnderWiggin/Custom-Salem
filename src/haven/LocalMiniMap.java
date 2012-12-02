@@ -47,6 +47,13 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
+import com.nathantalewis.image.SparseBufferedImageComparator;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.regex.MatchResult;
+        
 public class LocalMiniMap extends Window implements Console.Directory{
     private static final String OPT_SZ = "_sz";
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
@@ -68,7 +75,19 @@ public class LocalMiniMap extends Window implements Console.Directory{
     private Future<BufferedImage> heightmap;
     private Coord lastplg;
     private final Coord hmsz = cmaps.mul(3);
-
+    
+    //TileSessionMerging
+    private boolean mergeChecked = false;
+    private static final String tileNamePattern = "tile_(-?\\d+)_(-?\\d+)\\.png";
+    private static final FilenameFilter tileFileNameFilter = new FilenameFilter() {
+                        @Override
+                        public boolean accept(File directory, String fileName) {
+                            return fileName.matches(tileNamePattern);
+                        }
+                    };
+    private static final SparseBufferedImageComparator sparseBufferedImageComparator = new SparseBufferedImageComparator(0.90);
+    
+    
     private final Map<Coord, Future<MapTile>> cache = new LinkedHashMap<Coord, Defer.Future<MapTile>>(9, 0.75f, true) {
 	private static final long serialVersionUID = 1L;
 
@@ -130,13 +149,13 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		    return null;
 		}
 		BufferedImage tex = tileimg(t, texes);
-		if(tex != null){
+                if(tex != null){
 		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x, tex.getWidth()),
 			    Utils.floormod(c.y, tex.getHeight())));
 		} else {
 		    return null;
 		}
-
+		//Put a border around terrain transitions
 		try {
 		    if((m.gettile(c2.add(-1, 0)) > t) ||
 			    (m.gettile(c2.add( 1, 0)) > t) ||
@@ -213,7 +232,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
 	super(c, sz, parent, "mmap");
-	cap = null;
+        cap = null;
 	this.mv = mv;
 	cmdmap.put("radar", new Console.Command() {
 	    public void run(Console console, String[] args) throws Exception {
@@ -307,12 +326,26 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		    Defer.Future<MapTile> f = cache.get(cg);
 		    final Coord tcg = new Coord(cg);
 		    final Coord ul = cg.mul(cmaps);
-		    if((f == null) && (cg.manhattan2(plg) <= 1)) {
+		    if((f == null) && (cg.mul(cmaps).manhattan2(tc) <= 300)) {
 			f = Defer.later(new Defer.Callable<MapTile> () {
 			    public MapTile call() {
 				BufferedImage img = drawmap(ul, cmaps);
-				if(img == null){return null;}
+                                
+                                //TODO: See if this can be done without synchronizing
+                                synchronized(cache) {
+                                    if (img == null && mergeChecked) {
+                                        File storedTileFile = new File(mapsessfile(coordToFileName(tcg.sub(sp))));
+                                        if (storedTileFile.exists()) {
+                                            try {
+                                                img = ImageIO.read(storedTileFile);
+                                            }
+                                            catch (IOException ioe) {}
+                                            catch (IndexOutOfBoundsException ioobe) {}
+                                        }
+                                    }
+                                if(img == null){return null;}
 				store(img, tcg);
+                            }
 				return(new MapTile(new TexI(img), ul, tcg));
 			    }
 			});
@@ -382,17 +415,84 @@ public class LocalMiniMap extends Window implements Console.Directory{
     private void store(BufferedImage img, Coord cg) {
 	if(!Config.store_map){return;}
 	Coord c = cg.sub(sp);
-	String fileName = mapsessfile(String.format("tile_%d_%d.png", c.x, c.y));
-	File outputfile = new File(fileName);
+	String fileName = mapsessfile(coordToFileName(c));
 	try {
-	    ImageIO.write(img, "png", outputfile);
+	    ImageIO.write(img, "png", new File(fileName));
 	} catch (IOException e) {}
+        
+        if(!mergeChecked) {
+            //TODO: this all runs twice. It should only need to run once.
+            
+            final File[] mapSessionFolders = new File(mapfolder()).listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory() && 
+                            file.getName()
+                            .matches("\\d{4}-\\d{2}-\\d{2} \\d{2}\\.\\d{2}\\.\\d{2}");
+                }
+            });
+            Arrays.sort(mapSessionFolders);
+
+            //Only look through the last 10 not including the most recent
+            for(int i = mapSessionFolders.length - 2;
+                    i > 0 && i > mapSessionFolders.length - 12 && !mergeChecked;
+                    i--) {
+                if(!mapSessionFolders[i].getName().equals(session) &&
+                        mapSessionFolders[i].isDirectory()) {
+                    for(File otherImgFile: 
+                            mapSessionFolders[i].listFiles(tileFileNameFilter)) {
+                        try {
+                            if(sparseBufferedImageComparator.compare(img, ImageIO.read(otherImgFile)) == 0) {
+                                Coord otherImageCoord = coordFromFileName(otherImgFile.getName());
+                                Coord delta = c.sub(otherImageCoord);
+                                
+                                //TODO: Should be able to just rename previous files based on delta then switch back to that session rather than copying
+                                copyPreviousSessionTiles(mapSessionFolders[i], new File(mapsessfolder()), delta);
+                                
+                                mergeChecked = true;
+                                break;
+                            }
+                       } catch (IOException e) {}
+                    }
+                }
+            }
+            mergeChecked = true;
+            }
+        }
+    
+    private String coordToFileName(Coord c) {
+        return String.format("tile_%d_%d.png", c.x, c.y);
+    }
+    
+    private Coord coordFromFileName(String fileName) {
+        Scanner scanner = new Scanner(fileName);
+        scanner.findInLine(tileNamePattern);
+        MatchResult results = scanner.match();
+
+        return new Coord(Integer.parseInt(results.group(1)),
+                Integer.parseInt(results.group(2)));
+    }
+    
+    private void copyPreviousSessionTiles(File previousSessionFolder,
+            File currentSessionFolder,
+            Coord delta) throws IOException {
+
+        for(File previousTileFile : previousSessionFolder.listFiles(tileFileNameFilter)) {
+            Coord previousTileCoord = coordFromFileName(previousTileFile.getName());
+            File destTileFile = new File(currentSessionFolder,
+                    coordToFileName(previousTileCoord.add(delta)));
+            if (!destTileFile.exists()) {
+                Utils.copyFile(previousTileFile, destTileFile);
+            }
+            previousTileFile.deleteOnExit();
+        }
+        previousSessionFolder.deleteOnExit();
     }
 
     private void checkSession(Coord plg) {
 	if(cgrid == null || plg.manhattan(cgrid) > 5){
 	    sp = plg;
-	    cache.clear();
+	    cache.clear();            
 	    session = Utils.current_date();
 	    if(Config.store_map){
 		(new File(mapsessfolder())).mkdirs();
@@ -401,6 +501,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		    currentSessionFile.write("var currentSession = '" + session + "';\n");
 		    currentSessionFile.close();
 		} catch (IOException e) {}
+                mergeChecked = false;
 	    }
 	}
 	cgrid = plg;
