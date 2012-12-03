@@ -741,7 +741,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    } catch(java.net.MalformedURLException e) {
 			throw(new RuntimeException(e));
 		    } catch(WebBrowser.BrowserException e) {
-			error("Could not launch browser.");
+			error("Could not launch web browser.");
 		    }
 		}
 
