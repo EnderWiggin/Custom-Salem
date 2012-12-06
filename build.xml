@@ -105,5 +105,6 @@
 
 	<target name="clean">
 		<delete dir="build/classes" />
+		<delete dir="resources/compiled" />
 	</target>
 </project>
