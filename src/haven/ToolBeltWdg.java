@@ -366,7 +366,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     
     private Resource curttr = null;
     private boolean curttl = false;
-    private Text curtt = null;
+    private Tex curtt = null;
     private long hoverstart;
     private Map<String, Integer> ttprops = null;
     
@@ -386,7 +386,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		    Item itm = Wiki.get(res.layer(Resource.action).name);
 		    Map<String, Integer> p = (itm == null)?null:itm.attgive;
 		    if((res != curttr) || (ttl != curttl) || p != ttprops) {
-			curtt = rendertt(res, ttl);
+			curtt = MenuGrid.rendertt(res, ttl, false);
 			curttr = res;
 			curttl = ttl;
 		    }
@@ -398,19 +398,6 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	return null;
     }
     
-    private static Text rendertt(Resource res, boolean withpg) {
-	Resource.AButton ad = res.layer(Resource.action);
-	Resource.Pagina pg = res.layer(Resource.pagina);
-	String tt = ad.name;
-	if(withpg && (pg != null)) {
-	    tt += "\n\n" + pg.text;
-
-	    //inspirationals gain
-	    tt += MenuGrid.getXPgain(ad.name);
-	}
-	return(RichText.render(tt, 300));
-    }
-
     @Override
     public boolean dropthing(Coord cc, Object thing) {
 	int slot = beltslot(cc);

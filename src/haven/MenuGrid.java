@@ -29,6 +29,8 @@ package haven;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
+import java.awt.image.BufferedImage;
+
 import haven.Resource.AButton;
 import haven.Glob.Pagina;
 import java.util.*;
@@ -146,39 +148,49 @@ public class MenuGrid extends Widget {
 	}
     }
     
-    public static String getXPgain(String name){
-	String text = "";
+    public static BufferedImage getXPgain(String name){
 	Item itm = Wiki.get(name);
 	if(itm != null){
 	    Map<String, Integer> props = itm.attgive;
 	    if(props != null){
-		for(String attr : CharWnd.attrorder){
-		    Integer val;
-		    if(props.containsKey(attr) && (val = props.get(attr)) != null && val > 0)
-			text += String.format("\n%s: %d", CharWnd.attrnm.get(attr), val);
+		int n = props.size();
+		String attrs[] = new String[n];
+		int exp[] = new int[n];
+		n = 0;
+		for(String attr : props.keySet()){
+		    Integer val = props.get(attr);
+		    attrs[n] = attr;
+		    exp[n] = val;
+		    n ++;
 		}
+		Inspiration i = new Inspiration(null, attrs, exp);
+		return i.longtip();
 	    }
 	}
-	return text;
+	return null;
     }
     
-    private static Text rendertt(Resource res, boolean withpg) {
+    public static Tex rendertt(Resource res, boolean withpg, boolean hotkey) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	int pos = tt.toUpperCase().indexOf(Character.toUpperCase(ad.hk));
-	if(pos >= 0)
-	    tt = tt.substring(0, pos) + "$col[255,255,0]{" + tt.charAt(pos) + "}" + tt.substring(pos + 1);
-	else if(ad.hk != 0)
-	    tt += " [" + ad.hk + "]";
-	if(withpg && (pg != null)) {
-	    tt += "\n\n" + pg.text;
-
-	    //inspirationals gain
-	    tt += getXPgain(ad.name);
+	BufferedImage xp = null;
+	if(hotkey){
+	    int pos = tt.toUpperCase().indexOf(Character.toUpperCase(ad.hk));
+	    if(pos >= 0)
+		tt = tt.substring(0, pos) + "$col[255,255,0]{" + tt.charAt(pos) + "}" + tt.substring(pos + 1);
+	    else if(ad.hk != 0)
+		tt += " [" + ad.hk + "]";
 	}
-	
-	return(ttfnd.render(tt, 300));
+	if(withpg) {
+	    if(pg != null){tt += "\n\n" + pg.text;}
+	    xp = getXPgain(ad.name);
+	}
+	BufferedImage img = ttfnd.render(tt, 300).img;
+	if(xp != null){
+	    img = ItemInfo.catimgs(3, img, xp);
+	}
+	return(new TexI(img));
     }
 
     public void draw(GOut g) {
@@ -228,7 +240,7 @@ public class MenuGrid extends Widget {
     private Pagina curttp = null;
     private boolean curttl = false;
     private Map<String, Integer> ttprops = null;
-    private Text curtt = null;
+    private Tex curtt = null;
     private long hoverstart;
     public Object tooltip(Coord c, Widget prev) {
 	Pagina pag = bhit(c);
@@ -240,7 +252,7 @@ public class MenuGrid extends Widget {
 	    Item itm = Wiki.get(pag.res().layer(Resource.action).name);
 	    Map<String, Integer> p = (itm == null)?null:itm.attgive;
 	    if((pag != curttp) || (ttl != curttl) || p != ttprops) {
-		curtt = rendertt(pag.res(), ttl);
+		curtt = rendertt(pag.res(), ttl, true);
 		curttp = pag;
 		curttl = ttl;
 	    }
