@@ -355,6 +355,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			    }
 			    @Override
 			    public boolean mouseup(Coord c, int button) {
+				ui.grabmouse(null);
 			        return ca.mouseup(c.add(ca.expc), button);
 			    }
 			};
