@@ -138,9 +138,8 @@ public class Wiki {
 	    item.content = get_content(name);
 	    if(item.content != null){
 		parse_content(item);
+		cache(item);
 	    }
-
-	    cache(item);
 	}
 	store(name, item);
 	//System.out.println(String.format("Finished '%s' at '%s'", name, Thread.currentThread().getName()));
@@ -217,6 +216,9 @@ public class Wiki {
 	    json = json.getJSONObject("query").getJSONObject("pages");
 	    String pageid = JSONObject.getNames(json)[0];
 	    content = json.getJSONObject(pageid).getJSONArray("revisions").getJSONObject(0).getString("*");
+	    if(content.indexOf("#REDIRECT") == 0){
+		return get_content(get_redirect(content));
+	    }
 	    return content;
 	} catch (JSONException e) {
 	    System.err.println(String.format("Error while parsing '%s':\n%s\nContent:'%s'", name, e.getMessage(), content));
@@ -224,6 +226,14 @@ public class Wiki {
 	    e.printStackTrace();
 	} catch (URISyntaxException e) {
 	    e.printStackTrace();
+	}
+	return null;
+    }
+
+    private static String get_redirect(String content) {
+	Matcher m = Pattern.compile("#REDIRECT\\s*\\[\\[(.*)\\]\\]").matcher(content);
+	if(m.find() && m.groupCount() == 1){
+	    return m.group(1);
 	}
 	return null;
     }
@@ -320,6 +330,7 @@ public class Wiki {
 
     private static boolean has_update(String name, long date) {
 	try {
+	    if(date < 1354898300927L){return true;}//ignore old cache
 	    //String p = String.format("%s%s", WIKI_URL, name);
 	    URI uri = new URI("http","salemwiki.info","/index.php/"+name, null);
 	    URL  url = uri.toURL();

@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 07.12.12:}}
+ * fixed blink option not read properly
+ * fixed loss of mouse input after clicking on a minimized character window in wrong place
+ * Proficiency gains in ToolBelt and MenuGrid now highlight gains as items do
+ * added food info to MenuGrid and Toolbelt tooltips
+ 
 $size[14]{$u{Update for 30.11.12:}}
   * added brightness slider to camera options
  
