@@ -170,11 +170,38 @@ public class MenuGrid extends Widget {
 	return null;
     }
     
+    public static BufferedImage getFood(String name){
+	Item itm = Wiki.get(name);
+	if(itm != null){
+	    Map<String, Float[]> food = itm.food;
+	    if(food != null){
+		Float[] heal = food.get("Heals");
+		Float[] salt = food.get("Salt");
+		Float[] merc = food.get("Mercury");
+		Float[] sulph = food.get("Sulphur");
+		Float[] lead = food.get("Lead");
+		int[] tempers = new int[4];
+		int[][] evs = new int[4][4];
+		for(int i=0; i<4; i++){
+		    tempers[i] = (int) (1000*heal[i]);
+		    evs[0][i] = (int) (1000*salt[i]);
+		    evs[1][i] = (int) (1000*merc[i]);
+		    evs[2][i] = (int) (1000*sulph[i]);
+		    evs[3][i] = (int) (1000*lead[i]);
+		}
+		FoodInfo fi = new FoodInfo(null, tempers);
+		GobbleInfo gi = new GobbleInfo(null, evs, 0);
+		return ItemInfo.catimgs(3, fi.longtip(), gi.longtip());
+	    }
+	}
+	return null;
+    }
+    
     public static Tex rendertt(Resource res, boolean withpg, boolean hotkey) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	BufferedImage xp = null;
+	BufferedImage xp = null, food = null;
 	if(hotkey){
 	    int pos = tt.toUpperCase().indexOf(Character.toUpperCase(ad.hk));
 	    if(pos >= 0)
@@ -185,10 +212,14 @@ public class MenuGrid extends Widget {
 	if(withpg) {
 	    if(pg != null){tt += "\n\n" + pg.text;}
 	    xp = getXPgain(ad.name);
+	    food = getFood(ad.name);
 	}
 	BufferedImage img = ttfnd.render(tt, 300).img;
 	if(xp != null){
 	    img = ItemInfo.catimgs(3, img, xp);
+	}
+	if(food != null){
+	    img = ItemInfo.catimgs(3, img, food);
 	}
 	return(new TexI(img));
     }

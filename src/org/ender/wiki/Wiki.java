@@ -163,7 +163,6 @@ public class Wiki {
     private static void parse(Item item, String method, Map<String, String> args) {
 	if(method.equals("Crafted")){
 	    String reqs = args.get("Objects required");
-	    System.out.println(reqs);
 	} else if(method.equals("Inspirational")){
 	    Map<String, Integer> attrs = new HashMap<String, Integer>();
 	    for(Entry<String, String> e : args.entrySet()){
@@ -173,7 +172,22 @@ public class Wiki {
 	    }
 	    item.attgive = attrs;
 	} else if(method.equals("Food")){
-	    
+	    Map<String, Float[]> food = new HashMap<String, Float[]>(5);
+	    for(String key : args.keySet()){
+		String[] svals = args.get(key).split(",");
+		Float[] vals = new Float[4];
+		int i=0;
+		for(String sval : svals){
+		    float val = 0;
+		    try{
+			val = Float.parseFloat(sval);
+		    } catch (NumberFormatException ex){}
+		    vals[i] = val;
+		    i++;
+		}
+		food.put(key,  vals);
+	    }
+	    item.food = food;
 	} else {
 	    System.out.println(String.format("Item '%s': Unknown method '%s', args: %s",item.name, method, args.toString()));
 	}
@@ -238,6 +252,7 @@ public class Wiki {
 	    item.unlocks = parse_cache(doc, "unlocks");
 	    item.attreq = parse_cache_map(doc, "attreq");
 	    item.attgive = parse_cache_map(doc, "attgive");
+	    item.food = parse_cache_food(doc, "food");
 
 	    return item;
 	} catch (MalformedURLException e) {
@@ -248,6 +263,30 @@ public class Wiki {
 	    e.printStackTrace();
 	} catch (ParserConfigurationException e) {
 	    e.printStackTrace();
+	}
+	return null;
+    }
+
+    private static Map<String, Float[]> parse_cache_food(Document doc, String tag) {
+	NodeList list = doc.getElementsByTagName(tag);
+	if(list.getLength() > 0){
+	    Node item = list.item(0);
+	    Map<String, Float[]> food = new HashMap<String, Float[]>();
+	    NamedNodeMap attrs = item.getAttributes();
+	    for(int i=0; i< attrs.getLength(); i++){
+		Node attr = attrs.item(i);
+		String svals[] = attr.getNodeValue().split(" ");
+		Float[] vals = new Float[4];
+		for(int j=0; j<4; j++){
+		    try{
+			vals[j] = Float.parseFloat(svals[j]);
+		    }catch (NumberFormatException ex){
+			vals[j] = 0.0f;
+		    }
+		}
+		food.put(attr.getNodeName(), vals);
+	    }
+	    return food;
 	}
 	return null;
     }

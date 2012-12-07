@@ -14,6 +14,7 @@ public class Item {
     public Map<String, Integer> attreq;
     public Map<String, Integer> attgive;
     public String content;
+    public Map<String, Float[]> food;
 
     public String toXML(){
 	StringBuilder builder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
@@ -25,10 +26,21 @@ public class Item {
 	if(unlocks != null){ xml(builder, unlocks, "unlocks"); }
 	if(attreq != null){ xml(builder, attreq, "attreq"); }
 	if(attgive != null){ xml(builder, attgive, "attgive"); }
+	if(food != null){ xml_food(builder); }
 	builder.append("\n</item>");
 	return builder.toString();
     }
     
+    private void xml_food(StringBuilder builder) {
+	String tag = "food";
+	builder.append(String.format("\n  <%s", tag));
+	for (Entry<String , Float[]> e : food.entrySet()){
+	    Float[] vals = e.getValue();
+	    builder.append(String.format(" %s=\"%s %s %s %s\"", e.getKey(), vals[0], vals[1], vals[2], vals[3]));
+	}
+	builder.append(String.format(" />"));
+    }
+
     private void xml(StringBuilder builder, Map<String, Integer> map, String tag) {
 	builder.append(String.format("\n  <%s", tag));
 	for (Entry<String , Integer> e : map.entrySet()){
