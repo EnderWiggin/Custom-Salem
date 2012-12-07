@@ -6,7 +6,6 @@ import java.util.Set;
 
 public class Item {
     public String name;
-    public String url;
     public Set<String> required;
     public Set<String> locations;
     public Set<String> tech;
@@ -14,6 +13,7 @@ public class Item {
     public Set<String> unlocks;
     public Map<String, Integer> attreq;
     public Map<String, Integer> attgive;
+    public String content;
 
     public String toXML(){
 	StringBuilder builder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
