@@ -27,10 +27,16 @@ public class Item {
 	if(attreq != null){ xml(builder, attreq, "attreq"); }
 	if(attgive != null){ xml(builder, attgive, "attgive"); }
 	if(food != null){ xml_food(builder); }
+	if(content != null){xml_content(builder);}
 	builder.append("\n</item>");
 	return builder.toString();
     }
     
+    private void xml_content(StringBuilder builder) {
+	String tag = "content";
+	builder.append(String.format("\n  <%s><![CDATA[%s]]></%s>", tag, content, tag));
+    }
+
     private void xml_food(StringBuilder builder) {
 	String tag = "food";
 	builder.append(String.format("\n  <%s", tag));

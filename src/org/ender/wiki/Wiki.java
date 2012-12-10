@@ -157,6 +157,19 @@ public class Wiki {
 	    item.content = m.replaceFirst("");
 	    m = PAT_CATS.matcher(item.content);
 	}
+	m = Pattern.compile("\\{\\|..*?}", Pattern.DOTALL|Pattern.MULTILINE).matcher(item.content);
+	while(m.find()){
+	    Pattern p = Pattern.compile("\\'\\'\\'([^\\']+)\\'\\'\\'", Pattern.DOTALL|Pattern.MULTILINE);
+	    Matcher tabs = p.matcher(m.group());
+	    while(tabs.find()){
+		System.out.println("Tab: "+tabs.group(1));
+	    }
+	    p = Pattern.compile("\\|-(.*?)(?=\\|-)", Pattern.DOTALL|Pattern.MULTILINE);
+	    Matcher rows = p.matcher(m.group());
+	    while(rows.find()){
+		System.out.println(rows.group(1));
+	    }
+	}
     }
 
     private static void parse(Item item, String method, Map<String, String> args) {
@@ -263,6 +276,7 @@ public class Wiki {
 	    item.attreq = parse_cache_map(doc, "attreq");
 	    item.attgive = parse_cache_map(doc, "attgive");
 	    item.food = parse_cache_food(doc, "food");
+	    item.content = parse_cache_content(doc, "content");
 
 	    return item;
 	} catch (MalformedURLException e) {
@@ -273,6 +287,15 @@ public class Wiki {
 	    e.printStackTrace();
 	} catch (ParserConfigurationException e) {
 	    e.printStackTrace();
+	}
+	return null;
+    }
+
+    private static String parse_cache_content(Document doc, String tag) {
+	NodeList list = doc.getElementsByTagName(tag);
+	if(list.getLength() > 0){
+	    Node item = list.item(0);
+	    return item.getTextContent();
 	}
 	return null;
     }
