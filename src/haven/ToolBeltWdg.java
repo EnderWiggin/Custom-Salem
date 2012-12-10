@@ -7,7 +7,6 @@ import haven.Resource.AButton;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.util.Map;
 
 import org.ender.wiki.Item;
 import org.ender.wiki.Wiki;
@@ -368,7 +367,7 @@ public class ToolBeltWdg extends Window implements DropTarget{
     private boolean curttl = false;
     private Tex curtt = null;
     private long hoverstart;
-    private Map<String, Integer> ttprops = null;
+    Item ttitem = null;
     
     @Override
     public Object tooltip(Coord c, Widget prev) {
@@ -384,8 +383,8 @@ public class ToolBeltWdg extends Window implements DropTarget{
 		try {
 		    Resource res = ir.get();
 		    Item itm = Wiki.get(res.layer(Resource.action).name);
-		    Map<String, Integer> p = (itm == null)?null:itm.attgive;
-		    if((res != curttr) || (ttl != curttl) || p != ttprops) {
+		    if((res != curttr) || (ttl != curttl) || itm != ttitem) {
+			ttitem = itm;
 			curtt = MenuGrid.rendertt(res, ttl, false);
 			curttr = res;
 			curttl = ttl;

@@ -270,7 +270,7 @@ public class MenuGrid extends Widget {
 	
     private Pagina curttp = null;
     private boolean curttl = false;
-    private Map<String, Integer> ttprops = null;
+    Item ttitem = null;
     private Tex curtt = null;
     private long hoverstart;
     public Object tooltip(Coord c, Widget prev) {
@@ -281,8 +281,8 @@ public class MenuGrid extends Widget {
 		hoverstart = now;
 	    boolean ttl = (now - hoverstart) > 500;
 	    Item itm = Wiki.get(pag.res().layer(Resource.action).name);
-	    Map<String, Integer> p = (itm == null)?null:itm.attgive;
-	    if((pag != curttp) || (ttl != curttl) || p != ttprops) {
+	    if((pag != curttp) || (ttl != curttl) || itm != ttitem) {
+		ttitem = itm;
 		curtt = rendertt(pag.res(), ttl, true);
 		curttp = pag;
 		curttl = ttl;
