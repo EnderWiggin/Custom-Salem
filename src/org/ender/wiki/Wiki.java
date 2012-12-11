@@ -34,6 +34,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Wiki {
+    private static final Pattern PAT_REDIRECT = Pattern.compile("#REDIRECT\\s*\\[\\[(.*)\\]\\]", Pattern.CASE_INSENSITIVE);
     private static final Pattern PAT_CATS = Pattern.compile("\\{\\{([^\\|]*)(|.*?)}}", Pattern.MULTILINE|Pattern.DOTALL);
     private static final Pattern PAT_ARGS = Pattern.compile("\\s*\\|\\s*(.*?)\\s*=\\s*([^\\|]*)", Pattern.MULTILINE|Pattern.DOTALL);
     private static final String CONTENT_URL = "action=query&prop=revisions&titles=%s&rvprop=content&format=json";
@@ -227,8 +228,9 @@ public class Wiki {
 	    json = json.getJSONObject("query").getJSONObject("pages");
 	    String pageid = JSONObject.getNames(json)[0];
 	    content = json.getJSONObject(pageid).getJSONArray("revisions").getJSONObject(0).getString("*");
-	    if(content.indexOf("#REDIRECT") == 0){
-		return get_content(get_redirect(content));
+	    String redirect = get_redirect(content);
+	    if(redirect != null){
+		return get_content(redirect);
 	    }
 	    return content;
 	} catch (JSONException e) {
@@ -274,7 +276,7 @@ public class Wiki {
     }
 
     private static String get_redirect(String content) {
-	Matcher m = Pattern.compile("#REDIRECT\\s*\\[\\[(.*)\\]\\]").matcher(content);
+	Matcher m = PAT_REDIRECT.matcher(content);
 	if(m.find() && m.groupCount() == 1){
 	    return m.group(1);
 	}
