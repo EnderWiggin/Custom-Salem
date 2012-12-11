@@ -168,19 +168,6 @@ public class Wiki {
 	    item.content = m.replaceFirst("");
 	    m = PAT_CATS.matcher(item.content);
 	}
-	m = Pattern.compile("\\{\\|..*?}", Pattern.DOTALL|Pattern.MULTILINE).matcher(item.content);
-	while(m.find()){
-	    Pattern p = Pattern.compile("\\'\\'\\'([^\\']+)\\'\\'\\'", Pattern.DOTALL|Pattern.MULTILINE);
-	    Matcher tabs = p.matcher(m.group());
-	    while(tabs.find()){
-		System.out.println("Tab: "+tabs.group(1));
-	    }
-	    p = Pattern.compile("\\|-(.*?)(?=\\|-)", Pattern.DOTALL|Pattern.MULTILINE);
-	    Matcher rows = p.matcher(m.group());
-	    while(rows.find()){
-		System.out.println(rows.group(1));
-	    }
-	}
     }
 
     private static void parse(Item item, String method, Map<String, String> args) {

@@ -2,13 +2,16 @@ package haven;
 
 import java.awt.image.BufferedImage;
 
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+
 import org.ender.wiki.HtmlDraw;
 import org.ender.wiki.Item;
 import org.ender.wiki.Wiki;
 import org.ender.wiki.Request.Callback;
 
 
-public class WikiPage extends SIWidget implements Callback {
+public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
     private HtmlDraw hd;
     private String name = "Ore Smelter";
     BufferedImage img;
@@ -27,7 +30,7 @@ public class WikiPage extends SIWidget implements Callback {
 	}
 	super.draw(g);
     }
-    
+
     @Override
     public void draw(BufferedImage buf){
 	if(!visible){return;}
@@ -37,9 +40,17 @@ public class WikiPage extends SIWidget implements Callback {
     }
 
     @Override
+    public boolean mousedown(Coord c, int button) {
+	if(hd != null){
+	    hd.mouseup(c.x, c.y, button);
+	}
+	return false;
+    }
+    
+    @Override
     public void wiki_item_ready(Item item) {
 	if(item == null){return;}
-	hd = new HtmlDraw(item.content);
+	hd = new HtmlDraw(item.content, this);
 	hd.setWidth(sz.x);
 	sz.y = hd.getHeight();
 	if(parent instanceof Scrollport.Scrollcont){
@@ -48,8 +59,15 @@ public class WikiPage extends SIWidget implements Callback {
 	redraw();
     }
     public void open(String text) {
-	name = text;
+	if(hd != null){hd.destroy();}
 	hd = null;
+	name = text;
 	Wiki.get(name, this);
+    }
+    @Override
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+	String path = e.getURL().getPath();
+	path = path.substring(path.lastIndexOf("/")+1);
+	open(path);
     }
 }

@@ -8,15 +8,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JTextPane;
-import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -24,8 +18,10 @@ import javax.swing.text.html.HTMLEditorKit;
 public class HtmlDraw {
 
     private JTextPane htmlpane;
+    private HyperlinkListener links;
 
-    public HtmlDraw(String text){
+    public HtmlDraw(String text, HyperlinkListener links){
+	this.links = links;
 	if(text == null){text = "";}
 	text = text.replaceAll("=\"/", "=\"http://salemwiki.info/");
 	
@@ -43,18 +39,7 @@ public class HtmlDraw {
 	htmlpane.setText(text);
 	htmlpane.setSize(htmlpane.getPreferredSize());
 	layoutComponent(htmlpane);
-	htmlpane.addHyperlinkListener(new HyperlinkListener() {
-
-	    @Override
-	    public void hyperlinkUpdate(HyperlinkEvent e) {
-		System.out.println(e.getURL());
-		System.out.println(e.getInputEvent());
-	    }
-	});
-
-
-	doClickInRectangle(htmlpane, 172, 84, false, 0);
-	doClickInRectangle(htmlpane, 815, 1110, false, 0);
+	htmlpane.addHyperlinkListener(links);
     }
 
     public void setWidth(int w){
@@ -70,19 +55,6 @@ public class HtmlDraw {
 
     public int getHeight(){
 	return htmlpane.getHeight();
-    }
-
-    public BufferedImage getimg(int w, int h) {
-	if(img == null){
-	    System.out.println("drawing...");
-	    img = createImage(htmlpane, new Rectangle(w, h));
-	    try {
-		writeImage(img, "img.png");
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
-	}
-	return img;
     }
 
     public static void doClickInRectangle(Component component,
@@ -144,7 +116,7 @@ public class HtmlDraw {
     }
 
     public void get(BufferedImage image, int w, int h) {
-	    img = createImage(htmlpane, new Rectangle(w, h), image);
+	    createImage(htmlpane, new Rectangle(w, h), image);
     }
 
     static void layoutComponent(Component component) {
@@ -159,35 +131,12 @@ public class HtmlDraw {
 	}
     }
 
-    /**
-     * Write a BufferedImage to a File.
-     * 
-     * @param image
-     *            image to be written
-     * @param fileName
-     *            name of file to be created
-     * @exception IOException
-     *                if an error occurs during writing
-     */
-    private static List<String> types = Arrays.asList(ImageIO.getWriterFileSuffixes());
-    private BufferedImage img;
-    public static void writeImage(BufferedImage image, String fileName) throws IOException {
-	if (fileName == null) return;
+    public void mouseup(int x, int y, int button) {
+	doClickInRectangle(htmlpane, x, y, button != 1, 0);
+    }
 
-	int offset = fileName.lastIndexOf(".");
-
-	if (offset == -1) {
-	    String message = "file suffix was not specified";
-	    throw new IOException(message);
-	}
-
-	String type = fileName.substring(offset + 1);
-
-	if (types.contains(type)) {
-	    ImageIO.write(image, type, new File(fileName));
-	} else {
-	    String message = "unknown writer file suffix (" + type + ")";
-	    throw new IOException(message);
-	}
+    public void destroy() {
+	htmlpane.removeHyperlinkListener(links);
+	links = null;
     }
 }
