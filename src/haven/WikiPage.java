@@ -16,7 +16,6 @@ public class WikiPage extends SIWidget implements Callback {
     int count = 0;
     public WikiPage(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent);
-	Wiki.get(name, this);
     }
     @Override
     public void draw(GOut g) {
@@ -47,5 +46,10 @@ public class WikiPage extends SIWidget implements Callback {
 	    ((Scrollport.Scrollcont)parent).update();
 	}
 	redraw();
+    }
+    public void open(String text) {
+	name = text;
+	hd = null;
+	Wiki.get(name, this);
     }
 }

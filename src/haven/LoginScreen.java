@@ -38,8 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.ender.wiki.Wiki;
-
 public class LoginScreen extends Widget {
     Login cur;
     Login[] lgn;
