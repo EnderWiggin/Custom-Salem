@@ -1,5 +1,7 @@
 package org.ender.wiki;
 
+import java.awt.image.BufferedImage;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,6 +10,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,6 +32,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xhtmlrenderer.simple.Graphics2DRenderer;
+import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xml.sax.SAXException;
 
 public class Wiki {
@@ -138,6 +144,7 @@ public class Wiki {
 	    item.content = get_content(name);
 	    if(item.content != null){
 		parse_content(item);
+		item.content = parse_wiki(item);
 		cache(item);
 	    }
 	}
@@ -235,6 +242,38 @@ public class Wiki {
 	    return content;
 	} catch (JSONException e) {
 	    System.err.println(String.format("Error while parsing '%s':\n%s\nContent:'%s'", name, e.getMessage(), content));
+	} catch (IOException e) {
+	    e.printStackTrace();
+	} catch (URISyntaxException e) {
+	    e.printStackTrace();
+	}
+	return null;
+    }
+    
+    private static String parse_wiki(Item item){
+	String content = null;
+	try {
+	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", null, null);
+
+	    URL link = uri.toURL();
+	    HttpURLConnection conn = (HttpURLConnection) link.openConnection();
+	    conn.setRequestMethod("POST");
+	    conn.setDoOutput(true);
+	    conn.setDoInput(true);
+	    String data = URLEncoder.encode(item.content.trim(), "UTF-8");
+	    String title = URLEncoder.encode(item.name, "UTF-8");
+	    String req = String.format("action=parse&format=json&text=%s&title=%s", data, title);
+	    DataOutputStream wr = new DataOutputStream(conn.getOutputStream ());
+	    wr.writeBytes(req);
+	    wr.flush();
+	    wr.close();
+	    data = stream2str(conn.getInputStream());
+	    JSONObject json = new JSONObject(data);
+	    json = json.getJSONObject("parse").getJSONObject("text");
+	    content = json.getString("*");
+	    return content;
+	} catch (JSONException e) {
+	    e.printStackTrace();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (URISyntaxException e) {

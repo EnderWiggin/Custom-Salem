@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.ender.wiki.Wiki;
+
 public class LoginScreen extends Widget {
     Login cur;
     Login[] lgn;
@@ -63,7 +65,8 @@ public class LoginScreen extends Widget {
 	parent.setfocus(this);
 	new Img(Coord.z, bg, this);
 	new Img(cboxc, cbox, this);
-	if(Config.isUpdate){
+	
+	if(Config.isUpdate = true){
 	    showChangelog();
 	}
     }
@@ -94,6 +97,8 @@ public class LoginScreen extends Widget {
 	} catch (IOException e) {
 	}
 	txt.setprog(0);
+	
+	WikiBrowser wp = new WikiBrowser(Coord.z, new Coord(450, 300), ui.root);
     }
 
     private static abstract class Login extends Widget {
