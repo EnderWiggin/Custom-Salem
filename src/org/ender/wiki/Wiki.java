@@ -1,6 +1,5 @@
 package org.ender.wiki;
 
-import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -10,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,14 +24,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.ender.wiki.Request.Callback;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xhtmlrenderer.simple.Graphics2DRenderer;
-import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xml.sax.SAXException;
 
 public class Wiki {
@@ -42,7 +39,7 @@ public class Wiki {
     private static final String CONTENT_URL = "action=query&prop=revisions&titles=%s&rvprop=content&format=json";
 
     static private final Map<String, String> imap = new HashMap<String, String>(15);
-    static private final LinkedBlockingQueue<String> requests = new LinkedBlockingQueue<String>();
+    static private final LinkedBlockingQueue<Request> requests = new LinkedBlockingQueue<Request>();
     static private File folder;
     private static final Map<String, Item> DB = new LinkedHashMap<String, Item>(9, 0.75f, true) {
 	private static final long serialVersionUID = 1L;
@@ -90,23 +87,29 @@ public class Wiki {
 	    t.start();
 	}
     }
+    
+    public static Item get(String name) {
+	return get(name, null);
+    }
 
-    public static Item get(String name){
+    public static Item get(String name, Callback callback){
 	Item itm = null;
 	synchronized (DB) {
 	    if(DB.containsKey(name)){
-		return DB.get(name);
+		itm = DB.get(name);
+		if(callback != null){callback.wiki_item_ready(itm);}
+		return itm;
 	    }
 	    itm = get_cache(name, true);
 	    DB.put(name, itm);
 	}
-	request(name);
+	request(new Request(name, callback));
 	return itm;
     }
 
-    private static void request(String name) {
+    private static void request(Request request) {
 	try {
-	    requests.put(name);
+	    requests.put(request);
 	} catch (InterruptedException e) {
 	    e.printStackTrace();
 	}
@@ -135,20 +138,21 @@ public class Wiki {
 	return s.hasNext() ? s.next() : "";
     }
 
-    private static void load(String name){
+    private static void load(Request request){
 	//System.out.println(String.format("Loading '%s' at '%s'", name, Thread.currentThread().getName()));
-	Item item = get_cache(name, false);
+	Item item = get_cache(request.name, false);
 	if(item == null){
 	    item = new Item();
-	    item.name = name;
-	    item.content = get_content(name);
+	    item.name = request.name;
+	    item.content = get_content(request.name);
 	    if(item.content != null){
 		parse_content(item);
 		item.content = parse_wiki(item);
 		cache(item);
 	    }
 	}
-	store(name, item);
+	store(request.name, item);
+	if(request.callback != null){request.callback.wiki_item_ready(item);}
 	//System.out.println(String.format("Finished '%s' at '%s'", name, Thread.currentThread().getName()));
     }
 
