@@ -183,7 +183,7 @@ public class Wiki {
 	    String data = stream2str(url.openStream());
 	    JSONObject json = new JSONObject(data);
 	    JSONArray pages = json.getJSONObject("query").getJSONArray("search");
-	    if(pages == null){return null;}
+	    if(pages == null || pages.length() == 0){return null;}
 	    if(pages.length() == 1){
 		Item item = new Item();
 		item.name = pages.getJSONObject(0).getString("title");
@@ -315,7 +315,7 @@ public class Wiki {
 	    conn.setRequestMethod("POST");
 	    conn.setDoOutput(true);
 	    conn.setDoInput(true);
-	    String data = URLEncoder.encode(item.content.trim()+"\n__NOTOC__", "UTF-8");
+	    String data = URLEncoder.encode("__NOTOC__\n"+item.content.trim(), "UTF-8");
 	    String title = URLEncoder.encode(item.name, "UTF-8");
 	    String req = String.format("action=parse&format=json&text=%s&title=%s", data, title);
 	    DataOutputStream wr = new DataOutputStream(conn.getOutputStream ());

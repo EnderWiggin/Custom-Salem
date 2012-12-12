@@ -1,5 +1,9 @@
 package haven;
 
+import haven.RichText.Foundry;
+
+import java.awt.Color;
+import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 
 import javax.swing.event.HyperlinkEvent;
@@ -10,72 +14,105 @@ import org.ender.wiki.Item;
 import org.ender.wiki.Wiki;
 import org.ender.wiki.Request.Callback;
 
-
 public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
+    private static final Foundry wpfnd = new Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 28,
+	    TextAttribute.FOREGROUND, Color.WHITE);
     private HtmlDraw hd;
     private String name = "Ore Smelter";
     BufferedImage img;
     private long last = 1;
     int count = 0;
+    private TexI loading = null;
+
     public WikiPage(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent);
     }
+
     @Override
     public void draw(GOut g) {
 	long now = System.currentTimeMillis();
-	if(hd != null && now - last > 1000 && count < 5){
+	if (hd != null && now - last > 1000 && count < 5) {
 	    last = now;
 	    count++;
 	    redraw();
 	}
 	super.draw(g);
+	if (loading != null) {
+	    g.aimage(loading, parent.sz.div(2), 0.5f, 0.5f);
+	}
     }
 
     @Override
-    public void draw(BufferedImage buf){
-	System.out.println("drawing "+count);
-	if(!visible){return;}
-	if(hd == null){return;}
+    public void draw(BufferedImage buf) {
+	if (!visible) { return; }
+	if (hd == null) { return; }
+	hd.setWidth(sz.x);
+	sz.y = hd.getHeight();
 	hd.get(buf, sz.x, sz.y);
 	img = buf;
+	loading(null);
+    }
+
+    private void loading(String name) {
+	if (loading != null) {
+	    loading.dispose();
+	}
+	if (name == null) {
+	    loading = null;
+	} else {
+	    BufferedImage img = wpfnd.render(String.format("$b{Loading '%s'...}", name)).img;
+	    loading = new TexI(Utils.outline2(img, Color.BLACK, true));
+	}
     }
 
     @Override
     public boolean mousedown(Coord c, int button) {
-	if(hd != null){
+	if (hd != null) {
 	    hd.mouseup(c.x, c.y, button);
 	}
 	return false;
     }
-    
+
     @Override
     public void wiki_item_ready(Item item) {
-	if(item == null){return;}
+	if (item == null) { return; }
 	hd = new HtmlDraw(item.content, this);
+	presize();
 	last = System.currentTimeMillis();
 	count = 0;
-	hd.setWidth(sz.x);
-	sz.y = hd.getHeight();
-	if(parent instanceof Scrollport.Scrollcont){
-	    ((Scrollport.Scrollcont)parent).update();
-	}
-	redraw();
     }
+
     public void open(String text, boolean search) {
-	if(hd != null){hd.destroy();}
+	if (hd != null) {
+	    hd.destroy();
+	}
 	hd = null;
 	name = text;
-	if(search){
+	loading(name);
+	if (search) {
 	    Wiki.search(name, this);
 	} else {
 	    Wiki.get(name, this);
 	}
     }
+
     @Override
-    public void hyperlinkUpdate(HyperlinkEvent e) {
-	String path = e.getURL().getPath();
-	path = path.substring(path.lastIndexOf("/")+1);
-	System.out.println("Link: "+path);
-	open(path, false);
+    public void hyperlinkUpdate(HyperlinkEvent ev) {
+	try {
+	    String path = ev.getURL().getPath();
+	    String name = path.substring(path.lastIndexOf("index.php/") + 10);
+	    System.out.println(String.format("Link: '%s', name: '%s'", path, name));
+	    open(name, false);
+	} catch (Exception e) {}
     }
+
+    @Override
+    public void presize() {
+	int h = (hd == null) ? 100 : hd.getHeight();
+	resize(new Coord(parent.sz.x, h));
+	if (parent instanceof Scrollport.Scrollcont) {
+	    ((Scrollport.Scrollcont) parent).update();
+	}
+    }
+
 }

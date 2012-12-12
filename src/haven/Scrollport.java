@@ -112,6 +112,7 @@ public class Scrollport extends Widget {
     public void resize(Coord nsz) {
 	super.resize(nsz);
 	bar.c = new Coord(sz.x - bar.sz.x, 0);
+	bar.sz.y = nsz.y;
 	cont.resize(sz.sub(bar.sz.x, 0));
     }
 

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WikiBrowser extends Window {
+    private static final int SEARCH_H = 20;
     public static final RichText.Foundry fnd = new RichText.Foundry(new WikiParser(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 12, TextAttribute.FOREGROUND, Color.WHITE));
 
     private static class WikiParser extends RichText.Parser {
@@ -98,18 +99,30 @@ public class WikiBrowser extends Window {
 
     }
 
+    private static final Coord gzsz = new Coord(15,15);
+    private static final Coord minsz = new Coord(200, 150);
+    private static final String OPT_SZ = "_sz";
+    
     private Scrollport sp;
     private TextEntry search;
     private WikiPage page;
+    boolean rsm = false;
     public WikiBrowser(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent, "Wiki");
 	justclose = true;
-	search = new TextEntry(Coord.z, new Coord(sz.x, 20), this, "");
+	search = new TextEntry(Coord.z, new Coord(asz.x, SEARCH_H), this, "");
 	search.canactivate = true;
-	sp = new Scrollport(new Coord(0, 20), sz, this);
+	sp = new Scrollport(new Coord(0, SEARCH_H), asz.sub(0, SEARCH_H), this);
 	pack();
-	page = new WikiPage(Coord.z, sz, sp.cont);
+	page = new WikiPage(Coord.z, sp.cont.sz, sp.cont);
     }
+    
+    @Override
+    protected void loadOpts() {
+	super.loadOpts();
+	resize(getOptCoord(OPT_SZ, sz));
+    }
+    
     @Override
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(msg.equals("activate")){
@@ -120,5 +133,51 @@ public class WikiBrowser extends Window {
 	}
 	super.wdgmsg(sender, msg, args);
     }
+    
+    @Override
+    public void resize(Coord sz) {
+	super.resize(sz);
+	if(sp != null){sp.resize(sz.sub(0, SEARCH_H));}
+	if(search!= null){search.resize(new Coord(sz.x, SEARCH_H));}
+    }
+
+    @Override
+    public boolean mousedown(Coord c, int button) {
+	if (button == 1) {
+	    ui.grabmouse(this);
+	    doff = c;
+	    if(c.isect(sz.sub(gzsz), gzsz)) {
+		rsm = true;
+		return true;
+	    }
+	}
+	return super.mousedown(c, button);
+    }
+    
+    @Override
+    public boolean mouseup(Coord c, int button) {
+	if (rsm){
+	    ui.grabmouse(null);
+	    rsm = false;
+	    storeOpt(OPT_SZ, asz);
+	    return true;
+	}
+	return super.mouseup(c, button);
+    }
+    
+    @Override
+    public void mousemove(Coord c) {
+	if (rsm){
+	    Coord d = c.sub(doff);
+	    asz = asz.add(d);
+	    asz.x = Math.max(minsz.x, asz.x);
+	    asz.y = Math.max(minsz.y, asz.y);
+	    doff = c;
+	    resize(asz);
+	} else {
+	    super.mousemove(c);
+	}
+    }
+
 
 }

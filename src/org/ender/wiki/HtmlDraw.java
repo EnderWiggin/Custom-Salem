@@ -23,7 +23,7 @@ public class HtmlDraw {
 
     public HtmlDraw(String text, HyperlinkListener links){
 	this.links = links;
-	if(text == null){text = "";}
+	if(text == null){text = "<H1>Nothing found, sorry :(</H1>";}
 	text = text.replaceAll("=\"/", "=\"http://salemwiki.info/");
 	
 	htmlpane = new JTextPane();
