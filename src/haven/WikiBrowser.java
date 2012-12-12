@@ -4,6 +4,7 @@ import haven.RichText.Part;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -102,6 +103,7 @@ public class WikiBrowser extends Window {
     private static final Coord gzsz = new Coord(15,15);
     private static final Coord minsz = new Coord(200, 150);
     private static final String OPT_SZ = "_sz";
+    private static WikiBrowser instance;
     
     private Scrollport sp;
     private TextEntry search;
@@ -110,7 +112,15 @@ public class WikiBrowser extends Window {
     public WikiBrowser(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent, "Wiki");
 	justclose = true;
-	search = new TextEntry(Coord.z, new Coord(asz.x, SEARCH_H), this, "");
+	search = new TextEntry(Coord.z, new Coord(asz.x, SEARCH_H), this, ""){
+
+	    @Override
+	    public boolean type(char c, KeyEvent ev) {
+		// TODO Auto-generated method stub
+		return super.type(c, ev);
+	    }
+	    
+	};
 	search.canactivate = true;
 	sp = new Scrollport(new Coord(0, SEARCH_H), asz.sub(0, SEARCH_H), this);
 	pack();
@@ -179,5 +189,25 @@ public class WikiBrowser extends Window {
 	}
     }
 
+    public static void toggle() {
+	if(instance == null){
+	    instance = new WikiBrowser(new Coord(300, 200), minsz, UI.instance.gui);
+	} else {
+	    close();
+	}
+    }
+    
+    @Override
+    public void destroy() {
+	instance = null;
+	super.destroy();
+    }
+
+    public static void close() {
+	if(instance != null){
+	    UI ui = UI.instance;
+	    ui.destroy(instance);
+	}
+    }
 
 }

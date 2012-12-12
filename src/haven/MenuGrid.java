@@ -102,7 +102,7 @@ public class MenuGrid extends Widget {
 	Collection<Pagina> p = glob.paginae;
 	p.add(glob.paginafor(Resource.load("paginae/act/add")));
 	p.add(glob.paginafor(Resource.load("paginae/add/timer")));
-//	p.add(glob.paginafor(Resource.load("paginae/add/anime")));
+	p.add(glob.paginafor(Resource.load("paginae/add/wiki")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/lol")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/raeg")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/facepalm")));
@@ -387,6 +387,8 @@ public class MenuGrid extends Widget {
 	    ui.gui.wdgmsg("act", (Object[])args);
 	} else if(ad[1].equals("timers")) {
 	    TimerPanel.toggle();
+	} else if(ad[1].equals("wiki")) {
+	    WikiBrowser.toggle();
 	}
 	use(null);
     }
