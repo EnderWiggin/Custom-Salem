@@ -23,7 +23,7 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
     @Override
     public void draw(GOut g) {
 	long now = System.currentTimeMillis();
-	if(now - last > 1000 && count < 10){
+	if(hd != null && now - last > 1000 && count < 5){
 	    last = now;
 	    count++;
 	    redraw();
@@ -33,6 +33,7 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 
     @Override
     public void draw(BufferedImage buf){
+	System.out.println("drawing "+count);
 	if(!visible){return;}
 	if(hd == null){return;}
 	hd.get(buf, sz.x, sz.y);
@@ -51,6 +52,8 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
     public void wiki_item_ready(Item item) {
 	if(item == null){return;}
 	hd = new HtmlDraw(item.content, this);
+	last = System.currentTimeMillis();
+	count = 0;
 	hd.setWidth(sz.x);
 	sz.y = hd.getHeight();
 	if(parent instanceof Scrollport.Scrollcont){
@@ -58,16 +61,21 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 	}
 	redraw();
     }
-    public void open(String text) {
+    public void open(String text, boolean search) {
 	if(hd != null){hd.destroy();}
 	hd = null;
 	name = text;
-	Wiki.get(name, this);
+	if(search){
+	    Wiki.search(name, this);
+	} else {
+	    Wiki.get(name, this);
+	}
     }
     @Override
     public void hyperlinkUpdate(HyperlinkEvent e) {
 	String path = e.getURL().getPath();
 	path = path.substring(path.lastIndexOf("/")+1);
-	open(path);
+	System.out.println("Link: "+path);
+	open(path, false);
     }
 }

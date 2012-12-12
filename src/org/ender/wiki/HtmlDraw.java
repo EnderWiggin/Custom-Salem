@@ -14,6 +14,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 public class HtmlDraw {
 
@@ -32,6 +33,8 @@ public class HtmlDraw {
 
 	// add an html editor kit
 	HTMLEditorKit kit = new HTMLEditorKit();
+	StyleSheet ss = kit.getStyleSheet();
+	ss.addRule(".searchmatch {color: green; font: bold}");
 	htmlpane.setEditorKit(kit);
 
 	HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();

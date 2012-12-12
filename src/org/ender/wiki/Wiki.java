@@ -25,6 +25,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.ender.wiki.Request.Callback;
+import org.ender.wiki.Request.Type;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -38,6 +40,7 @@ public class Wiki {
     private static final Pattern PAT_CATS = Pattern.compile("\\{\\{([^\\|]*)(|.*?)}}", Pattern.MULTILINE|Pattern.DOTALL);
     private static final Pattern PAT_ARGS = Pattern.compile("\\s*\\|\\s*(.*?)\\s*=\\s*([^\\|]*)", Pattern.MULTILINE|Pattern.DOTALL);
     private static final String CONTENT_URL = "action=query&prop=revisions&titles=%s&rvprop=content&format=json";
+    private static final String SEARCH_URL = "action=query&list=search&format=json&srprop=snippet&srsearch=%s";
 
     static private final Map<String, String> imap = new HashMap<String, String>(15);
     static private final LinkedBlockingQueue<Request> requests = new LinkedBlockingQueue<Request>();
@@ -88,12 +91,16 @@ public class Wiki {
 	    t.start();
 	}
     }
-    
+
     public static Item get(String name) {
-	return get(name, null);
+	return get(name, null, null);
+    }
+    
+    public static Item get(String name, Callback callback) {
+	return get(name, callback, null);
     }
 
-    public static Item get(String name, Callback callback){
+    public static Item get(String name, Callback callback, Type type){
 	Item itm = null;
 	synchronized (DB) {
 	    if(DB.containsKey(name)){
@@ -104,8 +111,12 @@ public class Wiki {
 	    itm = get_cache(name, true);
 	    DB.put(name, itm);
 	}
-	request(new Request(name, callback));
+	request(new Request(name, callback, type));
 	return itm;
+    }
+
+    public static void search(String name, Callback callback){
+	get(name, callback, Type.SEARCH);
     }
 
     private static void request(Request request) {
@@ -145,16 +156,58 @@ public class Wiki {
 	if(item == null){
 	    item = new Item();
 	    item.name = request.name;
-	    item.content = get_content(request.name);
-	    if(item.content != null){
-		parse_content(item);
-		item.content = parse_wiki(item);
-		cache(item);
+	    if(request.type == Type.SEARCH){
+		item.content = do_search(request.name);
+	    } else {
+		item.content = get_content(request.name);
+		if(item.content != null){
+		    String content = item.content;
+		    parse_content(item);
+		    item.content = content;
+		    item.content = parse_wiki(item);
+		    cache(item);
+		}
 	    }
 	}
 	store(request.name, item);
 	if(request.callback != null){request.callback.wiki_item_ready(item);}
 	//System.out.println(String.format("Finished '%s' at '%s'", name, Thread.currentThread().getName()));
+    }
+
+    private static String do_search(String name) {
+	String content = null;
+	try {
+	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", String.format(SEARCH_URL, name), null);
+
+	    URL url = uri.toURL();
+	    String data = stream2str(url.openStream());
+	    JSONObject json = new JSONObject(data);
+	    JSONArray pages = json.getJSONObject("query").getJSONArray("search");
+	    if(pages == null){return null;}
+	    if(pages.length() == 1){
+		Item item = new Item();
+		item.name = pages.getJSONObject(0).getString("title");
+		item.content = get_content(item.name);
+		return parse_wiki(item);
+	    }
+	    content = "";
+	    for(int i=0; i<pages.length(); i++){
+		JSONObject page = pages.getJSONObject(i);
+		String title = page.getString("title");
+		//URI link = new URI("http", null, "salemwiki.info", -1, "/index.php/"+title, null, null);
+		String snip = page.getString("snippet");
+		if(snip.length() >0){snip+="<BR/>";}
+		content += String.format("<B><a href=\"/index.php/%s\">%s</a></B><BR/>%s<BR/>", title, title, snip);
+	    }
+	    return content;
+	} catch (JSONException e) {
+	    System.err.println(String.format("Error while parsing '%s':\n%s\nContent:'%s'", name, e.getMessage(), content));
+	} catch (IOException e) {
+	    e.printStackTrace();
+	} catch (URISyntaxException e) {
+	    e.printStackTrace();
+	}
+	return null;
     }
 
     private static void parse_content(Item item) {
@@ -220,10 +273,19 @@ public class Wiki {
     private static String get_content(String name){
 	String content = null;
 	try {
-	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", String.format(CONTENT_URL, name), null);
+	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", null, null);
 
 	    URL link = uri.toURL();
-	    String data = stream2str(link.openStream());
+	    HttpURLConnection conn = (HttpURLConnection) link.openConnection();
+	    conn.setRequestMethod("POST");
+	    conn.setDoOutput(true);
+	    conn.setDoInput(true);
+	    String data = String.format(CONTENT_URL, URLEncoder.encode(name, "UTF-8"));
+	    DataOutputStream wr = new DataOutputStream(conn.getOutputStream ());
+	    wr.writeBytes(data);
+	    wr.flush();
+	    wr.close();
+	    data = stream2str(conn.getInputStream());
 	    JSONObject json = new JSONObject(data);
 	    json = json.getJSONObject("query").getJSONObject("pages");
 	    String pageid = JSONObject.getNames(json)[0];
@@ -242,7 +304,7 @@ public class Wiki {
 	}
 	return null;
     }
-    
+
     private static String parse_wiki(Item item){
 	String content = null;
 	try {
@@ -253,7 +315,7 @@ public class Wiki {
 	    conn.setRequestMethod("POST");
 	    conn.setDoOutput(true);
 	    conn.setDoInput(true);
-	    String data = URLEncoder.encode(item.content.trim(), "UTF-8");
+	    String data = URLEncoder.encode(item.content.trim()+"\n__NOTOC__", "UTF-8");
 	    String title = URLEncoder.encode(item.name, "UTF-8");
 	    String req = String.format("action=parse&format=json&text=%s&title=%s", data, title);
 	    DataOutputStream wr = new DataOutputStream(conn.getOutputStream ());
