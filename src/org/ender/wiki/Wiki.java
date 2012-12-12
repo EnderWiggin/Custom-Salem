@@ -93,23 +93,25 @@ public class Wiki {
     }
 
     public static Item get(String name) {
-	return get(name, null, null);
+	return get(name, null, Type.ITEM);
     }
-    
+
     public static Item get(String name, Callback callback) {
-	return get(name, callback, null);
+	return get(name, callback, Type.ITEM);
     }
 
     public static Item get(String name, Callback callback, Type type){
 	Item itm = null;
 	synchronized (DB) {
-	    if(DB.containsKey(name)){
-		itm = DB.get(name);
-		if(callback != null){callback.wiki_item_ready(itm);}
-		return itm;
+	    if(type == Type.ITEM){
+		if(DB.containsKey(name)){
+		    itm = DB.get(name);
+		    if(callback != null){callback.wiki_item_ready(itm);}
+		    return itm;
+		}
+		itm = get_cache(name, true);
+		DB.put(name, itm);
 	    }
-	    itm = get_cache(name, true);
-	    DB.put(name, itm);
 	}
 	request(new Request(name, callback, type));
 	return itm;
@@ -152,7 +154,7 @@ public class Wiki {
 
     private static void load(Request request){
 	//System.out.println(String.format("Loading '%s' at '%s'", name, Thread.currentThread().getName()));
-	Item item = get_cache(request.name, false);
+	Item item = (request.type==Type.ITEM)?get_cache(request.name, false):null;
 	if(item == null){
 	    item = new Item();
 	    item.name = request.name;
@@ -166,10 +168,10 @@ public class Wiki {
 		    item.content = content;
 		    item.content = parse_wiki(item);
 		    cache(item);
+		    store(request.name, item);
 		}
 	    }
 	}
-	store(request.name, item);
 	if(request.callback != null){request.callback.wiki_item_ready(item);}
 	//System.out.println(String.format("Finished '%s' at '%s'", name, Thread.currentThread().getName()));
     }

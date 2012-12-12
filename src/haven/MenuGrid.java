@@ -422,7 +422,7 @@ public class MenuGrid extends Widget {
     }
 	
     public boolean globtype(char k, KeyEvent ev) {
-	if(ev.isAltDown() || ev.isControlDown()){return false;}
+	if(ev.isAltDown() || ev.isControlDown() || k == 0){return false;}
 	k = (char) ev.getKeyCode();
 	if(Character.toUpperCase(k) != k){return false;}
 	

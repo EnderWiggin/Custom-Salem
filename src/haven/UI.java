@@ -26,11 +26,14 @@
 
 package haven;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.InputEvent;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class UI {
     public static UI instance;
@@ -225,9 +228,10 @@ public class UI {
  	modsuper = (mod & InputEvent.SUPER_DOWN_MASK) != 0;
 	*/
     }
-
+    private int kcode = 0;
     public void type(KeyEvent ev) {
 	setmods(ev);
+	ev.setKeyCode(kcode);
 	if(keygrab == null) {
 	    if(!root.type(ev.getKeyChar(), ev))
 		root.globtype(ev.getKeyChar(), ev);
@@ -238,6 +242,7 @@ public class UI {
 	
     public void keydown(KeyEvent ev) {
 	setmods(ev);
+	kcode = ev.getKeyCode();
 	if(keygrab == null) {
 	    if(!root.keydown(ev))
 		root.globtype((char)0, ev);
@@ -248,10 +253,11 @@ public class UI {
 	
     public void keyup(KeyEvent ev) {
 	setmods(ev);
+	kcode = 0;
 	if(keygrab == null)
 	    root.keyup(ev);
 	else
-	    keygrab.keyup(ev);		
+	    keygrab.keyup(ev);
     }
 	
     private Coord wdgxlate(Coord c, Widget wdg) {

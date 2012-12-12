@@ -6,6 +6,7 @@ import haven.Scrollport.Scrollcont;
 import java.awt.Color;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
+import java.net.URLDecoder;
 
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -105,6 +106,7 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 	try {
 	    String path = ev.getURL().getPath();
 	    String name = path.substring(path.lastIndexOf("index.php/") + 10);
+	    name = URLDecoder.decode(name, "UTF-8");
 	    System.out.println(String.format("Link: '%s', name: '%s'", path, name));
 	    open(name, false);
 	} catch (Exception e) {}
