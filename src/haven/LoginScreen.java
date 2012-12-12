@@ -96,7 +96,7 @@ public class LoginScreen extends Widget {
 	}
 	txt.setprog(0);
 	
-	//WikiBrowser wp = new WikiBrowser(Coord.z, new Coord(550, 400), ui.root);
+	//WikiBrowser.toggle();
     }
 
     private static abstract class Login extends Widget {

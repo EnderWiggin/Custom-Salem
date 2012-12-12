@@ -1,5 +1,7 @@
 package haven;
 
+import haven.Resource.AButton;
+import haven.Resource.Tooltip;
 import haven.RichText.Part;
 
 import java.awt.Color;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class WikiBrowser extends Window {
+public class WikiBrowser extends Window implements DTarget2, DropTarget{
     private static final int SEARCH_H = 20;
     public static final RichText.Foundry fnd = new RichText.Foundry(new WikiParser(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 12, TextAttribute.FOREGROUND, Color.WHITE));
 
@@ -104,7 +106,7 @@ public class WikiBrowser extends Window {
     private static final Coord minsz = new Coord(200, 150);
     private static final String OPT_SZ = "_sz";
     private static WikiBrowser instance;
-    
+
     private Scrollport sp;
     private TextEntry search;
     private WikiPage page;
@@ -112,27 +114,19 @@ public class WikiBrowser extends Window {
     public WikiBrowser(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent, "Wiki");
 	justclose = true;
-	search = new TextEntry(Coord.z, new Coord(asz.x, SEARCH_H), this, ""){
-
-	    @Override
-	    public boolean type(char c, KeyEvent ev) {
-		// TODO Auto-generated method stub
-		return super.type(c, ev);
-	    }
-	    
-	};
+	search = new TextEntry(Coord.z, new Coord(asz.x, SEARCH_H), this, "");
 	search.canactivate = true;
 	sp = new Scrollport(new Coord(0, SEARCH_H), asz.sub(0, SEARCH_H), this);
 	pack();
 	page = new WikiPage(Coord.z, sp.cont.sz, sp.cont);
     }
-    
+
     @Override
     protected void loadOpts() {
 	super.loadOpts();
 	resize(getOptCoord(OPT_SZ, sz));
     }
-    
+
     @Override
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(msg.equals("activate")){
@@ -143,7 +137,7 @@ public class WikiBrowser extends Window {
 	}
 	super.wdgmsg(sender, msg, args);
     }
-    
+
     @Override
     public void resize(Coord sz) {
 	super.resize(sz);
@@ -163,7 +157,7 @@ public class WikiBrowser extends Window {
 	}
 	return super.mousedown(c, button);
     }
-    
+
     @Override
     public boolean mouseup(Coord c, int button) {
 	if (rsm){
@@ -174,7 +168,7 @@ public class WikiBrowser extends Window {
 	}
 	return super.mouseup(c, button);
     }
-    
+
     @Override
     public void mousemove(Coord c) {
 	if (rsm){
@@ -196,7 +190,7 @@ public class WikiBrowser extends Window {
 	    close();
 	}
     }
-    
+
     @Override
     public void destroy() {
 	instance = null;
@@ -208,6 +202,36 @@ public class WikiBrowser extends Window {
 	    UI ui = UI.instance;
 	    ui.destroy(instance);
 	}
+    }
+
+    @Override
+    public boolean dropthing(Coord cc, Object thing) {
+	if (thing instanceof Resource) {
+	    Resource res = (Resource)thing;
+	    String name = null;
+	    Tooltip tt = res.layer(Resource.tooltip);
+	    if(tt!=null){
+		name = tt.t;
+	    } else {
+		AButton ad = res.layer(Resource.action);
+		if(ad != null) {
+		    name = ad.name;
+		}
+	    }
+	    if(name!=null)
+		page.open(name, true);
+	    return true;
+	}
+	return false;
+    }
+
+    @Override
+    public boolean drop(Coord cc, Coord ul, GItem item) {
+	String name = item.name();
+	if(name != null){
+	    page.open(name, true);
+	}
+	return true;
     }
 
 }

@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.ItemInfo.Name;
+
 import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +95,19 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	    return res.name;
 	}
 	return "";
+    }
+    
+    public String name() {
+	Resource res = resource();
+	if(res != null){
+	    if(res.layer(Resource.tooltip) != null) {
+		return res.layer(Resource.tooltip).t;
+	    } else {
+		Name name = ItemInfo.find(Name.class, info);
+		return (name != null)?name.str.text:null;
+	    }
+	}
+	return null;
     }
 
     public void uimsg(String name, Object... args) {

@@ -18,6 +18,8 @@ import javax.swing.text.html.StyleSheet;
 
 public class HtmlDraw {
 
+    private static final Color BG_NULL = new Color(0,0,0,0);
+    private static final Color BG_COL = new Color(200,200,200,200);
     private JTextPane htmlpane;
     private HyperlinkListener links;
 
@@ -28,7 +30,7 @@ public class HtmlDraw {
 	
 	htmlpane = new JTextPane();
 	htmlpane.setEditable(false);
-	htmlpane.setBackground(new Color(200,200,200,255));
+	htmlpane.setBackground(BG_NULL);
 	htmlpane.setOpaque(false);
 
 	// add an html editor kit
@@ -90,7 +92,7 @@ public class HtmlDraw {
     public static BufferedImage createImage(JComponent component, Rectangle region, BufferedImage image) {
 	// Make sure the component has a size and has been layed out.
 	// (necessary check for components not added to a realized frame)
-
+	
 	if (!component.isDisplayable()) {
 	    Dimension d = component.getSize();
 
@@ -108,7 +110,7 @@ public class HtmlDraw {
 	// otherwise the background will be black
 
 	if (!component.isOpaque()) {
-	    g2d.setColor(component.getBackground());
+	    g2d.setColor(BG_COL);
 	    g2d.fillRect(region.x, region.y, region.width, region.height);
 	}
 

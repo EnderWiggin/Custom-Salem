@@ -1,6 +1,7 @@
 package haven;
 
 import haven.RichText.Foundry;
+import haven.Scrollport.Scrollcont;
 
 import java.awt.Color;
 import java.awt.font.TextAttribute;
@@ -19,7 +20,6 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 	    TextAttribute.FOREGROUND, Color.WHITE);
     private HtmlDraw hd;
     private String name = "Ore Smelter";
-    BufferedImage img;
     private long last = 1;
     int count = 0;
     private TexI loading = null;
@@ -47,9 +47,8 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 	if (!visible) { return; }
 	if (hd == null) { return; }
 	hd.setWidth(sz.x);
-	sz.y = hd.getHeight();
+	presize();
 	hd.get(buf, sz.x, sz.y);
-	img = buf;
 	loading(null);
     }
 
@@ -77,6 +76,11 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
     public void wiki_item_ready(Item item) {
 	if (item == null) { return; }
 	hd = new HtmlDraw(item.content, this);
+	if (parent instanceof Scrollcont) {
+	    Scrollcont sc = (Scrollcont) parent;
+	    Scrollport sp = (Scrollport) sc.parent;
+	    sp.bar.ch(-sp.bar.val);
+	}
 	presize();
 	last = System.currentTimeMillis();
 	count = 0;
