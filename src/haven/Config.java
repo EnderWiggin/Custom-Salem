@@ -90,6 +90,8 @@ public class Config {
     protected static boolean fsaa = false;
     public static boolean center = false;
     public static float brighten = Utils.getpreff("brighten", 0.0f), maxbright = 2.0f;
+    protected static boolean ss_slent = Utils.getprefb("ss_slent", false);
+    protected static boolean ss_ui = Utils.getprefb("ss_ui", false);
     
     static {
 	String p;

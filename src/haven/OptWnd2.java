@@ -171,6 +171,36 @@ public class OptWnd2 extends Window {
 		}
 		
 	    }.a = Config.blink;
+	    
+	    new CheckBox(new Coord(0, y += 25), tab, "Take screenshots silently"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.ss_slent = val;
+		    Utils.setprefb("ss_slent", val);
+		}
+
+		@Override
+		public Object tooltip(Coord c, boolean again) {
+		    return "Screenshots will be taken without showing screenshot dialog";
+		}
+		
+	    }.a = Config.ss_slent;
+	    
+	    new CheckBox(new Coord(0, y += 25), tab, "Include UI on screenshots"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.ss_ui = val;
+		    Utils.setprefb("ss_ui", val);
+		}
+
+		@Override
+		public Object tooltip(Coord c, boolean again) {
+		    return "Sets default value of include UI on screenshot dialog";
+		}
+		
+	    }.a = Config.ss_ui;
 	}
 
 	

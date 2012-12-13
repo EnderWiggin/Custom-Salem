@@ -33,13 +33,13 @@ public class RootWidget extends ConsoleHost {
     Logout logout = null;
     Profile gprof;
     boolean afk = false;
-	
+
     public RootWidget(UI ui, Coord sz) {
 	super(ui, new Coord(0, 0), sz);
 	setfocusctl(true);
 	cursor = defcurs;
     }
-	
+
     public boolean globtype(char key, KeyEvent ev) {
 	int code = ev.getKeyCode();
 	boolean ctrl = ev.isControlDown();
@@ -53,9 +53,9 @@ public class RootWidget extends ConsoleHost {
 	    } else if(key == ':') {
 		entercmd();
 	    }else if((code == KeyEvent.VK_L || code == KeyEvent.VK_F) && ctrl){
-                FlatnessTool.instance(ui).toggle();
+		FlatnessTool.instance(ui).toggle();
 	    }else if(code == KeyEvent.VK_D && ctrl){
-                DarknessWnd.toggle();
+		DarknessWnd.toggle();
 	    }else if(code == KeyEvent.VK_Z && ctrl){
 		Config.center = !Config.center;
 		ui.message(String.format("Tile centering in turned %s", Config.center?"ON":"OFF"));
@@ -66,11 +66,20 @@ public class RootWidget extends ConsoleHost {
 	return(true);
     }
 
+    @Override
+    public boolean keyup(KeyEvent ev) {
+	if(ev.getKeyCode() == KeyEvent.VK_PRINTSCREEN){
+	    Screenshooter.take(ui.gui, null);
+	    return true;
+	}
+	return super.keyup(ev);
+    }
+
     public void draw(GOut g) {
 	super.draw(g);
 	drawcmd(g, new Coord(20, sz.y - 20));
     }
-    
+
     public void error(String msg) {
     }
 }
