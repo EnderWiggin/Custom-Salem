@@ -6,7 +6,6 @@ import haven.RichText.Part;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -109,13 +108,15 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
 
     private Scrollport sp;
     private TextEntry search;
+    private Button back;
     private WikiPage page;
     boolean rsm = false;
     public WikiBrowser(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent, "Wiki");
 	justclose = true;
-	search = new TextEntry(Coord.z, new Coord(asz.x, SEARCH_H), this, "");
+	search = new TextEntry(Coord.z, new Coord(asz.x-30, SEARCH_H), this, "");
 	search.canactivate = true;
+	back = new Button(new Coord(asz.x - 20, 0), 20, this, "←");
 	sp = new Scrollport(new Coord(0, SEARCH_H), asz.sub(0, SEARCH_H), this);
 	pack();
 	page = new WikiPage(Coord.z, sp.cont.sz, sp.cont);
@@ -133,6 +134,9 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
 	    if(sender == search){
 		page.open(search.text, true);
 		return;
+	    } else if(sender == back){
+		page.back();
+		return;
 	    }
 	}
 	super.wdgmsg(sender, msg, args);
@@ -142,7 +146,8 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
     public void resize(Coord sz) {
 	super.resize(sz);
 	if(sp != null){sp.resize(sz.sub(0, SEARCH_H));}
-	if(search!= null){search.resize(new Coord(sz.x, SEARCH_H));}
+	if(search!= null){search.resize(new Coord(sz.x - 25, SEARCH_H));}
+	if(back!= null){back.c.x = sz.x - 20;}
     }
 
     @Override

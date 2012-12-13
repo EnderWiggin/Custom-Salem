@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.net.URLDecoder;
+import java.util.LinkedList;
 
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -20,10 +21,12 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
     private static final Foundry wpfnd = new Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 28,
 	    TextAttribute.FOREGROUND, Color.WHITE);
     private HtmlDraw hd;
-    private String name = "Ore Smelter";
+    private String name = null;
+    private Item current = null;
     private long last = 1;
     int count = 0;
     private TexI loading = null;
+    private LinkedList<Item> history = new LinkedList<Item>();
 
     public WikiPage(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent);
@@ -75,7 +78,18 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 
     @Override
     public void wiki_item_ready(Item item) {
+	go_to(item, true);
+    }
+
+    public void go_to(Item item, boolean store) {
 	if (item == null) { return; }
+	name = item.name;
+	if(store && current != null){
+	    history.push(current);
+	}
+
+	current = item;
+	if (hd != null) {hd.destroy();}
 	hd = new HtmlDraw(item.content, this);
 	if (parent instanceof Scrollcont) {
 	    Scrollcont sc = (Scrollcont) parent;
@@ -87,10 +101,14 @@ public class WikiPage extends SIWidget implements Callback, HyperlinkListener {
 	count = 0;
     }
 
-    public void open(String text, boolean search) {
-	if (hd != null) {
-	    hd.destroy();
+    public void back(){
+	if(!history.isEmpty()){
+	    go_to(history.pop(), false);
 	}
+    }
+
+    public void open(String text, boolean search) {
+	if (hd != null) {hd.destroy();}
 	hd = null;
 	name = text;
 	loading(name);
