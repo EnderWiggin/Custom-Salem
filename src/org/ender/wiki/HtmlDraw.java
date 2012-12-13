@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JTextPane;
@@ -26,7 +28,26 @@ public class HtmlDraw {
     public HtmlDraw(String text, HyperlinkListener links){
 	this.links = links;
 	if(text == null){text = "<H1>Nothing found, sorry :(</H1>";}
-	text = text.replaceAll("=\"/", "=\"http://salemwiki.info/");
+	text = text.replaceAll("=\"/", "=\"http://salemwiki.info/");//fix links
+	
+	//fix food table backgrounds
+	Pattern rows = Pattern.compile("<tr style=\"background:(.*?);(.*?)\">(.*?)</tr>", Pattern.DOTALL|Pattern.MULTILINE);
+	Matcher mr = rows.matcher(text);
+	int i=0;
+	while(mr.find(i)){
+	    String col = mr.group(1);
+	    col = col.replace("darkred", "#8b0000");
+	    col = col.replace("darkgreen", "#006400");
+	    col = col.replace("darkblue", "#00008b");
+	    col = col.replace("darkgoldenrod", "#b8860b");
+	    String tmp = mr.group(2);
+	    String cols = mr.group(3);
+	    cols = cols.replaceAll("<td>", String.format("<td style=\"background-color: %s;\">", col));
+	    tmp = String.format("<TR style=\"background:%s;%s\">%s</TR>", col, tmp, cols);
+	    i = mr.start() + tmp.length() - 1;
+	    text = mr.replaceFirst(tmp);
+	    mr = rows.matcher(text);
+	}
 	
 	htmlpane = new JTextPane();
 	htmlpane.setEditable(false);
