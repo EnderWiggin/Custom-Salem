@@ -346,8 +346,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
     
-    static Text.Foundry progf = new Text.Foundry(new java.awt.Font("serif", java.awt.Font.BOLD, 24));
-    static {progf.aa = true;}
+    static Text.Furnace progf = new PUtils.BlurFurn(new Text.Foundry(new java.awt.Font("serif", java.awt.Font.BOLD, 24)).aa(true), 2, 1, new Color(0, 16, 16));
     Text progt = null;
     public void draw(GOut g) {
 	boolean beltp = !chat.expanded;
@@ -447,6 +446,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    gobble.prog((Integer)args[0]);
 	} else if(msg == "polowner") {
 	    String o = (String)args[0];
+	    boolean n = ((Integer)args[1]) != 0;
 	    if(o.length() == 0)
 		o = null;
 	    else
