@@ -116,7 +116,7 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
 	justclose = true;
 	search = new TextEntry(Coord.z, new Coord(asz.x-30, SEARCH_H), this, "");
 	search.canactivate = true;
-	back = new Button(new Coord(asz.x - 20, 0), 20, this, "←");
+	back = new Button(new Coord(asz.x - 20, 0), 20, this, "\u2190");
 	sp = new Scrollport(new Coord(0, SEARCH_H), asz.sub(0, SEARCH_H), this);
 	pack();
 	page = new WikiPage(Coord.z, sp.cont.sz, sp.cont);
