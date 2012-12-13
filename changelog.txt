@@ -1,10 +1,18 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 13.12.12:}}
+  * added proper Wiki browser. Accessible from menu by X->K.
+    You can drop items or icons from menu on it to search for this item.
+  * added ability to take screen shots by pressing PrntScr button 
+    and some options to control how screens are made
+  * made MenuGrid and ToolBelt tooltips update when wiki info changes
+    (it actualy was working before, but got broken after last wiki change)
+ 
 $size[14]{$u{Update for 07.12.12:}}
- * fixed blink option not read properly
- * fixed loss of mouse input after clicking on a minimized character window in wrong place
- * Proficiency gains in ToolBelt and MenuGrid now highlight gains as items do
- * added food info to MenuGrid and Toolbelt tooltips
+  * fixed blink option not read properly
+  * fixed loss of mouse input after clicking on a minimized character window in wrong place
+  * Proficiency gains in ToolBelt and MenuGrid now highlight gains as items do
+  * added food info to MenuGrid and Toolbelt tooltips
  
 $size[14]{$u{Update for 30.11.12:}}
   * added brightness slider to camera options

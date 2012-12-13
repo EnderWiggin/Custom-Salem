@@ -45,6 +45,7 @@ public class Wiki {
     static private final Map<String, String> imap = new HashMap<String, String>(15);
     static private final LinkedBlockingQueue<Request> requests = new LinkedBlockingQueue<Request>();
     static private File folder;
+    private static long update_date;
     private static final Map<String, Item> DB = new LinkedHashMap<String, Item>(9, 0.75f, true) {
 	private static final long serialVersionUID = 1L;
 	@Override
@@ -54,6 +55,12 @@ public class Wiki {
     };
 
     public static void init(File cfg, int workers){
+	URL u = Wiki.class.getResource("");
+	String path = u.toString();
+	path = path.substring(10, path.indexOf('!'));
+	File f = new File(path);
+	update_date = f.lastModified();
+	
 	imap.put("Arts & Crafts", "arts");
 	imap.put("Cloak & Dagger", "cloak");
 	imap.put("Faith & Wisdom", "faith");
@@ -449,7 +456,7 @@ public class Wiki {
 
     private static boolean has_update(String name, long date) {
 	try {
-	    if(date < 1354898300927L){return true;}//ignore old cache
+	    if(date < update_date){return true;}//ignore old cache
 	    //String p = String.format("%s%s", WIKI_URL, name);
 	    URI uri = new URI("http","salemwiki.info","/index.php/"+name, null);
 	    URL  url = uri.toURL();
