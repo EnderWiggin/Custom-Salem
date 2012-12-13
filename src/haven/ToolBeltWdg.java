@@ -249,7 +249,8 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	}
     }
     
-    public boolean key(KeyEvent ev) {
+    public boolean key(char key, KeyEvent ev) {
+	if(key != 0){return false;}
 	boolean M = (ev.getModifiersEx() & (KeyEvent.META_DOWN_MASK | KeyEvent.ALT_DOWN_MASK)) != 0;
 	for(int i = 0; i < beltkeys.length; i++) {
 	    if(ev.getKeyCode() == beltkeys[i]) {
@@ -266,20 +267,14 @@ public class ToolBeltWdg extends Window implements DropTarget{
     }
     
     public boolean globtype(char ch, KeyEvent ev) {
-	if(!key(ev))
+	if(!key(ch, ev))
 	    return(super.globtype(ch, ev));
 	else
 	    return true;
     }
     
     public boolean type(char key, KeyEvent ev) {
-	if(key == 27) {
-	    return(false);
-	}
-	if(!key(ev))
-	    return(super.type(key, ev));
-	else
-	    return true;
+	return false;
     }
     
     private boolean checkmenu(int slot) {

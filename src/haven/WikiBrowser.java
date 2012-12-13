@@ -117,7 +117,7 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
 	search = new TextEntry(Coord.z, new Coord(asz.x-30, SEARCH_H), this, "");
 	search.canactivate = true;
 	back = new Button(new Coord(asz.x - 20, 0), 20, this, "\u2190");
-	sp = new Scrollport(new Coord(0, SEARCH_H), asz.sub(0, SEARCH_H), this);
+	sp = new Scrollport(new Coord(0, SEARCH_H+3), asz.sub(0, SEARCH_H+3), this);
 	pack();
 	page = new WikiPage(Coord.z, sp.cont.sz, sp.cont);
     }
@@ -145,7 +145,7 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
     @Override
     public void resize(Coord sz) {
 	super.resize(sz);
-	if(sp != null){sp.resize(sz.sub(0, SEARCH_H));}
+	if(sp != null){sp.resize(sz.sub(0, SEARCH_H+3));}
 	if(search!= null){search.resize(new Coord(sz.x - 25, SEARCH_H));}
 	if(back!= null){back.c.x = sz.x - 20;}
     }

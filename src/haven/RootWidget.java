@@ -44,6 +44,7 @@ public class RootWidget extends ConsoleHost {
 	int code = ev.getKeyCode();
 	boolean ctrl = ev.isControlDown();
 	if(!super.globtype(key, ev)) {
+	    if(key == 0){return false;}
 	    if(Config.profile && (key == '`')) {
 		new Profwnd(new Coord(100, 100), this, gprof, "Glob prof");
 	    } else if(Config.profile && (key == '~')) {
