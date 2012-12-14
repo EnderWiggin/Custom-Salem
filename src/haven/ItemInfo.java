@@ -203,7 +203,7 @@ public abstract class ItemInfo {
 	}
     }
     
-    static final Pattern meter_patt = Pattern.compile("(\\d+)%");
+    static final Pattern meter_patt = Pattern.compile("(\\d+)(?:[.,]\\d)?%");
     public static List<Integer> getMeters(List<ItemInfo> infos){
 	List<Integer> res = new ArrayList<Integer>();
 	for (ItemInfo info : infos){
