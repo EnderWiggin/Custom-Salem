@@ -28,7 +28,8 @@ package haven;
 
 import java.util.*;
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
+import java.awt.color.ColorSpace;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
 import javax.imageio.stream.*;
@@ -37,6 +38,7 @@ import java.io.*;
 import java.net.*;
 
 public class Screenshooter extends Window {
+    public static final ComponentColorModel outcm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8, 8, 8}, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
     public final URL tgt;
     public final TexI[] ss;
     private final TextEntry comment;
@@ -79,17 +81,73 @@ public class Screenshooter extends Window {
 	g.image(tex, Coord.z, new Coord(w, h));
     }
     
+    public static interface ImageFormat {
+	public String ctype();
+	public void write(OutputStream out, BufferedImage img, String comment) throws IOException;
+    }
+
+    public static final ImageFormat png = new ImageFormat() {
+	    public String ctype() {return("image/png");}
+
+	    public void write(OutputStream out, BufferedImage img, String comment) throws IOException {
+		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
+		ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
+		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
+		if(comment != null) {
+		    Node root = dat.getAsTree("javax_imageio_1.0");
+		    Element cmt = new IIOMetadataNode("TextEntry");
+		    cmt.setAttribute("keyword", "Comment");
+		    cmt.setAttribute("value", comment);
+		    cmt.setAttribute("encoding", "utf-8");
+		    cmt.setAttribute("language", "");
+		    cmt.setAttribute("compression", "none");
+		    Node tlist = new IIOMetadataNode("Text");
+		    tlist.appendChild(cmt);
+		    root.appendChild(tlist);
+		    dat.setFromTree("javax_imageio_1.0", root);
+		}
+		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
+		wr.setOutput(iout);
+		wr.write(new IIOImage(img, null, dat));
+	    }
+	};
+
+    public static final ImageFormat jpeg = new ImageFormat() {
+	    public String ctype() {return("image/jpeg");}
+
+	    public void write(OutputStream out, BufferedImage img, String comment) throws IOException {
+		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
+		ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
+		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
+		if(comment != null) {
+		    Node root = dat.getAsTree("javax_imageio_1.0");
+		    Element cmt = new IIOMetadataNode("TextEntry");
+		    cmt.setAttribute("keyword", "comment");
+		    cmt.setAttribute("value", comment);
+		    Node tlist = new IIOMetadataNode("Text");
+		    tlist.appendChild(cmt);
+		    root.appendChild(tlist);
+		    dat.setFromTree("javax_imageio_1.0", root);
+		}
+		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
+		wr.setOutput(iout);
+		wr.write(new IIOImage(img, null, dat));
+	    }
+	};
+
     public class Uploader extends HackThread {
 	private final TexI img;
+	private final ImageFormat fmt;
 	
-	public Uploader(TexI img) {
+	public Uploader(TexI img, ImageFormat fmt) {
 	    super("Screenshot uploader");
 	    this.img = img;
+	    this.fmt = fmt;
 	}
 	
 	public void run() {
 	    try {
-		upload(img);
+		upload(img, fmt);
 	    } catch(InterruptedIOException e) {
 		setstate("Cancelled");
 		synchronized(ui) {
@@ -121,57 +179,26 @@ public class Screenshooter extends Window {
 	    }
 	}
 
-	private void writepng(OutputStream out, BufferedImage img, String comment) throws IOException {
-	    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
-	    ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
-	    IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-	    if(comment != null) {
-		Node root = dat.getAsTree("javax_imageio_1.0");
-		Element cmt = new IIOMetadataNode("TextEntry");
-		cmt.setAttribute("keyword", "Comment");
-		cmt.setAttribute("value", comment);
-		cmt.setAttribute("encoding", "utf-8");
-		cmt.setAttribute("language", "");
-		cmt.setAttribute("compression", "none");
-		Node tlist = new IIOMetadataNode("Text");
-		tlist.appendChild(cmt);
-		root.appendChild(tlist);
-		dat.setFromTree("javax_imageio_1.0", root);
-	    }
-	    ImageOutputStream iout = ImageIO.createImageOutputStream(out);
-	    wr.setOutput(iout);
-	    wr.write(new IIOImage(img, null, dat));
+	private BufferedImage convert(BufferedImage img) {
+	    WritableRaster buf = PUtils.byteraster(PUtils.imgsz(img), 3);
+	    BufferedImage ret = new BufferedImage(outcm, buf, false, null);
+	    java.awt.Graphics g = ret.getGraphics();
+	    g.drawImage(img, 0, 0, null);
+	    g.dispose();
+	    return(ret);
 	}
 
-	private void writejpeg(OutputStream out, BufferedImage img, String comment) throws IOException {
-	    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
-	    ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
-	    IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-	    if(comment != null) {
-		Node root = dat.getAsTree("javax_imageio_1.0");
-		Element cmt = new IIOMetadataNode("TextEntry");
-		cmt.setAttribute("keyword", "comment");
-		cmt.setAttribute("value", comment);
-		Node tlist = new IIOMetadataNode("Text");
-		tlist.appendChild(cmt);
-		root.appendChild(tlist);
-		dat.setFromTree("javax_imageio_1.0", root);
-	    }
-	    ImageOutputStream iout = ImageIO.createImageOutputStream(out);
-	    wr.setOutput(iout);
-	    wr.write(new IIOImage(img, null, dat));
-	}
-
-	public void upload(TexI ss) throws IOException {
-	    setstate("Connecting...");
+	public void upload(TexI ss, ImageFormat fmt) throws IOException {
+	    setstate("Preparing image...");
 	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    /* XXX: For some reason, JPEG doesn't seem to work properly. */
-	    writepng(buf, ss.back, comment.text);
+	    fmt.write(buf, convert(ss.back), comment.text);
 	    byte[] data = buf.toByteArray();
 	    buf = null;
-	    URLConnection conn = (URLConnection)tgt.openConnection();
+	    setstate("Connecting...");
+	    HttpURLConnection conn = (HttpURLConnection)tgt.openConnection();
 	    conn.setDoOutput(true);
-	    conn.addRequestProperty("Content-Type", "image/png");
+	    conn.setFixedLengthStreamingMode(data.length);
+	    conn.addRequestProperty("Content-Type", fmt.ctype());
 	    Message auth = new Message(0);
 	    auth.addstring2(ui.sess.username + "/");
 	    auth.addbytes(ui.sess.sesskey);
@@ -218,7 +245,7 @@ public class Screenshooter extends Window {
     }
     
     public void upload() {
-	final Uploader th = new Uploader(Screenshooter.this.ss[decobox.a?1:0]);
+	final Uploader th = new Uploader(Screenshooter.this.ss[decobox.a?1:0], jpeg);
 	th.start();
 	ui.destroy(btn);
 	btn = new Button(btnc, 125, this, "Cancel") {
