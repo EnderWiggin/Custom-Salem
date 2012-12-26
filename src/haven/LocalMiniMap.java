@@ -30,7 +30,6 @@ import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
 import haven.Defer.Future;
 import haven.MCache.LoadingMap;
-import haven.Resource.Loading;
 import haven.minimap.Marker;
 import haven.minimap.Radar;
 
@@ -52,6 +51,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     static Tex bg = Resource.loadtex("gfx/hud/bgtex");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
     public final MapView mv;
+    private Coord cc = null;
     public Coord cgrid = null;
     private Coord off = new Coord();
     boolean rsm = false;
@@ -236,6 +236,48 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    }
 	});
     }
+    
+    public Coord p2c(Coord pc) {
+	return(pc.div(tilesz).sub(cc).add(sz.div(2)));
+    }
+
+    public Coord c2p(Coord c) {
+	return(c.sub(sz.div(2)).add(cc).mul(tilesz).add(tilesz.div(2)));
+    }
+
+    public void drawicons(GOut g) {
+	OCache oc = ui.sess.glob.oc;
+	synchronized(oc) {
+	    for(Gob gob : oc) {
+		try {
+		    GobIcon icon = gob.getattr(GobIcon.class);
+		    if(icon != null) {
+			Coord gc = p2c(gob.rc);
+			Tex tex = icon.tex();
+			g.image(tex, gc.sub(tex.sz().div(2)));
+		    }
+		} catch(Loading l) {}
+	    }
+	}
+    }
+
+    public Gob findicongob(Coord c) {
+	OCache oc = ui.sess.glob.oc;
+	synchronized(oc) {
+	    for(Gob gob : oc) {
+		try {
+		    GobIcon icon = gob.getattr(GobIcon.class);
+		    if(icon != null) {
+			Coord gc = p2c(gob.rc);
+			Coord sz = icon.tex().sz();
+			if(c.isect(gc.sub(sz.div(2)), sz))
+			    return(gob);
+		    }
+		} catch(Loading l) {}
+	    }
+	}
+	return(null);
+    }
 
     @Override
     protected void loadOpts() {
@@ -261,14 +303,23 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	heightmap = null;
     }
 
-    public void draw(GOut og) {
+
+    public void tick(double dt) {
 	Gob pl = ui.sess.glob.oc.getgob(mv.plgob);
-	if(pl == null)
+	if(pl == null) {
+	    this.cc = null;
 	    return;
-	final Coord plt = pl.rc.div(tilesz);
-	final Coord plg = plt.div(cmaps);
+	}
+	this.cc = pl.rc.div(tilesz);
+    }
+
+    public void draw(GOut og) {
+	if(cc == null)
+	    return;
+	final Coord plg = cc.div(cmaps);
 	checkSession(plg);
 	if(!plg.equals(lastplg)){
+	    System.out.println(String.format("l: %s, c: %s", lastplg, plg));
 	    lastplg = plg;
 	    clearheightmap();
 	}
@@ -279,7 +330,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	double scale = getScale();
 	Coord hsz = sz.div(scale);
 
-	Coord tc = plt.add(off.div(scale));
+	Coord tc = cc.add(off.div(scale));
 	Coord ulg = tc.div(cmaps);
 	int dy = -tc.y + (hsz.y / 2);
 	int dx = -tc.x + (hsz.x / 2);
@@ -360,6 +411,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 
 	g.gl.glPopMatrix();
+	//drawicons(g);
 	Window.swbox.draw(og, Coord.z, this.sz);
     }
 
@@ -391,6 +443,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
     private void checkSession(Coord plg) {
 	if(cgrid == null || plg.manhattan(cgrid) > 5){
+	    System.out.println(String.format("sess l: %s, c: %s", lastplg, plg));
 	    sp = plg;
 	    cache.clear();
 	    session = Utils.current_date();
@@ -415,6 +468,19 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     public boolean mousedown(Coord c, int button) {
+	
+//	if(cc == null)
+//	    return(false);
+//	MapView mv = getparent(GameUI.class).map;
+//	if(mv == null)
+//	    return(false);
+//	Gob gob = findicongob(c);
+//	if(gob == null)
+//	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags());
+//	else
+//	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags(), 0, (int)gob.id, gob.rc, 0, -1);
+	//return(true);
+	
 	//	if(folded) {
 	//	    return super.mousedown(c, button);
 	//	}
@@ -427,7 +493,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
 	if(button == 3){
 	    if (m != null) {
-		mv.wdgmsg("click", this.c.add(c), mc, button, ui.modflags(), (int)m.gob.id, m.gob.rc, (-1));
+		mv.wdgmsg("click", this.c.add(c), mc, button, ui.modflags(), 0, (int)m.gob.id, m.gob.rc, 0, (-1));
 		return true;
 	    }
 
@@ -559,4 +625,17 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 	return super.type(key, ev);
     }
+
+/*if(cc == null)
+	    return(false);
+	MapView mv = getparent(GameUI.class).map;
+	if(mv == null)
+	    return(false);
+	Gob gob = findicongob(c);
+	if(gob == null)
+	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags());
+	else
+	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags(), 0, (int)gob.id, gob.rc, 0, -1);
+	return(true);*/
+
 }

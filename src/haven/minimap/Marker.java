@@ -60,6 +60,16 @@ public class Marker {
             return;
         Coord ptc = new Coord((int)ptc3f.x, (int)ptc3f.y);
         ptc = ptc.div(MCache.tilesz).add(c);
+        if(Config.radar_icons){
+            try {
+        	GobIcon icon = gob.getattr(GobIcon.class);
+        	if(icon != null) {
+        	    Tex tex = icon.tex();
+        	    g.image(tex, ptc.sub(tex.sz().div(2)));
+        	    return;
+        	}
+            } catch(Loading l) {}
+        }
         g.chcolor(template.color);
         g.image(tex, ptc.sub(tex.sz().div(2)));
         g.chcolor();

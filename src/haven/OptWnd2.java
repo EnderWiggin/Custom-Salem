@@ -157,6 +157,21 @@ public class OptWnd2 extends Window {
 		
 	    }.a = Config.pure_mult;
 	    
+	    new CheckBox(new Coord(0, y += 25), tab, "Radar icons"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.radar_icons = val;
+		    Utils.setprefb("blink", val);
+		}
+
+		@Override
+		public Object tooltip(Coord c, boolean again) {
+		    return "Objects detected by radar will be shown by icons, if available";
+		}
+		
+	    }.a = Config.radar_icons;
+	    
 	    new CheckBox(new Coord(0, y += 25), tab, "Blink radar objects"){
 		@Override
 		public void changed(boolean val) {

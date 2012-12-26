@@ -303,11 +303,11 @@ public class ToolBeltWdg extends Window implements DropTarget{
 	    Coord mvc = map.rootxlate(ui.mc);
 	    if(mvc.isect(Coord.z, map.sz)) {
 		map.delay(map.new Hittest(mvc) {
-		    protected void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-			if(gob == null)
+		    protected void hit(Coord pc, Coord mc, MapView.ClickInfo inf) {
+			if(inf == null || inf.gob != null)
 			    ui.gui.wdgmsg("belt", slot, 1, ui.modflags(), mc);
 			else
-			    ui.gui.wdgmsg("belt", slot, 1, ui.modflags(), mc, (int)gob.id, gob.rc);
+			    ui.gui.wdgmsg("belt", slot, 1, ui.modflags(), mc, (int)inf.gob.id, (int)inf.gob.id);
 		    }
 
 		    protected void nohit(Coord pc) {

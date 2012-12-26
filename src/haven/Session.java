@@ -32,7 +32,7 @@ import java.io.*;
 import java.lang.ref.*;
 
 public class Session {
-    public static final int PVER = 23;
+    public static final int PVER = 24;
     
     public static final int MSG_SESS = 0;
     public static final int MSG_REL = 1;
@@ -62,6 +62,7 @@ public class Session {
     public static final int OD_CMPPOSE = 16;
     public static final int OD_CMPMOD = 17;
     public static final int OD_CMPEQU = 18;
+    public static final int OD_ICON = 19;
     public static final int OD_END = 255;
     public static final int SESSERR_AUTH = 1;
     public static final int SESSERR_BUSY = 2;
@@ -429,6 +430,15 @@ public class Session {
 			    } else {
 				if(gob != null)
 				    oc.buddy(gob, null, 0, 0);
+			    }
+			} else if(type == OD_ICON) {
+			    int resid = msg.uint16();
+			    Indir<Resource> res;
+			    if(resid == 65535) {
+				oc.icon(gob, null);
+			    } else {
+				int ifl = msg.uint8();
+				oc.icon(gob, getres(resid));
 			    }
 			} else if(type == OD_END) {
 			    break;

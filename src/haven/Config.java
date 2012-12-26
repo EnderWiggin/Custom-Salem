@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.ender.timer.TimerController;
 import org.ender.wiki.Wiki;
 
 public class Config {
@@ -71,7 +70,8 @@ public class Config {
     public static String userhome = System.getProperty("user.home")+"/Salem";
     public static String version;
     public static boolean show_tempers = Utils.getprefb("show_tempers", false);
-    public static boolean store_map = Utils.getprefb("store_map", true);;
+    public static boolean store_map = Utils.getprefb("store_map", true);
+    public static boolean radar_icons = Utils.getprefb("radar_icons", true);
     
     public static String currentCharName = "";
     static Properties window_props;
