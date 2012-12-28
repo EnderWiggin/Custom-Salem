@@ -162,7 +162,7 @@ public class OptWnd2 extends Window {
 		public void changed(boolean val) {
 		    super.changed(val);
 		    Config.radar_icons = val;
-		    Utils.setprefb("blink", val);
+		    Utils.setprefb("radar_icons", val);
 		}
 
 		@Override
