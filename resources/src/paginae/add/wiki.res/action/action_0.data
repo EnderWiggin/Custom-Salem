@@ -4,7 +4,7 @@ paginae/act/add
 #uint16 pver
 2
 #String name
-wiki
+Wiki
 #String preq
 
 #uint16 hk
