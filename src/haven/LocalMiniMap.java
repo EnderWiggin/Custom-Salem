@@ -319,7 +319,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	final Coord plg = cc.div(cmaps);
 	checkSession(plg);
 	if(!plg.equals(lastplg)){
-	    System.out.println(String.format("l: %s, c: %s", lastplg, plg));
 	    lastplg = plg;
 	    clearheightmap();
 	}
@@ -443,7 +442,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
     private void checkSession(Coord plg) {
 	if(cgrid == null || plg.manhattan(cgrid) > 5){
-	    System.out.println(String.format("sess l: %s, c: %s", lastplg, plg));
 	    sp = plg;
 	    cache.clear();
 	    session = Utils.current_date();

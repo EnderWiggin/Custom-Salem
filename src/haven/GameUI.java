@@ -1009,9 +1009,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	this.sz = sz;
 	menu.c = sz.sub(menu.sz);
 	tm.c = new Coord((sz.x - tm.sz.x) / 2, 0);
-	if(tm.gbtn != null){
-	    tm.gbtn.c.x = tm.c.x + (tm.sz.x - tm.gbtn.sz.x)/2;
-	}
 	chat.move(new Coord(mainmenu.sz.x, sz.y));
 	chat.resize(sz.x - chat.c.x - menu.sz.x);
 	if(gobble != null)
