@@ -59,7 +59,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private Text lasterr;
     private long errtime;
     private Window invwnd, equwnd, makewnd;
-    private MainMenu mainmenu;
+    public Inventory maininv;
+    public MainMenu mainmenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
     public Polity polity;
@@ -154,8 +155,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	resize(sz);
     }
 
-    static class MenuButton extends IButton {
+    public static class MenuButton extends IButton {
 	private final int gkey;
+	private long flash;
+	private Tex glowmask;
 
 	MenuButton(Coord c, Widget parent, String base, int gkey, String tooltip) {
 	    super(c, parent, Resource.loadimg("gfx/hud/" + base + "up"), Resource.loadimg("gfx/hud/" + base + "down"));
@@ -177,6 +180,28 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		return(true);
 	    }
 	    return(super.globtype(key, ev));
+	}
+
+	public void draw(GOut g) {
+	    super.draw(g);
+	    if(flash > 0) {
+		if(glowmask == null)
+		    glowmask = new TexI(PUtils.glowmask(PUtils.glowmask(up.getRaster()), 10, new Color(192, 255, 64)));
+		g = g.reclipl(new Coord(-10, -10), g.sz.add(20, 20));
+		double ph = (System.currentTimeMillis() - flash) / 1000.0;
+		g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
+		g.image(glowmask, Coord.z);
+		g.chcolor();
+	    }
+	}
+
+	public void flash(boolean f) {
+	    if(f) {
+		if(flash == 0)
+		    flash = System.currentTimeMillis();
+	    } else {
+		flash = 0;
+	    }
 	}
     }
     
@@ -221,9 +246,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(fv);
 	} else if(place == "inv") {
 	    invwnd = new Hidewnd(new Coord(100, 100), Coord.z, this, "Inventory");
-	    Widget inv = gettype(type).create(Coord.z, invwnd, cargs);
+	    Inventory inv = (Inventory)gettype(type).create(Coord.z, invwnd, cargs);
 	    invwnd.pack();
 	    invwnd.hide();
+	    maininv = inv;
 	    return(inv);
 	} else if(place == "equ") {
 	    equwnd = new Hidewnd(new Coord(400, 10), Coord.z, this, "Equipment");
@@ -641,14 +667,27 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     private static final Tex menubgfull = Resource.loadtex("gfx/hud/menubgfull");
     
-    private class MainMenu extends Widget {
+    public class MainMenu extends Widget {
+	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, chatb;
+
 	boolean full = true;
-	public Widget tohide[] = {
+	public MenuButton[] tohide = {
 		new MenuButton(new Coord(4, 8), this, "inv", 9, "Inventory (Tab)") {
+		    int seq = 0;
 		    public void click() {
 			if((invwnd != null) && invwnd.show(!invwnd.visible)) {
 			    invwnd.raise();
 			    fitwdg(invwnd);
+			}
+		    }
+		    public void tick(double dt) {
+			if(maininv != null) {
+			    if(invwnd.visible) {
+				seq = maininv.newseq;
+				flash(false);
+			    } else if(maininv.newseq != seq) {
+				flash(true);
+			    }
 			}
 		    }
 		},
@@ -663,6 +702,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		new MenuButton(new Coord(4, 124), this, "chr", 20, "Studying (Ctrl+T)") {
 		    public void click() {
 			togglecw();
+		    }
+		    public void tick(double dt) {
+			if((chrwdg != null) && chrwdg.skavail)
+			    flash(true);
+			else
+			    flash(false);
 		    }
 		},
 		new MenuButton(new Coord(62, 8), this, "bud", 2, "Buddy List (Ctrl+B)") {
@@ -707,6 +752,101 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	
 	public MainMenu(Coord c, Coord sz, Widget parent) {
 	    super(c, sz, parent);
+	    invb = tohide[0];
+	    equb = tohide[1];
+	    chrb = tohide[2];
+	    budb = tohide[3];
+	    polb = tohide[4];
+	    optb = tohide[5];// clab, towb, chatb;
+	    
+	    int y = sz.y - 21;
+	    clab = new MenuButton(new Coord(6, y), this, "cla", -1, "Display personal claims") {
+		boolean v = false;
+		{hover = down;}
+		public void click() {
+		    if(!v) {
+			map.enol(0, 1);
+			v = true;
+		    } else {
+			map.disol(0, 1);
+			v = false;
+		    }
+		    toggle();
+		}
+
+		@Override
+		protected void toggle() {
+		    BufferedImage img = up;
+
+		    up = hover;
+		    hover = img;
+		    down = img;
+		}
+	    };
+	    towb = new MenuButton(new Coord(24, y), this, "tow", -1, "Display town claims") {
+		boolean v = false;
+		{hover = down;}
+		public void click() {
+		    if(!v) {
+			map.enol(2, 3);
+			v = true;
+		    } else {
+			map.disol(2, 3);
+			v = false;
+		    }
+		    toggle();
+		}
+		@Override
+		protected void toggle() {
+		    BufferedImage img = up;
+
+		    up = hover;
+		    hover = img;
+		    down = img;
+		}
+	    };
+	    new MenuButton(new Coord(42, y), this, "height", -1, "Display heightmap") {
+		{
+		    hover = down;
+		    down = Resource.loadimg("gfx/hud/heighthl");
+		}
+		public void click() {
+		    mmap.toggleHeight();
+		    toggle();
+		}
+		@Override
+		protected void toggle() {
+		    BufferedImage img = up;
+
+		    up = hover;
+		    hover = down;
+		    down = img;
+		}
+
+	    };
+	    chatb = new MenuButton(new Coord(60, y), this, "chat", 3, "Chat (Ctrl+C)") {
+		public void click() {
+		    chat.toggle();
+		}
+	    };
+
+	    new MenuButton(new Coord(this.sz.x - 22, y), this, "gear", -1, "Menu") {
+		{
+		    recthit = true;
+		    hover = Resource.loadimg("gfx/hud/gearhl");
+		}
+		public void click() {
+		    mainmenu.toggle();
+		    toggle();
+		}
+		@Override
+		protected void toggle() {
+		    BufferedImage img = up;
+
+		    up = down;
+		    down = img;
+		}
+	    };
 	}
 
 	@Override
@@ -727,93 +867,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     
     private void makemenu() {
 	mainmenu = new MainMenu(new Coord(0, sz.y - menubg.sz().y), menubg.sz(), this);
-	int y = mainmenu.sz.y - 21;
-	new MenuButton(new Coord(6, y), mainmenu, "cla", -1, "Display personal claims") {
-	    boolean v = false;
-	    {hover = down;}
-	    public void click() {
-		if(!v) {
-		    map.enol(0, 1);
-		    v = true;
-		} else {
-		    map.disol(0, 1);
-		    v = false;
-		}
-		toggle();
-	    }
-	    @Override
-	    protected void toggle() {
-		BufferedImage img = up;
-
-		up = hover;
-		hover = img;
-		down = img;
-	    }
-	};
-	new MenuButton(new Coord(24, y), mainmenu, "tow", -1, "Display town claims") {
-	    boolean v = false;
-	    {hover = down;}
-	    public void click() {
-		if(!v) {
-		    map.enol(2, 3);
-		    v = true;
-		} else {
-		    map.disol(2, 3);
-		    v = false;
-		}
-		toggle();
-	    }
-	    @Override
-	    protected void toggle() {
-		BufferedImage img = up;
-
-		up = hover;
-		hover = img;
-		down = img;
-	    }
-	};
-	new MenuButton(new Coord(42, y), mainmenu, "height", -1, "Display heightmap") {
-	    {
-		hover = down;
-		down = Resource.loadimg("gfx/hud/heighthl");
-	    }
-	    public void click() {
-		mmap.toggleHeight();
-		toggle();
-	    }
-	    @Override
-	    protected void toggle() {
-		BufferedImage img = up;
-
-		up = hover;
-		hover = down;
-		down = img;
-	    }
-
-	};
-	new MenuButton(new Coord(60, y), mainmenu, "chat", 3, "Chat (Ctrl+C)") {
-	    public void click() {
-		chat.toggle();
-	    }
-	};
-	
-	new MenuButton(new Coord(mainmenu.sz.x - 22, y), mainmenu, "gear", -1, "Menu") {
-	    {
-		recthit = true;
-		hover = Resource.loadimg("gfx/hud/gearhl");
-	    }
-	    public void click() {
-		mainmenu.toggle();
-		toggle();
-	    }
-	    @Override
-	    protected void toggle() {
-		BufferedImage img = up;
-
-		up = down;
-		down = img;
-	    }
-	};
 	
 	new Widget(Coord.z, isqsz.add(Window.swbox.bisz()), this) {
 	    private final Tex none = Resource.loadtex("gfx/hud/blknone");

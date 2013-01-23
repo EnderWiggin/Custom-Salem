@@ -70,7 +70,20 @@ public class MenuGrid extends Widget {
 	Pagina[] cp = new Pagina[0];
 	Collection<Pagina> open, close = new HashSet<Pagina>();
 	synchronized(ui.sess.glob.paginae) {
-	    open = new HashSet<Pagina>(ui.sess.glob.paginae);
+	    open = new LinkedList<Pagina>();
+	    for(Pagina pag : ui.sess.glob.paginae) {
+		if(pag.newp == 2) {
+		    pag.newp = 0;
+		    pag.fstart = 0;
+		}
+		open.add(pag);
+	    }
+	    for(Pagina pag : ui.sess.glob.pmap.values()) {
+		if(pag.newp == 2) {
+		    pag.newp = 0;
+		    pag.fstart = 0;
+		}
+	    }
 	}
 	boolean ret = true;
 	while(!open.isEmpty()) {
@@ -83,9 +96,13 @@ public class MenuGrid extends Widget {
 		if(ad == null)
 		    throw(new PaginaException(pag));
 		Pagina parent = paginafor(ad.parent);
+		if((pag.newp != 0) && (parent != null) && (parent.newp == 0)) {
+		    parent.newp = 2;
+		    parent.fstart = (parent.fstart == 0)?pag.fstart:Math.min(parent.fstart, pag.fstart);
+		}
 		if(parent == p)
 		    buf.add(pag);
-		else if((parent != null) && !close.contains(parent))
+		else if((parent != null) && !close.contains(parent) && !open.contains(parent))
 		    open.add(parent);
 		close.add(pag);
 	    } catch(Loading e) {
@@ -224,10 +241,17 @@ public class MenuGrid extends Widget {
 	return(new TexI(img));
     }
 
+    private static Map<Pagina, Tex> glowmasks = new WeakHashMap<Pagina, Tex>();
+    private Tex glowmask(Pagina pag) {
+	Tex ret = glowmasks.get(pag);
+	if(ret == null) {
+	    ret = new TexI(PUtils.glowmask(PUtils.glowmask(pag.res().layer(Resource.imgc).img.getRaster()), 4, new Color(32, 255, 32)));
+	    glowmasks.put(pag, ret);
+	}
+	return(ret);
+    }
     public void draw(GOut g) {
 	long now = System.currentTimeMillis();
-	int t = (int) (now % 1000);
-	int b = (int) (255*((t < 500)?(t):(1000-t))/500.0f);
 	Inventory.invsq(g, Coord.z, gsz);
 	for(int y = 0; y < gsz.y; y++) {
 	    for(int x = 0; x < gsz.x; x++) {
@@ -235,11 +259,7 @@ public class MenuGrid extends Widget {
 		Pagina btn = layout[x][y];
 		if(btn != null) {
 		    Tex btex = btn.img.tex();
-		    if(btn.newp){
-			g.chcolor(b, 255, b, 255);
-		    }
 		    g.image(btex, p);
-		    g.chcolor();
 		    if(btn.meter > 0) {
 			double m = btn.meter / 1000.0;
 			if(btn.dtime > 0)
@@ -248,6 +268,22 @@ public class MenuGrid extends Widget {
 			g.chcolor(255, 255, 255, 128);
 			g.fellipse(p.add(Inventory.isqsz.div(2)), Inventory.isqsz.div(2), 90, (int)(90 + (360 * m)));
 			g.chcolor();
+		    }
+		    if(btn.newp != 0) {
+			if(btn.fstart == 0) {
+			    btn.fstart = now;
+			} else {
+			    double ph = ((now - btn.fstart) / 1000.0) - (((x + (y * gsz.x)) * 0.15) % 1.0);
+			    if(ph < 1.25) {
+				g.chcolor(255, 255, 255, (int)(255 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
+				g.image(glowmask(btn), p.sub(4, 4));
+				g.chcolor();
+			    } else {
+				g.chcolor(255, 255, 255, 128);
+				g.image(glowmask(btn), p.sub(4, 4));
+				g.chcolor();
+			    }
+			}
 		    }
 		    if(btn == pressed) {
 			g.chcolor(new Color(0, 0, 0, 128));
@@ -317,7 +353,6 @@ public class MenuGrid extends Widget {
 	    if(h != pressed)
 		dragging = pressed;
 	}
-	if(curttp != null){curttp.newp = false;}
     }
 	
     private Pagina paginafor(Resource res) {
@@ -360,6 +395,7 @@ public class MenuGrid extends Widget {
 	    else
 		curoff += off;
 	} else {
+	    r.newp = 0;
 	    String [] ad = r.act().ad;
 	    if((ad == null) || (ad.length < 1)){return;}
 	    if(ad[0].equals("@")) {
@@ -373,7 +409,6 @@ public class MenuGrid extends Widget {
 	updlayout();
     }
     
-    @Override
     public void tick(double dt) {
 	if(loading || (pagseq != ui.sess.glob.pagseq))
 	    updlayout();

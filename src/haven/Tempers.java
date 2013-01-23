@@ -112,6 +112,11 @@ public class Tempers extends SIWidget {
 			getparent(GameUI.class).act("gobble");
 		    }
 
+		    public void presize() {
+			c = new Coord(Tempers.this.c.x + ((Tempers.this.sz.x - sz.x) / 2),
+				      (int)(Tempers.this.c.y + boxsz.y));
+		    }
+
 		    {
 			if(!Tempers.this.visible)
 			    hide();
