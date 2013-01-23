@@ -46,6 +46,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private Text lasterr;
     private long errtime;
     private Window invwnd, equwnd, makewnd;
+    public Inventory maininv;
     private Widget mainmenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
@@ -139,6 +140,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     static class MenuButton extends IButton {
 	private final int gkey;
+	private long flash;
+	private Tex glowmask;
 
 	MenuButton(Coord c, Widget parent, String base, int gkey, String tooltip) {
 	    super(c, parent, Resource.loadimg("gfx/hud/" + base + "up"), Resource.loadimg("gfx/hud/" + base + "down"));
@@ -154,6 +157,28 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		return(true);
 	    }
 	    return(super.globtype(key, ev));
+	}
+
+	public void draw(GOut g) {
+	    super.draw(g);
+	    if(flash > 0) {
+		if(glowmask == null)
+		    glowmask = new TexI(PUtils.glowmask(PUtils.glowmask(up.getRaster()), 10, new Color(192, 255, 64)));
+		g = g.reclipl(new Coord(-10, -10), g.sz.add(20, 20));
+		double ph = (System.currentTimeMillis() - flash) / 1000.0;
+		g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
+		g.image(glowmask, Coord.z);
+		g.chcolor();
+	    }
+	}
+
+	public void flash(boolean f) {
+	    if(f) {
+		if(flash == 0)
+		    flash = System.currentTimeMillis();
+	    } else {
+		flash = 0;
+	    }
 	}
     }
     
@@ -198,9 +223,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(fv);
 	} else if(place == "inv") {
 	    invwnd = new Hidewnd(new Coord(100, 100), Coord.z, this, "Inventory");
-	    Widget inv = gettype(type).create(Coord.z, invwnd, cargs);
+	    Inventory inv = (Inventory)gettype(type).create(Coord.z, invwnd, cargs);
 	    invwnd.pack();
 	    invwnd.hide();
+	    maininv = inv;
 	    return(inv);
 	} else if(place == "equ") {
 	    equwnd = new Hidewnd(new Coord(400, 10), Coord.z, this, "Equipment");
@@ -574,10 +600,23 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	mainmenu = new Widget(new Coord(0, sz.y - menubg.sz().y), menubg.sz(), this);
 	new Img(Coord.z, menubg, mainmenu);
 	new MenuButton(new Coord(161, 8), mainmenu, "inv", 9, "Inventory (Tab)") {
+	    int seq = 0;
+
 	    public void click() {
 		if((invwnd != null) && invwnd.show(!invwnd.visible)) {
 		    invwnd.raise();
 		    fitwdg(invwnd);
+		}
+	    }
+
+	    public void tick(double dt) {
+		if(maininv != null) {
+		    if(invwnd.visible) {
+			seq = maininv.newseq;
+			flash(false);
+		    } else if(maininv.newseq != seq) {
+			flash(true);
+		    }
 		}
 	    }
 	};
@@ -592,6 +631,13 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	new MenuButton(new Coord(161, 124), mainmenu, "chr", 20, "Studying (Ctrl+T)") {
 	    public void click() {
 		togglecw();
+	    }
+
+	    public void tick(double dt) {
+		if((chrwdg != null) && chrwdg.skavail)
+		    flash(true);
+		else
+		    flash(false);
 	    }
 	};
 	new MenuButton(new Coord(219, 8), mainmenu, "bud", 2, "Buddy List (Ctrl+B)") {

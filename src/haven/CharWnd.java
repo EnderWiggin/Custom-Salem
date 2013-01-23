@@ -35,6 +35,7 @@ public class CharWnd extends Window {
     public final SkillList csk, nsk;
     public final Widget attrwdgs;
     public int cmod;
+    public boolean skavail;
     private final SkillInfo ski;
     private final Label cmodl;
     
@@ -221,6 +222,16 @@ public class CharWnd extends Window {
 	}
     }
     
+    private void checkexp() {
+	skavail = false;
+	for(Skill sk : nsk.skills) {
+	    if(sk.afforded() == 0) {
+		skavail = true;
+		break;
+	    }
+	}
+    }
+
     public class Attr extends Widget {
 	public final Coord
 	    imgc = new Coord(0, 1),
@@ -431,6 +442,7 @@ public class CharWnd extends Window {
 		a.rexp = null;
 		a.av = av;
 	    }
+	    checkexp();
 	} else if(msg == "csk") {
 	    /* One could argue that rmessages should have some
 	     * built-in fragmentation scheme. */
