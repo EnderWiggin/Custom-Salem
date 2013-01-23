@@ -187,16 +187,31 @@ public class MenuGrid extends Widget {
 	return null;
     }
     
+    public static float[] safeFloat(Float[] input, float[] def){
+	if(input == null){return def;}
+	int n = input.length;
+	float[] output = new float[n];
+	for(int i=0; i<n; i++){
+	    if(input[i] != null){
+		output[i] = input[i];
+	    } else {
+		output[i] = 0;
+	    }
+	}
+	return output;
+    }
+    
     public static BufferedImage getFood(String name){
 	Item itm = Wiki.get(name);
 	if(itm != null){
 	    Map<String, Float[]> food = itm.food;
 	    if(food != null){
-		Float[] heal = food.get("Heals");
-		Float[] salt = food.get("Salt");
-		Float[] merc = food.get("Mercury");
-		Float[] sulph = food.get("Sulphur");
-		Float[] lead = food.get("Lead");
+		float[] def = new float[]{0, 0, 0, 0};
+		float[] heal = safeFloat(food.get("Heals"), def);
+		float[] salt = safeFloat(food.get("Salt"), def);
+		float[] merc = safeFloat(food.get("Mercury"), def);
+		float[] sulph = safeFloat(food.get("Sulphur"), def);
+		float[] lead = safeFloat(food.get("Lead"), def);
 		int[] tempers = new int[4];
 		int[][] evs = new int[4][4];
 		for(int i=0; i<4; i++){
