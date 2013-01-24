@@ -351,8 +351,7 @@ public class CharWnd extends Window {
 	    g.chcolor(FILL_GHOST);
 	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
 	    if(av) {
-		//g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
-		g.chcolor(FILL_ENOUGH);
+		g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
 	    } else {
 		g.chcolor(FILL);
 	    }
@@ -393,7 +392,6 @@ public class CharWnd extends Window {
 	    super.draw(g);
 	}
 	
-	/*
 	private int a = 0;
 	public boolean mousedown(Coord c, int btn) {
 	    if((btn == 1) && c.isect(expc, expsz)) {
@@ -416,7 +414,6 @@ public class CharWnd extends Window {
 	    }
 	    return(false);
 	}
-	*/
 	
 	public void buy() {
 	    CharWnd.this.wdgmsg("sattr", nm);
