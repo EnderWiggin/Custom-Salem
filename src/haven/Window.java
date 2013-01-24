@@ -143,7 +143,7 @@ public class Window extends Widget implements DTarget {
     }
 
     public void draw(GOut g) {
-	g.chcolor(0, 0, 0, 224);
+	g.chcolor(0, 0, 0, 192);
 	g.frect(ctl, csz);
 	g.chcolor();
 	cdraw(g.reclip(xlate(Coord.z, true), asz));
