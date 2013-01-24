@@ -226,6 +226,8 @@ public class OptWnd2 extends Window {
 	    new Label(new Coord(10, 30), tab, "Camera type:");
 	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 25), new Coord(210, 180), tab, "", foundry);
 	    caminfo.bg = new java.awt.Color(0, 0, 0, 64);
+	    addinfo("ortho",       "Isometric Cam",  "Isometric camera centered on character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("sortho",    "Isometric Cam Smoothed", "Isometric camera centered on character with smoothed movement. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 	    addinfo("follow",       "Follow Cam",  "The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 	    addinfo("sfollow",    "Follow Cam Smoothed", "The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 	    addinfo("free",     "Freestyle",     "You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);

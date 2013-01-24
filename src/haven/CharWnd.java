@@ -28,9 +28,11 @@ package haven;
 
 import java.awt.Color;
 import java.util.*;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 public class CharWnd extends Window {
-    private static final Coord SZ_FULL = new Coord(620, 360);
+    private static final Coord SZ_FULL = new Coord(640, 360);
     public static final Map<String, String> attrnm;
     public static final List<String> attrorder;
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
@@ -271,6 +273,13 @@ public class CharWnd extends Window {
 	    }
 	}
     }
+
+    private static final BufferedImage[] pbtn = {
+	Resource.loadimg("gfx/hud/skills/plusu"),
+	Resource.loadimg("gfx/hud/skills/plusd"),
+	Resource.loadimg("gfx/hud/skills/plush"),
+	PUtils.monochromize(Resource.loadimg("gfx/hud/skills/plusu"), new Color(192, 192, 192)),
+    };
 	
     public class Attr extends Widget implements Observer {
 	public final Coord
@@ -278,7 +287,8 @@ public class CharWnd extends Window {
 	    nmc = new Coord(17, 1),
 	    vc = new Coord(137, 1),
 	    expc = new Coord(162, 0),
-	    expsz = new Coord(sz.x - expc.x, sz.y);
+	    expsz = new Coord(sz.x - expc.x - 20, sz.y),
+	    btnc = new Coord(sz.x - 17, 0);
 	public final String nm;
 	public final Resource res;
 	public final Glob.CAttr attr;
@@ -286,9 +296,10 @@ public class CharWnd extends Window {
 	public boolean av = false;
 	private Text rnm, rv, rexp;
 	private int cv;
+	private IButton pb;
 	
 	private Attr(String attr, Coord c, Widget parent) {
-	    super(c, new Coord(237, 15), parent);
+	    super(c, new Coord(257, 15), parent);
 	    this.nm = attr;
 	    this.res = Resource.load("gfx/hud/skills/" + nm);
 	    this.res.loadwait();
@@ -298,11 +309,23 @@ public class CharWnd extends Window {
 	    this.attr = ui.sess.glob.cattr.get(nm);
 	    this.rnm = Text.render(attrnm.get(attr));
 	    this.attr.addObserver(this);
+	    this.pb = new IButton(btnc, this, pbtn[0], pbtn[1], pbtn[2]) {
+		    public void draw(GOut g) {
+			if(av)
+			    super.draw(g);
+			else
+			    g.image(pbtn[3], Coord.z);
+		    }
+
+		    public void click() {
+			buy();
+		    }
+		};
 	}
 	
 	public void drawmeter(GOut g, Coord c, Coord sz) {
 	    g.chcolor(28, 28, 28, 255);
-	    g.frect(c, sz);
+	    g.frect(c.add(1, 1), sz.sub(2, 2));
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		try {
 		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
@@ -327,10 +350,12 @@ public class CharWnd extends Window {
 	    
 	    g.chcolor(FILL_GHOST);
 	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
-	    if(av)
-		g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
-	    else
+	    if(av) {
+		//g.chcolor((a == 1)?FILL_FULL:FILL_ENOUGH);
+		g.chcolor(FILL_ENOUGH);
+	    } else {
 		g.chcolor(FILL);
+	    }
 	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
 	    
 	    if(nsk.sel != null) {
@@ -365,8 +390,10 @@ public class CharWnd extends Window {
 		rv = Text.render(String.format("%d", cv = attr.comp));
 	    g.image(rv.tex(), vc);
 	    drawmeter(g, expc, expsz);
+	    super.draw(g);
 	}
 	
+	/*
 	private int a = 0;
 	public boolean mousedown(Coord c, int btn) {
 	    if((btn == 1) && c.isect(expc, expsz)) {
@@ -389,6 +416,7 @@ public class CharWnd extends Window {
 	    }
 	    return(false);
 	}
+	*/
 	
 	public void buy() {
 	    CharWnd.this.wdgmsg("sattr", nm);
@@ -423,9 +451,9 @@ public class CharWnd extends Window {
 		CharWnd.this.wdgmsg("lreset");
 	    }
 	};
-	new Label(new Coord(250, 0), this, "Skills:");
-	new Label(new Coord(250, 30), this, "Current:");
-	this.csk = new SkillList(new Coord(250, 45), 170, 6, this) {
+	new Label(new Coord(270, 0), this, "Skills:");
+	new Label(new Coord(270, 30), this, "Current:");
+	this.csk = new SkillList(new Coord(270, 45), 170, 6, this) {
 		public void change(Skill sk) {
 		    Skill p = sel;
 		    super.change(sk);
@@ -435,8 +463,8 @@ public class CharWnd extends Window {
 		    ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(250, 180), this, "Available:");
-	this.nsk = new SkillList(new Coord(250, 195), 170, 6, this) {
+	new Label(new Coord(270, 180), this, "Available:");
+	this.nsk = new SkillList(new Coord(270, 195), 170, 6, this) {
 		protected void drawitem(GOut g, Skill sk) {
 		    int astate = sk.afforded();
 		    if(astate == 3)
@@ -458,14 +486,14 @@ public class CharWnd extends Window {
 		    ski.setsk(sk);
 		}
 	    };
-	new Button(new Coord(250, 340), 50, this, "Buy") {
+	new Button(new Coord(270, 340), 50, this, "Buy") {
 	    public void click() {
 		if(nsk.sel != null) {
 		    CharWnd.this.wdgmsg("buy", nsk.sel.nm);
 		}
 	    }
 	};
-	this.ski = new SkillInfo(new Coord(430, 45), new Coord(190, 278), this);
+	this.ski = new SkillInfo(new Coord(450, 45), new Coord(190, 278), this);
     }
     
     private void decsklist(Collection<Skill> buf, Object[] args, int a) {

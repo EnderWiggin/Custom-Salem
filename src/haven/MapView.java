@@ -40,7 +40,7 @@ import java.util.Map;
 import javax.media.opengl.GL;
 
 public class MapView extends PView implements DTarget {
-    public static final String DEFCAM = "sfollow";
+    public static final String DEFCAM = "sortho";
     public static Map<String, Class<? extends Camera>> camtypes;
     public long plgob = -1;
     public Coord cc;
@@ -58,6 +58,8 @@ public class MapView extends PView implements DTarget {
 	camtypes.put("follow", FollowCam.class);
 	camtypes.put("sfollow", SmoothFollowCam.class);
 	camtypes.put("free", FreeCam.class);
+	camtypes.put("ortho", OrthoCam.class);
+	camtypes.put("sortho", SOrthoCam.class);
     }
     
     public interface Delayed {
@@ -327,7 +329,7 @@ public class MapView extends PView implements DTarget {
 	}
 
 	public boolean wheel(Coord c, int amount) {
-	    float d = dist + (amount * 5);
+	    float d = dist + (amount * 10);
 	    if(d < 5)
 		d = 5;
 	    dist = d;
@@ -335,6 +337,105 @@ public class MapView extends PView implements DTarget {
 	}
     }
     
+    private static class OrthoCam extends Camera {
+	public OrthoCam(MapView mv) {
+	    super(mv);
+	}
+
+	protected float dist = 500.0f;
+	protected float elev = (float)Math.PI / 6.0f;
+	protected float angl = -(float)Math.PI / 4.0f;
+	protected float field = (float)(100 * Math.sqrt(2));
+	private Coord dragorig = null;
+	private float anglorig;
+	protected Coord3f cc;
+
+	public void tick2(double dt) {
+	    Coord3f cc = mv.getcc();
+	    cc.y = -cc.y;
+	    this.cc = cc;
+	}
+
+	public void tick(double dt) {
+	    tick2(dt);
+	    float aspect = ((float)mv.sz.y) / ((float)mv.sz.x);
+	    view.update(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
+	    proj.update(Projection.makeortho(new Matrix4f(), -field, field, -field * aspect, field * aspect, 1, 5000));
+	}
+
+	public float angle() {
+	    return(angl);
+	}
+
+	public boolean click(Coord c) {
+	    anglorig = angl;
+	    dragorig = c;
+	    return(true);
+	}
+
+	public void drag(Coord c) {
+	    angl = anglorig + ((float)(c.x - dragorig.x) / 100.0f);
+	    angl = angl % ((float)Math.PI * 2.0f);
+	}
+	
+	public boolean wheel(Coord c, int amount) {
+	    field += amount * 10;
+	    field = Math.max(Math.min(field, 200), 50);
+	    return(true);
+	}
+
+	public String toString() {
+	    return(String.format("%f %f %f %f", dist, elev / Math.PI, angl / Math.PI, field));
+	}
+    }
+
+    private static class SOrthoCam extends OrthoCam {
+	public SOrthoCam(MapView mv) {
+	    super(mv);
+	}
+
+	private Coord dragorig = null;
+	private float anglorig;
+	private float tangl = angl;
+	private float tfield = field;
+	private final float pi2 = (float)(Math.PI * 2);
+
+	public void tick2(double dt) {
+	    Coord3f mc = mv.getcc();
+	    mc.y = -mc.y;
+	    if((cc == null) || (Math.hypot(mc.x - cc.x, mc.y - cc.y) > 250))
+		cc = mc;
+	    else
+		cc = cc.add(mc.sub(cc).mul(1f - (float)Math.pow(500, -dt)));
+
+	    angl = angl + ((tangl - angl) * (1f - (float)Math.pow(500, -dt)));
+	    while(angl > pi2) {angl -= pi2; tangl -= pi2; anglorig -= pi2;}
+	    while(angl < 0)   {angl += pi2; tangl += pi2; anglorig += pi2;}
+	    if(Math.abs(tangl - angl) < 0.0001)
+		angl = tangl;
+
+	    field = field + ((tfield - field) * (1f - (float)Math.pow(500, -dt)));
+	    if(Math.abs(tfield - field) < 0.0001)
+		field = tfield;
+	}
+
+	public boolean click(Coord c) {
+	    anglorig = angl;
+	    dragorig = c;
+	    return(true);
+	}
+
+	public void drag(Coord c) {
+	    tangl = anglorig + ((float)(c.x - dragorig.x) / 100.0f);
+	}
+
+	public boolean wheel(Coord c, int amount) {
+	    tfield += amount * 10;
+	    tfield = Math.max(Math.min(tfield, 200), 50);
+	    return(true);
+	}
+    }
+
     static {
 	Widget.addtype("mapview", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
@@ -744,7 +845,7 @@ public class MapView extends PView implements DTarget {
 		    continue;
 		Coord3f ploc = new Coord3f(mc.x, -mc.y, cc.z);
 		Coord3f sloc = proj.tonorm(cam.mul4(ploc));
-		if(sloc.z < 0)
+		if(sloc.z < -1)
 		    sloc = sloc.inv();
 		if((sloc.x < -1) || (sloc.x > 1) || (sloc.y < -1) || (sloc.y > 1)) {
 		    g.chcolor(m.col);
