@@ -45,6 +45,7 @@ public class Inventory extends Widget implements DTarget {
     public static final Tex refl = Resource.loadtex("gfx/hud/invref");
     Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
+    public int newseq = 0;
 
     static {
 	Widget.addtype("inv", new WidgetFactory() {
@@ -129,6 +130,7 @@ public class Inventory extends Widget implements DTarget {
 	if(ret instanceof GItem) {
 	    GItem i = (GItem)ret;
 	    wmap.put(i, new WItem(sqoff(c), this, i));
+	    newseq++;
 	}
 	return(ret);
     }

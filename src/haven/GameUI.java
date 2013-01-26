@@ -46,7 +46,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private Text lasterr;
     private long errtime;
     private Window invwnd, equwnd, makewnd;
-    private Widget mainmenu;
+    public Inventory maininv;
+    public MainMenu mainmenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
     public Polity polity;
@@ -74,11 +75,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		Coord mvc = map.rootxlate(ui.mc);
 		if(mvc.isect(Coord.z, map.sz)) {
 		    map.delay(map.new Hittest(mvc) {
-			    protected void hit(Coord pc, Coord mc, Gob gob, Rendered tgt) {
-				if(gob == null)
+			    protected void hit(Coord pc, Coord mc, MapView.ClickInfo inf) {
+				if(inf == null)
 				    GameUI.this.wdgmsg("belt", slot, 1, ui.modflags(), mc);
 				else
-				    GameUI.this.wdgmsg("belt", slot, 1, ui.modflags(), mc, (int)gob.id, gob.rc);
+				    GameUI.this.wdgmsg("belt", slot, 1, ui.modflags(), mc, (int)inf.gob.id, inf.gob.rc);
 			    }
 			    
 			    protected void nohit(Coord pc) {
@@ -137,8 +138,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	resize(sz);
     }
 
-    static class MenuButton extends IButton {
+    public static class MenuButton extends IButton {
 	private final int gkey;
+	private long flash;
+	private Tex glowmask;
 
 	MenuButton(Coord c, Widget parent, String base, int gkey, String tooltip) {
 	    super(c, parent, Resource.loadimg("gfx/hud/" + base + "up"), Resource.loadimg("gfx/hud/" + base + "down"));
@@ -154,6 +157,28 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		return(true);
 	    }
 	    return(super.globtype(key, ev));
+	}
+
+	public void draw(GOut g) {
+	    super.draw(g);
+	    if(flash > 0) {
+		if(glowmask == null)
+		    glowmask = new TexI(PUtils.glowmask(PUtils.glowmask(up.getRaster()), 10, new Color(192, 255, 64)));
+		g = g.reclipl(new Coord(-10, -10), g.sz.add(20, 20));
+		double ph = (System.currentTimeMillis() - flash) / 1000.0;
+		g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
+		g.image(glowmask, Coord.z);
+		g.chcolor();
+	    }
+	}
+
+	public void flash(boolean f) {
+	    if(f) {
+		if(flash == 0)
+		    flash = System.currentTimeMillis();
+	    } else {
+		flash = 0;
+	    }
 	}
     }
     
@@ -198,9 +223,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(fv);
 	} else if(place == "inv") {
 	    invwnd = new Hidewnd(new Coord(100, 100), Coord.z, this, "Inventory");
-	    Widget inv = gettype(type).create(Coord.z, invwnd, cargs);
+	    Inventory inv = (Inventory)gettype(type).create(Coord.z, invwnd, cargs);
 	    invwnd.pack();
 	    invwnd.hide();
+	    maininv = inv;
 	    return(inv);
 	} else if(place == "equ") {
 	    equwnd = new Hidewnd(new Coord(400, 10), Coord.z, this, "Equipment");
@@ -346,8 +372,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
     
-    static Text.Foundry progf = new Text.Foundry(new java.awt.Font("serif", java.awt.Font.BOLD, 24));
-    static {progf.aa = true;}
+    static Text.Furnace progf = new PUtils.BlurFurn(new Text.Foundry(new java.awt.Font("serif", java.awt.Font.BOLD, 24)).aa(true), 2, 1, new Color(0, 16, 16));
     Text progt = null;
     public void draw(GOut g) {
 	boolean beltp = !chat.expanded;
@@ -447,6 +472,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    gobble.prog((Integer)args[0]);
 	} else if(msg == "polowner") {
 	    String o = (String)args[0];
+	    boolean n = ((Integer)args[1]) != 0;
 	    if(o.length() == 0)
 		o = null;
 	    else
@@ -570,97 +596,125 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     }
 
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
+    public class MainMenu extends Widget {
+	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, chatb;
+
+	public MainMenu(Coord c, Widget parent) {
+	    super(c, menubg.sz(), parent);
+	    new Img(Coord.z, menubg, this);
+	    invb = new MenuButton(new Coord(161, 8), this, "inv", 9, "Inventory (Tab)") {
+		int seq = 0;
+
+		public void click() {
+		    if((invwnd != null) && invwnd.show(!invwnd.visible)) {
+			invwnd.raise();
+			fitwdg(invwnd);
+		    }
+		}
+
+		public void tick(double dt) {
+		    if(maininv != null) {
+			if(invwnd.visible) {
+			    seq = maininv.newseq;
+			    flash(false);
+			} else if(maininv.newseq != seq) {
+			    flash(true);
+			}
+		    }
+		}
+	    };
+	    equb = new MenuButton(new Coord(161, 66), this, "equ", 5, "Equipment (Ctrl+E)") {
+		public void click() {
+		    if((equwnd != null) && equwnd.show(!equwnd.visible)) {
+			equwnd.raise();
+			fitwdg(equwnd);
+		    }
+		}
+	    };
+	    chrb = new MenuButton(new Coord(161, 124), this, "chr", 20, "Studying (Ctrl+T)") {
+		public void click() {
+		    togglecw();
+		}
+
+		public void tick(double dt) {
+		    if((chrwdg != null) && chrwdg.skavail)
+			flash(true);
+		    else
+			flash(false);
+		}
+	    };
+	    budb = new MenuButton(new Coord(219, 8), this, "bud", 2, "Buddy List (Ctrl+B)") {
+		public void click() {
+		    if((buddies != null) && buddies.show(!buddies.visible)) {
+			buddies.raise();
+			fitwdg(buddies);
+			setfocus(buddies);
+		    }
+		}
+	    };
+	    polb = new MenuButton(new Coord(219, 66), this, "pol", 16, "Town (Ctrl+P)") {
+		final Tex gray = Resource.loadtex("gfx/hud/polgray");
+
+		public void draw(GOut g) {
+		    if(polity == null)
+			g.image(gray, Coord.z);
+		    else
+			super.draw(g);
+		}
+
+		public void click() {
+		    if((polity != null) && polity.show(!polity.visible)) {
+			polity.raise();
+			fitwdg(polity);
+			setfocus(polity);
+		    }
+		}
+	    };
+	    optb = new MenuButton(new Coord(219, 124), this, "opt", 15, "Options") {
+		public void click() {
+		    if(opts.show(!opts.visible)) {
+			opts.raise();
+			fitwdg(opts);
+			setfocus(opts);
+		    }
+		}
+	    };
+	    clab = new MenuButton(new Coord(6, 160), this, "cla", -1, "Display personal claims") {
+		boolean v = false;
+
+		public void click() {
+		    if(!v) {
+			map.enol(0, 1);
+			v = true;
+		    } else {
+			map.disol(0, 1);
+			v = false;
+		    }
+		}
+	    };
+	    towb = new MenuButton(new Coord(24, 160), this, "tow", -1, "Display town claims") {
+		boolean v = false;
+
+		public void click() {
+		    if(!v) {
+			map.enol(2, 3);
+			v = true;
+		    } else {
+			map.disol(2, 3);
+			v = false;
+		    }
+		}
+	    };
+	    chatb = new MenuButton(new Coord(42, 160), this, "chat", 3, "Chat (Ctrl+C)") {
+		public void click() {
+		    chat.toggle();
+		}
+	    };
+	}
+    }
+
     private void makemenu() {
-	mainmenu = new Widget(new Coord(0, sz.y - menubg.sz().y), menubg.sz(), this);
-	new Img(Coord.z, menubg, mainmenu);
-	new MenuButton(new Coord(161, 8), mainmenu, "inv", 9, "Inventory (Tab)") {
-	    public void click() {
-		if((invwnd != null) && invwnd.show(!invwnd.visible)) {
-		    invwnd.raise();
-		    fitwdg(invwnd);
-		}
-	    }
-	};
-	new MenuButton(new Coord(161, 66), mainmenu, "equ", 5, "Equipment (Ctrl+E)") {
-	    public void click() {
-		if((equwnd != null) && equwnd.show(!equwnd.visible)) {
-		    equwnd.raise();
-		    fitwdg(equwnd);
-		}
-	    }
-	};
-	new MenuButton(new Coord(161, 124), mainmenu, "chr", 20, "Studying (Ctrl+T)") {
-	    public void click() {
-		togglecw();
-	    }
-	};
-	new MenuButton(new Coord(219, 8), mainmenu, "bud", 2, "Buddy List (Ctrl+B)") {
-	    public void click() {
-		if((buddies != null) && buddies.show(!buddies.visible)) {
-		    buddies.raise();
-		    fitwdg(buddies);
-		    setfocus(buddies);
-		}
-	    }
-	};
-	new MenuButton(new Coord(219, 66), mainmenu, "pol", 16, "Town (Ctrl+P)") {
-	    final Tex gray = Resource.loadtex("gfx/hud/polgray");
-
-	    public void draw(GOut g) {
-		if(polity == null)
-		    g.image(gray, Coord.z);
-		else
-		    super.draw(g);
-	    }
-
-	    public void click() {
-		if((polity != null) && polity.show(!polity.visible)) {
-		    polity.raise();
-		    fitwdg(polity);
-		    setfocus(polity);
-		}
-	    }
-	};
-	new MenuButton(new Coord(219, 124), mainmenu, "opt", 15, "Options") {
-	    public void click() {
-		if(opts.show(!opts.visible)) {
-		    opts.raise();
-		    fitwdg(opts);
-		    setfocus(opts);
-		}
-	    }
-	};
-	new MenuButton(new Coord(6, 160), mainmenu, "cla", -1, "Display personal claims") {
-	    boolean v = false;
-
-	    public void click() {
-		if(!v) {
-		    map.enol(0, 1);
-		    v = true;
-		} else {
-		    map.disol(0, 1);
-		    v = false;
-		}
-	    }
-	};
-	new MenuButton(new Coord(24, 160), mainmenu, "tow", -1, "Display town claims") {
-	    boolean v = false;
-
-	    public void click() {
-		if(!v) {
-		    map.enol(2, 3);
-		    v = true;
-		} else {
-		    map.disol(2, 3);
-		    v = false;
-		}
-	    }
-	};
-	new MenuButton(new Coord(42, 160), mainmenu, "chat", 3, "Chat (Ctrl+C)") {
-	    public void click() {
-		chat.toggle();
-	    }
-	};
+	mainmenu = new MainMenu(new Coord(0, sz.y - menubg.sz().y), this);
 	new Widget(Coord.z, isqsz.add(Window.swbox.bisz()), this) {
 	    private final Tex none = Resource.loadtex("gfx/hud/blknone");
 	    private Tex mono;

@@ -32,7 +32,7 @@ import java.io.*;
 import java.lang.ref.*;
 
 public class Session {
-    public static final int PVER = 23;
+    public static final int PVER = 25;
     
     public static final int MSG_SESS = 0;
     public static final int MSG_REL = 1;
@@ -434,10 +434,12 @@ public class Session {
 			} else if(type == OD_ICON) {
 			    int resid = msg.uint16();
 			    Indir<Resource> res;
-			    if(resid == 65535)
+			    if(resid == 65535) {
 				oc.icon(gob, null);
-			    else
+			    } else {
+				int ifl = msg.uint8();
 				oc.icon(gob, getres(resid));
+			    }
 			} else if(type == OD_END) {
 			    break;
 			} else {
