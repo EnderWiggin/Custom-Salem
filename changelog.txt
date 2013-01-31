@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 31.01.13:}}
+  * fixed ability to click on ingredients in crafting window
+  * fixed changelog appearing on every launch
+  * made pressed war claim button more distinct
+  * added frogs to radar
+ 
 $size[14]{$u{Update for 13.12.12:}}
   * added proper Wiki browser. Accessible from menu by X->K.
     You can drop items or icons from menu on it to search for this item.
