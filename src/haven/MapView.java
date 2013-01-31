@@ -45,6 +45,7 @@ public class MapView extends PView implements DTarget {
     private Plob placing = null;
     private int[] visol = new int[32];
     private Grabber grab;
+    {visol[4] = 1;}
     
     public interface Delayed {
 	public void run(GOut g);
@@ -347,6 +348,10 @@ public class MapView extends PView implements DTarget {
 	for(int ol : overlays)
 	    visol[ol]--;
     }
+
+    public boolean visol(int ol) {
+	return(visol[ol] > 0);
+    }
 	
     private final Rendered map = new Rendered() {
 	    public void draw(GOut g) {}
@@ -381,6 +386,7 @@ public class MapView extends PView implements DTarget {
 		mats[1] = new Material(new Color(0, 0, 255, 32));
 		mats[2] = new Material(new Color(255, 0, 0, 32));
 		mats[3] = new Material(new Color(128, 0, 255, 32));
+		mats[4] = new Material(new Color(0, 0, 0, 64));
 		mats[16] = new Material(new Color(0, 255, 0, 32));
 		mats[17] = new Material(new Color(255, 255, 0, 32));
 	    }

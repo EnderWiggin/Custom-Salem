@@ -597,7 +597,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     public class MainMenu extends Widget {
-	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, chatb;
+	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, warb, chatb;
 
 	public MainMenu(Coord c, Widget parent) {
 	    super(c, menubg.sz(), parent);
@@ -680,32 +680,30 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    };
 	    clab = new MenuButton(new Coord(6, 160), this, "cla", -1, "Display personal claims") {
-		boolean v = false;
-
 		public void click() {
-		    if(!v) {
+		    if(!map.visol(0))
 			map.enol(0, 1);
-			v = true;
-		    } else {
+		    else
 			map.disol(0, 1);
-			v = false;
-		    }
 		}
 	    };
 	    towb = new MenuButton(new Coord(24, 160), this, "tow", -1, "Display town claims") {
-		boolean v = false;
-
 		public void click() {
-		    if(!v) {
+		    if(!map.visol(2))
 			map.enol(2, 3);
-			v = true;
-		    } else {
+		    else
 			map.disol(2, 3);
-			v = false;
-		    }
 		}
 	    };
-	    chatb = new MenuButton(new Coord(42, 160), this, "chat", 3, "Chat (Ctrl+C)") {
+	    warb = new MenuButton(new Coord(42, 160), this, "war", -1, "Display waste claims") {
+		public void click() {
+		    if(!map.visol(4))
+			map.enol(4);
+		    else
+			map.disol(4);
+		}
+	    };
+	    chatb = new MenuButton(new Coord(60, 160), this, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {
 		    chat.toggle();
 		}
