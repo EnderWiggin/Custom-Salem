@@ -668,7 +668,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private static final Tex menubgfull = Resource.loadtex("gfx/hud/menubgfull");
     
     public class MainMenu extends Widget {
-	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, chatb;
+	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, warb, chatb;
 
 	boolean full = true;
 	public MenuButton[] tohide = {
@@ -764,13 +764,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		boolean v = false;
 		{hover = down;}
 		public void click() {
-		    if(!v) {
+		    if(!map.visol(0))
 			map.enol(0, 1);
-			v = true;
-		    } else {
+		    else
 			map.disol(0, 1);
-			v = false;
-		    }
 		    toggle();
 		}
 
@@ -787,13 +784,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		boolean v = false;
 		{hover = down;}
 		public void click() {
-		    if(!v) {
+		    if(!map.visol(2))
 			map.enol(2, 3);
-			v = true;
-		    } else {
+		    else
 			map.disol(2, 3);
-			v = false;
-		    }
 		    toggle();
 		}
 		@Override
@@ -805,7 +799,15 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    down = img;
 		}
 	    };
-	    new MenuButton(new Coord(42, y), this, "height", -1, "Display heightmap") {
+	    warb = new MenuButton(new Coord(42, y), this, "war", -1, "Display waste claims") {
+		public void click() {
+		    if(!map.visol(4))
+			map.enol(4);
+		    else
+			map.disol(4);
+		}
+	    };
+	    new MenuButton(new Coord(60, y), this, "height", -1, "Display heightmap") {
 		{
 		    hover = down;
 		    down = Resource.loadimg("gfx/hud/heighthl");
@@ -824,7 +826,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 	    };
-	    chatb = new MenuButton(new Coord(60, y), this, "chat", 3, "Chat (Ctrl+C)") {
+	    chatb = new MenuButton(new Coord(78, y), this, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {
 		    chat.toggle();
 		}
