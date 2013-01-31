@@ -144,7 +144,7 @@ public class Makewindow extends Widget {
 		break find;
 	    }
 	}
-	if(!full){return null;}
+	if(!full){return tres==null?null:tres.layer(Resource.tooltip).t;}
 	if(tres == null)
 	    return(null);
 	if(lasttip != tres) {
