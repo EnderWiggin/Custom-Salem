@@ -49,7 +49,8 @@
 <group name="animals" show="true" shape="diamond" color="#ffff00">
 	<marker pattern="gfx/kritter/rabbit/.+" text="Rabbit" color="#ffffee" />
 	<marker pattern="gfx/kritter/crab/.+" text="Crab" color="#aa9999" />
-	<marker pattern="gfx/kritter/cricket/.+" text="Cricket" color="#aaffaa" />
+	<marker pattern="gfx/kritter/frog/.+" text="Frog" color="#88ffdd" />
+	<marker pattern="gfx/kritter/cricket/.+" text="Cricket" color="#ddff88" />
 	<marker pattern="gfx/kritter/turkey/.+" text="Turkey" color="#8888ff" />
 	<marker pattern="gfx/kritter/deer/.+" text="Deer" color="#e59363" />
 	<marker pattern="gfx/kritter/beaver/.+" text="Beaver" color="#6091ea" />

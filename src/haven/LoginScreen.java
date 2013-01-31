@@ -64,7 +64,7 @@ public class LoginScreen extends Widget {
 	new Img(Coord.z, bg, this);
 	new Img(cboxc, cbox, this);
 	
-	if(Config.isUpdate = true){
+	if(Config.isUpdate == true){
 	    showChangelog();
 	}
     }
