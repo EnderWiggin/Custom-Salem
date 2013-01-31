@@ -205,6 +205,23 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
     
+    public static class MenuButtonT extends MenuButton{
+
+	MenuButtonT(Coord c, Widget parent, String base, int gkey, String tooltip) {
+	    super(c, parent, base, gkey, tooltip);
+	    hover = down;
+	}
+	@Override
+	protected void toggle() {
+	    BufferedImage img = up;
+
+	    up = hover;
+	    hover = img;
+	    down = img;
+	}
+
+    }
+    
     static class Hidewnd extends Window {
 	Hidewnd(Coord c, Coord sz, Widget parent, String cap) {
 	    super(c, sz, parent, cap);
@@ -760,9 +777,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    optb = tohide[5];// clab, towb, chatb;
 	    
 	    int y = sz.y - 21;
-	    clab = new MenuButton(new Coord(6, y), this, "cla", -1, "Display personal claims") {
-		boolean v = false;
-		{hover = down;}
+	    clab = new MenuButtonT(new Coord(6, y), this, "cla", -1, "Display personal claims") {
 		public void click() {
 		    if(!map.visol(0))
 			map.enol(0, 1);
@@ -770,19 +785,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			map.disol(0, 1);
 		    toggle();
 		}
-
-		@Override
-		protected void toggle() {
-		    BufferedImage img = up;
-
-		    up = hover;
-		    hover = img;
-		    down = img;
-		}
 	    };
-	    towb = new MenuButton(new Coord(24, y), this, "tow", -1, "Display town claims") {
-		boolean v = false;
-		{hover = down;}
+	    towb = new MenuButtonT(new Coord(24, y), this, "tow", -1, "Display town claims") {
 		public void click() {
 		    if(!map.visol(2))
 			map.enol(2, 3);
@@ -790,21 +794,14 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			map.disol(2, 3);
 		    toggle();
 		}
-		@Override
-		protected void toggle() {
-		    BufferedImage img = up;
-
-		    up = hover;
-		    hover = img;
-		    down = img;
-		}
 	    };
-	    warb = new MenuButton(new Coord(42, y), this, "war", -1, "Display waste claims") {
+	    warb = new MenuButtonT(new Coord(42, y), this, "war", -1, "Display waste claims") {
 		public void click() {
 		    if(!map.visol(4))
 			map.enol(4);
 		    else
 			map.disol(4);
+		    toggle();
 		}
 	    };
 	    new MenuButton(new Coord(60, y), this, "height", -1, "Display heightmap") {
