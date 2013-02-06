@@ -597,7 +597,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     public class MainMenu extends Widget {
-	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, warb, chatb;
+	public final MenuButton invb, equb, chrb, budb, polb, optb;
+	public final MenuButton clab, towb, warb, ptrb, chatb;
+	public boolean pv = true;
 
 	public MainMenu(Coord c, Widget parent) {
 	    super(c, menubg.sz(), parent);
@@ -703,7 +705,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			map.disol(4);
 		}
 	    };
-	    chatb = new MenuButton(new Coord(60, 160), this, "chat", 3, "Chat (Ctrl+C)") {
+	    ptrb = new MenuButton(new Coord(60, 160), this, "ptr", -1, "Display homstead pointer") {
+		public void click() {
+		    pv = !pv;
+		}
+	    };
+	    chatb = new MenuButton(new Coord(100, 160), this, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {
 		    chat.toggle();
 		}
