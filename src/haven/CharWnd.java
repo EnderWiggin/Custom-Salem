@@ -275,7 +275,7 @@ public class CharWnd extends Window {
 		    public void draw(GOut g) {
 			if(av) {
 			    super.draw(g);
-			    g = g.reclip(new Coord(-4, -4), g.sz.add(8, 8));
+			    g = g.reclipl(new Coord(-4, -4), g.sz.add(8, 8));
 			    double ph = (System.currentTimeMillis() / 1000.0) - (Attr.this.c.y * 0.007);
 			    g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
 			    g.image(pbtn[4], Coord.z);
@@ -395,8 +395,10 @@ public class CharWnd extends Window {
 	attrwdgs.pack();
 	y = attrwdgs.c.y + attrwdgs.sz.y + 15;
 	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
-	new Button(new Coord(190, y), 50, this, "Reset") {
-	    public void click() {
+	new CPButton(new Coord(190, y), 50, this, "Reset") {
+	    {tooltip = RichText.render("Discard all currently accumulated proficiency points, and reset learning ability to 100%.", 250).tex();}
+
+	    public void cpclick() {
 		CharWnd.this.wdgmsg("lreset");
 	    }
 	};
@@ -456,7 +458,7 @@ public class CharWnd extends Window {
 		if((nsk.sel != null) && (nsk.sel.afforded() == 0)) {
 		    double ph = System.currentTimeMillis() / 1000.0;
 		    g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
-		    GOut g2 = g.reclip(new Coord(-4, -4), g.sz.add(8, 8));
+		    GOut g2 = g.reclipl(new Coord(-4, -4), g.sz.add(8, 8));
 		    g2.image(glowmask, Coord.z);
 		}
 	    }
