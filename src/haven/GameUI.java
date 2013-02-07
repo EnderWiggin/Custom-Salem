@@ -685,7 +685,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private static final Tex menubgfull = Resource.loadtex("gfx/hud/menubgfull");
     
     public class MainMenu extends Widget {
-	public final MenuButton invb, equb, chrb, budb, polb, optb, clab, towb, warb, chatb;
+	public final MenuButton invb, equb, chrb, budb, polb, optb;
+	public final MenuButton clab, towb, warb, ptrb, chatb;
+	public boolean pv = true;
 
 	boolean full = true;
 	public MenuButton[] tohide = {
@@ -777,7 +779,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    optb = tohide[5];// clab, towb, chatb;
 	    
 	    int y = sz.y - 21;
-	    clab = new MenuButtonT(new Coord(6, y), this, "cla", -1, "Display personal claims") {
+	    int x = 6;
+	    clab = new MenuButtonT(new Coord(x, y), this, "cla", -1, "Display personal claims") {
 		public void click() {
 		    if(!map.visol(0))
 			map.enol(0, 1);
@@ -786,7 +789,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    toggle();
 		}
 	    };
-	    towb = new MenuButtonT(new Coord(24, y), this, "tow", -1, "Display town claims") {
+	    x+=18;
+	    towb = new MenuButtonT(new Coord(x, y), this, "tow", -1, "Display town claims") {
 		public void click() {
 		    if(!map.visol(2))
 			map.enol(2, 3);
@@ -795,7 +799,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    toggle();
 		}
 	    };
-	    warb = new MenuButtonT(new Coord(42, y), this, "war", -1, "Display waste claims") {
+	    x+=18;
+	    warb = new MenuButtonT(new Coord(x, y), this, "war", -1, "Display waste claims") {
 		public void click() {
 		    if(!map.visol(4))
 			map.enol(4);
@@ -804,7 +809,14 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    toggle();
 		}
 	    };
-	    new MenuButton(new Coord(60, y), this, "height", -1, "Display heightmap") {
+	    x+=18;
+	    ptrb = new MenuButton(new Coord(x, y), this, "ptr", -1, "Display homstead pointer") {
+		public void click() {
+		    pv = !pv;
+		}
+	    };
+	    x+=18;
+	    new MenuButton(new Coord(x, y), this, "height", -1, "Display heightmap") {
 		{
 		    hover = down;
 		    down = Resource.loadimg("gfx/hud/heighthl");
@@ -823,7 +835,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 	    };
-	    chatb = new MenuButton(new Coord(78, y), this, "chat", 3, "Chat (Ctrl+C)") {
+	    x+=18;
+	    chatb = new MenuButton(new Coord(x, y), this, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {
 		    chat.toggle();
 		}
