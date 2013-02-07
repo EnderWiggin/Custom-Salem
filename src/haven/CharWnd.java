@@ -80,6 +80,7 @@ public class CharWnd extends Window {
 	public final Indir<Resource> res;
 	public final String[] costa;
 	public final int[] costv;
+	private int listidx;
 	
 	private Skill(String nm, Indir<Resource> res, String[] costa, int[] costv) {
 	    this.nm = nm;
@@ -193,6 +194,8 @@ public class CharWnd extends Window {
 	    if(loading) {
 		loading = false;
 		Arrays.sort(skills, skcomp);
+		for(int i = 0; i < skills.length; i++)
+		    skills[i].listidx = i;
 	    }
 	}
 
@@ -239,6 +242,7 @@ public class CharWnd extends Window {
 	Resource.loadimg("gfx/hud/skills/plusd"),
 	Resource.loadimg("gfx/hud/skills/plush"),
 	PUtils.monochromize(Resource.loadimg("gfx/hud/skills/plusu"), new Color(192, 192, 192)),
+	PUtils.glowmask(PUtils.glowmask(Resource.loadimg("gfx/hud/skills/plusu").getRaster()), 4, new Color(32, 255, 32)),
     };
     public class Attr extends Widget {
 	public final Coord
@@ -269,10 +273,15 @@ public class CharWnd extends Window {
 	    this.rnm = Text.render(attrnm.get(attr));
 	    this.pb = new IButton(btnc, this, pbtn[0], pbtn[1], pbtn[2]) {
 		    public void draw(GOut g) {
-			if(av)
+			if(av) {
 			    super.draw(g);
-			else
+			    g = g.reclip(new Coord(-4, -4), g.sz.add(8, 8));
+			    double ph = (System.currentTimeMillis() / 1000.0) - (Attr.this.c.y * 0.007);
+			    g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
+			    g.image(pbtn[4], Coord.z);
+			} else {
 			    g.image(pbtn[3], Coord.z);
+			}
 		    }
 
 		    public void click() {
@@ -289,7 +298,7 @@ public class CharWnd extends Window {
 	    g.chcolor(64, 64, 64, 255);
 	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
 	    if(av)
-		g.chcolor(0, 128, 0, 255);
+		g.chcolor(0, (a == 1)?255:128, 0, 255);
 	    else
 		g.chcolor(0, 0, 128, 255);
 	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
@@ -346,7 +355,6 @@ public class CharWnd extends Window {
 	    super.draw(g);
 	}
 	
-	/*
 	private int a = 0;
 	public boolean mousedown(Coord c, int btn) {
 	    if((btn == 1) && c.isect(expc, expsz)) {
@@ -356,7 +364,7 @@ public class CharWnd extends Window {
 		}
 		return(true);
 	    }
-	    return(false);
+	    return(super.mousedown(c, btn));
 	}
 	
 	public boolean mouseup(Coord c, int btn) {
@@ -367,9 +375,8 @@ public class CharWnd extends Window {
 		    buy();
 		return(true);
 	    }
-	    return(false);
+	    return(super.mouseup(c, btn));
 	}
-	*/
 	
 	public void buy() {
 	    CharWnd.this.wdgmsg("sattr", nm);
@@ -409,12 +416,19 @@ public class CharWnd extends Window {
 	this.nsk = new SkillList(new Coord(270, 195), 170, 6, this) {
 		protected void drawitem(GOut g, Skill sk) {
 		    int astate = sk.afforded();
-		    if(astate == 3)
+		    if(astate == 3) {
 			g.chcolor(255, 128, 128, 255);
-		    else if(astate == 2)
+		    } else if(astate == 2) {
 			g.chcolor(255, 192, 128, 255);
-		    else if(astate == 1)
+		    } else if(astate == 1) {
 			g.chcolor(255, 255, 128, 255);
+		    } else if(astate == 0) {
+			if(sk != sel) {
+			    double ph = (System.currentTimeMillis() / 1000.0) - (sk.listidx * 0.15);
+			    int c = (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)) + 127;
+			    g.chcolor(c, 255, c, 255);
+			}
+		    }
 		    super.drawitem(g, sk);
 		    g.chcolor();
 		}
@@ -429,9 +443,21 @@ public class CharWnd extends Window {
 		}
 	    };
 	new Button(new Coord(270, 340), 50, this, "Buy") {
+	    Tex glowmask = new TexI(PUtils.glowmask(PUtils.glowmask(draw().getRaster()), 4, new Color(32, 255, 32)));
+
 	    public void click() {
 		if(nsk.sel != null) {
 		    CharWnd.this.wdgmsg("buy", nsk.sel.nm);
+		}
+	    }
+
+	    public void draw(GOut g) {
+		super.draw(g);
+		if((nsk.sel != null) && (nsk.sel.afforded() == 0)) {
+		    double ph = System.currentTimeMillis() / 1000.0;
+		    g.chcolor(255, 255, 255, (int)(128 * ((Math.cos(ph * Math.PI * 2) * -0.5) + 0.5)));
+		    GOut g2 = g.reclip(new Coord(-4, -4), g.sz.add(8, 8));
+		    g2.image(glowmask, Coord.z);
 		}
 	    }
 	};
