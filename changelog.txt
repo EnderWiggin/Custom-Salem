@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 07.02.13:}}
+  * merged loftar's code
+  * rotated main menu buttons
+ 
 $size[14]{$u{Update for 31.01.13:}}
   * fixed ability to click on ingredients in crafting window
   * fixed changelog appearing on every launch
