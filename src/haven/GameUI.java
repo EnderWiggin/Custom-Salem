@@ -710,7 +710,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(4, 66), this, "equ", 5, "Equipment (Ctrl+E)") {
+		new MenuButton(new Coord(62, 8), this, "equ", 5, "Equipment (Ctrl+E)") {
 		    public void click() {
 			if((equwnd != null) && equwnd.show(!equwnd.visible)) {
 			    equwnd.raise();
@@ -718,7 +718,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(4, 124), this, "chr", 20, "Studying (Ctrl+T)") {
+		new MenuButton(new Coord(120, 8), this, "chr", 20, "Studying (Ctrl+T)") {
 		    public void click() {
 			togglecw();
 		    }
@@ -729,7 +729,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			    flash(false);
 		    }
 		},
-		new MenuButton(new Coord(62, 8), this, "bud", 2, "Buddy List (Ctrl+B)") {
+		new MenuButton(new Coord(4, 66), this, "bud", 2, "Buddy List (Ctrl+B)") {
 		    public void click() {
 			if((buddies != null) && buddies.show(!buddies.visible)) {
 			    buddies.raise();
@@ -756,7 +756,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(62, 124), this, "opt", 15, "Options (Ctrl+O)") {
+		new MenuButton(new Coord(120, 66), this, "opt", 15, "Options (Ctrl+O)") {
 		    public void click() {
 			OptWnd2.toggle();
 //			if(opts.show(!opts.visible)) {
@@ -965,7 +965,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 		public void presize() {
-		    c = new Coord(0, (mainmenu.c.y - sz.y) + (mainmenu.full?0:177));
+		    c = new Coord(0, (mainmenu.c.y - sz.y) + (mainmenu.full?0:119));
 		}
 
 		public Object tooltip(Coord c, Widget prev) {
