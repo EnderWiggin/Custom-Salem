@@ -9,7 +9,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
     static public float minheight = Float.MAX_VALUE;
     static public float maxheight = -minheight;
     
-    private final Label text;
+    private final Label text, area;
     private final MapView mv;
     boolean dm = false;
     Coord sc;
@@ -25,9 +25,10 @@ class FlatnessTool extends Window implements MapView.Grabber {
         super(c, new Coord(150, 50), parent, title);
         this.map = this.ui.sess.glob.map;
         this.text = new Label(Coord.z, this, defaulttext);
+        this.area = new Label(new Coord(0, text.sz.y), this, "");
         this.mv = mv;
         this.mv.enol(MapView.WFOL);
-        btnToggle = new Button(new Coord(0, 20), 75, this, "");
+        btnToggle = new Button(new Coord(0, area.c.add(area.sz).y), 75, this, "");
         //toggle();
         this.pack();
     }
@@ -68,7 +69,8 @@ class FlatnessTool extends Window implements MapView.Grabber {
         minheight = Float.MAX_VALUE;
         maxheight = -minheight;
         float h = 0;
-        long n = c2.sub(c1).abs().add(1,1).mul();
+        Coord sz = c2.sub(c1).abs();
+        long n = sz.add(1,1).mul();
         double mean = 0;
         Coord c = new Coord();
         for (c.x = c1.x; c.x <= c2.x; c.x++) {
@@ -93,8 +95,13 @@ class FlatnessTool extends Window implements MapView.Grabber {
         text += String.format(" Lowest: [%.0f], Highest: [%.0f], Mean: [%.2f].", minheight, maxheight, mean);
 
         settext(text);
+        setarea(sz);
 
         this.pack();
+    }
+
+    private void setarea(Coord sz) {
+	area.settext(String.format("Size: (%d×%d) = %dm²", sz.x, sz.y, sz.mul()));
     }
 
     @Override

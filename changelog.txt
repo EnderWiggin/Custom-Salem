@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 09.02.13:}}
+  * added indication of selected area size to flatness tool
+ 
 $size[14]{$u{Update for 07.02.13:}}
   * merged loftar's code
   * rotated main menu buttons
