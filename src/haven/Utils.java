@@ -829,5 +829,10 @@ public class Utils {
 		    System.gc();
 		}
 	    });
+	Console.setscmd("script", new Console.Command() {
+		public void run(Console cons, String[] args) throws IOException {
+		    haven.test.ScriptDebug.start(args[1], Integer.parseInt(args[2]), true);
+		}
+	    });
     }
 }
