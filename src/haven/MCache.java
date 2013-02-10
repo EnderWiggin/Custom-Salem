@@ -292,6 +292,8 @@ public class MCache {
 			ol = 8;
 		    else
 			ol = 4;
+		} else if(type == 2) {
+		    ol = 16;
 		} else {
 		    throw(new RuntimeException("Unknown plot type " + type));
 		}

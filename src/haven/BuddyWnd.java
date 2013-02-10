@@ -37,9 +37,9 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     private Button sbalpha;
     private Button sbgroup;
     private Button sbstatus;
-    private TextEntry charpass, opass;
+    private CTextEntry nicksel, pname, charpass;
     private Buddy editing = null;
-    private TextEntry nicksel;
+    private TextEntry opass;
     private GroupSelector grpsel;
     private FlowerMenu menu;
     public int serial = 0;
@@ -115,6 +115,10 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	    wdgmsg("inv", id);
 	}
 	
+	public void describe() {
+	    wdgmsg("desc", id);
+	}
+	
 	public void chname(String name) {
 	    wdgmsg("nick", id, name);
 	}
@@ -139,6 +143,44 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     public Buddy find(int id) {
 	synchronized(buddies) {
 	    return(idmap.get(id));
+	}
+    }
+
+    public static class CTextEntry extends TextEntry {
+	public String lastset = "";
+	public boolean ch = false;
+
+	public CTextEntry(Coord c, int w, Widget parent) {
+	    super(c, w, parent, "");
+	}
+
+	public void update(String text) {
+	    settext(lastset = text);
+	    ch = false;
+	}
+
+	protected void changed() {
+	    ch = true;
+	}
+
+	protected void drawbg(GOut g) {
+	    if(ch) {
+		g.chcolor(248, 255, 224, 255);
+		g.frect(Coord.z, sz);
+		g.chcolor();
+	    } else {
+		g.frect(Coord.z, sz);
+	    }
+	}
+
+	public boolean type(char c, java.awt.event.KeyEvent ev) {
+	    if((c == 27) && ch) {
+		settext(lastset);
+		ch = false;
+		return(true);
+	    } else {
+		return(super.type(c, ev));
+	    }
 	}
     }
 
@@ -212,7 +254,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		}
 	    } else {
 		if(editing == null) {
-		    nicksel = new TextEntry(new Coord(6, 165), new Coord(188, 20), BuddyWnd.this, "") {
+		    nicksel = new CTextEntry(new Coord(6, 165), 188, BuddyWnd.this) {
 			    public void activate(String text) {
 				editing.chname(text);
 			    }
@@ -225,7 +267,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		    BuddyWnd.this.setfocus(nicksel);
 		}
 		editing = b;
-		nicksel.settext(b.name);
+		nicksel.update(b.name);
 		nicksel.buf.point = nicksel.buf.line.length();
 		grpsel.group = b.group;
 	    }
@@ -241,6 +283,8 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	    } else {
 		opts.add("Forget");
 	    }
+	    if(b.seen)
+		opts.add("Describe");
 	    if(menu == null) {
 		menu = new FlowerMenu(c, ui.root, opts.toArray(new String[0])) {
 			public void destroy() {
@@ -258,6 +302,8 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 				    b.invite();
 				} else if(opt.name.equals("Forget")) {
 				    b.forget();
+				} else if(opt.name.equals("Describe")) {
+				    b.describe();
 				}
 				uimsg("act", opt.num);
 			    } else {
@@ -278,10 +324,10 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     }
 
     public BuddyWnd(Coord c, Widget parent) {
-	super(c, new Coord(200, 370), parent, "Kin");
+	super(c, new Coord(200, 450), parent, "Kin");
 	bl = new BuddyList(new Coord(6, 5), 180, 7, this);
 	new Label(new Coord(0, 223), this, "Sort by:");
-	sbstatus = new Button(new Coord(50, 220), 48, this, "Status")      { public void click() { setcmp(statuscmp); } };
+	sbstatus = new Button(new Coord(50,  220), 48, this, "Status")      { public void click() { setcmp(statuscmp); } };
 	sbgroup  = new Button(new Coord(100, 220), 48, this, "Group")       { public void click() { setcmp(groupcmp); } };
 	sbalpha  = new Button(new Coord(150, 220), 48, this, "Name")        { public void click() { setcmp(alphacmp); } };
 	String sort = Utils.getpref("buddysort", "");
@@ -292,23 +338,37 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	    if(sort.equals("group"))  bcmp = groupcmp;
 	    if(sort.equals("status")) bcmp = statuscmp;
 	}
-	new Label(new Coord(0, 250), this, "My homestead secret:");
-	charpass = new TextEntry(new Coord(0, 265), new Coord(200, 20), this, "") {
+	new HRuler(new Coord(0, 245), 200, this);
+	new Label(new Coord(0, 250), this, "Presentation name:");
+	pname = new CTextEntry(new Coord(0, 265), 200, this) {
+		public void activate(String text) {
+		    BuddyWnd.this.wdgmsg("pname", text);
+		}
+	    };
+	new Button(new Coord(68, 290), 64, this, "Set") {
+	    public void click() {
+		BuddyWnd.this.wdgmsg("pname", pname.text);
+	    }
+	};
+	new HRuler(new Coord(0, 315), 200, this);
+	new Label(new Coord(0, 320), this, "My homestead secret:");
+	charpass = new CTextEntry(new Coord(0, 335), 200, this) {
 		public void activate(String text) {
 		    BuddyWnd.this.wdgmsg("pwd", text);
 		}
 	    };
-	new Button(new Coord(0  , 290), 64, this, "Set")    { public void click() {sendpwd(charpass.text);} };
-	new Button(new Coord(68 , 290), 64, this, "Clear")  { public void click() {sendpwd("");} };
-	new Button(new Coord(136, 290), 64, this, "Random") { public void click() {sendpwd(randpwd());} };
-	new Label(new Coord(0, 310), this, "Make kin by homestead secret:");
-	opass = new TextEntry(new Coord(0, 325), new Coord(200, 20), this, "") {
+	new Button(new Coord(0  , 360), 64, this, "Set")    { public void click() {sendpwd(charpass.text);} };
+	new Button(new Coord(68 , 360), 64, this, "Clear")  { public void click() {sendpwd("");} };
+	new Button(new Coord(136, 360), 64, this, "Random") { public void click() {sendpwd(randpwd());} };
+	new HRuler(new Coord(0, 385), 200, this);
+	new Label(new Coord(0, 390), this, "Make kin by homestead secret:");
+	opass = new TextEntry(new Coord(0, 405), 200, this, "") {
 		public void activate(String text) {
 		    BuddyWnd.this.wdgmsg("bypwd", text);
 		    settext("");
 		}
 	    };
-	new Button(new Coord(68, 350), 64, this, "Add kin") {
+	new Button(new Coord(68, 430), 64, this, "Add kin") {
 	    public void click() {
 		BuddyWnd.this.wdgmsg("bypwd", opass.text);
 		opass.settext("");
@@ -326,7 +386,6 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     
     private void sendpwd(String pass) {
 	wdgmsg("pwd", pass);
-	charpass.settext(pass);
     }
 
     private void setcmp(Comparator<Buddy> cmp) {
@@ -389,7 +448,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		b.seen = seen;
 	    }
 	    if(b == editing) {
-		nicksel.settext(b.name);
+		nicksel.update(b.name);
 		grpsel.group = b.group;
 	    }
 	    serial++;
@@ -399,7 +458,9 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	    raise();
 	    bl.change(find(id));
 	} else if(msg == "pwd") {
-	    charpass.settext((String)args[0]);
+	    charpass.update((String)args[0]);
+	} else if(msg == "pname") {
+	    pname.update((String)args[0]);
 	} else {
 	    super.uimsg(msg, args);
 	}

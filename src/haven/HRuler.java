@@ -26,33 +26,14 @@
 
 package haven;
 
-import java.awt.image.*;
+public class HRuler extends Widget {
+    public static final Tex ext = Window.fbox.bt;
 
-public abstract class SIWidget extends Widget {
-    private Tex surf = null;
-
-    public SIWidget(Coord c, Coord sz, Widget parent) {
-	super(c, sz, parent);
-    }
-
-    protected abstract void draw(BufferedImage buf);
-
-    public BufferedImage draw() {
-	BufferedImage buf = TexI.mkbuf(sz);
-	draw(buf);
-	return(buf);
+    public HRuler(Coord c, int w, Widget parent) {
+	super(c, new Coord(w, ext.sz().y), parent);
     }
 
     public void draw(GOut g) {
-	if(this.surf == null) {
-	    this.surf = new TexI(draw());
-	}
-	g.image(surf, Coord.z);
-    }
-
-    public void redraw() {
-	if(surf != null)
-	    surf.dispose();
-	surf = null;
+	g.image(ext, Coord.z, sz);
     }
 }
