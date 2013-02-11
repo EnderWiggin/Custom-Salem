@@ -40,7 +40,7 @@ public class CPButton extends Button {
     static {
 	Widget.addtype("cpbtn", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Button(c, (Integer)args[0], parent, (String)args[1]));
+		    return(new CPButton(c, (Integer)args[0], parent, (String)args[1]));
 		}
 	    });
     }
