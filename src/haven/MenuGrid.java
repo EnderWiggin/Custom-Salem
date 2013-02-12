@@ -31,8 +31,12 @@ import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 
+import haven.ItemInfo.Tip;
 import haven.Resource.AButton;
 import haven.Glob.Pagina;
+import haven.ItemInfo.InfoFactory;
+import haven.Resource.Code;
+
 import java.util.*;
 
 import org.ender.wiki.Item;
@@ -229,11 +233,32 @@ public class MenuGrid extends Widget {
 	return null;
     }
     
+    public static BufferedImage getSlots(String name){
+	Item itm = Wiki.get(name);
+	if(itm == null || itm.cloth_slots == 0){return null;}
+	
+	Object[] args = new Object[5 + itm.cloth_profs.length];
+	int i = 0;
+	args[i++] = 0;
+	args[i++] = itm.cloth_slots;
+	args[i++] = itm.cloth_pmin;
+	args[i++] = itm.cloth_pmax;
+	for(String prof : itm.cloth_profs){
+	    args[i++] = CharWnd.attrbyname(prof);
+	}
+	args[i++] = 0;
+	Resource res = Resource.load("ui/tt/slots");
+	if(res == null){return null;}
+	InfoFactory f = res.layer(Resource.CodeEntry.class).get(InfoFactory.class);
+	ItemInfo.Tip tip = (Tip) f.build(null, args);
+	return tip.longtip();
+    }
+    
     public static Tex rendertt(Resource res, boolean withpg, boolean hotkey) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	BufferedImage xp = null, food = null;
+	BufferedImage xp = null, food = null, slots = null;
 	if(hotkey){
 	    int pos = tt.toUpperCase().indexOf(Character.toUpperCase(ad.hk));
 	    if(pos >= 0)
@@ -245,6 +270,7 @@ public class MenuGrid extends Widget {
 	    if(pg != null){tt += "\n\n" + pg.text;}
 	    xp = getXPgain(ad.name);
 	    food = getFood(ad.name);
+	    slots = getSlots(ad.name);
 	}
 	BufferedImage img = ttfnd.render(tt, 300).img;
 	if(xp != null){
@@ -252,6 +278,9 @@ public class MenuGrid extends Widget {
 	}
 	if(food != null){
 	    img = ItemInfo.catimgs(3, img, food);
+	}
+	if(slots != null){
+	    img = ItemInfo.catimgs(3, img, slots);
 	}
 	return(new TexI(img));
     }

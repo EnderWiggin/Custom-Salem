@@ -15,6 +15,10 @@ public class Item {
     public Map<String, Integer> attgive;
     public String content;
     public Map<String, Float[]> food;
+    public int cloth_slots = 0;
+    public int cloth_pmin = 0;
+    public int cloth_pmax = 0;
+    public String[] cloth_profs;
 
     public String toXML(){
 	StringBuilder builder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
@@ -28,10 +32,21 @@ public class Item {
 	if(attgive != null){ xml(builder, attgive, "attgive"); }
 	if(food != null){ xml_food(builder); }
 	if(content != null){xml_content(builder);}
+	cloth_xml(builder);
 	builder.append("\n</item>");
 	return builder.toString();
     }
     
+    private void cloth_xml(StringBuilder builder) {
+	if(cloth_slots == 0){return;}
+	String tag = "cloth";
+	builder.append(String.format("\n  <%s", tag));
+	builder.append(String.format(" slots=\"%d\"",cloth_slots));
+	builder.append(String.format(" difficulty=\"%d to %d\"",100 - cloth_pmin, 100 - cloth_pmax));
+	builder.append(String.format(" profs=\"%s\"",join(", ",cloth_profs).replaceAll("&", "&amp;")));
+	builder.append(String.format(" />"));
+    }
+
     private void xml_content(StringBuilder builder) {
 	String tag = "content";
 	builder.append(String.format("\n  <%s><![CDATA[%s]]></%s>", tag, content, tag));
@@ -93,7 +108,7 @@ public class Item {
 	if(attgive != null){
 	    append(builder, attgive, "Profs gain");
 	}
-
+	
 	return builder.toString();
     }
 
@@ -115,5 +130,27 @@ public class Item {
 	    c = ", ";
 	}
 	builder.append(';');
+    }
+
+    public void setClothing(String difficulty, int slots, String[] profs) {
+	this.cloth_slots = slots;
+	if(slots == 0){return;}
+	String[] ds = difficulty.split(" to ");
+	try{
+	    this.cloth_pmin = 100 - Integer.parseInt(ds[0]);
+	    this.cloth_pmax = 100 - Integer.parseInt(ds[1]);
+	} catch(Exception e){}
+	this.cloth_profs = profs;
+    }
+    
+    String join(String separator, String[] s) {
+      int k=s.length;
+      if (k==0)
+        return null;
+      StringBuilder out=new StringBuilder();
+      out.append(s[0]);
+      for (int x=1;x<k;++x)
+        out.append(separator).append(s[x]);
+      return out.toString();
     }
 }

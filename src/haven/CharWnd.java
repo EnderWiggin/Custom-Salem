@@ -28,6 +28,7 @@ package haven;
 
 import java.awt.Color;
 import java.util.*;
+import java.util.Map.Entry;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -91,6 +92,15 @@ public class CharWnd extends Window {
 	    attrnm = Collections.unmodifiableMap(an);
 	    attrorder = Collections.unmodifiableList(ao);
 	}
+    }
+    
+    public static String attrbyname(String name){
+	for(Entry<String, String> entry : attrnm.entrySet()){
+	    if(entry.getValue().equals(name)){
+		return entry.getKey();
+	    }
+	}
+	return null;
     }
     
     public class Skill {

@@ -261,9 +261,23 @@ public class Wiki {
 		food.put(key,  vals);
 	    }
 	    item.food = food;
+	} else if(method.equals("Artifact")) {
+	} else if(method.equals("Clothing")) {
+	    item_parse_cloth(item, args);
 	} else {
 	    System.out.println(String.format("Item '%s': Unknown method '%s', args: %s",item.name, method, args.toString()));
 	}
+    }
+
+    private static void item_parse_cloth(Item item, Map<String, String> args) {
+	if(args == null){ return; }
+	String difficulty = args.containsKey("Difficulty")?args.get("Difficulty"):args.get("difficulty");
+	int slots = 0;
+	String sslots = args.containsKey("Artificer Slots")?args.get("Artificer Slots"):args.get("slots");
+	try{slots = Integer.parseInt(sslots);}catch(Exception e){}
+	String sprofs = args.containsKey("Proficiency Type")?args.get("Proficiency Type"):args.get("profs");
+	String[] profs = sprofs.split(", ");
+	item.setClothing(difficulty, slots, profs);
     }
 
     private static Map<String, String> getargs(String argsline) {
@@ -380,6 +394,7 @@ public class Wiki {
 	    item.attgive = parse_cache_map(doc, "attgive");
 	    item.food = parse_cache_food(doc, "food");
 	    item.content = parse_cache_content(doc, "content");
+	    item_parse_cloth(item, parse_cache_str_map(doc, "cloth"));
 
 	    return item;
 	} catch (MalformedURLException e) {
@@ -433,6 +448,21 @@ public class Wiki {
 	    Set<String> items = new HashSet<String>(list.getLength());
 	    for(int i=0; i< list.getLength(); i++){
 		items.add(list.item(i).getAttributes().getNamedItem("name").getNodeValue());
+	    }
+	    return items;
+	}
+	return null;
+    }
+    
+    private static Map<String, String> parse_cache_str_map(Document doc, String tag) {
+	NodeList list = doc.getElementsByTagName(tag);
+	if(list.getLength() > 0){
+	    Node item = list.item(0);
+	    Map<String, String> items = new HashMap<String, String>();
+	    NamedNodeMap attrs = item.getAttributes();
+	    for(int i=0; i< attrs.getLength(); i++){
+		Node attr = attrs.item(i);
+		items.put(attr.getNodeName(), attr.getNodeValue());
 	    }
 	    return items;
 	}
