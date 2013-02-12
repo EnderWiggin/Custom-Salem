@@ -19,6 +19,10 @@ public class Item {
     public int cloth_pmin = 0;
     public int cloth_pmax = 0;
     public String[] cloth_profs;
+    public int art_pmin;
+    public int art_pmax;
+    public String[] art_profs;
+    public Map<String, Integer> art_bonuses;
 
     public String toXML(){
 	StringBuilder builder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
@@ -33,10 +37,30 @@ public class Item {
 	if(food != null){ xml_food(builder); }
 	if(content != null){xml_content(builder);}
 	cloth_xml(builder);
+	art_xml(builder);
 	builder.append("\n</item>");
 	return builder.toString();
     }
     
+    private void art_xml(StringBuilder builder) {
+	if(art_profs == null || art_profs.length == 0){return;}
+	String tag = "artifact";
+	builder.append(String.format("\n  <%s", tag));
+	builder.append(String.format(" difficulty=\"%d to %d\"",100 - art_pmin, 100 - art_pmax));
+	builder.append(String.format(" profs=\"%s\"",join(", ", art_profs).replaceAll("&", "&amp;")));
+	
+	String bonuses = "";
+	boolean first = true;
+	for(Entry<String, Integer> entry : art_bonuses.entrySet()){
+	    if(!first){bonuses += ", ";}
+	    bonuses += String.format("%s=%d", entry.getKey(), entry.getValue());
+	    first = false;
+	}
+	builder.append(String.format(" bonuses=\"%s\"", bonuses.replaceAll("&", "&amp;")));
+	
+	builder.append(String.format(" />"));
+    }
+
     private void cloth_xml(StringBuilder builder) {
 	if(cloth_slots == 0){return;}
 	String tag = "cloth";
@@ -143,6 +167,16 @@ public class Item {
 	this.cloth_profs = profs;
     }
     
+    public void setArtifact(String difficulty, String[] profs, Map<String, Integer> bonuses) {
+	String[] ds = difficulty.split(" to ");
+	try{
+	    this.art_pmin = 100 - Integer.parseInt(ds[0]);
+	    this.art_pmax = 100 - Integer.parseInt(ds[1]);
+	} catch(Exception e){}
+	this.art_profs = profs;
+	this.art_bonuses = bonuses;
+    }
+    
     String join(String separator, String[] s) {
       int k=s.length;
       if (k==0)
@@ -153,4 +187,17 @@ public class Item {
         out.append(separator).append(s[x]);
       return out.toString();
     }
+
+    public Object[] getArtBonuses() {
+	if(art_bonuses == null){return new Object[]{0};}
+	Object[] ret = new Object[1 + art_bonuses.size() * 2];
+	int i = 0;
+	ret[i++] = 0;
+	for(Entry<String, Integer> entry : art_bonuses.entrySet()){
+	    ret[i++] = entry.getKey();
+	    ret[i++] = entry.getValue();
+	}
+	return ret;
+    }
+
 }

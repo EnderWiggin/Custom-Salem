@@ -233,6 +233,34 @@ public class MenuGrid extends Widget {
 	return null;
     }
     
+    public static BufferedImage getArtifact(String name){
+	Item itm = Wiki.get(name);
+	if(itm == null || itm.art_profs == null || itm.art_profs.length == 0){return null;}
+	
+	Resource res = Resource.load("ui/tt/slot");
+	if(res == null){return null;}
+	InfoFactory f = res.layer(Resource.CodeEntry.class).get(InfoFactory.class);
+	Session sess = UI.instance.sess;
+	int rid = sess.getresid("ui/tt/dattr");
+	if(rid == 0){return null;}
+	Object[] bonuses = itm.getArtBonuses();
+	bonuses[0] = rid;
+	Object[] args = new Object[4 + itm.art_profs.length];//{0, itm.art_pmin, itm.art_pmax, "arts", "faith", new Object[]{bonuses}};
+	int i=0;
+	args[i++] = 0;
+	args[i++] = itm.art_pmin;
+	args[i++] = itm.art_pmax;
+	for(String prof : itm.art_profs){
+	    args[i++] = CharWnd.attrbyname(prof);
+	}
+	args[i++] = new Object[]{bonuses};
+	ItemInfo.Tip tip = (Tip) f.build(sess, args);
+	List<ItemInfo> list = new LinkedList<ItemInfo>();
+	list.add(tip);
+	
+	return tip.longtip();
+    }
+    
     public static BufferedImage getSlots(String name){
 	Item itm = Wiki.get(name);
 	if(itm == null || itm.cloth_slots == 0){return null;}
@@ -258,7 +286,7 @@ public class MenuGrid extends Widget {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	BufferedImage xp = null, food = null, slots = null;
+	BufferedImage xp = null, food = null, slots = null, art = null;
 	if(hotkey){
 	    int pos = tt.toUpperCase().indexOf(Character.toUpperCase(ad.hk));
 	    if(pos >= 0)
@@ -271,6 +299,7 @@ public class MenuGrid extends Widget {
 	    xp = getXPgain(ad.name);
 	    food = getFood(ad.name);
 	    slots = getSlots(ad.name);
+	    art = getArtifact(ad.name);
 	}
 	BufferedImage img = ttfnd.render(tt, 300).img;
 	if(xp != null){
@@ -281,6 +310,9 @@ public class MenuGrid extends Widget {
 	}
 	if(slots != null){
 	    img = ItemInfo.catimgs(3, img, slots);
+	}
+	if(art != null){
+	    img = ItemInfo.catimgs(3, img, art);
 	}
 	return(new TexI(img));
     }

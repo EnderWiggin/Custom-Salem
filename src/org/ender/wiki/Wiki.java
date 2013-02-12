@@ -262,10 +262,24 @@ public class Wiki {
 	    }
 	    item.food = food;
 	} else if(method.equals("Artifact")) {
+	    String difficulty = null;
+	    String[] profs = null;
+	    Map<String, Integer> bonuses = new HashMap<String, Integer>();
+	    for(Entry<String, String> entry : args.entrySet()){
+		String key = entry.getKey();
+		if(key.equals("Proficiency Type")){
+		    profs = entry.getValue().split(", ");
+		} else if(key.equals("Difficulty")){
+		    difficulty = entry.getValue();
+		} else {
+		    try{bonuses.put(key, Integer.parseInt(entry.getValue()));}catch(Exception e){};
+		}
+	    }
+	    item.setArtifact(difficulty, profs, bonuses);
 	} else if(method.equals("Clothing")) {
 	    item_parse_cloth(item, args);
 	} else {
-	    System.out.println(String.format("Item '%s': Unknown method '%s', args: %s",item.name, method, args.toString()));
+	    //System.out.println(String.format("Item '%s': Unknown method '%s', args: %s",item.name, method, args.toString()));
 	}
     }
 
@@ -395,6 +409,7 @@ public class Wiki {
 	    item.food = parse_cache_food(doc, "food");
 	    item.content = parse_cache_content(doc, "content");
 	    item_parse_cloth(item, parse_cache_str_map(doc, "cloth"));
+	    item_parse_artifact(item, doc);
 
 	    return item;
 	} catch (MalformedURLException e) {
@@ -407,6 +422,26 @@ public class Wiki {
 	    e.printStackTrace();
 	}
 	return null;
+    }
+
+    private static void item_parse_artifact(Item item, Document doc) {
+	String tag = "artifact";
+	NodeList list = doc.getElementsByTagName(tag);
+	if(list.getLength() > 0){
+	    Node node = list.item(0);
+	    NamedNodeMap attributes = node.getAttributes();
+	    
+	    String difficulty = attributes.getNamedItem("difficulty").getNodeValue();
+	    String[] profs = attributes.getNamedItem("profs").getNodeValue().split(", ");
+	    
+	    String[] bonuses = attributes.getNamedItem("bonuses").getNodeValue().split(", ");
+	    Map<String, Integer> art_bonuses = new HashMap<String, Integer>(bonuses.length);
+	    for(String bonus : bonuses){
+		String[] entry = bonus.split("=");
+		try{art_bonuses.put(entry[0], Integer.parseInt(entry[1]));}catch(Exception e){}
+	    }
+	    item.setArtifact(difficulty, profs, art_bonuses);
+	}
     }
 
     private static String parse_cache_content(Document doc, String tag) {

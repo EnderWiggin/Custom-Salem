@@ -26,12 +26,14 @@
 
 package haven;
 
+import haven.ItemInfo.Owner;
+
 import java.net.*;
 import java.util.*;
 import java.io.*;
 import java.lang.ref.*;
 
-public class Session {
+public class Session implements Owner {
     public static final int PVER = 27;
     
     public static final int MSG_SESS = 0;
@@ -171,6 +173,17 @@ public class Session {
 
     public Indir<Resource> getres(int id) {
 	return(cachedres(id).get());
+    }
+    
+    public int getresid(String name){
+	synchronized(rescache) {
+	    for(CachedRes cres : rescache.values()){
+		if(name.equals(cres.resnm)){
+		    return cres.resid;
+		}
+	    }
+	}
+	return 0;
     }
 
     private class ObjAck {
@@ -844,5 +857,15 @@ public class Session {
 	    sk.send(new DatagramPacket(msg, msg.length, server));
 	} catch(IOException e) {
 	}
+    }
+
+    @Override
+    public Glob glob() {
+	return glob;
+    }
+
+    @Override
+    public List<ItemInfo> info() {
+	return null;
     }
 }
