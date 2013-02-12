@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 12.02.13:}}
+  * added displaying of artifact stats and clothing slots information from wiki
+ 
 $size[14]{$u{Update for 09.02.13:}}
   * added indication of selected area size to flatness tool
  
