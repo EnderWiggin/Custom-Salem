@@ -105,17 +105,25 @@ public class ScriptDebug {
 	}
 
 	public void run() {
-	    while(true) {
-		Client cl;
-		try {
-		    cl = new Client(sk.accept());
-		} catch(IOException e) {
-		    break;
+	    try {
+		while(true) {
+		    Client cl;
+		    try {
+			cl = new Client(sk.accept());
+		    } catch(IOException e) {
+			break;
+		    }
+		    cl.setDaemon(true);
+		    cl.start();
+		    if(one)
+			break;
 		}
-		cl.setDaemon(true);
-		cl.start();
-		if(one)
-		    break;
+	    } finally {
+		try {
+		    sk.close();
+		} catch(IOException e) {
+		    throw(new RuntimeException(e));
+		}
 	    }
 	}
     }
