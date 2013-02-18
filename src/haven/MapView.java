@@ -45,6 +45,7 @@ public class MapView extends PView implements DTarget {
     private Plob placing = null;
     private int[] visol = new int[32];
     private Grabber grab;
+    {visol[4] = 1;}
     
     public interface Delayed {
 	public void run(GOut g);
@@ -347,6 +348,10 @@ public class MapView extends PView implements DTarget {
 	for(int ol : overlays)
 	    visol[ol]--;
     }
+
+    public boolean visol(int ol) {
+	return(visol[ol] > 0);
+    }
 	
     private final Rendered map = new Rendered() {
 	    public void draw(GOut g) {}
@@ -381,6 +386,7 @@ public class MapView extends PView implements DTarget {
 		mats[1] = new Material(new Color(0, 0, 255, 32));
 		mats[2] = new Material(new Color(255, 0, 0, 32));
 		mats[3] = new Material(new Color(128, 0, 255, 32));
+		mats[4] = new Material(new Color(0, 0, 0, 64));
 		mats[16] = new Material(new Color(0, 255, 0, 32));
 		mats[17] = new Material(new Color(255, 255, 0, 32));
 	    }
@@ -696,39 +702,36 @@ public class MapView extends PView implements DTarget {
 	g.line(bc, bc.add(Coord.sc(a - Math.PI / 4, -10)), 2);
     }
 
-    private void partydraw(GOut g) {
+    public double screenangle(Coord mc, boolean clip) {
 	Coord3f cc;
-	Projection proj;
-	Matrix4f cam;
 	try {
-	    Gob plgob = player();
-	    if(plgob == null)
-		return;
-	    proj = plgob.save.proj;
-	    cam = plgob.save.cam;
-	    if((proj == null) || (cam == null))
-		return;
-	    cc = plgob.getc();
+	    cc = getcc();
 	} catch(Loading e) {
-	    return;
+	    return(Double.NaN);
 	}
+	Coord3f mloc = new Coord3f(mc.x, -mc.y, cc.z);
+	float[] sloc = camera.proj.toclip(camera.view.fin(Matrix4f.id).mul4(mloc));
+	if(clip) {
+	    float w = sloc[3];
+	    if((sloc[0] > -w) && (sloc[0] < w) && (sloc[1] > -w) && (sloc[1] < w))
+		return(Double.NaN);
+	}
+	float a = ((float)sz.y) / ((float)sz.x);
+	return(Math.atan2(sloc[1] * a, sloc[0]));
+    }
+
+    private void partydraw(GOut g) {
 	for(Party.Member m : ui.sess.glob.party.memb.values()) {
 	    if(m.gobid == this.plgob)
 		continue;
-	    try {
-		Coord mc = m.getc();
-		if(mc == null)
-		    continue;
-		Coord3f ploc = new Coord3f(mc.x, -mc.y, cc.z);
-		Coord3f sloc = proj.tonorm(cam.mul4(ploc));
-		if(sloc.z < -1)
-		    sloc = sloc.inv();
-		if((sloc.x < -1) || (sloc.x > 1) || (sloc.y < -1) || (sloc.y > 1)) {
-		    g.chcolor(m.col);
-		    drawarrow(g, Coord3f.o.xyangle(sloc));
-		}
-	    } catch(Loading e) {
-	    }
+	    Coord mc = m.getc();
+	    if(mc == null)
+		continue;
+	    double a = screenangle(mc, true);
+	    if(a == Double.NaN)
+		continue;
+	    g.chcolor(m.col);
+	    drawarrow(g, a);
 	}
 	g.chcolor();
     }
