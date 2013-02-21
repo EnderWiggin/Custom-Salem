@@ -29,6 +29,7 @@ package haven;
 import java.nio.ShortBuffer;
 
 import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
 
 public class FastMesh implements FRendered {
     public final VertexBuf vert;
@@ -60,7 +61,7 @@ public class FastMesh implements FRendered {
     }
 
     public void sdraw(GOut g) {
-	GL gl = g.gl;
+	GL2 gl = g.gl;
 	VertexBuf.GLArray[] data = new VertexBuf.GLArray[vert.bufs.length];
 	VertexBuf.VertexArray vbuf = null;
 	int n = 0;
@@ -129,7 +130,7 @@ public class FastMesh implements FRendered {
     
     public void draw(GOut g) {
 	g.apply();
-	GL gl = g.gl;
+	GL2 gl = g.gl;
 	if((list != null) && (!g.gc.pref.usedl.val || (list.gl != gl))) {
 	    list.dispose();
 	    list = null;
@@ -139,7 +140,7 @@ public class FastMesh implements FRendered {
 	} else {
 	    if(compile() && g.gc.pref.usedl.val) {
 		list = new DisplayList(gl);
-		gl.glNewList(list.id, GL.GL_COMPILE);
+		gl.glNewList(list.id, GL2.GL_COMPILE);
 		sdraw(g);
 		gl.glEndList();
 		gl.glCallList(list.id);

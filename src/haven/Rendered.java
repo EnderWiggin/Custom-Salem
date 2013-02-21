@@ -81,11 +81,11 @@ public interface Rendered {
 		    /* It would be nice to be able to cache these
 		     * results somewhere. */
 		    Camera ca = sa.get(PView.cam);
-		    Location la = sa.get(PView.loc);
+		    Location.Chain la = sa.get(PView.loc);
 		    Matrix4f mva = ca.fin(Matrix4f.id).mul(la.fin(Matrix4f.id));
 		    float da = (float)Math.sqrt((mva.m[12] * mva.m[12]) + (mva.m[13] * mva.m[13]) + (mva.m[14] * mva.m[14]));
 		    Camera cb = sb.get(PView.cam);
-		    Location lb = sb.get(PView.loc);
+		    Location.Chain lb = sb.get(PView.loc);
 		    Matrix4f mvb = cb.fin(Matrix4f.id).mul(lb.fin(Matrix4f.id));
 		    float db = (float)Math.sqrt((mvb.m[12] * mvb.m[12]) + (mvb.m[13] * mvb.m[13]) + (mvb.m[14] * mvb.m[14]));
 		    if(da < db)
@@ -102,11 +102,11 @@ public interface Rendered {
 
     public static class Dot implements Rendered {
 	public void draw(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 	    g.st.put(Light.lighting, null);
 	    g.state(States.xray);
 	    g.apply();
-	    gl.glBegin(GL.GL_POINTS);
+	    gl.glBegin(GL2.GL_POINTS);
 	    gl.glColor3f(1.0f, 0.0f, 0.0f);
 	    gl.glVertex3f(0.0f, 0.0f, 0.0f);
 	    gl.glEnd();
@@ -129,7 +129,7 @@ public interface Rendered {
 	}
 	
 	public void draw(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 	    g.st.put(Light.lighting, null);
 	    g.state(States.xray);
 	    g.apply();
@@ -163,7 +163,7 @@ public interface Rendered {
 	}
 	
 	public void draw(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 	    g.apply();
 	    gl.glBegin(GL.GL_LINES);
 	    gl.glColor3f(1, 0, 0);
@@ -182,11 +182,11 @@ public interface Rendered {
     
     public static class Cube implements Rendered {
 	public void draw(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 	    g.apply();
 	    
-	    gl.glEnable(GL.GL_COLOR_MATERIAL);
-	    gl.glBegin(GL.GL_QUADS);
+	    gl.glEnable(GL2.GL_COLOR_MATERIAL);
+	    gl.glBegin(GL2.GL_QUADS);
 	    gl.glNormal3f(0.0f, 0.0f, 1.0f);
 	    gl.glColor3f(0.0f, 0.0f, 1.0f);
 	    gl.glVertex3f(-1.0f, 1.0f, 1.0f);
@@ -230,7 +230,7 @@ public interface Rendered {
 	    gl.glVertex3f(-1.0f, -1.0f, -1.0f);
 	    gl.glEnd();
 	    gl.glColor3f(1.0f, 1.0f, 1.0f);
-	    gl.glDisable(GL.GL_COLOR_MATERIAL);
+	    gl.glDisable(GL2.GL_COLOR_MATERIAL);
 	}
 	
 	public boolean setup(RenderList rls) {
@@ -249,12 +249,12 @@ public interface Rendered {
 	}
 
 	public void draw(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 
 	    g.state(Light.deflight);
 	    g.state(sc);
 	    g.apply();
-	    gl.glEnable(GL.GL_COLOR_MATERIAL);
+	    gl.glEnable(GL2.GL_COLOR_MATERIAL);
 	    gl.glBegin(gl.GL_QUADS);
 	    gl.glNormal3f(0.0f, 0.0f, 1.0f);
 	    gl.glVertex3f(bn.x, bp.y, bp.z);
@@ -292,7 +292,7 @@ public interface Rendered {
 	    gl.glVertex3f(bp.x, bn.y, bn.z);
 	    gl.glVertex3f(bn.x, bn.y, bn.z);
 	    gl.glEnd();
-	    gl.glDisable(GL.GL_COLOR_MATERIAL);
+	    gl.glDisable(GL2.GL_COLOR_MATERIAL);
 
 	    g.st.put(Light.lighting, null);
 	    g.state(ec);
@@ -344,12 +344,12 @@ public interface Rendered {
 	}
 	    
 	public void draw(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 	    g.apply();
 		
 	    g.gl.glDisable(GL.GL_DEPTH_TEST);
 	    g.gl.glDepthMask(false);
-	    gl.glBegin(GL.GL_QUADS);
+	    gl.glBegin(GL2.GL_QUADS);
 	    if(tex) gl.glTexCoord2f(0.0f, 0.0f);
 	    gl.glVertex3f(-1.0f, -1.0f, 0.0f);
 	    if(tex) gl.glTexCoord2f(1.0f, 0.0f);

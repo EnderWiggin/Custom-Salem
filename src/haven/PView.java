@@ -35,14 +35,14 @@ public abstract class PView extends Widget {
     public static final GLState.Slot<RenderState> wnd = new GLState.Slot<RenderState>(GLState.Slot.Type.SYS, RenderState.class, HavenPanel.proj2d);
     public static final GLState.Slot<Projection> proj = new GLState.Slot<Projection>(GLState.Slot.Type.SYS, Projection.class, wnd);
     public static final GLState.Slot<Camera> cam = new GLState.Slot<Camera>(GLState.Slot.Type.SYS, Camera.class, proj);
-    public static final GLState.Slot<Location> loc = new GLState.Slot<Location>(GLState.Slot.Type.GEOM, Location.class, cam);
+    public static final GLState.Slot<Location.Chain> loc = new GLState.Slot<Location.Chain>(GLState.Slot.Type.GEOM, Location.Chain.class, cam);
     public Profile prof = new Profile(300);
     protected Light.Model lm;
     private GLState rstate, pstate;
     
     public static abstract class RenderState extends GLState {
 	public void apply(GOut g) {
-	    GL gl = g.gl;
+	    GL2 gl = g.gl;
 	    gl.glScissor(g.ul.x, g.root().sz.y - g.ul.y - g.sz.y, g.sz.x, g.sz.y);
 	    Coord ul = ul();
 	    Coord sz = sz();
@@ -90,7 +90,7 @@ public abstract class PView extends Widget {
 	rstate = new WidgetRenderState();
 	pstate = makeproj();
 	lm = new Light.Model();
-	lm.cc = GL.GL_SEPARATE_SPECULAR_COLOR;
+	lm.cc = GL2.GL_SEPARATE_SPECULAR_COLOR;
     }
     
     protected GLState.Buffer basic(GOut g) {

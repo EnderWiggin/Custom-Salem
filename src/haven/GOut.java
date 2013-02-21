@@ -32,7 +32,7 @@ import javax.media.opengl.*;
 import java.nio.*;
 
 public class GOut {
-    public final GL gl;
+    public final GL2 gl;
     public final GLConfig gc;
     public Coord ul, sz, tx;
     private States.ColState color = new States.ColState(Color.WHITE);
@@ -55,7 +55,7 @@ public class GOut {
 	st.set(def2d);
     }
 
-    public GOut(GL gl, GLContext ctx, GLConfig cfg, GLState.Applier st, GLState.Buffer def2d, Coord sz) {
+    public GOut(GL2 gl, GLContext ctx, GLConfig cfg, GLState.Applier st, GLState.Buffer def2d, Coord sz) {
 	this.gl = gl;
 	this.gc = cfg;
 	this.ul = this.tx = Coord.z;
@@ -231,7 +231,7 @@ public class GOut {
 	st.set(def2d);
 	state(color);
 	apply();
-	gl.glBegin(GL.GL_POLYGON);
+	gl.glBegin(GL2.GL_POLYGON);
 	for(Coord vc : c)
 	    vertex(vc);
 	gl.glEnd();
@@ -242,7 +242,7 @@ public class GOut {
 	st.set(def2d);
 	st.put(States.color, null);
 	apply();
-	gl.glBegin(GL.GL_POLYGON);
+	gl.glBegin(GL2.GL_POLYGON);
 	for(int i = 0; i < c.length; i += 2) {
 	    Coord vc = (Coord)c[i];
 	    Color col = (Color)c[i + 1];
@@ -265,7 +265,7 @@ public class GOut {
 	st.set(def2d);
 	state(color);
 	apply();
-	gl.glBegin(GL.GL_QUADS);
+	gl.glBegin(GL2.GL_QUADS);
 	gl.glVertex2i(ul.x, ul.y);
 	gl.glVertex2i(br.x, ul.y);
 	gl.glVertex2i(br.x, br.y);
@@ -278,7 +278,7 @@ public class GOut {
 	st.set(def2d);
 	state(color);
 	apply();
-	gl.glBegin(GL.GL_QUADS);
+	gl.glBegin(GL2.GL_QUADS);
 	vertex(c1);
 	vertex(c2);
 	vertex(c3);
@@ -320,7 +320,7 @@ public class GOut {
 	st.set(def2d);
 	state(color);
 	apply();
-	gl.glEnable(GL.GL_POLYGON_SMOOTH);
+	gl.glEnable(GL2.GL_POLYGON_SMOOTH);
 	gl.glBegin(GL.GL_TRIANGLE_FAN);
 	vertex(c);
 	vertex(c.add(0, ul.y));
@@ -364,7 +364,7 @@ public class GOut {
 	    vertex(c.x + tc, c.y + ul.y);
 	}
 	gl.glEnd();
-	gl.glDisable(GL.GL_POLYGON_SMOOTH);
+	gl.glDisable(GL2.GL_POLYGON_SMOOTH);
 	checkerr();
     }
 
@@ -414,7 +414,7 @@ public class GOut {
     public Color getpixel(Coord c) {
 	IntBuffer tgt = Utils.mkibuf(4);
 	tgt.rewind();
-	gl.glReadPixels(c.x + tx.x, root.sz.y - c.y - tx.y, 1, 1, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, tgt);
+	gl.glReadPixels(c.x + tx.x, root.sz.y - c.y - tx.y, 1, 1, GL.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8, tgt);
 	checkerr();
 	long rgb = ((long)tgt.get(0)) & 0xffffffffl;
 	int r = (int)((rgb & 0xff000000l) >> 24);
@@ -425,7 +425,7 @@ public class GOut {
     
     public BufferedImage getimage(Coord ul, Coord sz) {
 	ByteBuffer buf = Utils.mkbbuf(sz.x * sz.y * 4);
-	gl.glReadPixels(ul.x + tx.x, root.sz.y - ul.y - sz.y - tx.y, sz.x, sz.y, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, buf);
+	gl.glReadPixels(ul.x + tx.x, root.sz.y - ul.y - sz.y - tx.y, sz.x, sz.y, GL.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8, buf);
 	byte[] copy = new byte[buf.capacity()];
 	int fo = 0, to = (sz.y - 1) * sz.x * 4;
 	for(int y = 0; y < sz.y; y++, to -= sz.x * 4 * 2) {

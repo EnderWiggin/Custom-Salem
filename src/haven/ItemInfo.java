@@ -155,6 +155,8 @@ public abstract class ItemInfo {
 		buf.add(tip.longtip());
 	    }
 	}
+	if(buf.size() < 1)
+	    return(null);
 	return(catimgs(3, buf.toArray(new BufferedImage[0])));
     }
 
@@ -172,7 +174,7 @@ public abstract class ItemInfo {
 	    if(o instanceof Object[]) {
 		Object[] a = (Object[])o;
 		Resource ttres = owner.glob().sess.getres((Integer)a[0]).get();
-		InfoFactory f = ttres.layer(Resource.CodeEntry.class).get(InfoFactory.class);
+		InfoFactory f = ttres.getcode(InfoFactory.class, true);
 		ItemInfo inf = f.build(owner, a);
 		if(inf != null)
 		    ret.add(inf);

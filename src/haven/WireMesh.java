@@ -1,6 +1,7 @@
 package haven;
 
 import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
 
 public class WireMesh extends FastMesh {
 
@@ -14,7 +15,7 @@ public class WireMesh extends FastMesh {
 
     @Override
     public void sdraw(GOut g) {
-	GL gl = g.gl;
+	GL2 gl = g.gl;
 	VertexBuf.VertexArray vbuf = null;
 	for(int i = 0; i < vert.bufs.length; i++) {
 	    if(vert.bufs[i] instanceof VertexBuf.VertexArray)
@@ -34,7 +35,7 @@ public class WireMesh extends FastMesh {
 
     }
 
-    private void vertex(GL gl, int o, VertexBuf.VertexArray vbuf) {
+    private void vertex(GL2 gl, int o, VertexBuf.VertexArray vbuf) {
 	float minv = FlatnessTool.minheight;
 	float delta = FlatnessTool.maxheight - minv;
 	float v = vbuf.data.get(o + 2);
