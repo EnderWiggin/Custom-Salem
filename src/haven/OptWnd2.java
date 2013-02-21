@@ -216,6 +216,21 @@ public class OptWnd2 extends Window {
 		}
 		
 	    }.a = Config.ss_ui;
+	    
+	    new CheckBox(new Coord(0, y += 25), tab, "Arrow home pointer"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.hptr = val;
+		    Utils.setprefb("hptr", val);
+		}
+
+		@Override
+		public Object tooltip(Coord c, boolean again) {
+		    return "Makes home pointer display as green arrow over character head";
+		}
+		
+	    }.a = Config.hptr;
 	}
 
 	

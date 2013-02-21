@@ -47,6 +47,18 @@ public abstract class Transform extends GLState {
 	return(fin);
     }
     
+    public static Matrix4f makescale(Matrix4f d, Coord3f s){
+	d.m[15] = 1.0f;
+	d.m[ 1] = d.m[ 2] = d.m[ 3] =
+	d.m[ 4] = d.m[ 6] = d.m[ 7] =
+	d.m[ 8] = d.m[ 9] = d.m[11] = 
+	d.m[12] = d.m[13] = d.m[14] = 0.0f;
+	d.m[ 0] = s.x;
+	d.m[ 5] = s.y;
+	d.m[10] = s.z;
+	return(d);
+    }
+    
     public static Matrix4f makexlate(Matrix4f d, Coord3f c) {
 	d.m[ 0] = d.m[ 5] = d.m[10] = d.m[15] = 1.0f;
 	d.m[ 1] = d.m[ 2] = d.m[ 3] =

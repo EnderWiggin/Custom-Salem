@@ -83,6 +83,10 @@ public class Location extends Transform {
 	b.put(PView.loc, new Chain(this, p));
     }
     
+    public static Location scale(Coord3f c) {
+	return(new Location(makescale(new Matrix4f(), c)));
+    }
+    
     public static Location xlate(Coord3f c) {
 	return(new Location(makexlate(new Matrix4f(), c)));
     }

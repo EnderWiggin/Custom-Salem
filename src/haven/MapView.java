@@ -381,7 +381,7 @@ public class MapView extends PView implements DTarget {
 	
 	public boolean wheel(Coord c, int amount) {
 	    field += amount * 10;
-	    field = Math.max(Math.min(field, 200), 50);
+	    field = Math.max(Math.min(field, 500), 50);
 	    return(true);
 	}
 

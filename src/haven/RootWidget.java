@@ -70,7 +70,7 @@ public class RootWidget extends ConsoleHost {
     @Override
     public boolean keyup(KeyEvent ev) {
 	if(ev.getKeyCode() == KeyEvent.VK_PRINTSCREEN){
-	    Screenshooter.take(ui.gui, null);
+	    Screenshooter.take(ui.gui, Config.screenurl);
 	    return true;
 	}
 	return super.keyup(ev);

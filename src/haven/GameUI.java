@@ -28,6 +28,7 @@ package haven;
 
 import static haven.Inventory.invsq;
 import static haven.Inventory.isqsz;
+import haven.res.lib.HomeTrackerFX;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
@@ -70,6 +71,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private WItem vhand;
     public ChatUI chat;
     public ChatUI.Channel syslog;
+    private HomeTrackerFX.HTrackWdg hrtptr;
     public int prog = -1;
     private boolean afk = false;
     @SuppressWarnings("unchecked")
@@ -317,6 +319,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	} else if(place == "party") {
 	    return(gettype(type).create(new Coord(2, 80), this, cargs));
 	} else if(place == "misc") {
+	    if(type.contains("ui/hrtptr")){
+		hrtptr = new HomeTrackerFX.HTrackWdg(this, gettype(type).create((Coord)pargs[1], this, cargs));
+		return hrtptr;
+	    }
 	    return(gettype(type).create((Coord)pargs[1], this, cargs));
 	} else {
 	    throw(new UI.UIException("Illegal gameui child", type, pargs));
