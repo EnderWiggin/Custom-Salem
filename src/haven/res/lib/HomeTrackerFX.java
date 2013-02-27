@@ -5,15 +5,16 @@ import haven.Coord;
 import haven.Coord3f;
 import haven.FastMesh;
 import haven.GLState;
+import haven.GOut;
 import haven.Gob;
 import haven.Location;
 import haven.Material;
-import haven.UI;
 import haven.Material.Colors;
 import haven.RenderList;
 import haven.Rendered;
 import haven.Resource;
 import haven.Sprite;
+import haven.UI;
 import haven.Widget;
 
 import java.awt.Color;
@@ -59,11 +60,18 @@ public class HomeTrackerFX extends Sprite {
 	
 	return false;
     }
+    
+    @Override
+    public void dispose() {
+	super.dispose();
+	((Gob)owner).ols.remove(curol);
+    }
 
     public static class HTrackWdg extends Widget{
 	private Widget ptr;
 	private HomeTrackerFX fx;
 	private Gob player;
+	private Coord hc;
 
 	public HTrackWdg(Widget parent, Widget ptr) {
 	    super(Coord.z, Coord.z, parent);
@@ -76,23 +84,30 @@ public class HomeTrackerFX extends Sprite {
 	public void uimsg(String msg, Object... args) {
 	    if(msg.equals("upd")){
 		Coord hc = (Coord) args[0];
-		fx.c = hc;
+		this.hc = hc;
+		if(fx != null){fx.c = hc;}
 	    }
 	    ptr.uimsg(msg, args);
 	}
 
 	@Override
-	public void destroy() {
-	    // TODO Auto-generated method stub
-	    super.destroy();
+	public void draw(GOut g) {
+	    super.draw(g);
+	    
+	    Gob gob = ui.sess.glob.oc.getgob(ui.gui.plid);
+	    if(gob != player){
+		player = gob;
+		if(fx != null){
+		    fx.dispose();
+		    fx = null;
+		}
+		if(player != null){
+		    fx = new HomeTrackerFX(player);
+		    fx.c = hc;
+		}
+	    }
 	}
 
-    }
-
-    @Override
-    public void dispose() {
-	// TODO Auto-generated method stub
-	super.dispose();
     }
 
 }
