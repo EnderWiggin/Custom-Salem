@@ -22,7 +22,7 @@
 		<javac srcdir="src" destdir="build/classes" debug="on"
 	   source="1.6" target="1.6" includeantruntime="no">
 			<classpath>
-				<pathelement path="lib/jogl.jar" />
+				<pathelement path="lib/jogl-all.jar" />
 				<pathelement path="lib/gluegen-rt.jar" />
 				<pathelement path="lib/jnlp.jar" />
 				<pathelement path="lib/jorbis.jar" />
@@ -72,8 +72,7 @@
 			<fileset file="etc/radar.xml"/>
 			<manifest>
 				<attribute name="Main-Class" value="haven.MainFrame" />
-				<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />
-				<attribute name="Library-Path" value="jogl_lib.jar" />
+				<attribute name="Class-Path" value="jogl-all.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />
 			</manifest>
 		</jar>
 		<chmod file="build/salem.jar" perm="a+x" />
@@ -89,7 +88,7 @@
 	<target name="jars" depends="build-env, jar, res-jar">
 		<copy todir="build">
 			<fileset dir="lib">
-				<include name="jogl.jar" />
+				<include name="jogl-all.jar" />
 				<include name="gluegen-rt.jar" />
 				<include name="salem-res.jar" />
 				<include name="builtin-res.jar" />
