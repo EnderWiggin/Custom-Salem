@@ -38,7 +38,7 @@ public class HomeTrackerFX extends Sprite {
     
     @Override
     public boolean setup(RenderList d) {
-	if(!Config.hptr || !UI.instance.gui.mainmenu.pv){
+	if(!Config.hptr || !UI.instance.gui.mainmenu.hpv){
 	    return false;
 	}
 	if(fx == null){

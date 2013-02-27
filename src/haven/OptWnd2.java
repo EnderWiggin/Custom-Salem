@@ -223,6 +223,7 @@ public class OptWnd2 extends Window {
 		    super.changed(val);
 		    Config.hptr = val;
 		    Utils.setprefb("hptr", val);
+		    ui.gui.mainmenu.pv = ui.gui.mainmenu.hpv && !val; 
 		}
 
 		@Override

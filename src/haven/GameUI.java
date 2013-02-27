@@ -693,7 +693,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public class MainMenu extends Widget {
 	public final MenuButton invb, equb, chrb, budb, polb, optb;
 	public final MenuButton clab, towb, warb, ptrb, chatb;
-	public boolean pv = true;
+	public boolean hpv = true, pv = hpv && !Config.hptr;
 
 	boolean full = true;
 	public MenuButton[] tohide = {
@@ -818,7 +818,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    x+=18;
 	    ptrb = new MenuButton(new Coord(x, y), this, "ptr", -1, "Display homstead pointer") {
 		public void click() {
-		    pv = !pv;
+		    hpv = !hpv;
+		    pv = hpv && !Config.hptr;
 		}
 	    };
 	    x+=18;
