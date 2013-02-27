@@ -705,7 +705,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			map.disol(4);
 		}
 	    };
-	    ptrb = new MenuButton(new Coord(60, 160), this, "ptr", -1, "Display homstead pointer") {
+	    ptrb = new MenuButton(new Coord(60, 160), this, "ptr", -1, "Display homestead pointer") {
 		public void click() {
 		    pv = !pv;
 		}
