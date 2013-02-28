@@ -312,6 +312,7 @@ public class OptWnd2 extends Window {
 		    a = val;
 		    Config.fsaa = val;
 		    Config.glcfg.save();
+		    Config.saveOptions();
 		}
 	    };
 	    opt_aa.a = Config.fsaa;//Config.glcfg.fsaa.val;
