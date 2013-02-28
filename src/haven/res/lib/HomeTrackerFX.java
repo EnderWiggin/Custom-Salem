@@ -70,14 +70,12 @@ public class HomeTrackerFX extends Sprite {
     public static class HTrackWdg extends Widget{
 	private Widget ptr;
 	private HomeTrackerFX fx;
-	private Gob player;
+	private Gob player = null;
 	private Coord hc;
 
 	public HTrackWdg(Widget parent, Widget ptr) {
 	    super(Coord.z, Coord.z, parent);
 	    this.ptr = ptr;
-	    player = ui.sess.glob.oc.getgob(ui.gui.plid);
-	    fx = new HomeTrackerFX(player);
 	}
 
 	@Override

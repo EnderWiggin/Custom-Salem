@@ -34,6 +34,7 @@ import java.util.Observable;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
+import java.awt.Color;
 
 import org.ender.timer.Timer;
 
@@ -53,8 +54,13 @@ public class Glob {
     public Map<Resource, Pagina> pmap = new WeakHashMap<Resource, Pagina>();
     public Map<String, CAttr> cattr = new HashMap<String, CAttr>();
     public Map<Integer, Buff> buffs = new TreeMap<Integer, Buff>();
-    public java.awt.Color lightamb = null, lightdif = null, lightspc = null;
+    public Color lightamb = null, lightdif = null, lightspc = null;
+    public Color olightamb = null, olightdif = null, olightspc = null;
+    public Color tlightamb = null, tlightdif = null, tlightspc = null;
     public double lightang = 0.0, lightelev = 0.0;
+    public double olightang = 0.0, olightelev = 0.0;
+    public double tlightang = 0.0, tlightelev = 0.0;
+    public long lchange = -1;
     public Indir<Resource> sky1 = null, sky2 = null;
     public double skyblend = 0.0;
     public java.awt.Color origamb = null;
@@ -109,7 +115,7 @@ public class Glob {
 				if(pag.res() == null)
 				    return(null);
 				if(c == null)
-				    c = new TexI(PUtils.monochromize(pag.res().layer(Resource.imgc).img, java.awt.Color.LIGHT_GRAY));
+				    c = new TexI(PUtils.monochromize(pag.res().layer(Resource.imgc).img, Color.LIGHT_GRAY));
 				return(c);
 			    }
 			});
@@ -148,11 +154,62 @@ public class Glob {
 	}
     }
 	
+    private static Color colstep(Color o, Color t, double a) {
+	int or = o.getRed(), og = o.getGreen(), ob = o.getBlue(), oa = o.getAlpha();
+	int tr = t.getRed(), tg = t.getGreen(), tb = t.getBlue(), ta = t.getAlpha();
+	return(new Color(or + (int)((tr - or) * a),
+			 og + (int)((tg - og) * a),
+			 ob + (int)((tb - ob) * a),
+			 oa + (int)((ta - oa) * a)));
+    }
+
+    private void ticklight(int dt) {
+	if(lchange >= 0) {
+	    lchange += dt;
+	    if(lchange > 2000) {
+		lchange = -1;
+		lightamb = tlightamb;
+		lightdif = tlightdif;
+		lightspc = tlightspc;
+		lightang = tlightang;
+		lightelev = tlightelev;
+	    } else {
+		double a = lchange / 2000.0;
+		lightamb = colstep(olightamb, tlightamb, a);
+		lightdif = colstep(olightdif, tlightdif, a);
+		lightspc = colstep(olightspc, tlightspc, a);
+		lightang = olightang + a * (tlightang - olightang);
+		lightelev = olightelev + a * (tlightelev - olightelev);
+	    }
+	}
+    }
+
+    private long lastctick = 0;
+    public void ctick() {
+	long now = System.currentTimeMillis();
+	int dt;
+	if(lastctick == 0)
+	    dt = 0;
+	else
+	    dt = (int)(now - lastctick);
+	dt = Math.max(dt, 0);
+
+	synchronized(this) {
+	    ticklight(dt);
+	}
+
+	oc.ctick(dt);
+	map.ctick(dt);
+
+	lastctick = now;
+    }
+
     private static double defix(int i) {
 	return(((double)i) / 1e9);
     }
 	
     public void blob(Message msg) {
+	boolean inc = msg.uint8() != 0;
 	while(!msg.eom()) {
 	    int t = msg.uint8();
 	    switch(t) {
@@ -163,11 +220,26 @@ public class Glob {
 		break;
 	    case GMSG_LIGHT:
 		synchronized(this) {
-		    origamb = msg.color();
-		    lightdif = msg.color();
-		    lightspc = msg.color();
-		    lightang = (msg.int32() / 1000000.0) * Math.PI * 2.0;
-		    lightelev = (msg.int32() / 1000000.0) * Math.PI * 2.0;
+		    tlightamb = msg.color();
+		    tlightdif = msg.color();
+		    tlightspc = msg.color();
+		    tlightang = (msg.int32() / 1000000.0) * Math.PI * 2.0;
+		    tlightelev = (msg.int32() / 1000000.0) * Math.PI * 2.0;
+		    if(inc) {
+			olightamb = lightamb;
+			olightdif = lightdif;
+			olightspc = lightspc;
+			olightang = lightang;
+			olightelev = lightelev;
+			lchange = 0;
+		    } else {
+			lightamb = tlightamb;
+			lightdif = tlightdif;
+			lightspc = tlightspc;
+			lightang = tlightang;
+			lightelev = tlightelev;
+			lchange = -1;
+		    }
 		    brighten();
 		}
 		break;
@@ -202,9 +274,9 @@ public class Glob {
     }
 	
     public synchronized void brighten() {
-	float hsb[] = Color.RGBtoHSB(origamb.getRed(), origamb.getGreen(), origamb.getBlue(), null);
-	hsb[2] = 1.0f - (1.0f - hsb[2])/(Config.brighten*Config.maxbright + 1.0f);
-	lightamb = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+//	float hsb[] = Color.RGBtoHSB(origamb.getRed(), origamb.getGreen(), origamb.getBlue(), null);
+//	hsb[2] = 1.0f - (1.0f - hsb[2])/(Config.brighten*Config.maxbright + 1.0f);
+//	lightamb = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
 	DarknessWnd.update();
     }
 
