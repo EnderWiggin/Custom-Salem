@@ -31,7 +31,7 @@ import java.nio.ShortBuffer;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
-public class FastMesh implements FRendered {
+public class FastMesh implements FRendered, Disposable {
     public final VertexBuf vert;
     public final ShortBuffer indb;
     public final int num;
