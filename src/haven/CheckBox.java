@@ -32,15 +32,14 @@ public class CheckBox extends Widget {
     public static final Text.Furnace lblf = new Text.Foundry("Sans", 11);
     public boolean a = false;
     Text lbl;
-	
-    static {
-	Widget.addtype("chk", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new CheckBox(c, parent, (String)args[0]));
-		}
-	    });
+
+    @RName("chk")
+    public static class $_ implements Factory {
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    return(new CheckBox(c, parent, (String)args[0]));
+	}
     }
-	
+
     public CheckBox(Coord c, Widget parent, String lbl) {
 	super(c, box.sz(), parent);
 	this.lbl = lblf.render(lbl);
