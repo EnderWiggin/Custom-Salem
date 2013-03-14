@@ -346,7 +346,7 @@ public class Screenshooter extends Window {
 		    if(Config.ss_slent){
 			s.visible = false;
 			s.save();
-			s.wdgmsg(s, "close", null);
+			s.wdgmsg(s, "close", (Object[])null);
 		    }
 		}
 	    }

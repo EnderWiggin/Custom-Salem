@@ -55,17 +55,6 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     public static Class<Tooltip> tooltip = Tooltip.class;
     
     static {
-	addltype("vbuf", VertexBuf.VertexRes.class);
-	addltype("mesh", FastMesh.MeshRes.class);
-	addltype("mat", Material.Res.class);
-	addltype("skel", Skeleton.Res.class);
-	addltype("skan", Skeleton.ResPose.class);
-	addltype("boneoff", Skeleton.BoneOffset.class);
-	addltype("light", Light.Res.class);
-	addltype("rlink", RenderLink.Res.class);
-    }
-
-    static {
 	if(Config.softres)
 	    cache = new CacheMap<String, Resource>();
 	else
@@ -559,10 +548,37 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	addltype(name, new LayerConstructor<T>(cl));
     }
     
+    @dolda.jglob.Discoverable
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface LayerName {
+	public String value();
+    }
+
+    static {
+	for(Class<?> cl : dolda.jglob.Loader.get(LayerName.class).classes()) {
+	    String nm = cl.getAnnotation(LayerName.class).value();
+	    if(LayerFactory.class.isAssignableFrom(cl)) {
+		try {
+		    addltype(nm, cl.asSubclass(LayerFactory.class).newInstance());
+		} catch(InstantiationException e) {
+		    throw(new Error(e));
+		} catch(IllegalAccessException e) {
+		    throw(new Error(e));
+		}
+	    } else if(Layer.class.isAssignableFrom(cl)) {
+		addltype(nm, cl.asSubclass(Layer.class));
+	    } else {
+		throw(new Error("Illegal resource layer class: " + cl));
+	    }
+	}
+    }
+
     public interface IDLayer<T> {
 	public T layerid();
     }
-	
+
+    @LayerName("image")
     public class Image extends Layer implements Comparable<Image>, IDLayer<Integer> {
 	public transient BufferedImage img;
 	transient private Tex tex;
@@ -627,8 +643,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		
 	public void init() {}
     }
-    static {addltype("image", Image.class);}
-        
+
+    @LayerName("tooltip")
     public class Tooltip extends Layer {
 	public final String t;
                 
@@ -642,8 +658,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
                 
 	public void init() {}
     }
-    static {addltype("tooltip", Tooltip.class);}
-	
+
+    @LayerName("tile")
     public class Tile extends Layer {
 	transient BufferedImage img;
 	transient private Tex tex;
@@ -672,8 +688,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		
 	public void init() {}
     }
-    static {addltype("tile", Tile.class);}
-	
+
+    @LayerName("neg")
     public class Neg extends Layer {
 	public Coord cc;
 	public Coord[][] ep;
@@ -699,8 +715,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		
 	public void init() {}
     }
-    static {addltype("neg", Neg.class);}
-	
+
+    @LayerName("anim")
     public class Anim extends Layer {
 	private int[] ids;
 	public int id, d;
@@ -729,8 +745,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    }
 	}
     }
-    static {addltype("anim", Anim.class);}
-	
+
+    @LayerName("tileset")
     public class Tileset extends Layer {
 	private int fl;
 	private String[] fln;
@@ -878,8 +894,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    packtiles(tiles, tsz);
 	}
     }
-    static {addltype("tileset", Tileset.class);}
-	
+
+    @LayerName("pagina")
     public class Pagina extends Layer {
 	public final String text;
 		
@@ -893,8 +909,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		
 	public void init() {}
     }
-    static {addltype("pagina", Pagina.class);}
-	
+
+    @LayerName("action")
     public class AButton extends Layer {
 	public final String name;
 	public final Resource parent;
@@ -928,7 +944,6 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		
 	public void init() {}
     }
-    static {addltype("action", AButton.class);}
     
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
@@ -940,6 +955,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	}
     }
 
+    @LayerName("code")
     public class Code extends Layer {
 	public final String name;
 	transient public final byte[] data;
@@ -954,8 +970,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		
 	public void init() {}
     }
-    static {addltype("code", Code.class);}
-	
+
     public class ResClassLoader extends ClassLoader {
 	public ResClassLoader(ClassLoader parent) {
 	    super(parent);
@@ -1009,6 +1024,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	}
     }
 
+    @LayerName("codeentry")
     public class CodeEntry extends Layer {
 	private String clnm;
 	private Map<String, Code> clmap = new TreeMap<String, Code>();
@@ -1146,8 +1162,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    return(get(cl, true));
 	}
     }
-    static {addltype("codeentry", CodeEntry.class);}
 
+    @LayerName("audio")
     public class Audio extends Layer implements IDLayer<String> {
 	transient public byte[] coded;
 	public final String id;
@@ -1176,30 +1192,30 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    return(id);
 	}
     }
-    static {
-	addltype("audio", Audio.class);
-	addltype("audio2", new LayerFactory<Audio>() {
-		public Audio cons(Resource res, byte[] buf) {
-		    int[] off = {0};
-		    int ver = buf[off[0]++];
-		    if((ver == 1) || (ver == 2)) {
-			String id = Utils.strd(buf, off);
-			double bvol = 1.0;
-			if(ver == 2) {
-			    bvol = Utils.uint16d(buf, off[0]) / 1000.0; off[0] += 2;
-			}
-			byte[] data = new byte[buf.length - off[0]];
-			System.arraycopy(buf, off[0], data, 0, buf.length - off[0]);
-			Audio ret = res.new Audio(data, id);
-			ret.bvol = bvol;
-			return(ret);
-		    } else {
-			throw(new LoadException("Unknown audio layer version: " + ver, res));
-		    }
+
+    @LayerName("audio2")
+    public static class Audio2 implements LayerFactory<Audio> {
+	public Audio cons(Resource res, byte[] buf) {
+	    int[] off = {0};
+	    int ver = buf[off[0]++];
+	    if((ver == 1) || (ver == 2)) {
+		String id = Utils.strd(buf, off);
+		double bvol = 1.0;
+		if(ver == 2) {
+		    bvol = Utils.uint16d(buf, off[0]) / 1000.0; off[0] += 2;
 		}
-	    });
+		byte[] data = new byte[buf.length - off[0]];
+		System.arraycopy(buf, off[0], data, 0, buf.length - off[0]);
+		Audio ret = res.new Audio(data, id);
+		ret.bvol = bvol;
+		return(ret);
+	    } else {
+		throw(new LoadException("Unknown audio layer version: " + ver, res));
+	    }
+	}
     }
-	
+
+    @LayerName("midi")
     public class Music extends Resource.Layer {
 	transient javax.sound.midi.Sequence seq;
 	
@@ -1215,8 +1231,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	
 	public void init() {}
     }
-    static {addltype("midi", Music.class);}
 
+    @LayerName("font")
     public class Font extends Layer {
 	public transient final java.awt.Font font;
 
@@ -1241,7 +1257,6 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 
 	public void init() {}
     }
-    static {addltype("font", Font.class);}
 
     private void readall(InputStream in, byte[] buf) throws IOException {
 	int ret, off = 0;

@@ -44,12 +44,11 @@ public class Partyview extends Widget {
     Map<Member, FramedAva> avs = new HashMap<Member, FramedAva>();
     IButton leave = null;
 	
-    static {
-	Widget.addtype("pv", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Partyview(c, parent, (Integer)args[0]));
-		}
-	    });
+    @RName("pv")
+    public static class $_ implements Factory {
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    return(new Partyview(c, parent, (Integer)args[0]));
+	}
     }
 	
     Partyview(Coord c, Widget parent, long ign) {

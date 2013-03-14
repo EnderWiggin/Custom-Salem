@@ -43,12 +43,11 @@ public class Textlog extends Widget {
     public int maxLines = 150;
     public RichText.Foundry fnd = deffnd;
 	
-    static {
-	Widget.addtype("log", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Textlog(c, (Coord)args[0], parent));
-		}
-	    });
+    @RName("log")
+    public static class $_ implements Factory {
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    return(new Textlog(c, (Coord)args[0], parent));
+	}
     }
 	
     public void draw(GOut g) {

@@ -46,6 +46,13 @@ licensing details are as follows:
       Sun Microsystems. If anyone can find a replacement for them, I'd
       accept it at any time.
 
+    - lib/jglob.jar
+      This is a simple annotation processor for collecting various
+      type lists in the source code. It was written by me, Fredrik
+      Tolf, and can be considered to be in the public domain. Source
+      code can be had at
+      <http://www.dolda2000.com/gitweb/?p=jglob.git>.
+
     - lib/salem-res.jar
       This file is not actually distributed with this source tree, but
       is downloaded from the Salem web server as part of the default

@@ -60,38 +60,38 @@ public class CharWnd extends Window {
     public static final Color GAIN_ENOUGH = new Color(0xA09740);
     public static final Color GAIN_SMALL = new Color(0xA36751);
     
-    static {
-	Widget.addtype("chr", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new CharWnd(c, parent));
-		}
-	    });
-	{
-	    final List<String> ao = new ArrayList<String>();
-	    Map<String, String> an = new HashMap<String, String>() {
-		public String put(String k, String v) {
-		    ao.add(k);
-		    return(super.put(k, v));
-		}
-	    };
-	    an.put("arts", "Arts & Crafts");
-	    an.put("cloak", "Cloak & Dagger");
-	    an.put("faith", "Faith & Wisdom");
-	    an.put("wild", "Frontier & Wilderness");
-	    an.put("nail", "Hammer & Nail");
-	    an.put("hung", "Hunting & Gathering");
-	    an.put("law", "Law & Lore");
-	    an.put("mine", "Mines & Mountains");
-	    an.put("pots", "Pots & Pans");
-	    an.put("fire", "Sparks & Embers");
-	    an.put("stock", "Stocks & Cultivars");
-	    an.put("spice", "Sugar & Spice");
-	    an.put("thread", "Thread & Needle");
-	    an.put("natp", "Natural Philosophy");
-	    an.put("perp", "Perennial Philosophy");
-	    attrnm = Collections.unmodifiableMap(an);
-	    attrorder = Collections.unmodifiableList(ao);
+    @RName("chr")
+    public static class $_ implements Factory {
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    return(new CharWnd(c, parent));
 	}
+    }
+
+    static {
+	final List<String> ao = new ArrayList<String>();
+	Map<String, String> an = new HashMap<String, String>() {
+	    public String put(String k, String v) {
+		ao.add(k);
+		return(super.put(k, v));
+	    }
+	};
+	an.put("arts", "Arts & Crafts");
+	an.put("cloak", "Cloak & Dagger");
+	an.put("faith", "Faith & Wisdom");
+	an.put("wild", "Frontier & Wilderness");
+	an.put("nail", "Hammer & Nail");
+	an.put("hung", "Hunting & Gathering");
+	an.put("law", "Law & Lore");
+	an.put("mine", "Mines & Mountains");
+	an.put("pots", "Pots & Pans");
+	an.put("fire", "Sparks & Embers");
+	an.put("stock", "Stocks & Cultivars");
+	an.put("spice", "Sugar & Spice");
+	an.put("thread", "Thread & Needle");
+	an.put("natp", "Natural Philosophy");
+	an.put("perp", "Perennial Philosophy");
+	attrnm = Collections.unmodifiableMap(an);
+	attrorder = Collections.unmodifiableList(ao);
     }
     
     public static String attrbyname(String name){

@@ -83,17 +83,16 @@ public class Equipory extends Widget implements DTarget {
     WItem[] slots = new WItem[ecoords.length];
     Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
 	
-    static {
-	Widget.addtype("epry", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    long gobid;
-		    if(args.length < 1)
-			gobid = parent.getparent(GameUI.class).plid;
-		    else
-			gobid = (Integer)args[0];
-		    return(new Equipory(c, parent, gobid));
-		}
-	    });
+    @RName("epry")
+    public static class $_ implements Factory {
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    long gobid;
+	    if(args.length < 1)
+		gobid = parent.getparent(GameUI.class).plid;
+	    else
+		gobid = (Integer)args[0];
+	    return(new Equipory(c, parent, gobid));
+	}
     }
 
     private class Boxen extends Widget {

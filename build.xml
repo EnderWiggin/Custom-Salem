@@ -11,7 +11,7 @@
 
 	<target name="buildinfo" depends="build-env">
 		<tstamp>
-			<format property="gitrev" pattern="dd.MM.yyyy HH:mm"/>
+			<format property="gitrev" pattern="dd.MM.yyyy HH:mm" />
 		</tstamp>
 		<echo file="build/classes/buildinfo" xml:space="default">
       git-rev = ${gitrev}
@@ -19,14 +19,14 @@
 	</target>
 
 	<target name="salem-client" depends="build-env">
-		<javac srcdir="src" destdir="build/classes" debug="on"
-	   source="1.6" target="1.6" includeantruntime="no">
+		<javac srcdir="src" destdir="build/classes" debug="on" source="1.5" target="1.5" includeantruntime="no">
 			<classpath>
 				<pathelement path="lib/jogl-all.jar" />
 				<pathelement path="lib/gluegen-rt.jar" />
 				<pathelement path="lib/jnlp.jar" />
 				<pathelement path="lib/jorbis.jar" />
 				<pathelement path="lib/jogg.jar" />
+				<pathelement path="lib/jglob.jar" />
 			</classpath>
 			<compilerarg value="-Xlint:unchecked" />
 			<!-- <compilerarg value="-Xbarda" /> -->
@@ -53,6 +53,9 @@
 		<unjar src="lib/jorbis.jar" dest="build/classes-lib">
 			<patternset excludes="META-INF/**" />
 		</unjar>
+		<unjar src="lib/jglob.jar" dest="build/classes-lib">
+			<patternset excludes="META-INF/**" />
+		</unjar>
 	</target>
 
 	<target name="resources">
@@ -68,8 +71,8 @@
 		<jar destfile="build/salem.jar" update="true">
 			<fileset dir="build/classes" />
 			<fileset dir="build/classes-lib" />
-			<fileset file="changelog.txt"/>
-			<fileset file="etc/radar.xml"/>
+			<fileset file="changelog.txt" />
+			<fileset file="etc/radar.xml" />
 			<manifest>
 				<attribute name="Main-Class" value="haven.MainFrame" />
 				<attribute name="Class-Path" value="jogl-all.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />
@@ -79,10 +82,8 @@
 	</target>
 
 	<target name="res-jar" depends="build-env" unless="has-res-jar">
-		<get src="http://plymouth.seatribe.se/java/salem-res.jar" dest="lib/salem-res.jar"
-	 usetimestamp="true" />
-		<get src="http://plymouth.seatribe.se/java/builtin-res.jar" dest="lib/builtin-res.jar"
-	 usetimestamp="true" />
+		<get src="http://plymouth.seatribe.se/java/salem-res.jar" dest="lib/salem-res.jar" usetimestamp="true" />
+		<get src="http://plymouth.seatribe.se/java/builtin-res.jar" dest="lib/builtin-res.jar" usetimestamp="true" />
 	</target>
 
 	<target name="jars" depends="build-env, jar, res-jar">

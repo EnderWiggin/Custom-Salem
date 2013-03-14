@@ -34,12 +34,11 @@ public class FramedAva extends Widget {
     public Color color = new Color(133, 92, 62);
     public final Avaview view;
 
-    static {
-	Widget.addtype("av", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Avaview(c, Avaview.dasz, parent, (Integer)args[0], "avacam"));
-		}
-	    });
+    @RName("av")
+    public static class $_ implements Factory {
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    return(new Avaview(c, Avaview.dasz, parent, (Integer)args[0], "avacam"));
+	}
     }
 
     public FramedAva(Coord c, Coord sz, Widget parent, long avagob, String camnm) {

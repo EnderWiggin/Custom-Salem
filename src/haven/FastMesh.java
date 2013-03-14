@@ -193,6 +193,7 @@ public class FastMesh implements FRendered, Disposable {
 	}
     }
 
+    @Resource.LayerName("mesh")
     public static class MeshRes extends Resource.Layer implements Resource.IDLayer<Integer> {
 	public transient FastMesh m;
 	public transient Material.Res mat;
