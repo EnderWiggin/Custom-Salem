@@ -37,7 +37,7 @@ public class CPButton extends Button {
     public boolean s = false;
     private long fst;
 
-    @RName("bpbtn")
+    @RName("cpbtn")
     public static class $_ implements Factory {
 	public Widget create(Coord c, Widget parent, Object[] args) {
 	    return(new CPButton(c, (Integer)args[0], parent, (String)args[1]));
