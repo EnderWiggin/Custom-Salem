@@ -38,6 +38,7 @@ public class Config {
     public static URL mapurl = geturl("haven.mapurl", "");
     public static URL screenurl = geturl("haven.screenurl", "");
     public static URL storeurl = geturl("haven.storeurl", "http://services.paradoxplaza.com/adam/storelette/salem");
+    public static URL regurl = geturl("haven.regurl", "");
     public static boolean dbtext = getprop("haven.dbtext", "off").equals("on");
     public static boolean bounddb = getprop("haven.bounddb", "off").equals("on");
     public static boolean profile = getprop("haven.profile", "off").equals("on");
