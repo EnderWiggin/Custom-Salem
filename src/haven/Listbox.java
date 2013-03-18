@@ -29,23 +29,17 @@ package haven;
 import java.awt.Color;
 import static haven.Window.fbox;
 
-public abstract class Listbox<T> extends Widget {
-    public final int h, itemh;
+public abstract class Listbox<T> extends ListWidget<T> {
+    public final int h;
     public final Scrollbar sb;
     public final Color sell = new Color(52, 35, 36);
     public final Color selr = new Color(178, 93, 91);
-    public T sel;
 
     public Listbox(Coord c, Widget parent, int w, int h, int itemh) {
-	super(c, new Coord(w, h * itemh).add(fbox.bisz()), parent);
+	super(c, new Coord(w, h * itemh).add(fbox.bisz()), parent, itemh);
 	this.h = h;
-	this.itemh = itemh;
 	this.sb = new Scrollbar(new Coord(sz.x - fbox.br.sz().x, fbox.bt.sz().y), sz.y - fbox.bt.sz().y - fbox.bb.sz().y, this, 0, 0);
     }
-
-    protected abstract T listitem(int i);
-    protected abstract int listitems();
-    protected abstract void drawitem(GOut g, T item);
 
     protected void drawsel(GOut g) {
 	g.chcolor(255, 255, 0, 128);
@@ -69,7 +63,8 @@ public abstract class Listbox<T> extends Widget {
 	    if(idx >= n)
 		break;
 	    T item = listitem(idx);
-	    GOut ig = g.reclip(off.add(0, i * itemh), new Coord(sz.x, itemh).sub(fbox.bl.sz().x + fbox.br.sz().x + sb.sz.x, 0));
+	    int w = sz.x - fbox.bl.sz().x - fbox.br.sz().x - (sb.vis()?sb.sz.x:0);
+	    GOut ig = g.reclip(off.add(0, i * itemh), new Coord(w, itemh));
 	    if(item == sel)
 		drawsel(ig);
 	    drawitem(ig, item);
@@ -80,10 +75,6 @@ public abstract class Listbox<T> extends Widget {
     public boolean mousewheel(Coord c, int amount) {
 	sb.ch(amount);
 	return(true);
-    }
-
-    public void change(T item) {
-	this.sel = item;
     }
 
     protected void itemclick(T item, int button) {
