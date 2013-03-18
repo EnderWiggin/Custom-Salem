@@ -27,6 +27,7 @@
 package haven;
 
 import java.awt.Color;
+import static haven.Window.fbox;
 
 public abstract class Dropbox<T> extends ListWidget<T> {
     public static final Tex drop = Resource.loadtex("gfx/hud/drop");
@@ -35,14 +36,14 @@ public abstract class Dropbox<T> extends ListWidget<T> {
     private Droplist dl;
 
     public Dropbox(Coord c, Widget parent, int w, int listh, int itemh) {
-	super(c, new Coord(w, itemh), parent, itemh);
+	super(c, new Coord(w, itemh).add(fbox.bisz()), parent, itemh);
 	this.listh = listh;
-	dropc = new Coord(sz.x - drop.sz().x, 0);
+	dropc = new Coord(sz.x - fbox.bl.sz().x - drop.sz().x, fbox.bt.sz().y);
     }
 
     private class Droplist extends Listbox<T> {
 	private Droplist() {
-	    super(Dropbox.this.rootpos().add(0, Dropbox.this.sz.y), Dropbox.this.ui.root, Dropbox.this.sz.x, Math.min(listh, Dropbox.this.listitems()), Dropbox.this.itemh);
+	    super(Dropbox.this.rootpos().add(0, Dropbox.this.sz.y), Dropbox.this.ui.root, Dropbox.this.sz.x - fbox.bisz().x, Math.min(listh, Dropbox.this.listitems()), Dropbox.this.itemh);
 	    ui.grabmouse(this);
 	    sel = Dropbox.this.sel;
 	}
@@ -75,8 +76,10 @@ public abstract class Dropbox<T> extends ListWidget<T> {
 	g.chcolor(Color.BLACK);
 	g.frect(Coord.z, sz);
 	g.chcolor();
+	fbox.draw(g, Coord.z, sz);
+	Coord off = fbox.btloff();
 	if(sel != null)
-	    drawitem(g.reclip(Coord.z, new Coord(sz.x - drop.sz().x, itemh)), sel);
+	    drawitem(g.reclip(off, new Coord(sz.x - drop.sz().x, itemh).sub(fbox.bisz())), sel);
 	g.image(drop, dropc);
 	super.draw(g);
     }
