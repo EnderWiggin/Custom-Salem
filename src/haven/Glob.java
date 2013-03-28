@@ -168,19 +168,20 @@ public class Glob {
 	    lchange += dt;
 	    if(lchange > 2000) {
 		lchange = -1;
-		lightamb = tlightamb;
+		origamb = tlightamb;
 		lightdif = tlightdif;
 		lightspc = tlightspc;
 		lightang = tlightang;
 		lightelev = tlightelev;
 	    } else {
 		double a = lchange / 2000.0;
-		lightamb = colstep(olightamb, tlightamb, a);
+		origamb = colstep(olightamb, tlightamb, a);
 		lightdif = colstep(olightdif, tlightdif, a);
 		lightspc = colstep(olightspc, tlightspc, a);
 		lightang = olightang + a * (tlightang - olightang);
 		lightelev = olightelev + a * (tlightelev - olightelev);
 	    }
+	    brighten();
 	}
     }
 
@@ -226,14 +227,14 @@ public class Glob {
 		    tlightang = (msg.int32() / 1000000.0) * Math.PI * 2.0;
 		    tlightelev = (msg.int32() / 1000000.0) * Math.PI * 2.0;
 		    if(inc) {
-			olightamb = lightamb;
+			olightamb = origamb;
 			olightdif = lightdif;
 			olightspc = lightspc;
 			olightang = lightang;
 			olightelev = lightelev;
 			lchange = 0;
 		    } else {
-			lightamb = tlightamb;
+			origamb = tlightamb;
 			lightdif = tlightdif;
 			lightspc = tlightspc;
 			lightang = tlightang;
@@ -274,9 +275,9 @@ public class Glob {
     }
 	
     public synchronized void brighten() {
-//	float hsb[] = Color.RGBtoHSB(origamb.getRed(), origamb.getGreen(), origamb.getBlue(), null);
-//	hsb[2] = 1.0f - (1.0f - hsb[2])/(Config.brighten*Config.maxbright + 1.0f);
-//	lightamb = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+	float hsb[] = Color.RGBtoHSB(origamb.getRed(), origamb.getGreen(), origamb.getBlue(), null);
+	hsb[2] = 1.0f - (1.0f - hsb[2])/(Config.brighten*Config.maxbright + 1.0f);
+	lightamb = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
 	DarknessWnd.update();
     }
 

@@ -31,11 +31,11 @@ public class DarknessWnd extends Window {
     public static void update() {
 	if(instance == null){return;}
 	Glob g = instance.ui.sess.glob;
-	float b = Color.RGBtoHSB(g.lightamb.getRed(),g.lightamb.getGreen(),g.lightamb.getBlue(), null)[2]*100;
-	instance.lbl.settext(String.format("Angle: %.2f°, Elevation: %.2f°, color: (%d, %d, %d), b: %.2f",
+	float b = Color.RGBtoHSB(g.origamb.getRed(),g.origamb.getGreen(),g.origamb.getBlue(), null)[2]*100;
+	instance.lbl.settext(String.format("Angle: %.2fÂ°, Elevation: %.2fÂ°, color: (%d, %d, %d), b: %.2f",
 				180*g.lightang/Math.PI,
 				180*g.lightelev/Math.PI,
-				g.lightamb.getRed(),g.lightamb.getGreen(),g.lightamb.getBlue(), b));
+				g.origamb.getRed(),g.origamb.getGreen(),g.origamb.getBlue(), b));
 	instance.pack();
     }
 
