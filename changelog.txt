@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 28.03.13:}}
+  * fixed brightness slider
+  * disabled profiling - no windows will pop-up after pressing ~ key.
+ 
 $size[14]{$u{Update for 27.02.13:}}
   * added displaying of home pointer as green arrow over character head. Can be toggled in Options
   * hopefully fixed camera distortions
