@@ -128,6 +128,7 @@ public class Screenshooter extends Window {
 		if(info.light != null)
 		    cmt(tlist, "haven.light", info.light.name());
 		cmt(tlist, "haven.fsaa", info.fsaa?"y":"n");
+		cmt(tlist, "haven.conf", Config.confid);
 		root.appendChild(tlist);
 		dat.setFromTree("javax_imageio_1.0", root);
 		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
