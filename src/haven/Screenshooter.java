@@ -89,6 +89,7 @@ public class Screenshooter extends Window {
 	public final TexI map, ui;
 	public final Coord sz;
 	public String comment;
+	public GLSettings.Lights light;
 
 	public Shot(TexI map, TexI ui) {
 	    this.map = map;
@@ -105,23 +106,28 @@ public class Screenshooter extends Window {
     public static final ImageFormat png = new ImageFormat() {
 	    public String ctype() {return("image/png");}
 
+	    void cmt(Node tlist, String key, String val) {
+		Element cmt = new IIOMetadataNode("TextEntry");
+		cmt.setAttribute("keyword", key);
+		cmt.setAttribute("value", val);
+		cmt.setAttribute("encoding", "utf-8");
+		cmt.setAttribute("language", "");
+		cmt.setAttribute("compression", "none");
+		tlist.appendChild(cmt);
+	    }
+
 	    public void write(OutputStream out, BufferedImage img, Shot info) throws IOException {
 		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
 		ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
 		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-		if(info.comment != null) {
-		    Node root = dat.getAsTree("javax_imageio_1.0");
-		    Element cmt = new IIOMetadataNode("TextEntry");
-		    cmt.setAttribute("keyword", "Comment");
-		    cmt.setAttribute("value", info.comment);
-		    cmt.setAttribute("encoding", "utf-8");
-		    cmt.setAttribute("language", "");
-		    cmt.setAttribute("compression", "none");
-		    Node tlist = new IIOMetadataNode("Text");
-		    tlist.appendChild(cmt);
-		    root.appendChild(tlist);
-		    dat.setFromTree("javax_imageio_1.0", root);
-		}
+		Node root = dat.getAsTree("javax_imageio_1.0");
+		Node tlist = new IIOMetadataNode("Text");
+		if(info.comment != null)
+		    cmt(tlist, "Comment", info.comment);
+		if(info.light != null)
+		    cmt(tlist, "haven.light", info.light.name());
+		root.appendChild(tlist);
+		dat.setFromTree("javax_imageio_1.0", root);
 		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
 		wr.setOutput(iout);
 		wr.write(new IIOImage(img, null, dat));
@@ -135,16 +141,33 @@ public class Screenshooter extends Window {
 		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
 		ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
 		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-		if(info.comment != null) {
-		    Node root = dat.getAsTree("javax_imageio_1.0");
-		    Element cmt = new IIOMetadataNode("TextEntry");
-		    cmt.setAttribute("keyword", "comment");
-		    cmt.setAttribute("value", info.comment);
-		    Node tlist = new IIOMetadataNode("Text");
-		    tlist.appendChild(cmt);
-		    root.appendChild(tlist);
-		    dat.setFromTree("javax_imageio_1.0", root);
+		
+		Node root = dat.getAsTree("javax_imageio_jpeg_image_1.0");
+		Node mseq;
+		for(mseq = root.getFirstChild(); (mseq != null) && !mseq.getLocalName().equals("markerSequence"); mseq = mseq.getNextSibling());
+		if(mseq == null) {
+		    mseq = new IIOMetadataNode("markerSequence");
+		    root.appendChild(mseq);
 		}
+		if(info.comment != null) {
+		    IIOMetadataNode cmt = new IIOMetadataNode("com");
+		    cmt.setUserObject(info.comment.getBytes("utf-8"));
+		    mseq.appendChild(cmt);
+		}
+
+		Message hdat = new Message(0);
+		hdat.addstring2("HSSI1");
+		if(info.light != null) {
+		    hdat.addstring("light");
+		    hdat.addstring(info.light.name());
+		}
+		IIOMetadataNode app4 = new IIOMetadataNode("unknown");
+		app4.setAttribute("MarkerTag", "228");
+		app4.setUserObject(hdat.blob);
+		mseq.appendChild(app4);
+		
+		dat.setFromTree("javax_imageio_jpeg_image_1.0", root);
+		
 		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
 		wr.setOutput(iout);
 		wr.write(new IIOImage(img, null, dat));
@@ -285,20 +308,21 @@ public class Screenshooter extends Window {
 			public void run(GOut g) {
 			    ss[0] = new TexI(g.getimage(Coord.z, g.sz));
 			    ss[0].minfilter = javax.media.opengl.GL.GL_LINEAR;
-			    checkcomplete();
+			    checkcomplete(g);
 			}
 		    });
 		gameui.ui.drawafter(new UI.AfterDraw() {
 			public void draw(GOut g) {
 			    ss[1] = new TexI(g.getimage(Coord.z, g.sz));
-			    checkcomplete();
+			    checkcomplete(g);
 			}
 		    });
 	    }
 	    
-	    private void checkcomplete() {
+	    private void checkcomplete(GOut g) {
 		if((ss[0] != null) && (ss[1] != null)) {
 		    Shot shot = new Shot(ss[0], ss[1]);
+		    shot.light = g.gc.pref.light.val;
 		    new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
 		}
 	    }
