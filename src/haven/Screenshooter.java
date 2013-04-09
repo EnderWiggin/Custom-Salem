@@ -40,7 +40,7 @@ import java.net.*;
 public class Screenshooter extends Window {
     public static final ComponentColorModel outcm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8, 8, 8}, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
     public final URL tgt;
-    public final TexI[] ss;
+    public final Shot shot;
     private final TextEntry comment;
     private final CheckBox decobox, pub;
     private final int w, h;
@@ -48,12 +48,12 @@ public class Screenshooter extends Window {
     private Coord btnc;
     private Button btn;
     
-    public Screenshooter(Coord c, Widget parent, URL tgt, TexI[] ss) {
+    public Screenshooter(Coord c, Widget parent, URL tgt, Shot shot) {
 	super(c, Coord.z, parent, "Screenshot");
 	this.tgt = tgt;
-	this.ss = ss;
-	this.w = Math.min(200 * ss[0].sz().x / ss[0].sz().y, 150);
-	this.h = w * ss[0].sz().y / ss[0].sz().x;
+	this.shot = shot;
+	this.w = Math.min(200 * shot.sz.x / shot.sz.y, 150);
+	this.h = w * shot.sz.y / shot.sz.x;
 	this.decobox = new CheckBox(new Coord(w, (h - CheckBox.box.sz().y) / 2), this, "Include interface");
 	Label clbl = new Label(new Coord(0, h + 5), this, "If you wish, leave a comment:");
 	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), w + 130, this, "") {
@@ -81,27 +81,39 @@ public class Screenshooter extends Window {
     }
     
     public void cdraw(GOut g) {
-	TexI tex = ss[this.decobox.a?1:0];
+	TexI tex = this.decobox.a?shot.ui:shot.map;
 	g.image(tex, Coord.z, new Coord(w, h));
     }
     
+    public static class Shot {
+	public final TexI map, ui;
+	public final Coord sz;
+	public String comment;
+
+	public Shot(TexI map, TexI ui) {
+	    this.map = map;
+	    this.ui = ui;
+	    this.sz = map.sz();
+	}
+    }
+
     public static interface ImageFormat {
 	public String ctype();
-	public void write(OutputStream out, BufferedImage img, String comment) throws IOException;
+	public void write(OutputStream out, BufferedImage img, Shot info) throws IOException;
     }
 
     public static final ImageFormat png = new ImageFormat() {
 	    public String ctype() {return("image/png");}
 
-	    public void write(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    public void write(OutputStream out, BufferedImage img, Shot info) throws IOException {
 		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
 		ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
 		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-		if(comment != null) {
+		if(info.comment != null) {
 		    Node root = dat.getAsTree("javax_imageio_1.0");
 		    Element cmt = new IIOMetadataNode("TextEntry");
 		    cmt.setAttribute("keyword", "Comment");
-		    cmt.setAttribute("value", comment);
+		    cmt.setAttribute("value", info.comment);
 		    cmt.setAttribute("encoding", "utf-8");
 		    cmt.setAttribute("language", "");
 		    cmt.setAttribute("compression", "none");
@@ -119,15 +131,15 @@ public class Screenshooter extends Window {
     public static final ImageFormat jpeg = new ImageFormat() {
 	    public String ctype() {return("image/jpeg");}
 
-	    public void write(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    public void write(OutputStream out, BufferedImage img, Shot info) throws IOException {
 		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
 		ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
 		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-		if(comment != null) {
+		if(info.comment != null) {
 		    Node root = dat.getAsTree("javax_imageio_1.0");
 		    Element cmt = new IIOMetadataNode("TextEntry");
 		    cmt.setAttribute("keyword", "comment");
-		    cmt.setAttribute("value", comment);
+		    cmt.setAttribute("value", info.comment);
 		    Node tlist = new IIOMetadataNode("Text");
 		    tlist.appendChild(cmt);
 		    root.appendChild(tlist);
@@ -141,17 +153,19 @@ public class Screenshooter extends Window {
 
     public class Uploader extends HackThread {
 	private final TexI img;
+	private final Shot info;
 	private final ImageFormat fmt;
 	
-	public Uploader(TexI img, ImageFormat fmt) {
+	public Uploader(TexI img, Shot info, ImageFormat fmt) {
 	    super("Screenshot uploader");
 	    this.img = img;
+	    this.info = info;
 	    this.fmt = fmt;
 	}
 	
 	public void run() {
 	    try {
-		upload(img, fmt);
+		upload(img, info, fmt);
 	    } catch(InterruptedIOException e) {
 		setstate("Cancelled");
 		synchronized(ui) {
@@ -192,10 +206,12 @@ public class Screenshooter extends Window {
 	    return(ret);
 	}
 
-	public void upload(TexI ss, ImageFormat fmt) throws IOException {
+	public void upload(TexI ss, Shot info, ImageFormat fmt) throws IOException {
 	    setstate("Preparing image...");
 	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    fmt.write(buf, convert(ss.back), comment.text);
+	    
+	    fmt.write(buf, convert(ss.back), info);
+	    
 	    byte[] data = buf.toByteArray();
 	    buf = null;
 	    setstate("Connecting...");
@@ -250,7 +266,8 @@ public class Screenshooter extends Window {
     }
     
     public void upload() {
-	final Uploader th = new Uploader(Screenshooter.this.ss[decobox.a?1:0], jpeg);
+	shot.comment = comment.text;
+	final Uploader th = new Uploader(decobox.a?shot.ui:shot.map, shot, jpeg);
 	th.start();
 	ui.destroy(btn);
 	btn = new Button(btnc, 125, this, "Cancel") {
@@ -281,7 +298,8 @@ public class Screenshooter extends Window {
 	    
 	    private void checkcomplete() {
 		if((ss[0] != null) && (ss[1] != null)) {
-		    new Screenshooter(new Coord(100, 100), gameui, tgt, ss);
+		    Shot shot = new Shot(ss[0], ss[1]);
+		    new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
 		}
 	    }
 	};
