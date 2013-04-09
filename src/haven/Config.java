@@ -54,6 +54,7 @@ public class Config {
     public static boolean softres = getprop("haven.softres", "on").equals("on");
     public static byte[] authck = null;
     public static String prefspec = "salem";
+    public static final String confid = "";
     
     static {
 	String p;
