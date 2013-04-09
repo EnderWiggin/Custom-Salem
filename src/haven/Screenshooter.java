@@ -90,6 +90,7 @@ public class Screenshooter extends Window {
 	public final Coord sz;
 	public String comment;
 	public GLSettings.Lights light;
+	public boolean fsaa;
 
 	public Shot(TexI map, TexI ui) {
 	    this.map = map;
@@ -126,6 +127,7 @@ public class Screenshooter extends Window {
 		    cmt(tlist, "Comment", info.comment);
 		if(info.light != null)
 		    cmt(tlist, "haven.light", info.light.name());
+		cmt(tlist, "haven.fsaa", info.fsaa?"y":"n");
 		root.appendChild(tlist);
 		dat.setFromTree("javax_imageio_1.0", root);
 		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
@@ -161,6 +163,8 @@ public class Screenshooter extends Window {
 		    hdat.addstring("light");
 		    hdat.addstring(info.light.name());
 		}
+		hdat.addstring("fsaa");
+		hdat.addstring(info.fsaa?"y":"n");
 		IIOMetadataNode app4 = new IIOMetadataNode("unknown");
 		app4.setAttribute("MarkerTag", "228");
 		app4.setUserObject(hdat.blob);
@@ -323,6 +327,7 @@ public class Screenshooter extends Window {
 		if((ss[0] != null) && (ss[1] != null)) {
 		    Shot shot = new Shot(ss[0], ss[1]);
 		    shot.light = g.gc.pref.light.val;
+		    shot.fsaa = g.gc.pref.fsaa.val;
 		    new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
 		}
 	    }
