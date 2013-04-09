@@ -42,7 +42,7 @@ public class Screenshooter extends Window {
     public final URL tgt;
     public final TexI[] ss;
     private final TextEntry comment;
-    private final CheckBox decobox;
+    private final CheckBox decobox, pub;
     private final int w, h;
     private Label prog;
     private Coord btnc;
@@ -54,17 +54,21 @@ public class Screenshooter extends Window {
 	this.ss = ss;
 	this.w = Math.min(200 * ss[0].sz().x / ss[0].sz().y, 150);
 	this.h = w * ss[0].sz().y / ss[0].sz().x;
-	this.decobox = new CheckBox(new Coord(w, (h / 2) - CheckBox.box.sz().y + 5), this, "Include interface") {
-		public void changed(boolean val) {}
-	    };
-	btnc = new Coord(w + 5, h - 19);
-	btn = new Button(btnc, 125, this, "Upload") {
-	    public void click() {
-		upload();
-	    }
-	};
+	this.decobox = new CheckBox(new Coord(w, (h - CheckBox.box.sz().y) / 2), this, "Include interface");
 	Label clbl = new Label(new Coord(0, h + 5), this, "If you wish, leave a comment:");
-	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), new Coord(w + 130, 20), this, "");
+	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), w + 130, this, "") {
+		public void activate(String text) {
+		    upload();
+		}
+	    };
+	this.pub = new CheckBox(new Coord(0, comment.c.y + comment.sz.y + 5), this, "Make public");
+	pub.a = true;
+	btnc = new Coord((comment.sz.x - 125) / 2, pub.c.y + pub.sz.y + 20);
+	btn = new Button(btnc, 125, this, "Upload") {
+		public void click() {
+		    upload();
+		}
+	    };
 	pack();
     }
     
@@ -195,7 +199,8 @@ public class Screenshooter extends Window {
 	    byte[] data = buf.toByteArray();
 	    buf = null;
 	    setstate("Connecting...");
-	    HttpURLConnection conn = (HttpURLConnection)tgt.openConnection();
+	    URL pared = Utils.urlparam(tgt, "p", pub.a?"y":"n");
+	    HttpURLConnection conn = (HttpURLConnection)pared.openConnection();
 	    conn.setDoOutput(true);
 	    conn.setFixedLengthStreamingMode(data.length);
 	    conn.addRequestProperty("Content-Type", fmt.ctype());
