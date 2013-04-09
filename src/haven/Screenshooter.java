@@ -165,6 +165,8 @@ public class Screenshooter extends Window {
 		}
 		hdat.addstring("fsaa");
 		hdat.addstring(info.fsaa?"y":"n");
+		hdat.addstring("conf");
+		hdat.addstring(Config.confid);
 		IIOMetadataNode app4 = new IIOMetadataNode("unknown");
 		app4.setAttribute("MarkerTag", "228");
 		app4.setUserObject(hdat.blob);
