@@ -191,7 +191,7 @@ public class OptWnd2 extends Window {
 		@Override
 		public void changed(boolean val) {
 		    super.changed(val);
-		    Config.ss_slent = val;
+		    Config.ss_silent = val;
 		    Utils.setprefb("ss_slent", val);
 		}
 
@@ -200,7 +200,7 @@ public class OptWnd2 extends Window {
 		    return "Screenshots will be taken without showing screenshot dialog";
 		}
 		
-	    }.a = Config.ss_slent;
+	    }.a = Config.ss_silent;
 	    
 	    new CheckBox(new Coord(0, y += 25), tab, "Include UI on screenshots"){
 		@Override

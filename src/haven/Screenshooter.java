@@ -26,6 +26,8 @@
 
 package haven;
 
+import java.util.*;
+import java.awt.Color;
 import java.awt.image.*;
 import java.awt.color.ColorSpace;
 import javax.imageio.*;
@@ -38,39 +40,35 @@ import java.net.*;
 public class Screenshooter extends Window {
     public static final ComponentColorModel outcm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8, 8, 8}, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
     public final URL tgt;
-    public final TexI[] ss;
+    public final Shot shot;
     private final TextEntry comment;
-    private final CheckBox decobox;
+    private final CheckBox decobox, pub;
     private final int w, h;
     private Label prog;
     private Coord btnc;
     private Button btn;
-    private Button btnsave;
     
-    public Screenshooter(Coord c, Widget parent, URL tgt, TexI[] ss) {
+    public Screenshooter(Coord c, Widget parent, URL tgt, Shot shot) {
 	super(c, Coord.z, parent, "Screenshot");
 	this.tgt = tgt;
-	this.ss = ss;
-	this.w = Math.min(200 * ss[0].sz().x / ss[0].sz().y, 150);
-	this.h = w * ss[0].sz().y / ss[0].sz().x;
-	this.decobox = new CheckBox(new Coord(w, 5), this, "Include interface") {
-		public void changed(boolean val) {}
-	    };
-	decobox.a = Config.ss_ui;
-	btnc = new Coord(w + 5, h - 19);
-	btn = new Button(btnc, 125, this, "Upload") {
-	    public void click() {
-		upload();
-	    }
-	};
-	if(tgt == null){btn.visible = false;}
-	btnsave = new Button(btnc.sub(0, 25), 125, this, "Save") {
-	    public void click() {
-		save();
-	    }
-	};
+	this.shot = shot;
+	this.w = Math.min(200 * shot.sz.x / shot.sz.y, 150);
+	this.h = w * shot.sz.y / shot.sz.x;
+	this.decobox = new CheckBox(new Coord(w, (h - CheckBox.box.sz().y) / 2), this, "Include interface");
 	Label clbl = new Label(new Coord(0, h + 5), this, "If you wish, leave a comment:");
-	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), new Coord(w + 130, 20), this, "");
+	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), w + 130, this, "") {
+		public void activate(String text) {
+		    upload();
+		}
+	    };
+	this.pub = new CheckBox(new Coord(0, comment.c.y + comment.sz.y + 5), this, "Make public");
+	pub.a = true;
+	btnc = new Coord((comment.sz.x - 125) / 2, pub.c.y + pub.sz.y + 20);
+	btn = new Button(btnc, 125, this, "Upload") {
+		public void click() {
+		    upload();
+		}
+	    };
 	pack();
     }
     
@@ -83,35 +81,56 @@ public class Screenshooter extends Window {
     }
     
     public void cdraw(GOut g) {
-	TexI tex = ss[this.decobox.a?1:0];
+	TexI tex = this.decobox.a?shot.ui:shot.map;
 	g.image(tex, Coord.z, new Coord(w, h));
     }
     
+    public static class Shot {
+	public final TexI map, ui;
+	public final Coord sz;
+	public String comment;
+	public GLSettings.Lights light;
+	public boolean fsaa;
+
+	public Shot(TexI map, TexI ui) {
+	    this.map = map;
+	    this.ui = ui;
+	    this.sz = map.sz();
+	}
+    }
+
     public static interface ImageFormat {
 	public String ctype();
-	public void write(OutputStream out, BufferedImage img, String comment) throws IOException;
+	public void write(OutputStream out, BufferedImage img, Shot info) throws IOException;
     }
 
     public static final ImageFormat png = new ImageFormat() {
 	    public String ctype() {return("image/png");}
 
-	    public void write(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    void cmt(Node tlist, String key, String val) {
+		Element cmt = new IIOMetadataNode("TextEntry");
+		cmt.setAttribute("keyword", key);
+		cmt.setAttribute("value", val);
+		cmt.setAttribute("encoding", "utf-8");
+		cmt.setAttribute("language", "");
+		cmt.setAttribute("compression", "none");
+		tlist.appendChild(cmt);
+	    }
+
+	    public void write(OutputStream out, BufferedImage img, Shot info) throws IOException {
 		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
 		ImageWriter wr = ImageIO.getImageWriters(type, "PNG").next();
 		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-		if(comment != null) {
-		    Node root = dat.getAsTree("javax_imageio_1.0");
-		    Element cmt = new IIOMetadataNode("TextEntry");
-		    cmt.setAttribute("keyword", "Comment");
-		    cmt.setAttribute("value", comment);
-		    cmt.setAttribute("encoding", "utf-8");
-		    cmt.setAttribute("language", "");
-		    cmt.setAttribute("compression", "none");
-		    Node tlist = new IIOMetadataNode("Text");
-		    tlist.appendChild(cmt);
-		    root.appendChild(tlist);
-		    dat.setFromTree("javax_imageio_1.0", root);
-		}
+		Node root = dat.getAsTree("javax_imageio_1.0");
+		Node tlist = new IIOMetadataNode("Text");
+		if(info.comment != null)
+		    cmt(tlist, "Comment", info.comment);
+		if(info.light != null)
+		    cmt(tlist, "haven.light", info.light.name());
+		cmt(tlist, "haven.fsaa", info.fsaa?"y":"n");
+		cmt(tlist, "haven.conf", Config.confid);
+		root.appendChild(tlist);
+		dat.setFromTree("javax_imageio_1.0", root);
 		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
 		wr.setOutput(iout);
 		wr.write(new IIOImage(img, null, dat));
@@ -121,20 +140,41 @@ public class Screenshooter extends Window {
     public static final ImageFormat jpeg = new ImageFormat() {
 	    public String ctype() {return("image/jpeg");}
 
-	    public void write(OutputStream out, BufferedImage img, String comment) throws IOException {
+	    public void write(OutputStream out, BufferedImage img, Shot info) throws IOException {
 		ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(img);
 		ImageWriter wr = ImageIO.getImageWriters(type, "JPEG").next();
 		IIOMetadata dat = wr.getDefaultImageMetadata(type, null);
-		if(comment != null) {
-		    Node root = dat.getAsTree("javax_imageio_1.0");
-		    Element cmt = new IIOMetadataNode("TextEntry");
-		    cmt.setAttribute("keyword", "comment");
-		    cmt.setAttribute("value", comment);
-		    Node tlist = new IIOMetadataNode("Text");
-		    tlist.appendChild(cmt);
-		    root.appendChild(tlist);
-		    dat.setFromTree("javax_imageio_1.0", root);
+		
+		Node root = dat.getAsTree("javax_imageio_jpeg_image_1.0");
+		Node mseq;
+		for(mseq = root.getFirstChild(); (mseq != null) && !mseq.getLocalName().equals("markerSequence"); mseq = mseq.getNextSibling());
+		if(mseq == null) {
+		    mseq = new IIOMetadataNode("markerSequence");
+		    root.appendChild(mseq);
 		}
+		if(info.comment != null) {
+		    IIOMetadataNode cmt = new IIOMetadataNode("com");
+		    cmt.setUserObject(info.comment.getBytes("utf-8"));
+		    mseq.appendChild(cmt);
+		}
+
+		Message hdat = new Message(0);
+		hdat.addstring2("HSSI1");
+		if(info.light != null) {
+		    hdat.addstring("light");
+		    hdat.addstring(info.light.name());
+		}
+		hdat.addstring("fsaa");
+		hdat.addstring(info.fsaa?"y":"n");
+		hdat.addstring("conf");
+		hdat.addstring(Config.confid);
+		IIOMetadataNode app4 = new IIOMetadataNode("unknown");
+		app4.setAttribute("MarkerTag", "228");
+		app4.setUserObject(hdat.blob);
+		mseq.appendChild(app4);
+		
+		dat.setFromTree("javax_imageio_jpeg_image_1.0", root);
+		
 		ImageOutputStream iout = ImageIO.createImageOutputStream(out);
 		wr.setOutput(iout);
 		wr.write(new IIOImage(img, null, dat));
@@ -143,17 +183,19 @@ public class Screenshooter extends Window {
 
     public class Uploader extends HackThread {
 	private final TexI img;
+	private final Shot info;
 	private final ImageFormat fmt;
 	
-	public Uploader(TexI img, ImageFormat fmt) {
+	public Uploader(TexI img, Shot info, ImageFormat fmt) {
 	    super("Screenshot uploader");
 	    this.img = img;
+	    this.info = info;
 	    this.fmt = fmt;
 	}
 	
 	public void run() {
 	    try {
-		upload(img, fmt);
+		upload(img, info, fmt);
 	    } catch(InterruptedIOException e) {
 		setstate("Cancelled");
 		synchronized(ui) {
@@ -168,31 +210,24 @@ public class Screenshooter extends Window {
 		setstate("Could not upload image");
 		synchronized(ui) {
 		    ui.destroy(btn);
-		    ui.destroy(btnsave);
-		    btn = new Button(btnc, 125, Screenshooter.this, "Retry Upload") {
-			public void click() {
-			    Screenshooter.this.upload();
-			}
-		    };
-		    if(tgt == null){btn.visible = false;}
-		    btnsave = new Button(btnc.sub(0, 25), 125, Screenshooter.this, "Retry Save") {
-			public void click() {
-			    Screenshooter.this.save();
-			}
-		    };
+		    btn = new Button(btnc, 125, Screenshooter.this, "Retry") {
+			    public void click() {
+				Screenshooter.this.upload();
+			    }
+			};
 		}
 	    }
 	}
 
-	protected void setstate(String t) {
+	private void setstate(String t) {
 	    synchronized(ui) {
 		if(prog != null)
 		    ui.destroy(prog);
-		prog = new Label(btnc.sub(0, 40), Screenshooter.this, t);
+		prog = new Label(btnc.sub(0, 15), Screenshooter.this, t);
 	    }
 	}
 
-	protected BufferedImage convert(BufferedImage img) {
+	private BufferedImage convert(BufferedImage img) {
 	    WritableRaster buf = PUtils.byteraster(PUtils.imgsz(img), 3);
 	    BufferedImage ret = new BufferedImage(outcm, buf, false, null);
 	    java.awt.Graphics g = ret.getGraphics();
@@ -201,14 +236,17 @@ public class Screenshooter extends Window {
 	    return(ret);
 	}
 
-	public void upload(TexI ss, ImageFormat fmt) throws IOException {
+	public void upload(TexI ss, Shot info, ImageFormat fmt) throws IOException {
 	    setstate("Preparing image...");
 	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    fmt.write(buf, convert(ss.back), comment.text);
+	    
+	    fmt.write(buf, convert(ss.back), info);
+	    
 	    byte[] data = buf.toByteArray();
 	    buf = null;
 	    setstate("Connecting...");
-	    HttpURLConnection conn = (HttpURLConnection)tgt.openConnection();
+	    URL pared = Utils.urlparam(tgt, "p", pub.a?"y":"n");
+	    HttpURLConnection conn = (HttpURLConnection)pared.openConnection();
 	    conn.setDoOutput(true);
 	    conn.setFixedLengthStreamingMode(data.length);
 	    conn.addRequestProperty("Content-Type", fmt.ctype());
@@ -247,7 +285,6 @@ public class Screenshooter extends Window {
 	    setstate("Done");
 	    synchronized(ui) {
 		ui.destroy(btn);
-		ui.destroy(btnsave);
 		btn = new Button(btnc, 125, Screenshooter.this, "Open in browser") {
 			public void click() {
 			    if(WebBrowser.self != null)
@@ -258,60 +295,11 @@ public class Screenshooter extends Window {
 	}
     }
     
-    public class Saver extends Uploader{
-
-	public Saver(TexI img) {
-	    super(img, png);
-	}
-
-	@Override
-	public void upload(TexI ss, ImageFormat fmt) throws IOException {
-	    setstate("Saving...");
-	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    fmt.write(buf, convert(ss.back), comment.text);
-	    byte[] data = buf.toByteArray();
-	    buf = null;
-	    File ssfolder = Config.getFile("screenshots");
-	    if(!ssfolder.exists()){
-		ssfolder.mkdirs();
-	    }
-	    File f = new File(ssfolder, String.format("shot_%d.png", System.currentTimeMillis()));
-	    FileOutputStream fos = new FileOutputStream(f);
-	    fos.write(data);
-	    fos.close();
-	    setstate("Done");
-	    final URL result = f.toURI().toURL();
-	    synchronized(ui) {
-		ui.destroy(btn);
-		ui.destroy(btnsave);
-		btn = new Button(btnc, 125, Screenshooter.this, "Open") {
-		    public void click() {
-			if(WebBrowser.self != null)
-			    WebBrowser.self.show(result);
-		    }
-		};
-		ui.message("Screenshot saved");
-	    }
-	}
-
-    }
-    
     public void upload() {
-	final Uploader th = new Uploader(Screenshooter.this.ss[decobox.a?1:0], jpeg);
+	shot.comment = comment.text;
+	final Uploader th = new Uploader(decobox.a?shot.ui:shot.map, shot, jpeg);
 	th.start();
 	ui.destroy(btn);
-	btn = new Button(btnc, 125, this, "Cancel") {
-		public void click() {
-		    th.interrupt();
-		}
-	    };
-    }
-    
-    public void save() {
-	final Uploader th = new Saver(Screenshooter.this.ss[decobox.a?1:0]);
-	th.start();
-	ui.destroy(btn);
-	ui.destroy(btnsave);
 	btn = new Button(btnc, 125, this, "Cancel") {
 		public void click() {
 		    th.interrupt();
@@ -323,31 +311,27 @@ public class Screenshooter extends Window {
 	new Object() {
 	    TexI[] ss = {null, null};
 	    {
-		if(gameui != null){
-		    gameui.map.delay2(new MapView.Delayed() {
+		gameui.map.delay2(new MapView.Delayed() {
 			public void run(GOut g) {
 			    ss[0] = new TexI(g.getimage(Coord.z, g.sz));
 			    ss[0].minfilter = javax.media.opengl.GL.GL_LINEAR;
-			    checkcomplete();
+			    checkcomplete(g);
 			}
 		    });
-		    gameui.ui.drawafter(new UI.AfterDraw() {
+		gameui.ui.drawafter(new UI.AfterDraw() {
 			public void draw(GOut g) {
 			    ss[1] = new TexI(g.getimage(Coord.z, g.sz));
-			    checkcomplete();
+			    checkcomplete(g);
 			}
 		    });
-		}
 	    }
 	    
-	    private void checkcomplete() {
+	    private void checkcomplete(GOut g) {
 		if((ss[0] != null) && (ss[1] != null)) {
-		    Screenshooter s = new Screenshooter(new Coord(100, 100), gameui, tgt, ss);
-		    if(Config.ss_slent){
-			s.visible = false;
-			s.save();
-			s.wdgmsg(s, "close", (Object[])null);
-		    }
+		    Shot shot = new Shot(ss[0], ss[1]);
+		    shot.light = g.gc.pref.light.val;
+		    shot.fsaa = g.gc.pref.fsaa.val;
+		    new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
 		}
 	    }
 	};

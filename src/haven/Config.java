@@ -52,6 +52,7 @@ public class Config {
     public static URL mapurl = geturl("haven.mapurl", "");
     public static URL screenurl = geturl("haven.screenurl", "http://plymouth.seatribe.se/mt/ss");
     public static URL storeurl = geturl("haven.storeurl", "http://services.paradoxplaza.com/adam/storelette/salem");
+    public static URL regurl = geturl("haven.regurl", "");
     public static boolean dbtext = getprop("haven.dbtext", "off").equals("on");
     public static boolean bounddb = getprop("haven.bounddb", "off").equals("on");
     public static boolean profile = getprop("haven.profile", "off").equals("on");
@@ -67,6 +68,7 @@ public class Config {
     public static boolean softres = getprop("haven.softres", "on").equals("on");
     public static byte[] authck = null;
     public static String prefspec = "salem";
+    public static final String confid = "";
     public static String userhome = System.getProperty("user.home")+"/Salem";
     public static String version;
     public static boolean show_tempers = Utils.getprefb("show_tempers", false);
@@ -90,7 +92,7 @@ public class Config {
     protected static boolean fsaa = false;
     public static boolean center = false;
     public static float brighten = Utils.getpreff("brighten", 0.0f), maxbright = 2.0f;
-    protected static boolean ss_slent = Utils.getprefb("ss_slent", false);
+    protected static boolean ss_silent = Utils.getprefb("ss_slent", false);
     protected static boolean ss_ui = Utils.getprefb("ss_ui", false);
     public static boolean hptr = Utils.getprefb("hptr", false);;
     

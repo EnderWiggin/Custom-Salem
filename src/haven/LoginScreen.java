@@ -115,12 +115,12 @@ public class LoginScreen extends Widget {
 	private PwCommon(String username, boolean save) {
 	    super(cboxc, cbox.sz(), LoginScreen.this);
 	    setfocustab(true);
-	    new Img(new Coord(35, 33), textf.render("User name").tex(), this);
-	    user = new TextEntry(new Coord(150, 35), new Coord(150, 20), this, username);
-	    new Img(new Coord(35, 73), textf.render("Password").tex(), this);
-	    pass = new TextEntry(new Coord(150, 75), new Coord(150, 20), this, "");
+	    new Img(new Coord(35, 30), textf.render("User name").tex(), this);
+	    user = new TextEntry(new Coord(150, 30), new Coord(150, 20), this, username);
+	    new Img(new Coord(35, 60), textf.render("Password").tex(), this);
+	    pass = new TextEntry(new Coord(150, 60), new Coord(150, 20), this, "");
 	    pass.pw = true;
-	    savepass = new CheckBox(new Coord(150, 105), this, "Remember me");
+	    savepass = new CheckBox(new Coord(150, 90), this, "Remember me");
 	    savepass.a = save;
 	    if(user.text.equals(""))
 		setfocus(user);
@@ -155,6 +155,28 @@ public class LoginScreen extends Widget {
     private class Pwbox extends PwCommon {
 	private Pwbox(String username, boolean save) {
 	    super(username, save);
+	    if(Config.regurl != null) {
+		final RichText text = RichText.render("If you don't have an account, $col[64,64,255]{$u{register one here}}.", 0, java.awt.font.TextAttribute.FOREGROUND, Color.BLACK);
+		new Widget(new Coord(35, 115), text.sz(), this) {
+		    public void draw(GOut g) {
+			g.image(text.tex(), Coord.z);
+		    }
+
+		    public boolean mousedown(Coord c, int btn) {
+			if(btn == 1) {
+			    Number ul = (Number)text.attrat(c, java.awt.font.TextAttribute.UNDERLINE);
+			    if((ul != null) && (ul.intValue() == java.awt.font.TextAttribute.UNDERLINE_ON)) {
+				try {
+				    WebBrowser.sshow(Config.regurl);
+				} catch(WebBrowser.BrowserException e) {
+				    error("Could not launch browser");
+				}
+			    }
+			}
+			return(true);
+		    }
+		};
+	    }
 	}
 		
 	Object[] data() {
