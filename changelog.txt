@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 25.04.13:}}
+  * merged loftar's code
+  * unfortunately, screensooter now lost my changes. It now can't save shots to disk. Will be fixed later.
+ 
 $size[14]{$u{Update for 28.03.13:}}
   * fixed brightness slider
   * disabled profiling - no windows will pop-up after pressing ~ key.
