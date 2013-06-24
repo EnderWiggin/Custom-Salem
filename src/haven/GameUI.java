@@ -196,19 +196,29 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
 
-    class InvWindow extends Hidewnd {
-	final Map<Inventory, String> names = new HashMap<Inventory, String>();
+    public static class InvWindow extends Hidewnd {
+	private final Map<Inventory, String> names = new HashMap<Inventory, String>();
 	private Label[] labels = new Label[0];
 
-	InvWindow(Coord c, Coord sz, Widget parent) {
-	    super(c, sz, parent, "Inventory");
+	@RName("invwnd")
+	public static class $_ implements Factory {
+	    public Widget create(Coord c, Widget parent, Object[] args) {
+		String cap = (String)args[0];
+		return(new InvWindow(c, new Coord(100, 100), parent, cap));
+	    }
 	}
 
-	void repack() {
-	    for(Label lbl : labels)
-		lbl.destroy();
+	public InvWindow(Coord c, Coord sz, Widget parent, String cap) {
+	    super(c, sz, parent, cap);
+	}
 
-	    int mw = maininv.sz.x;
+	private void repack() {
+	    for(Label lbl : labels) {
+		if(lbl != null)
+		    lbl.destroy();
+	    }
+
+	    int mw = 0;
 	    for(Inventory inv : names.keySet())
 		mw = Math.max(mw, inv.sz.x);
 
@@ -220,11 +230,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    Collections.sort(cn);
 
 	    Label[] nl = new Label[cn.size()];
-	    int n = 0;
-	    int y = maininv.sz.y + 5;
+	    int n = 0, y = 0;
 	    for(String nm : cn) {
-		nl[n] = new Label(new Coord(0, y), this, nm);
-		y = nl[n].c.y + nl[n].sz.y + 5;
+		if(!nm.equals("")) {
+		    nl[n] = new Label(new Coord(0, y), this, nm);
+		    y = nl[n].c.y + nl[n].sz.y + 5;
+		}
 		int x = 0;
 		int mh = 0;
 		for(Map.Entry<Inventory, String> e : names.entrySet()) {
@@ -247,7 +258,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    pack();
 	}
 
-	Inventory addinv(String type, String nm, Object... cargs) {
+	public Widget makechild(String type, Object[] pargs, Object[] cargs) {
+	    String nm;
+	    if(pargs.length > 0)
+		nm = (String)pargs[0];
+	    else
+		nm = "";
 	    Inventory inv = (Inventory)gettype(type).create(Coord.z, this, cargs);
 	    names.put(inv, nm);
 	    repack();
@@ -290,15 +306,16 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(fv);
 	} else if(place == "inv") {
 	    String nm = (pargs.length > 1)?((String)pargs[1]):null;
-	    if(nm == null) {
-		invwnd = new InvWindow(new Coord(100, 100), Coord.z, this);
-		Inventory inv = (Inventory)gettype(type).create(Coord.z, invwnd, cargs);
-		invwnd.pack();
+	    if(invwnd == null) {
+		invwnd = new InvWindow(new Coord(100, 100), Coord.z, this, "Inventory");
 		invwnd.hide();
+	    }
+	    if(nm == null) {
+		Inventory inv = (Inventory)invwnd.makechild(type, new Object[0], cargs);
 		maininv = inv;
 		return(inv);
 	    } else {
-		return(invwnd.addinv(type, nm, cargs));
+		return(invwnd.makechild(type, new Object[] {nm}, cargs));
 	    }
 	} else if(place == "equ") {
 	    equwnd = new Hidewnd(new Coord(400, 10), Coord.z, this, "Equipment");
