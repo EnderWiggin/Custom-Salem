@@ -45,7 +45,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public static final Text.Foundry errfoundry = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14), new Color(192, 0, 0));
     private Text lasterr;
     private long errtime;
-    private Window invwnd, equwnd, makewnd;
+    private InvWindow invwnd;
+    private Window equwnd, makewnd;
     public Inventory maininv;
     public MainMenu mainmenu;
     public BuddyWnd buddies;
@@ -195,6 +196,89 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
 
+    public static class InvWindow extends Hidewnd {
+	private final Map<Inventory, String> names = new HashMap<Inventory, String>();
+	private Label[] labels = new Label[0];
+
+	@RName("invwnd")
+	public static class $_ implements Factory {
+	    public Widget create(Coord c, Widget parent, Object[] args) {
+		String cap = (String)args[0];
+		return(new InvWindow(c, new Coord(100, 100), parent, cap));
+	    }
+	}
+
+	public InvWindow(Coord c, Coord sz, Widget parent, String cap) {
+	    super(c, sz, parent, cap);
+	}
+
+	private void repack() {
+	    for(Label lbl : labels) {
+		if(lbl != null)
+		    lbl.destroy();
+	    }
+
+	    int mw = 0;
+	    for(Inventory inv : names.keySet())
+		mw = Math.max(mw, inv.sz.x);
+
+	    List<String> cn = new ArrayList<String>();
+	    for(String nm : names.values()) {
+		if(!cn.contains(nm))
+		    cn.add(nm);
+	    }
+	    Collections.sort(cn);
+
+	    Label[] nl = new Label[cn.size()];
+	    int n = 0, y = 0;
+	    for(String nm : cn) {
+		if(!nm.equals("")) {
+		    nl[n] = new Label(new Coord(0, y), this, nm);
+		    y = nl[n].c.y + nl[n].sz.y + 5;
+		}
+		int x = 0;
+		int mh = 0;
+		for(Map.Entry<Inventory, String> e : names.entrySet()) {
+		    if(e.getValue().equals(nm)) {
+			Inventory inv = e.getKey();
+			if((x > 0) && ((x + inv.sz.x) > mw)) {
+			    x = 0;
+			    y += mh + 5;
+			    mh = 0;
+			}
+			inv.c = new Coord(x, y);
+			mh = Math.max(mh, inv.sz.y);
+			x += inv.sz.x + 5;
+		    }
+		}
+		y += mh + 5;
+		n++;
+	    }
+	    this.labels = nl;
+	    pack();
+	}
+
+	public Widget makechild(String type, Object[] pargs, Object[] cargs) {
+	    String nm;
+	    if(pargs.length > 0)
+		nm = (String)pargs[0];
+	    else
+		nm = "";
+	    Inventory inv = (Inventory)gettype(type).create(Coord.z, this, cargs);
+	    names.put(inv, nm);
+	    repack();
+	    return(inv);
+	}
+
+	public void cdestroy(Widget w) {
+	    if((w instanceof Inventory) && names.containsKey(w)) {
+		Inventory inv = (Inventory)w;
+		names.remove(inv);
+		repack();
+	    }
+	}
+    }
+
     private void updhand() {
 	if((hand.isEmpty() && (vhand != null)) || ((vhand != null) && !hand.contains(vhand.item))) {
 	    ui.destroy(vhand);
@@ -221,12 +305,18 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    fv = (Fightview)gettype(type).create(new Coord(sz.x - Fightview.width, 0), this, cargs);
 	    return(fv);
 	} else if(place == "inv") {
-	    invwnd = new Hidewnd(new Coord(100, 100), Coord.z, this, "Inventory");
-	    Inventory inv = (Inventory)gettype(type).create(Coord.z, invwnd, cargs);
-	    invwnd.pack();
-	    invwnd.hide();
-	    maininv = inv;
-	    return(inv);
+	    String nm = (pargs.length > 1)?((String)pargs[1]):null;
+	    if(invwnd == null) {
+		invwnd = new InvWindow(new Coord(100, 100), Coord.z, this, "Inventory");
+		invwnd.hide();
+	    }
+	    if(nm == null) {
+		Inventory inv = (Inventory)invwnd.makechild(type, new Object[0], cargs);
+		maininv = inv;
+		return(inv);
+	    } else {
+		return(invwnd.makechild(type, new Object[] {nm}, cargs));
+	    }
 	} else if(place == "equ") {
 	    equwnd = new Hidewnd(new Coord(400, 10), Coord.z, this, "Equipment");
 	    Widget equ = gettype(type).create(Coord.z, equwnd, cargs);
