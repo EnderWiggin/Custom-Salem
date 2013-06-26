@@ -171,7 +171,7 @@ public class Gobble extends SIWidget {
 	int max = 0;
 	int[] lmax = new int[4];
 	for(int i = 0; i < 4; i++) {
-	    lmax[i] = ui.sess.glob.cattr.get(Tempers.anm[i]).comp;
+	    lmax[i] = ui.sess.glob.cattr.get(Tempers.anm[i]).base;
 	    if(lmax[i] == 0)
 		return;
 	    if(lmax[i] != this.lmax[i]){

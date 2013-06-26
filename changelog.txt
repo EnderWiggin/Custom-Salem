@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 25.06.13:}}
+  * merged loftar's code
+ 
 $size[14]{$u{Update for 25.04.13:}}
   * merged loftar's code
   * unfortunately, screensooter now lost my changes. It now can't save shots to disk. Will be fixed later.
