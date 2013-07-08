@@ -262,6 +262,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	gstate.prep(ibuf);
 	ostate.prep(ibuf);
 	GOut g = new GOut(gl, getContext(), glconf, state, ibuf, new Coord(w, h));
+	UI ui = this.ui;
 	state.set(ibuf);
 
 	g.state(rtstate);
