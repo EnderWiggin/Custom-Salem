@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 08.07.13:}}
+  * merged loftar's code
+ 
 $size[14]{$u{Update for 25.06.13:}}
   * merged loftar's code
  
