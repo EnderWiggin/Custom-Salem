@@ -89,8 +89,7 @@ public class Screenshooter extends Window {
 	public final TexI map, ui;
 	public final Coord sz;
 	public String comment;
-	public GLSettings.Lights light;
-	public boolean fsaa;
+	public boolean fsaa, fl, sdw;
 
 	public Shot(TexI map, TexI ui) {
 	    this.map = map;
@@ -125,9 +124,9 @@ public class Screenshooter extends Window {
 		Node tlist = new IIOMetadataNode("Text");
 		if(info.comment != null)
 		    cmt(tlist, "Comment", info.comment);
-		if(info.light != null)
-		    cmt(tlist, "haven.light", info.light.name());
 		cmt(tlist, "haven.fsaa", info.fsaa?"y":"n");
+		cmt(tlist, "haven.flight", info.fl?"y":"n");
+		cmt(tlist, "haven.sdw", info.sdw?"y":"n");
 		cmt(tlist, "haven.conf", Config.confid);
 		root.appendChild(tlist);
 		dat.setFromTree("javax_imageio_1.0", root);
@@ -160,12 +159,12 @@ public class Screenshooter extends Window {
 
 		Message hdat = new Message(0);
 		hdat.addstring2("HSSI1");
-		if(info.light != null) {
-		    hdat.addstring("light");
-		    hdat.addstring(info.light.name());
-		}
 		hdat.addstring("fsaa");
 		hdat.addstring(info.fsaa?"y":"n");
+		hdat.addstring("flight");
+		hdat.addstring(info.fl?"y":"n");
+		hdat.addstring("sdw");
+		hdat.addstring(info.sdw?"y":"n");
 		hdat.addstring("conf");
 		hdat.addstring(Config.confid);
 		IIOMetadataNode app4 = new IIOMetadataNode("unknown");
@@ -329,7 +328,8 @@ public class Screenshooter extends Window {
 	    private void checkcomplete(GOut g) {
 		if((ss[0] != null) && (ss[1] != null)) {
 		    Shot shot = new Shot(ss[0], ss[1]);
-		    shot.light = g.gc.pref.light.val;
+		    shot.fl = g.gc.pref.flight.val;
+		    shot.sdw = g.gc.pref.lshadow.val;
 		    shot.fsaa = g.gc.pref.fsaa.val;
 		    new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
 		}
