@@ -82,18 +82,20 @@ public class OptWnd extends Window {
 		this.cf = gcf;
 		int y = 0;
 		new CheckBox(new Coord(0, y), this, "Render shadows") {
-		    {a = (cf.light.val == GLSettings.Lights.PSLIGHT);}
+		    {a = cf.lshadow.val;}
 
 		    public void set(boolean val) {
 			if(val) {
 			    try {
-				cf.light.set(GLSettings.Lights.PSLIGHT);
+				cf.flight.set(true);
+				cf.lshadow.set(true);
 			    } catch(GLSettings.SettingException e) {
 				getparent(GameUI.class).error(e.getMessage());
 				return;
 			    }
 			} else {
-			    cf.light.set(GLSettings.Lights.VLIGHT);
+			    cf.lshadow.set(false);
+			    cf.flight.set(false);
 			}
 			a = val;
 			cf.save();
