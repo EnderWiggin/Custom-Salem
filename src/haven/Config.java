@@ -27,7 +27,6 @@
 package haven;
 
 import static haven.Utils.getprop;
-import haven.GLSettings.Lights;
 import haven.GLSettings.SettingException;
 import haven.error.ErrorHandler;
 
@@ -89,12 +88,14 @@ public class Config {
     public static GLSettings glcfg;
     public static String server;
     protected static boolean shadows = false;
+    public static boolean flight = false;
+    public static boolean cellshade = false;
     protected static boolean fsaa = false;
     public static boolean center = false;
     public static float brighten = Utils.getpreff("brighten", 0.0f), maxbright = 2.0f;
     protected static boolean ss_silent = Utils.getprefb("ss_slent", false);
     protected static boolean ss_ui = Utils.getprefb("ss_ui", false);
-    public static boolean hptr = Utils.getprefb("hptr", false);;
+    public static boolean hptr = Utils.getprefb("hptr", false);
     
     static {
 	String p;
@@ -137,6 +138,8 @@ public class Config {
         String ver = options.getProperty("version", "");
         isUpdate = !version.equals(ver);
         shadows = options.getProperty("shadows", "false").equals("true");
+        flight = options.getProperty("flight", "false").equals("true");
+        cellshade = options.getProperty("cellshade", "false").equals("true");
         fsaa = options.getProperty("fsaa", "false").equals("true");
         
         if(isUpdate){
@@ -149,6 +152,8 @@ public class Config {
 	    //refresh from vars
 	    options.setProperty("version", version);
 	    options.setProperty("shadows", shadows?"true":"false");
+	    options.setProperty("flight", flight?"true":"false");
+	    options.setProperty("cellshade", cellshade?"true":"false");
 	    options.setProperty("fsaa", fsaa?"true":"false");
 	    //store it
 	    saveProps(options, "salem.cfg", "Salem config file");
@@ -306,7 +311,9 @@ public class Config {
 	glcfg = pref;
 	try{
 	    glcfg.fsaa.set(fsaa);
-	    glcfg.light.set(shadows?Lights.PSLIGHT:Lights.VLIGHT);
+	    glcfg.lshadow.set(shadows);
+	    glcfg.flight.set(flight);
+	    glcfg.cel.set(cellshade);
 	} catch(SettingException e){}
     }
 

@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.GLSettings.BoolSetting;
+
 import java.util.*;
 import java.awt.Color;
 import java.awt.font.TextAttribute;
@@ -46,6 +48,8 @@ public class OptWnd2 extends Window {
     };
     CheckBox opt_shadow;
     CheckBox opt_aa;
+    CheckBox opt_flight;
+    CheckBox opt_cel;
     CheckBox opt_show_tempers;
 
     private static class CamInfo {
@@ -135,10 +139,7 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("flower_study", val);
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Leave only 'Study' option in right-click menus, if they have one.";
-		}
+		{tooltip = Text.render("Leave only 'Study' option in right-click menus, if they have one.");}
 		
 	    }.a = Config.flower_study;
 	    
@@ -150,10 +151,7 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("pure_mult", val);
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Makes purity displayed as multiplier on item icons";
-		}
+		{tooltip = Text.render("Makes purity displayed as multiplier on item icons");}
 		
 	    }.a = Config.pure_mult;
 	    
@@ -165,10 +163,7 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("radar_icons", val);
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Objects detected by radar will be shown by icons, if available";
-		}
+		{tooltip = Text.render("Objects detected by radar will be shown by icons, if available");}
 		
 	    }.a = Config.radar_icons;
 	    
@@ -180,10 +175,7 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("blink", val);
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Objects detected by radar will blink";
-		}
+		{tooltip = Text.render("Objects detected by radar will blink");}
 		
 	    }.a = Config.blink;
 	    
@@ -195,10 +187,7 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("ss_slent", val);
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Screenshots will be taken without showing screenshot dialog";
-		}
+		{tooltip = Text.render("Screenshots will be taken without showing screenshot dialog");}
 		
 	    }.a = Config.ss_silent;
 	    
@@ -210,10 +199,7 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("ss_ui", val);
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Sets default value of include UI on screenshot dialog";
-		}
+		{tooltip = Text.render("Sets default value of include UI on screenshot dialog");}
 		
 	    }.a = Config.ss_ui;
 	    
@@ -226,11 +212,7 @@ public class OptWnd2 extends Window {
 		    ui.gui.mainmenu.pv = ui.gui.mainmenu.hpv && !val; 
 		}
 
-		@Override
-		public Object tooltip(Coord c, boolean again) {
-		    return "Makes home pointer display as green arrow over character head";
-		}
-		
+		{tooltip = Text.render("Makes home pointer display as green arrow over character head");}
 	    }.a = Config.hptr;
 	}
 
@@ -242,11 +224,11 @@ public class OptWnd2 extends Window {
 	    new Label(new Coord(10, 30), tab, "Camera type:");
 	    final RichTextBox caminfo = new RichTextBox(new Coord(180, 25), new Coord(210, 180), tab, "", foundry);
 	    caminfo.bg = new java.awt.Color(0, 0, 0, 64);
-	    addinfo("ortho",       "Isometric Cam",  "Isometric camera centered on character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("sortho",    "Isometric Cam Smoothed", "Isometric camera centered on character with smoothed movement. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("follow",       "Follow Cam",  "The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("sfollow",    "Follow Cam Smoothed", "The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("free",     "Freestyle",     "You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("ortho",	"Isometric Cam",	"Isometric camera centered on character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("sortho",	"Smooth Isometric Cam",	"Isometric camera centered on character with smoothed movement. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("follow",	"Follow Cam",		"The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("sfollow",	"Smoot Follow Cam",	"The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("free",	"Freestyle",		"You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 
 	    final Tabs cambox = new Tabs(new Coord(100, 60), new Coord(300, 200), tab);
 	    
@@ -276,28 +258,6 @@ public class OptWnd2 extends Window {
 	    cameras.check(caminfomap.containsKey(curcam) ? caminfomap.get(curcam).name : curcam);
 	    
 	    y = 200;
-	    opt_shadow = new CheckBox(new Coord(180, y+=25), tab, "Shadows"){
-		@Override
-		public void set(boolean val) {
-		    if(val) {
-			try {
-			    Config.glcfg.light.set(GLSettings.Lights.PSLIGHT);
-			} catch(GLSettings.SettingException e) {
-			    val = false;
-			    getparent(GameUI.class).error(e.getMessage());
-			    return;
-			}
-		    } else {
-			Config.glcfg.light.set(GLSettings.Lights.VLIGHT);
-		    }
-		    a = val;
-		    Config.shadows = val;
-		    Config.glcfg.save();
-		    Config.saveOptions();
-		}
-	    };
-	    opt_shadow.a = Config.shadows;//Config.glcfg.light.val == GLSettings.Lights.PSLIGHT;
-	    opt_shadow.enabled = Config.glcfg.light.available(GLSettings.Lights.PSLIGHT);
 	    
 	    opt_aa = new CheckBox(new Coord(180, y+=25), tab, "Antialiasing"){
 		@Override
@@ -316,7 +276,74 @@ public class OptWnd2 extends Window {
 		}
 	    };
 	    opt_aa.a = Config.fsaa;//Config.glcfg.fsaa.val;
-	    opt_aa.enabled = Config.glcfg.fsaa.available(true);
+	    checkVideoOpt(opt_aa, Config.glcfg.fsaa);
+	    
+	    int x = 290;
+	    opt_flight = new CheckBox(new Coord(x, y), tab, "Per-pixel lighting"){
+		@Override
+		public void set(boolean val) {
+		    try {
+			Config.glcfg.flight.set(val);
+			if(!val){
+			    Config.glcfg.flight.set(false);
+			    Config.glcfg.cel.set(false);
+			    Config.shadows = opt_shadow.a = false;
+			    Config.cellshade = opt_cel.a = false;
+			}
+		    } catch(GLSettings.SettingException e) {
+			val = false;
+			getparent(GameUI.class).error(e.getMessage());
+			return;
+		    }
+		    a = val;
+		    Config.flight = val;
+		    Config.glcfg.save();
+		    Config.saveOptions();
+		    checkVideoOpt(opt_shadow, Config.glcfg.lshadow);
+		    checkVideoOpt(opt_cel, Config.glcfg.cel);
+		}
+		
+	    };
+	    opt_flight.a = Config.flight;
+	    checkVideoOpt(opt_flight, Config.glcfg.flight, Text.render("Also known as per-fragment lighting"));
+	    
+	    opt_shadow = new CheckBox(new Coord(x, y+=25), tab, "Shadows"){
+		@Override
+		public void set(boolean val) {
+		    try {
+			Config.glcfg.lshadow.set(val);
+		    } catch(GLSettings.SettingException e) {
+			val = false;
+			getparent(GameUI.class).error(e.getMessage());
+			return;
+		    }
+		    a = val;
+		    Config.shadows = val;
+		    Config.glcfg.save();
+		    Config.saveOptions();
+		}
+	    };
+	    opt_shadow.a = Config.shadows;
+	    checkVideoOpt(opt_shadow, Config.glcfg.lshadow);
+	    
+	    opt_cel = new CheckBox(new Coord(x, y+=25), tab, "Cell-shading"){
+		@Override
+		public void set(boolean val) {
+		    try {
+			Config.glcfg.cel.set(val);
+		    } catch(GLSettings.SettingException e) {
+			val = false;
+			getparent(GameUI.class).error(e.getMessage());
+			return;
+		    }
+		    a = val;
+		    Config.cellshade = val;
+		    Config.glcfg.save();
+		    Config.saveOptions();
+		}
+	    };
+	    opt_cel.a = Config.cellshade;
+	    checkVideoOpt(opt_cel, Config.glcfg.cel);
 	    
 	    y = tab.sz.y - 20;
 	    new Label(new Coord(10, y), tab, "Brightness:");
@@ -351,6 +378,21 @@ public class OptWnd2 extends Window {
 	for(Tabs.Tab t : body.tabs) {
 	    if(t.btn.text.text.equals(last))
 		body.showtab(t);
+	}
+    }
+    
+    private static void checkVideoOpt(CheckBox check, BoolSetting setting){
+	checkVideoOpt(check, setting, null);
+    }
+    
+    private static void checkVideoOpt(CheckBox check, BoolSetting setting, Object tooltip){
+	try {
+	    setting.validate(true);
+	    check.enabled = true;
+	    check.tooltip = tooltip;
+	} catch(GLSettings.SettingException e) {
+	    check.enabled = false;
+	    check.tooltip = Text.render(e.getMessage());
 	}
     }
 
