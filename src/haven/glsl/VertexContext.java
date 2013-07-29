@@ -53,9 +53,14 @@ public class VertexContext extends ShaderContext {
 	new Variable.Implicit(Type.VEC4, new Symbol.Fix("gl_MultiTexCoord7")),
     };
 
+    public final ValBlock.Value objv = mainvals.new Value(Type.VEC4, new Symbol.Gen("objv")) {
+	    public Expression root() {
+		return(gl_Vertex.ref());
+	    }
+	};
     public final ValBlock.Value eyev = mainvals.new Value(Type.VEC4, new Symbol.Gen("eyev")) {
 	    public Expression root() {
-		return(new Mul(gl_ModelViewMatrix.ref(), gl_Vertex.ref()));
+		return(new Mul(gl_ModelViewMatrix.ref(), objv.depref()));
 	    }
 	};
     public final ValBlock.Value eyen = mainvals.new Value(Type.VEC3, new Symbol.Gen("eyen")) {
@@ -65,7 +70,7 @@ public class VertexContext extends ShaderContext {
 	};
     public final ValBlock.Value posv = mainvals.new Value(Type.VEC4, new Symbol.Gen("posv")) {
 	    {
-		softdep(eyev);
+		softdep(objv); softdep(eyev);
 		force();
 	    }
 
@@ -74,6 +79,8 @@ public class VertexContext extends ShaderContext {
 			public Expression process(Context ctx) {
 			    if(eyev.used) {
 				return(new Mul(gl_ProjectionMatrix.ref(), eyev.ref()).process(ctx));
+			    } else if(objv.used) {
+				return(new Mul(gl_ModelViewProjectionMatrix.ref(), objv.ref()).process(ctx));
 			    } else {
 				return(new Mul(gl_ModelViewProjectionMatrix.ref(), gl_Vertex.ref()).process(ctx));
 			    }
