@@ -14,7 +14,7 @@ public class WireMesh extends FastMesh {
     }
 
     @Override
-    public void sdraw(GOut g) {
+    public void draw(GOut g) {
 	GL2 gl = g.gl;
 	VertexBuf.VertexArray vbuf = null;
 	for(int i = 0; i < vert.bufs.length; i++) {
