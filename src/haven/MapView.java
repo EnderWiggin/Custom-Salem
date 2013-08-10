@@ -34,7 +34,7 @@ import java.util.*;
 import java.lang.reflect.*;
 import javax.media.opengl.*;
 
-public class MapView extends PView implements DTarget {
+public class MapView extends PView implements DTarget, Console.Directory {
     public long plgob = -1;
     public Coord cc;
     private final Glob glob;
@@ -46,6 +46,7 @@ public class MapView extends PView implements DTarget {
     private Plob placing = null;
     private int[] visol = new int[32];
     private Grabber grab;
+    private static final Map<String, Class<? extends Camera>> camtypes = new HashMap<String, Class<? extends Camera>>();
     {visol[4] = 1;}
     
     public interface Delayed {
@@ -91,7 +92,7 @@ public class MapView extends PView implements DTarget {
 	public abstract void tick(double dt);
     }
     
-    private class FollowCam extends Camera {
+    public class FollowCam extends Camera {
 	private final float fr = 0.0f, h = 10.0f;
 	private float ca, cd;
 	private Coord3f curc = null;
@@ -100,7 +101,7 @@ public class MapView extends PView implements DTarget {
 	private Coord dragorig = null;
 	private float anglorig;
 	
-	private FollowCam() {
+	public FollowCam() {
 	    elev = telev = (float)Math.PI / 6.0f;
 	    angl = tangl = 0.0f;
 	}
@@ -193,8 +194,9 @@ public class MapView extends PView implements DTarget {
 	    return(String.format("%f %f %f", elev, dist(elev), field(elev)));
 	}
     }
+    static {camtypes.put("follow", FollowCam.class);}
 
-    private class FreeCam extends Camera {
+    public class FreeCam extends Camera {
 	private float dist = 50.0f;
 	private float elev = (float)Math.PI / 4.0f;
 	private float angl = 0.0f;
@@ -234,8 +236,9 @@ public class MapView extends PView implements DTarget {
 	    return(true);
 	}
     }
+    static {camtypes.put("sucky", FreeCam.class);}
     
-    private class OrthoCam extends Camera {
+    public class OrthoCam extends Camera {
 	protected float dist = 500.0f;
 	protected float elev = (float)Math.PI / 6.0f;
 	protected float angl = -(float)Math.PI / 4.0f;
@@ -277,7 +280,7 @@ public class MapView extends PView implements DTarget {
 	}
     }
 
-    private class SOrthoCam extends OrthoCam {
+    public class SOrthoCam extends OrthoCam {
 	private Coord dragorig = null;
 	private float anglorig;
 	private float tangl = angl;
@@ -319,6 +322,7 @@ public class MapView extends PView implements DTarget {
 	    return(true);
 	}
     }
+    static {camtypes.put("ortho", SOrthoCam.class);}
 
     @RName("mapview")
     public static class $_ implements Factory {
@@ -1120,5 +1124,20 @@ public class MapView extends PView implements DTarget {
 		    });
 	    }
 	}
+    }
+
+    private Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
+    {
+	cmdmap.put("cam", new Console.Command() {
+		public void run(Console cons, String[] args) throws Exception {
+		    Class<? extends Camera> cc = camtypes.get(args[1]);
+		    if(cc == null)
+			throw(new Exception("no such camera type: " + args[1]));
+		    camera = Utils.construct(cc.getConstructor(MapView.class), MapView.this);
+		}
+	    });
+    }
+    public Map<String, Console.Command> findcmds() {
+	return(cmdmap);
     }
 }
