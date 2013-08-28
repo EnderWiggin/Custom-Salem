@@ -183,6 +183,9 @@ public class VertexBuf {
 	}
 
 	public Object progid(GOut g) {return(null);}
+
+	/* XXX: For compatibility only. Remove whenever possible. */
+	public void bind(GOut g) {bind(g, false);}
     }
     
     public static class NormalArray extends FloatArray implements GLArray {
@@ -210,6 +213,9 @@ public class VertexBuf {
 	}
 
 	public Object progid(GOut g) {return(null);}
+
+	/* XXX: For compatibility only. Remove whenever possible. */
+	public void bind(GOut g) {bind(g, false);}
     }
 
     public static class ColorArray extends FloatArray implements GLArray {
