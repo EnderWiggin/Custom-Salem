@@ -30,9 +30,6 @@ import java.util.*;
 import java.nio.*;
 import javax.media.opengl.*;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-
 public class FastMesh implements FRendered, Disposable {
     public static final GLState.Slot<GLState> vstate = new GLState.Slot<GLState>(GLState.Slot.Type.SYS, GLState.class);
     public final VertexBuf vert;

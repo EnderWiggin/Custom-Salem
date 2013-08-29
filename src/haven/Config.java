@@ -51,7 +51,7 @@ public class Config {
     public static URL mapurl = geturl("haven.mapurl", "");
     public static URL screenurl = geturl("haven.screenurl", "http://plymouth.seatribe.se/mt/ss");
     public static URL storeurl = geturl("haven.storeurl", "http://services.paradoxplaza.com/adam/storelette/salem");
-    public static URL regurl = geturl("haven.regurl", "");
+    public static URL regurl = geturl("haven.regurl", "http://login.salemthegame.com/beta/nregister");
     public static boolean dbtext = getprop("haven.dbtext", "off").equals("on");
     public static boolean bounddb = getprop("haven.bounddb", "off").equals("on");
     public static boolean profile = getprop("haven.profile", "off").equals("on");

@@ -40,8 +40,6 @@ import java.io.InputStreamReader;
 
 public class LoginScreen extends Widget {
     Login cur;
-    Login[] lgn;
-    RadioGroup lgnType;
     Text error;
     Window log;
     IButton btn;
@@ -284,17 +282,9 @@ public class LoginScreen extends Widget {
     }
     
     private void clear() {
-	if(lgn != null){
-	    ui.destroy(lgn[0]);
-	    ui.destroy(lgn[1]);
-	    lgn = null;
-	    cur = null;
-	}
 	if(cur != null) {
 	    ui.destroy(cur);
 	    cur = null;
-	}
-	if(btn != null){
 	    ui.destroy(btn);
 	    btn = null;
 	}
