@@ -278,8 +278,28 @@ public class OptWnd2 extends Window {
 	    opt_aa.a = Config.fsaa;//Config.glcfg.fsaa.val;
 	    checkVideoOpt(opt_aa, Config.glcfg.fsaa);
 	    
+	    CheckBox chb = new CheckBox(new Coord(180, y+=25), tab, "Quality water"){
+		@Override
+		public void set(boolean val) {
+		    try {
+			Config.glcfg.wsurf.set(val);
+		    } catch(GLSettings.SettingException e) {
+			val = false;
+			getparent(GameUI.class).error(e.getMessage());
+			return;
+		    }
+		    a = val;
+		    Config.water = val;
+		    Config.glcfg.save();
+		    Config.saveOptions();
+		}
+	    };
+	    chb.a = Config.water;
+	    checkVideoOpt(chb, Config.glcfg.wsurf, Text.render("If character textures glitch, try turning Per-pixel lighting on."));
+	    
+	    y = 200;
 	    int x = 290;
-	    opt_flight = new CheckBox(new Coord(x, y), tab, "Per-pixel lighting"){
+	    opt_flight = new CheckBox(new Coord(x, y+=25), tab, "Per-pixel lighting"){
 		@Override
 		public void set(boolean val) {
 		    try {
