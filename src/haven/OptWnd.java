@@ -116,6 +116,21 @@ public class OptWnd extends Window {
 			cf.save();
 		    }
 		};
+		y += 20;
+		new CheckBox(new Coord(0, y), this, "Better quality water") {
+		    {a = cf.wsurf.val;}
+
+		    public void set(boolean val) {
+			try {
+			    cf.wsurf.set(val);
+			} catch(GLSettings.SettingException e) {
+			    getparent(GameUI.class).error(e.getMessage());
+			    return;
+			}
+			a = val;
+			cf.save();
+		    }
+		};
 	    }
 	}
 

@@ -183,6 +183,9 @@ public class VertexBuf {
 	}
 
 	public Object progid(GOut g) {return(null);}
+
+	/* XXX: For compatibility only. Remove whenever possible. */
+	public void bind(GOut g) {bind(g, false);}
     }
     
     public static class NormalArray extends FloatArray implements GLArray {
@@ -210,6 +213,9 @@ public class VertexBuf {
 	}
 
 	public Object progid(GOut g) {return(null);}
+
+	/* XXX: For compatibility only. Remove whenever possible. */
+	public void bind(GOut g) {bind(g, false);}
     }
 
     public static class ColorArray extends FloatArray implements GLArray {
@@ -266,28 +272,29 @@ public class VertexBuf {
 	public Object progid(GOut g) {return(null);}
     }
 
-    public static class Vec1Array extends FloatArray implements GLArray {
+    public static class NamedFloatArray extends FloatArray implements GLArray {
 	public final haven.glsl.Attribute attr;
 	private int bound = -1;
 
-	public Vec1Array(FloatBuffer data, haven.glsl.Attribute attr) {
-	    super(1, data);
+	public NamedFloatArray(int n, FloatBuffer data, haven.glsl.Attribute attr) {
+	    super(n, data);
 	    this.attr = attr;
 	}
 
 	public void bind(GOut g, boolean asvbo) {
 	    if(g.st.prog != null) {
-		GL2 gl = g.gl;
-		bound = g.st.prog.attrib(attr);
-		if(asvbo) {
-		    bindvbo(g);
-		    gl.glVertexAttribPointer(bound, 1, GL2.GL_FLOAT, false, 0, 0);
-		    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-		} else {
-		    data.rewind();
-		    gl.glVertexAttribPointer(bound, 1, GL2.GL_FLOAT, false, 0, data);
+		if((bound = g.st.prog.cattrib(attr)) != -1) {
+		    GL2 gl = g.gl;
+		    if(asvbo) {
+			bindvbo(g);
+			gl.glVertexAttribPointer(bound, n, GL2.GL_FLOAT, false, 0, 0);
+			gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+		    } else {
+			data.rewind();
+			gl.glVertexAttribPointer(bound, n, GL2.GL_FLOAT, false, 0, data);
+		    }
+		    gl.glEnableVertexAttribArray(bound);
 		}
-		gl.glEnableVertexAttribArray(bound);
 	    }
 	}
 
@@ -301,7 +308,28 @@ public class VertexBuf {
 	public Object progid(GOut g) {
 	    if(g.st.prog == null)
 		return(null);
-	    return(Integer.valueOf(g.st.prog.attrib(attr)));
+	    return(Integer.valueOf(g.st.prog.cattrib(attr)));
+	}
+    }
+
+    public static class Vec1Array extends NamedFloatArray implements GLArray {
+	public Vec1Array(FloatBuffer data, haven.glsl.Attribute attr) {
+	    super(1, data, attr);
+	}
+    }
+    public static class Vec2Array extends NamedFloatArray implements GLArray {
+	public Vec2Array(FloatBuffer data, haven.glsl.Attribute attr) {
+	    super(2, data, attr);
+	}
+    }
+    public static class Vec3Array extends NamedFloatArray implements GLArray {
+	public Vec3Array(FloatBuffer data, haven.glsl.Attribute attr) {
+	    super(3, data, attr);
+	}
+    }
+    public static class Vec4Array extends NamedFloatArray implements GLArray {
+	public Vec4Array(FloatBuffer data, haven.glsl.Attribute attr) {
+	    super(4, data, attr);
 	}
     }
 

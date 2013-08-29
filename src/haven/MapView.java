@@ -30,18 +30,16 @@ import static haven.MCache.tilesz;
 
 import java.awt.Color;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.media.opengl.GL;
-
-public class MapView extends PView implements DTarget {
+public class MapView extends PView implements DTarget, Console.Directory {
     public static final String DEFCAM = "sortho";
-    public static Map<String, Class<? extends Camera>> camtypes;
     public long plgob = -1;
     public Coord cc;
     private final Glob glob;
@@ -53,10 +51,10 @@ public class MapView extends PView implements DTarget {
     private Plob placing = null;
     private int[] visol = new int[32];
     private Grabber grab;
+    public static final Map<String, Class<? extends Camera>> camtypes = new HashMap<String, Class<? extends Camera>>();
     {visol[4] = 1;}
     
     {
-	camtypes = new HashMap<String, Class<? extends Camera>>();
 	camtypes.put("follow", FollowCam.class);
 	camtypes.put("sfollow", SmoothFollowCam.class);
 	camtypes.put("free", FreeCam.class);
@@ -292,7 +290,7 @@ public class MapView extends PView implements DTarget {
 
 	public String toString() {
 	    return(String.format("%f %f %f", elev, dist(elev), field(elev)));
-    }
+	}
     }
 
     private static class FreeCam extends Camera {
@@ -553,7 +551,7 @@ public class MapView extends PView implements DTarget {
 	    try {
 		Coord3f c = gob.getc();
 		Tiler tile = glob.map.tiler(glob.map.gettile(new Coord(c).div(tilesz)));
-		extra = tile.drawstate(c);
+		extra = tile.drawstate(glob, rl.cfg, c);
 	    } catch(Loading e) {
 		extra = null;
 	    }
@@ -579,6 +577,7 @@ public class MapView extends PView implements DTarget {
     public GLState camera()         {return(camera);}
     protected Projection makeproj() {return(null);}
 
+    public Light amb = null;
     private Coord3f smapcc = null;
     private ShadowMap smap = null;
     private long lsmch = 0;
@@ -617,6 +616,9 @@ public class MapView extends PView implements DTarget {
 		    smap = null;
 		    smapcc = null;
 		}
+		amb = light;
+	    } else {
+		amb = null;
 	    }
 	}
 	rl.add(map, null);
@@ -630,6 +632,19 @@ public class MapView extends PView implements DTarget {
 	    extradraw.clear();
 	}
     }
+
+    public static final haven.glsl.Uniform amblight = new haven.glsl.Uniform.AutoApply(haven.glsl.Type.INT) {
+	    public void apply(GOut g, int loc) {
+		int idx = -1;
+		PView.RenderState wnd = g.st.get(PView.wnd);
+		if(wnd instanceof PView.WidgetRenderState) {
+		    Widget wdg = ((PView.WidgetRenderState)wnd).widget();
+		    if(wdg instanceof MapView)
+			idx = g.st.get(Light.lights).index(((MapView)wdg).amb);
+		}
+		g.gl.glUniform1i(loc, idx);
+	    }
+	};
 
     public void drawadd(Rendered extra) {
 	synchronized(extradraw) {
@@ -1205,18 +1220,12 @@ public class MapView extends PView implements DTarget {
 	try {
 	    Constructor<? extends Camera> constructor;
 	    constructor = camtypes.get(cam).getConstructor(MapView.class); 
-	    camera = constructor.newInstance(this);
-	} catch (InstantiationException e) {
-	    e.printStackTrace();
-	} catch (IllegalAccessException e) {
-	    e.printStackTrace();
+	    camera = Utils.construct(constructor, MapView.this);//constructor.newInstance(this);
 	} catch (NoSuchMethodException e) {
 	    e.printStackTrace();
 	} catch (SecurityException e) {
 	    e.printStackTrace();
 	} catch (IllegalArgumentException e) {
-	    e.printStackTrace();
-	} catch (InvocationTargetException e) {
 	    e.printStackTrace();
 	}
     }
@@ -1265,5 +1274,21 @@ public class MapView extends PView implements DTarget {
 		    });
 	    }
 	}
+    }
+
+    private Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
+    {
+	cmdmap.put("cam", new Console.Command() {
+		public void run(Console cons, String[] args) throws Exception {
+		    setcam(args[1]);
+		    Class<? extends Camera> cc = camtypes.get(args[1]);
+		    if(cc == null)
+			throw(new Exception("no such camera type: " + args[1]));
+		    camera = Utils.construct(cc.getConstructor(MapView.class), MapView.this);
+		}
+	    });
+    }
+    public Map<String, Console.Command> findcmds() {
+	return(cmdmap);
     }
 }

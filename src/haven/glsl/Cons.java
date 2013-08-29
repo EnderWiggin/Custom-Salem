@@ -73,6 +73,9 @@ public class Cons {
     public static Vec2Cons vec2(Expression... els) {return(new Vec2Cons(els));}
     public static Mat3Cons mat3(Expression... els) {return(new Mat3Cons(els));}
 
+    public static Expression sin(Expression x) {return(Function.Builtin.sin.call(x));}
+    public static Expression abs(Expression x) {return(Function.Builtin.abs.call(x));}
+    public static Expression mod(Expression x, Expression y) {return(Function.Builtin.mod.call(x, y));}
     public static Expression length(Expression x) {return(Function.Builtin.length.call(x));}
     public static Expression normalize(Expression x) {return(Function.Builtin.normalize.call(x));}
     public static Expression distance(Expression x, Expression y) {return(Function.Builtin.distance.call(x, y));}
@@ -81,6 +84,7 @@ public class Cons {
     public static Expression cross(Expression x, Expression y) {return(Function.Builtin.cross.call(x, y));}
     public static Expression reflect(Expression x, Expression y) {return(Function.Builtin.reflect.call(x, y));}
     public static Expression texture2D(Expression s, Expression c) {return(Function.Builtin.texture2D.call(s, c));}
+    public static Expression texture3D(Expression s, Expression c) {return(Function.Builtin.texture3D.call(s, c));}
     public static Expression textureCube(Expression s, Expression c) {return(Function.Builtin.textureCube.call(s, c));}
     public static Expression mix(Expression x, Expression y, Expression a) {return(Function.Builtin.mix.call(x, y, a));}
     public static Expression clamp(Expression x, Expression a, Expression b) {return(Function.Builtin.clamp.call(x, a, b));}

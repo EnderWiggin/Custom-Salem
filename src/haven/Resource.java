@@ -487,10 +487,19 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
     
     public static class Loading extends haven.Loading {
-	public Resource res;
+	public final Resource res;
 	
 	public Loading(Resource res) {
 	    this.res = res;
+	}
+
+	public String toString() {
+	    return("#<Resource " + res.name + ">");
+	}
+
+	public boolean canwait() {return(true);}
+	public void waitfor() throws InterruptedException {
+	    res.loadwaitint();
 	}
     }
 	
@@ -607,15 +616,15 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	}
 		
 	public synchronized Tex tex() {
-		if(tex != null)
-		    return(tex);
-		tex = new TexI(img) {
-			public String toString() {
-			    return("TexI(" + Resource.this.name + ", " + id + ")");
-			}
-		    };
+	    if(tex != null)
 		return(tex);
-	    }
+	    tex = new TexI(img) {
+		    public String toString() {
+			return("TexI(" + Resource.this.name + ", " + id + ")");
+		    }
+		};
+	    return(tex);
+	}
 		
 	private boolean detectgay() {
 	    for(int y = 0; y < sz.y; y++) {
@@ -814,6 +823,8 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 			return("TileTex(" + Resource.this.name + ")");
 		    }
 		};
+	    packbuf.mipmap();
+	    packbuf.minfilter(javax.media.opengl.GL2.GL_NEAREST_MIPMAP_LINEAR);
 	    packbuf.centroid = true;
 	    Graphics g = packbuf.graphics();
 	    int x = 0, y = 0;
