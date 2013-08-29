@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 29.08.13:}}
+  * merged loftar's code
+ 
 $size[14]{$u{Update for 25.07.13:}}
   * fixed crash when looting people
   * merged loftar's code
