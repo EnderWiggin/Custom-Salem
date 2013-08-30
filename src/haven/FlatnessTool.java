@@ -5,6 +5,7 @@ import haven.MapView.GrabXL;
 import haven.MapView.Grabber;
 
 import java.awt.event.KeyEvent;
+import java.nio.charset.Charset;
 
 class FlatnessTool extends Window implements MapView.Grabber {
     static final String title = "Area selection";
@@ -116,7 +117,7 @@ class FlatnessTool extends Window implements MapView.Grabber {
     }
 
     private void setarea(Coord sz) {
-	area.settext(String.format("Size: (%d×%d) = %dm²", sz.x, sz.y, sz.mul()));
+	area.settext(String.format("Size: (%d\u00D7%d) = %dm\u00B2", sz.x, sz.y, sz.mul()));
     }
 
     @Override

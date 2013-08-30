@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 30.08.13:}}
+  * fixed flatness tool displaying
+ 
 $size[14]{$u{Update for 29.08.13:}}
   * merged loftar's code
  
