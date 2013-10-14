@@ -346,7 +346,7 @@ public class OptWnd2 extends Window {
 	    opt_shadow.a = Config.shadows;
 	    checkVideoOpt(opt_shadow, Config.glcfg.lshadow);
 	    
-	    opt_cel = new CheckBox(new Coord(x, y+=25), tab, "Cell-shading"){
+	    opt_cel = new CheckBox(new Coord(x, y+=25), tab, "Cel-shading"){
 		@Override
 		public void set(boolean val) {
 		    try {
