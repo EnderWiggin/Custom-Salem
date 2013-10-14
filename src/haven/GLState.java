@@ -428,7 +428,7 @@ public abstract class GLState {
 		    usesl = false;
 		    for(int i = 0; i < trans.length; i++) {
 			GLState nst = next.states[i];
-			if((shaders[i] != null) && (nst != null) && nst.reqshaders()) {
+			if((nshaders[i] != null) && (nst != null) && nst.reqshaders()) {
 			    usesl = true;
 			    break;
 			}
