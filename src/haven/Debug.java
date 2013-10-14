@@ -24,38 +24,13 @@
  *  Boston, MA 02111-1307 USA
  */
 
-package haven.resutil;
+package haven;
 
-import java.util.*;
-import haven.*;
-import haven.Resource.Tile;
+public class Debug {
+    public static boolean kf1, kf2, kf3, kf4;
+    public static boolean pk1, pk2, pk3, pk4;
 
-public class GroundTile extends Tiler {
-    public final Resource.Tileset set;
-
-    @ResName("gnd")
-    public static class Fac implements Factory {
-	public Tiler create(int id, Resource.Tileset set) {
-	    return(new GroundTile(id, set));
-	}
-    }
-
-    public GroundTile(int id, Resource.Tileset set) {
-	super(id);
-	this.set = set;
-    }
-    
-    public void lay(MapMesh m, Random rnd, Coord lc, Coord gc) {
-	Tile g = set.ground.pick(rnd);
-	m.new Plane(m.gnd(), lc, 0, g);
-    }
-    
-    public void trans(MapMesh m, Random rnd, Tiler gt, Coord lc, Coord gc, int z, int bmask, int cmask) {
-	if(m.map.gettile(gc) <= id)
-	    return;
-	if((set.btrans != null) && (bmask > 0))
-	    gt.layover(m, lc, gc, z, set.btrans[bmask - 1].pick(rnd));
-	if((set.ctrans != null) && (cmask > 0))
-	    gt.layover(m, lc, gc, z, set.ctrans[cmask - 1].pick(rnd));
+    public static void cycle() {
+	pk1 = kf1; pk2 = kf2; pk3 = kf3; pk4 = kf4;
     }
 }

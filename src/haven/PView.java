@@ -27,23 +27,95 @@
 package haven;
 
 import java.awt.Color;
+import java.util.*;
 import static haven.GOut.checkerr;
 import javax.media.opengl.*;
 
 public abstract class PView extends Widget {
     private RenderList rls;
-    public static final GLState.Slot<RenderState> wnd = new GLState.Slot<RenderState>(GLState.Slot.Type.SYS, RenderState.class, HavenPanel.proj2d);
+    public static final GLState.Slot<RenderContext> ctx = new GLState.Slot<RenderContext>(GLState.Slot.Type.SYS, RenderContext.class);
+    public static final GLState.Slot<RenderState> wnd = new GLState.Slot<RenderState>(GLState.Slot.Type.SYS, RenderState.class, HavenPanel.proj2d, GLFrameBuffer.slot);
     public static final GLState.Slot<Projection> proj = new GLState.Slot<Projection>(GLState.Slot.Type.SYS, Projection.class, wnd);
     public static final GLState.Slot<Camera> cam = new GLState.Slot<Camera>(GLState.Slot.Type.SYS, Camera.class, proj);
     public static final GLState.Slot<Location.Chain> loc = new GLState.Slot<Location.Chain>(GLState.Slot.Type.GEOM, Location.Chain.class, cam);
     public Profile prof = new Profile(300);
     protected Light.Model lm;
-    private GLState rstate, pstate;
+    private final WidgetContext cstate = new WidgetContext();
+    private final WidgetRenderState rstate = new WidgetRenderState();
+    private GLState pstate;
     
+    public static abstract class RenderContext extends GLState.Abstract {
+	private Map<DataID, Object> data = new CacheMap<DataID, Object>(CacheMap.RefType.WEAK);
+
+	public interface DataID<T> {
+	    public T make(RenderContext c);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T data(DataID<T> id) {
+	    T ret = (T)data.get(id);
+	    if(ret == null)
+		data.put(id, ret = id.make(this));
+	    return(ret);
+	}
+
+	public void prep(Buffer b) {
+	    b.put(ctx, this);
+	}
+
+	public Glob glob() {
+	    return(null);
+	}
+    }
+
+    public abstract static class ConfContext extends RenderContext implements GLState.GlobalState {
+	public FBConfig cfg = new FBConfig(sz());
+	public FBConfig cur = new FBConfig(sz());
+
+	protected abstract Coord sz();
+
+	public Global global(RenderList rl, Buffer ctx) {
+	    return(glob);
+	}
+
+	private final Global glob = new Global() {
+		public void postsetup(RenderList rl) {
+		    cfg.fin(cur);
+		    cur = cfg;
+		    cfg = new FBConfig(sz());
+		    if(cur.fb != null) {
+			for(RenderList.Slot s : rl.slots()) {
+			    if(s.os.get(ctx) == ConfContext.this)
+				cur.state.prep(s.os);
+			}
+		    }
+		}
+		public void prerender(RenderList rl, GOut g) {}
+		public void postrender(RenderList rl, GOut g) {}
+	    };
+    }
+
+    public class WidgetContext extends ConfContext {
+	protected Coord sz() {
+	    return(PView.this.sz);
+	}
+
+	public Glob glob() {
+	    return(ui.sess.glob);
+	}
+
+	public PView widget() {
+	    return(PView.this);
+	}
+    }
+
     public static abstract class RenderState extends GLState {
 	public void apply(GOut g) {
 	    GL2 gl = g.gl;
 	    gl.glScissor(g.ul.x, g.root().sz.y - g.ul.y - g.sz.y, g.sz.x, g.sz.y);
+	    /* For the viewport, use the renderstate's indicated size
+	     * and offset explicitly, so as to not fail on partially
+	     * clipped GOuts. */
 	    Coord ul = ul();
 	    Coord sz = sz();
 	    gl.glViewport(ul.x, g.root().sz.y - ul.y - sz.y, sz.x, sz.y);
@@ -73,12 +145,9 @@ public abstract class PView extends Widget {
 	
 	public abstract Coord ul();
 	public abstract Coord sz();
-	public Glob glob() {
-	    return(null);
-	}
     }
-    
-    public class WidgetRenderState extends RenderState {
+
+    private class WidgetRenderState extends RenderState {
 	public Coord ul() {
 	    return(rootpos());
 	}
@@ -86,19 +155,10 @@ public abstract class PView extends Widget {
 	public Coord sz() {
 	    return(PView.this.sz);
 	}
-
-	public Glob glob() {
-	    return(ui.sess.glob);
-	}
-
-	public PView widget() {
-	    return(PView.this);
-	}
     }
     
     public PView(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent);
-	rstate = new WidgetRenderState();
 	pstate = makeproj();
 	lm = new Light.Model();
 	lm.cc = GL2.GL_SEPARATE_SPECULAR_COLOR;
@@ -106,6 +166,7 @@ public abstract class PView extends Widget {
     
     protected GLState.Buffer basic(GOut g) {
 	GLState.Buffer buf = g.st.copy();
+	cstate.prep(buf);
 	rstate.prep(buf);
 	if(pstate != null)
 	    pstate.prep(buf);
@@ -164,20 +225,34 @@ public abstract class PView extends Widget {
 	    rls.fin();
 	    if(curf != null)
 		curf.tick("sort");
-	    g.st.set(def);
-	    g.apply();
-	    if(curf != null)
-		curf.tick("cls");
-	    GL gl = g.gl;
+	    GOut rg;
+	    if(cstate.cur.fb != null) {
+		GLState.Buffer gb = g.basicstate();
+		HavenPanel.OrthoState.fixed(cstate.cur.fb.sz()).prep(gb);
+		cstate.cur.fb.prep(gb);
+		cstate.cur.fb.prep(def);
+		rg = new GOut(g.gl, g.ctx, g.gc, g.st, gb, cstate.cur.fb.sz());
+	    } else {
+		rg = g;
+	    }
+	    rg.st.set(def);
 	    Color cc = clearcolor();
+	    if((cc == null) && (cstate.cur.fb != null))
+		cc = new Color(0, 0, 0, 0);
+	    rg.apply();
+	    GL gl = rg.gl;
 	    if(cc == null) {
 		gl.glClear(gl.GL_DEPTH_BUFFER_BIT);
 	    } else {
 		gl.glClearColor((float)cc.getRed() / 255f, (float)cc.getGreen() / 255f, (float)cc.getBlue() / 255f, (float)cc.getAlpha() / 255f);
 		gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT);
 	    }
+	    if(curf != null)
+		curf.tick("cls");
 	    g.st.time = 0;
-	    rls.render(g);
+	    rls.render(rg);
+	    if(cstate.cur.fb != null)
+		cstate.cur.resolve(g);
 	    if(curf != null) {
 		curf.add("apply", g.st.time);
 		curf.tick("render", g.st.time);

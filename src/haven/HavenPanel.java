@@ -36,7 +36,7 @@ import javax.media.opengl.*;
 import javax.media.opengl.awt.*;
 import javax.media.opengl.glu.GLU;
 
-public class HavenPanel extends GLCanvas implements Runnable {
+public class HavenPanel extends GLCanvas implements Runnable, Console.Directory {
     UI ui;
     boolean inited = false, rdr = false;
     int w, h;
@@ -116,6 +116,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 				gl.glEnable(GL.GL_BLEND);
 				//gl.glEnable(GL.GL_LINE_SMOOTH);
 				gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+				gl.glBlendEquationSeparate(GL.GL_FUNC_ADD, GL2.GL_MAX);
 				if(g.gc.havefsaa()) {
 				    /* Apparently, having sample
 				     * buffers in the config enables
@@ -134,19 +135,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 		}
 
 		public void reshape(GLAutoDrawable d, final int x, final int y, final int w, final int h) {
-		    ostate = new GLState() {
-			    public void apply(GOut g) {
-				GL2 gl = g.gl;
-				g.st.matmode(GL2.GL_PROJECTION);
-				gl.glLoadIdentity();
-				gl.glOrtho(0, w, h, 0, -1, 1);
-			    }
-			    public void unapply(GOut g) {
-			    }
-			    public void prep(Buffer buf) {
-				buf.put(proj2d, this);
-			    }
-			};
+		    ostate = OrthoState.fixed(new Coord(w, h));
 		    rtstate = new GLState() {
 			    public void apply(GOut g) {
 				GL2 gl = g.gl;
@@ -168,6 +157,31 @@ public class HavenPanel extends GLCanvas implements Runnable {
 
 		public void dispose(GLAutoDrawable d) {}
 	    });
+    }
+
+    public static abstract class OrthoState extends GLState {
+	protected abstract Coord sz();
+
+	public void apply(GOut g) {
+	    GL2 gl = g.gl;
+	    Coord sz = sz();
+	    g.st.matmode(GL2.GL_PROJECTION);
+	    gl.glLoadIdentity();
+	    gl.glOrtho(0, sz.x, sz.y, 0, -1, 1);
+	}
+
+	public void unapply(GOut g) {
+	}
+
+	public void prep(Buffer buf) {
+	    buf.put(proj2d, this);
+	}
+
+	public static OrthoState fixed(final Coord sz) {
+	    return(new OrthoState() {
+		    protected Coord sz() {return(sz);}
+		});
+	}
     }
 	
     public void init() {
@@ -240,6 +254,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	ui.root.gprof = prof;
 	if(getParent() instanceof Console.Directory)
 	    ui.cons.add((Console.Directory)getParent());
+	ui.cons.add(this);
 	if(glconf != null)
 	    ui.cons.add(glconf);
 	return(ui);
@@ -409,6 +424,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	    int frames = 0, waited = 0;
 	    fthen = System.currentTimeMillis();
 	    while(true) {
+		Debug.cycle();
 		UI ui = this.ui;
 		then = System.currentTimeMillis();
 		if(Config.profile)
@@ -457,5 +473,17 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	
     public GraphicsConfiguration getconf() {
 	return(getGraphicsConfiguration());
+    }
+
+    private Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
+    {
+	cmdmap.put("hz", new Console.Command() {
+		public void run(Console cons, String[] args) {
+		    fd = 1000 / Integer.parseInt(args[1]);
+		}
+	    });
+    }
+    public Map<String, Console.Command> findcmds() {
+	return(cmdmap);
     }
 }

@@ -581,6 +581,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
     private Coord3f smapcc = null;
     private ShadowMap smap = null;
     private long lsmch = 0;
+    private Outlines outlines = null;
     public void setup(RenderList rl) {
 	Gob pl = player();
 	if(pl != null)
@@ -621,6 +622,11 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		amb = null;
 	    }
 	}
+	if(rl.cfg.pref.outline.val) {
+	    if(outlines == null)
+		outlines = new Outlines(false);
+	    rl.add(outlines, null);
+	}
 	rl.add(map, null);
 	rl.add(mapol, null);
 	rl.add(gobs, null);
@@ -636,9 +642,9 @@ public class MapView extends PView implements DTarget, Console.Directory {
     public static final haven.glsl.Uniform amblight = new haven.glsl.Uniform.AutoApply(haven.glsl.Type.INT) {
 	    public void apply(GOut g, int loc) {
 		int idx = -1;
-		PView.RenderState wnd = g.st.get(PView.wnd);
-		if(wnd instanceof PView.WidgetRenderState) {
-		    Widget wdg = ((PView.WidgetRenderState)wnd).widget();
+		RenderContext ctx = g.st.get(PView.ctx);
+		if(ctx instanceof WidgetContext) {
+		    Widget wdg = ((WidgetContext)ctx).widget();
 		    if(wdg instanceof MapView)
 			idx = g.st.get(Light.lights).index(((MapView)wdg).amb);
 		}

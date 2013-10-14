@@ -97,13 +97,18 @@ public class GLSettings implements java.io.Serializable {
 	}
 
 	public void set(String val) {
-	    E eval;
-	    try {
-		eval = Enum.valueOf(real, val.toUpperCase());
-	    } catch(IllegalArgumentException e) {
-		throw(new SettingException("No such setting: " + e));
+	    E f = null;
+	    val = val.toUpperCase();
+	    for(E e : EnumSet.allOf(real)) {
+		if(e.name().toUpperCase().startsWith(val)) {
+		    if(f != null)
+			throw(new SettingException("Multiple settings with this abbreviation: " + f.name() + ", " + e.name()));
+		    f = e;
+		}
 	    }
-	    set(eval);
+	    if(f == null)
+		throw(new SettingException("No such setting: " + val));
+	    set(f);
 	}
     }
 
@@ -142,10 +147,24 @@ public class GLSettings implements java.io.Serializable {
 		}
 	    }
 	};
-    public final BoolSetting shuse = new BoolSetting("shuse") {
-	    public Boolean defval() {return(cfg.haveglsl());}
-	    public void validate(Boolean val) {
-		if(val && !cfg.haveglsl())
+    public static enum ProgMode {
+	NEVER(false), REQ(true), ALWAYS(true);
+
+	public final boolean on;
+
+	ProgMode(boolean on) {
+	    this.on = on;
+	}
+    };
+    public final EnumSetting<ProgMode> progmode = new EnumSetting<ProgMode>("progmode", ProgMode.class) {
+	    public ProgMode defval() {
+		if(cfg.haveglsl())
+		    return(ProgMode.REQ);
+		else
+		    return(ProgMode.NEVER);
+	    }
+	    public void validate(ProgMode val) {
+		if(val.on && !cfg.haveglsl())
 		    throw(new SettingException("GLSL is not supported."));
 	    }
 	};
@@ -155,7 +174,7 @@ public class GLSettings implements java.io.Serializable {
 	    public void validate(Boolean val) {
 		if(val) {
 		    if(!cfg.haveglsl()) throw(new SettingException("Per-pixel lighting requires a shader-compatible video card."));
-		    if(!shuse.val) throw(new SettingException("Per-pixel lighting requires shader usage."));
+		    if(!progmode.val.on) throw(new SettingException("Per-pixel lighting requires shader usage."));
 		}
 	    }
 	};
@@ -178,12 +197,21 @@ public class GLSettings implements java.io.Serializable {
 		}
 	    }
 	};
-
-    public final BoolSetting wsurf = new BoolSetting("wsurf") {
-	    public Boolean defval() {return(shuse.val);}
+    public final BoolSetting outline = new BoolSetting("outl") {
+	    public Boolean defval() {return(false);}
 	    public void validate(Boolean val) {
 		if(val) {
-		    if(!shuse.val) throw(new SettingException("Shaded water surface requires a shader-compatible video card."));
+		    if(!progmode.val.on) throw(new SettingException("Outline rendering requires shader usage."));
+		    if(!cfg.havefbo()) throw(new SettingException("Outline rendering requires a video card supporting framebuffers."));
+		}
+	    }
+	};
+
+    public final BoolSetting wsurf = new BoolSetting("wsurf") {
+	    public Boolean defval() {return(progmode.val.on);}
+	    public void validate(Boolean val) {
+		if(val) {
+		    if(!progmode.val.on) throw(new SettingException("Shaded water surface requires a shader-compatible video card."));
 		}
 	    }
 	};

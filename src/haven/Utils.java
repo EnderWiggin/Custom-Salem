@@ -662,15 +662,19 @@ public class Utils {
 	return(r);
     }
 
+    /* XXX: These are not actually correct, since an exact integer
+     * will round downwards, but I don't actually expect that to be a
+     * problem given how I use these, and it turns out that
+     * java.lang.Math.floor is actually surprisingly slow (it
+     * delegates for StrictMath.float for some reason). */
     public static int floordiv(float a, float b) {
-	return((int)Math.floor(a / b));
+	float q = a / b;
+	return((q < 0)?(((int)q) - 1):((int)q));
     }
     
     public static float floormod(float a, float b) {
 	float r = a % b;
-	if(r < 0)
-	    r += b;
-	return(r);
+	return((r < 0)?(r + b):r);
     }
 
     public static double clip(double d, double min, double max) {
@@ -750,6 +754,11 @@ public class Utils {
 	else if(s.equalsIgnoreCase("0") || s.equalsIgnoreCase("off") || s.equalsIgnoreCase("false") || s.equalsIgnoreCase("no"))
 	    return(false);
 	throw(new IllegalArgumentException(s));
+    }
+
+    public static boolean eq(Object a, Object b) {
+	return(((a == null) && (b == null)) ||
+	       ((a != null) && (b != null) && a.equals(b)));
     }
 
     public static boolean parsebool(String s, boolean def) {

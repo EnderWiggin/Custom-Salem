@@ -338,8 +338,8 @@ public abstract class GLState {
 	public final GL2 gl;
 	public final GLConfig cfg;
 	private boolean[] trans = new boolean[0], repl = new boolean[0], adirty = new boolean[0];
-	private ShaderMacro[][] shaders = new ShaderMacro[0][];
-	private int proghash = 0;
+	private ShaderMacro[][] shaders = new ShaderMacro[0][], nshaders = new ShaderMacro[0][];
+	private int proghash = 0, nproghash = 0;
 	public ShaderMacro.Program prog;
 	public boolean usedprog;
 	public boolean pdirty = false, sdirty = false;
@@ -398,36 +398,49 @@ public abstract class GLState {
 		    trans = new boolean[slotnum];
 		    repl = new boolean[slotnum];
 		    shaders = Utils.extend(shaders, slotnum);
+		    nshaders = Utils.extend(shaders, slotnum);
 		}
 	    }
 	    bufdiff(cur, next, trans, repl);
 	    Slot<?>[] deplist = GLState.deplist;
-	    boolean dirty = false;
+	    nproghash = proghash;
 	    for(int i = trans.length - 1; i >= 0; i--) {
-		if(sdirty || repl[i] || trans[i]) {
+		nshaders[i] = shaders[i];
+		if(repl[i] || trans[i]) {
 		    GLState nst = next.states[i];
 		    ShaderMacro[] ns = (nst == null)?null:nst.shaders();
-		    if(ns != shaders[i]) {
-			proghash ^= System.identityHashCode(shaders[i]) ^ System.identityHashCode(ns);
-			shaders[i] = ns;
-			dirty = true;
+		    if(ns != nshaders[i]) {
+			nproghash ^= System.identityHashCode(nshaders[i]) ^ System.identityHashCode(ns);
+			nshaders[i] = ns;
+			sdirty = true;
 		    }
 		}
 	    }
 	    usedprog = prog != null;
-	    if(dirty) {
-		sdirty = true;
+	    if(sdirty) {
 		ShaderMacro.Program np;
-		boolean shreq = false;
-		for(int i = 0; i < trans.length; i++) {
-		    GLState nst = next.states[i];
-		    if((shaders[i] != null) && (nst != null) && nst.reqshaders()) {
-			shreq = true;
-			break;
+		boolean usesl;
+		switch(g.gc.pref.progmode.val) {
+		case ALWAYS:
+		    usesl = true;
+		    break;
+		case REQ:
+		    usesl = false;
+		    for(int i = 0; i < trans.length; i++) {
+			GLState nst = next.states[i];
+			if((shaders[i] != null) && (nst != null) && nst.reqshaders()) {
+			    usesl = true;
+			    break;
+			}
 		    }
+		    break;
+		case NEVER:
+		default: /* ¦] */
+		    usesl = false;
+		    break;
 		}
-		if(shreq && g.gc.pref.shuse.val) {
-		    np = findprog(proghash, shaders);
+		if(usesl) {
+		    np = findprog(nproghash, nshaders);
 		} else {
 		    np = null;
 		}
@@ -458,6 +471,8 @@ public abstract class GLState {
 			    stcheckerr(g, "unapply", cur.states[id]);
 		    }
 		    cur.states[id] = null;
+		    proghash ^= System.identityHashCode(shaders[id]);
+		    shaders[id] = null;
 		}
 	    }
 	    /* Note on invariants: States may exit non-locally
@@ -472,6 +487,8 @@ public abstract class GLState {
 		    if(next.states[id] != null) {
 			next.states[id].apply(g);
 			cur.states[id] = next.states[id];
+			proghash ^= System.identityHashCode(shaders[id]) ^ System.identityHashCode(nshaders[id]);
+			shaders[id] = nshaders[id];
 			if(debug)
 			    stcheckerr(g, "apply", cur.states[id]);
 		    }
@@ -483,6 +500,8 @@ public abstract class GLState {
 			stcheckerr(g, "applyto", cur.states[id]);
 		    next.states[id].applyfrom(g, cur.states[id]);
 		    cur.states[id] = next.states[id];
+		    proghash ^= System.identityHashCode(shaders[id]) ^ System.identityHashCode(nshaders[id]);
+		    shaders[id] = nshaders[id];
 		    if(debug)
 			stcheckerr(g, "applyfrom", cur.states[id]);
 		    if(!pdirty && (prog != null))
@@ -683,13 +702,14 @@ public abstract class GLState {
     }
 
     public static GLState compose(final GLState... states) {
+	for(GLState st : states) {
+	    if(st == null)
+		throw(new RuntimeException("null state in list of " + Arrays.asList(states)));
+	}
 	return(new Abstract() {
 		public void prep(Buffer buf) {
-		    for(GLState st : states) {
-			if(st == null)
-			    throw(new RuntimeException("null state in list of " + Arrays.asList(states)));
+		    for(GLState st : states)
 			st.prep(buf);
-		    }
 		}
 	    });
     }
