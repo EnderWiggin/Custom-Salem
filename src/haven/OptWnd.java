@@ -100,7 +100,7 @@ public class OptWnd extends Window {
 			    cf.flight.set(false);
 			}
 			a = val;
-			cf.save();
+			cf.dirty = true;
 		    }
 		};
 		y += 20;
@@ -115,7 +115,7 @@ public class OptWnd extends Window {
 			    return;
 			}
 			a = val;
-			cf.save();
+			cf.dirty = true;
 		    }
 		};
 		y += 20;
@@ -130,7 +130,7 @@ public class OptWnd extends Window {
 			    return;
 			}
 			a = val;
-			cf.save();
+			cf.dirty = true;
 		    }
 		};
 	    }

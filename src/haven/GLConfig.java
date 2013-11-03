@@ -113,12 +113,18 @@ public class GLConfig implements java.io.Serializable, Console.Directory {
 			for(GLSettings.Setting<?> s : pref.settings()) {
 			    if(s.nm == var) {
 				s.set(args[2]);
-				pref.save();
+				pref.dirty = true;
 				return;
 			    }
 			}
 			throw(new Exception("No such setting: " + var));
 		    }
+		}
+	    });
+	cmdmap.put("glreset", new Console.Command() {
+		public void run(Console cons, String[] args) {
+		    pref = GLSettings.defconf(GLConfig.this);
+		    pref.dirty = true;
 		}
 	    });
     }
