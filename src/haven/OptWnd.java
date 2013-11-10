@@ -133,6 +133,36 @@ public class OptWnd extends Window {
 			cf.dirty = true;
 		    }
 		};
+		y += 20;
+		new Label(new Coord(0, y), this, "Anisotropic filtering");
+		if(cf.anisotex.max() <= 1) {
+		    new Label(new Coord(15, y + 15), this, "(Not supported)");
+		} else {
+		    final Label dpy = new Label(new Coord(165, y + 15), this, "");
+		    new HSlider(new Coord(0, y + 15), 160, this, (int)(cf.anisotex.min() * 128), (int)(cf.anisotex.max() * 128), (int)(cf.anisotex.val * 128)) {
+			{
+			    dpy();
+			    this.c.y = dpy.c.y + ((dpy.sz.y - this.sz.y) / 2);
+			}
+			void dpy() {
+			    if(val < 128)
+				dpy.settext("Off");
+			    else
+				dpy.settext(String.format("%.1fx", (val / 128.0)));
+			}
+			public void changed() {
+			    try {
+				cf.anisotex.set(val / 128.0f);
+			    } catch(GLSettings.SettingException e) {
+				getparent(GameUI.class).error(e.getMessage());
+				return;
+			    }
+			    dpy();
+			    cf.dirty = true;
+			}
+		    };
+		}
+		y += 30;
 	    }
 	}
 
