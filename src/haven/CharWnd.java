@@ -390,7 +390,16 @@ public class CharWnd extends Window {
 	}
 	attrwdgs.pack();
 	y = attrwdgs.c.y + attrwdgs.sz.y + 15;
-	tmexpl = new Label(new Coord(0, y + 5), this, "Inspiration: ");
+	tmexpl = new Label(new Coord(0, y + 5), this, "Inspiration: ") {
+		Glob.CAttr ac = ui.sess.glob.cattr.get("scap"), ar = ui.sess.glob.cattr.get("srate");
+		int lc = -1, lr = -1;
+		Tex tt = null;
+		public Object tooltip(Coord c, Widget prev) {
+		    if((tt == null) || (ac.comp != lc) || (ar.comp != lr))
+			tt = Text.renderf(Color.WHITE, "Cap: %,d, Rate: %.2f/s", lc = ac.comp, 3 * (lr = ar.comp) / 1000.0).tex();
+		    return(tt);
+		}
+	    };
 	new Label(new Coord(270, 0), this, "Skills:");
 	new Label(new Coord(270, 30), this, "Current:");
 	this.csk = new SkillList(new Coord(270, 45), 170, 6, this) {
