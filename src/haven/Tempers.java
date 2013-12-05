@@ -48,7 +48,7 @@ public class Tempers extends SIWidget {
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
     int[] soft = new int[4], hard = new int[4];
     int[] lmax = new int[4];
-    boolean full = false;
+    public boolean gavail = true;
     Tex tt = null;
     Widget gbtn;
 
@@ -74,13 +74,10 @@ public class Tempers extends SIWidget {
     private FoodInfo lfood;
     public void tick(double dt) {
 	int[] max = new int[4];
-	full = true;
 	for(int i = 0; i < 4; i++) {
 	    max[i] = ui.sess.glob.cattr.get(anm[i]).comp;
 	    if(max[i] == 0)
 		return;
-	    if(hard[i] < max[i])
-		full = false;
 	    if(max[i] != lmax[i]) {
 		redraw();
 		tt = null;
@@ -88,7 +85,7 @@ public class Tempers extends SIWidget {
 	}
 	lmax = max;
 
-	if(full && (gbtn == null)) {
+	if(gavail && (gbtn == null)) {
 	    gbtn = new IButton(Coord.z, parent, gbtni[0], gbtni[1], gbtni[2]) {
 		    public void reqdestroy() {
 			new NormAnim(0.25) {
@@ -123,7 +120,7 @@ public class Tempers extends SIWidget {
 		    }
 		};
 	    raise();
-	} else if(!full && (gbtn != null)) {
+	} else if(!gavail && (gbtn != null)) {
 	    gbtn.reqdestroy();
 	    gbtn = null;
 	}
