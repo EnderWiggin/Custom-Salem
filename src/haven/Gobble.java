@@ -38,13 +38,28 @@ public class Gobble extends SIWidget {
     public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/gbg");
     static Text.Foundry tnf = new Text.Foundry(new java.awt.Font("serif", java.awt.Font.BOLD, 16)).aa(true);
     public int[] lev = new int[4];
-    public List<TypeMod> mods = new LinkedList<TypeMod>();
+    public List<TypeMod> mods = new ArrayList<TypeMod>();
+    static final Color loc = new Color(0, 128, 255);
+    static final Color hic = new Color(0, 128, 64);
+    static final BufferedImage[] lobars, hibars;
     private boolean updt = false;
     private TypeList typelist;
     private int[] lmax = new int[4];
     private int max;
     private Tex lvlmask;
     private long lvltime;
+
+    static {
+	int n = bars.length;
+	BufferedImage[] l = new BufferedImage[n];
+	BufferedImage[] h = new BufferedImage[n];
+	for(int i = 0; i < n; i++) {
+	    l[i] = monochromize(bars[i], loc);
+	    h[i] = monochromize(bars[i], hic);
+	}
+	lobars = l;
+	hibars = h;
+    }
 
     public static class TypeMod {
 	public final Indir<Resource> t;
@@ -148,7 +163,27 @@ public class Gobble extends SIWidget {
 	}
 	if(lfood != food) {
 	    lfood = food;
+	    redraw();
 	}
+    }
+
+    private double foodeff(GobbleInfo food) {
+	double ret = 1.0;
+	for(int t : lfood.types)
+	    ret *= mods.get(t).a;
+	return(ret);
+    }
+
+    private WritableRaster rgmeter(GobbleInfo food, double e, int t) {
+	return(alphablit(rmeter(hibars[t].getRaster(), lev[t] + (int)(e * food.h[t]), max),
+			 rmeter(lobars[t].getRaster(), lev[t] + (int)(e * food.l[t]), max),
+			 Coord.z));
+    }
+
+    private WritableRaster lgmeter(GobbleInfo food, double e, int t) {
+	return(alphablit(lmeter(hibars[t].getRaster(), lev[t] + (int)(e * food.h[t]), max),
+			 lmeter(lobars[t].getRaster(), lev[t] + (int)(e * food.l[t]), max),
+			 Coord.z));
     }
 
     public void draw(BufferedImage buf) {
@@ -159,6 +194,14 @@ public class Gobble extends SIWidget {
 	alphablit(dst, lmeter(sbars[1].getRaster(), lmax[1], max), mc[1].sub(bars[1].getWidth() - 1, 0));
 	alphablit(dst, lmeter(sbars[2].getRaster(), lmax[2], max), mc[2].sub(bars[2].getWidth() - 1, 0));
 	alphablit(dst, rmeter(sbars[3].getRaster(), lmax[3], max), mc[3]);
+
+	if(lfood != null) {
+	    double e = foodeff(lfood);
+	    alphablit(dst, rgmeter(lfood, e, 0), mc[0]);
+	    alphablit(dst, lgmeter(lfood, e, 1), mc[1].sub(bars[1].getWidth() - 1, 0));
+	    alphablit(dst, lgmeter(lfood, e, 2), mc[2].sub(bars[1].getWidth() - 1, 0));
+	    alphablit(dst, rgmeter(lfood, e, 3), mc[3]);
+	}
 
 	alphablit(dst, rmeter(bars[0].getRaster(), lev[0], max), mc[0]);
 	alphablit(dst, lmeter(bars[1].getRaster(), lev[1], max), mc[1].sub(bars[1].getWidth() - 1, 0));
