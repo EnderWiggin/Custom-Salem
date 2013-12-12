@@ -73,7 +73,7 @@ public class GobbleInfo extends ItemInfo.Tip {
 	    if(ev.rp != null)
 		w += 5 + ev.rp.getWidth();
 	    sz.x = Math.max(sz.x, w);
-	    sz.y += 2 + ev.rinf.getHeight();
+	    sz.y += ev.rinf.getHeight();
 	}
 	BufferedImage img = TexI.mkbuf(sz.add(10, head.sz().y + 2));
 	Graphics g = img.getGraphics();
@@ -81,12 +81,12 @@ public class GobbleInfo extends ItemInfo.Tip {
 	g.drawImage(head.img, 0, y, null);
 	y += head.sz().y + 2;
 	g.drawImage(gi, 10, y, null);
-	y += gi.getHeight() + 2;
+	y += gi.getHeight();
 	for(Event ev : evs) {
 	    g.drawImage(ev.rinf, 10, y, null);
 	    if(ev.rp != null)
 		g.drawImage(ev.rp, 10 + ev.rinf.getWidth() + 5, y, null);
-	    y += 2 + ev.rinf.getHeight();
+	    y += ev.rinf.getHeight();
 	}
 	g.dispose();
 	return(img);
