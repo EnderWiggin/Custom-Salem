@@ -31,12 +31,22 @@ import javax.media.opengl.*;
 
 public class DirLight extends Light {
     public float[] dir;
-    
+
+    public DirLight(FColor col, Coord3f dir) {
+	super(col);
+	this.dir = dir.norm().to4a(0.0f);
+    }
+
     public DirLight(Color col, Coord3f dir) {
 	super(col);
 	this.dir = dir.norm().to4a(0.0f);
     }
-    
+
+    public DirLight(FColor amb, FColor dif, FColor spc, Coord3f dir) {
+	super(amb, dif, spc);
+	this.dir = dir.norm().to4a(0.0f);
+    }
+
     public DirLight(Color amb, Color dif, Color spc, Coord3f dir) {
 	super(amb, dif, spc);
 	this.dir = dir.norm().to4a(0.0f);
