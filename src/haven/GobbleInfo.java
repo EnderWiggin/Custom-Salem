@@ -65,7 +65,8 @@ public class GobbleInfo extends ItemInfo.Tip {
 				 Utils.fpformat(l[1], 3, 1), Utils.fpformat(h[1], 3, 1),
 				 Utils.fpformat(l[2], 3, 1), Utils.fpformat(h[2], 3, 1),
 				 Utils.fpformat(l[3], 3, 1), Utils.fpformat(h[3], 3, 1)));
-	buf.append(String.format("Full and Fed Up for %02d:%02d\n", ft / 60, ft % 60));
+	int min = (ft + 30) / 60;
+	buf.append(String.format("Full and Fed Up for %02d:%02d\n", min / 60, min % 60));
 	BufferedImage gi = RichText.render(buf.toString(), 0).img;
 	Coord sz = PUtils.imgsz(gi);
 	for(Event ev : evs) {
