@@ -299,17 +299,13 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    this.base = base;
 	}
 	
-	public InputStream get(String name) {
+	public InputStream get(String name) throws FileNotFoundException {
 	    File cur = base;
 	    String[] parts = name.split("/");
 	    for(int i = 0; i < parts.length - 1; i++)
 		cur = new File(cur, parts[i]);
 	    cur = new File(cur, parts[parts.length - 1] + ".res");
-	    try {
-		return(new FileInputStream(cur));
-	    } catch(FileNotFoundException e) {
-		throw((LoadException)(new LoadException("Could not find resource in filesystem: " + name, this).initCause(e)));
-	    }
+	    return(new FileInputStream(cur));
 	}
 	
 	public String toString() {
@@ -318,10 +314,10 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
 
     public static class JarSource implements ResSource, Serializable {
-	public InputStream get(String name) {
+	public InputStream get(String name) throws FileNotFoundException {
 	    InputStream s = Resource.class.getResourceAsStream("/res/" + name + ".res");
 	    if(s == null)
-		throw(new LoadException("Could not find resource locally: " + name, JarSource.this));
+		throw(new FileNotFoundException("Could not find resource locally: " + name));
 	    return(s);
 	}
 	
@@ -429,28 +425,33 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	private void handle(Resource res) {
 	    InputStream in = null;
 	    try {
-		res.error = null;
 		res.source = src;
 		try {
 		    try {
 			in = src.get(res.name);
 			res.load(in);
+			res.error = null;
 			res.loading = false;
 			res.notifyAll();
 			return;
 		    } catch(IOException e) {
 			throw(new LoadException(e, res));
 		    }
-		} catch(LoadException e) {
+		} catch(RuntimeException e) {
+		    LoadException error;
+		    if(e instanceof LoadException)
+			error = (LoadException)e;
+		    else
+			error = new LoadException(e, res);
+		    error.src = src;
+		    error.prev = res.error;
+		    res.error = error;
 		    if(next == null) {
-			res.error = e;
 			res.loading = false;
 			res.notifyAll();
 		    } else {
 			next.load(res);
 		    }
-		} catch(RuntimeException e) {
-		    throw(new LoadException(e, res));
 		}
 	    } finally {
 		try {
@@ -464,11 +465,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     public static class LoadException extends RuntimeException {
 	public Resource res;
 	public ResSource src;
-	    
-	public LoadException(String msg, ResSource src) {
-	    super(msg);
-	    this.src = src;
-	}
+	public LoadException prev;
 	    
 	public LoadException(String msg, Resource res) {
 	    super(msg);
@@ -801,9 +798,12 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    synchronized(this) {
 		if(tfac == null) {
 		    CodeEntry ent = layer(CodeEntry.class);
-		    if(ent != null)
-			return(ent.get(Tiler.Factory.class));
-		    return(Tiler.byname(tn));
+		    if(ent != null) {
+			tfac = ent.get(Tiler.Factory.class);
+		    } else {
+			if((tfac = Tiler.byname(tn)) == null)
+			    throw(new RuntimeException("Invalid tiler name in " + Resource.this.name + ": " + tn));
+		    }
 		}
 		return(tfac);
 	    }
@@ -1156,6 +1156,26 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	    }
 	}
 	
+	public <T> Class<? extends T> getcl(Class<T> cl, boolean fail) {
+	    load();
+	    PublishedCode entry = cl.getAnnotation(PublishedCode.class);
+	    if(entry == null)
+		throw(new RuntimeException("Tried to fetch non-published res-loaded class " + cl.getName() + " from " + Resource.this.name));
+	    Class<?> acl;
+	    synchronized(lpe) {
+		if((acl = lpe.get(entry.name())) == null) {
+		    if(fail)
+			throw(new RuntimeException("Tried to fetch non-present res-loaded class " + cl.getName() + " from " + Resource.this.name));
+		    return(null);
+		}
+	    }
+	    return(acl.asSubclass(cl));
+	}
+
+	public <T> Class<? extends T> getcl(Class<T> cl) {
+	    return(getcl(cl, true));
+	}
+
 	public <T> T get(Class<T> cl, boolean fail) {
 	    load();
 	    PublishedCode entry = cl.getAnnotation(PublishedCode.class);
@@ -1163,12 +1183,10 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 		throw(new RuntimeException("Tried to fetch non-published res-loaded class " + cl.getName() + " from " + Resource.this.name));
 	    Class<?> acl;
 	    synchronized(lpe) {
-		if(lpe.get(entry.name()) == null) {
+		if((acl = lpe.get(entry.name())) == null) {
 		    if(fail)
 			throw(new RuntimeException("Tried to fetch non-present res-loaded class " + cl.getName() + " from " + Resource.this.name));
 		    return(null);
-		} else {
-		    acl = lpe.get(entry.name());
 		}
 	    }
 	    try {
@@ -1401,9 +1419,10 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
 	
     public boolean equals(Object other) {
-	if(!(other instanceof Resource) || (other == null))
+	if(!(other instanceof Resource))
 	    return(false);
-	return(compareTo((Resource)other) == 0);
+	Resource o = (Resource)other;
+	return(o.name.equals(this.name) && (o.ver == this.ver));
     }
 	
     private void load(InputStream in) throws IOException {
@@ -1476,7 +1495,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
     }
 	
     public void checkerr() {
-	if(error != null)
+	if(!loading && (error != null))
 	    throw(new RuntimeException("Delayed error in resource " + name + " (v" + ver + "), from " + source, error));
     }
 	

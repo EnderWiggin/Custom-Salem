@@ -24,27 +24,54 @@
  *  Boston, MA 02111-1307 USA
  */
 
-package haven.glsl;
+package haven;
 
 import java.util.*;
+import java.lang.ref.*;
 
-public class Context {
-    public final Map<Symbol, String> symtab = new HashMap<Symbol, String>();
-    public final Map<String, Symbol> rsymtab = new HashMap<String, Symbol>();
-    public int symgen = 1;
-    public List<Toplevel> vardefs = new LinkedList<Toplevel>();
-    public List<Toplevel> fundefs = new LinkedList<Toplevel>();
-    public Set<String> exts = new HashSet<String>();
+public class IDSet<T> {
+    private final HashMap<WRef<T>, WRef<T>> bk = new HashMap<WRef<T>, WRef<T>>();
+    private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
 
-    public void output(Output out) {
-	out.write("#version 120\n\n");
-	for(String ext : exts)
-	    out.write("#extension " + ext + ": require\n");
-	for(Toplevel tl : vardefs)
-	    tl.output(out);
-	if(!vardefs.isEmpty())
-	    out.write("\n");
-	for(Toplevel tl : fundefs)
-	    tl.output(out);
+    private static class WRef<T> extends WeakReference<T> {
+	private final int hash;
+
+	private WRef(T ob, ReferenceQueue<T> queue) {
+	    super(ob, queue);
+	    hash = ob.hashCode();
+	}
+
+	public boolean equals(Object o) {
+	    if(!(o instanceof WRef))
+		return(false);
+	    WRef<?> r = (WRef<?>)o;
+	    return(Utils.eq(get(), r.get()));
+	}
+
+	public int hashCode() {
+	    return(hash);
+	}
+    }
+
+    private void clean() {
+	WRef<?> old;
+	while((old = (WRef<?>)queue.poll()) != null)
+	    bk.remove(old);
+    }
+
+    public T intern(T ob) {
+	synchronized(bk) {
+	    clean();
+	    WRef<T> ref = new WRef<T>(ob, queue);
+	    WRef<T> old = bk.get(ref);
+	    if(old == null) {
+		bk.put(ref, ref);
+		return(ob);
+	    } else {
+		/* Should never return null, since ob is referenced in
+		 * this frame during the entirety of the lookup. */
+		return(old.get());
+	    }
+	}
     }
 }

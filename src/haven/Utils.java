@@ -246,7 +246,12 @@ public class Utils {
     
     public static String getprop(String propname, String def) {
 	try {
-	    return(System.getProperty(propname, def));
+	    String ret;
+	    if((ret = System.getProperty(propname)) != null)
+		return(ret);
+	    if((ret = System.getProperty("jnlp." + propname)) != null)
+		return(ret);
+	    return(def);
 	} catch(SecurityException e) {
 	    return(def);
 	}
@@ -335,7 +340,55 @@ public class Utils {
     public static double float64d(byte[] buf, int off) {
 	return(Double.longBitsToDouble(int64d(buf, off)));
     }
-	
+
+    public static float hfdec(short bits) {
+	int b = ((int)bits) & 0xffff;
+	int e = (b & 0x7c00) >> 10;
+	int m = b & 0x03ff;
+	int ee;
+	if(e == 0) {
+	    if(m == 0) {
+		ee = 0;
+	    } else {
+		int n = Integer.numberOfLeadingZeros(m) - 22;
+		ee = (-15 - n) + 127;
+		m = (m << (n + 1)) & 0x03ff;
+	    }
+	} else if(e == 0x1f) {
+	    ee = 0xff;
+	} else {
+	    ee = e - 15 + 127;
+	}
+	int f32 = ((b & 0x8000) << 16) |
+	    (ee << 23) |
+	    (m << 13);
+	return(Float.intBitsToFloat(f32));
+    }
+
+    public static short hfenc(float f) {
+	int b = Float.floatToIntBits(f);
+	int e = (b & 0x7f800000) >> 23;
+	int m = b & 0x007fffff;
+	int ee;
+	if(e == 0) {
+	    ee = 0;
+	    m = 0;
+	} else if(e == 0xff) {
+	    ee = 0x1f;
+	} else if(e < 113) {
+	    ee = 0;
+	    m = (m | 0x00800000) >> (113 - e);
+	} else if(e > 142) {
+	    return(((b & 0x80000000) == 0)?((short)0x7c00):((short)0xfc00));
+	} else {
+	    ee = e - 127 + 15;
+	}
+	int f16 = ((b >> 16) & 0x8000) |
+	    (ee << 10) |
+	    (m >> 13);
+	return((short)f16);
+    }
+
     static char num2hex(int num) {
 	if(num < 10)
 	    return((char)('0' + num));
@@ -674,7 +727,23 @@ public class Utils {
     
     public static float floormod(float a, float b) {
 	float r = a % b;
-	return((r < 0)?(r + b):r);
+	return((a < 0)?(r + b):r);
+    }
+
+    public static double cangle(double a) {
+	while(a > Math.PI)
+	    a -= Math.PI * 2;
+	while(a < -Math.PI)
+	    a += Math.PI * 2;
+	return(a);
+    }
+
+    public static double cangle2(double a) {
+	while(a > Math.PI * 2)
+	    a -= Math.PI * 2;
+	while(a < 0)
+	    a += Math.PI * 2;
+	return(a);
     }
 
     public static double clip(double d, double min, double max) {
@@ -813,6 +882,33 @@ public class Utils {
     }
     public static IntBuffer mkibuf(int n) {
 	return(mkbbuf(n * 4).asIntBuffer());
+    }
+
+    /*
+    public static ByteBuffer wbbuf(int n) {
+	return(mkbbuf(n));
+    }
+    public static IntBuffer wibuf(int n) {
+	return(mkibuf(n));
+    }
+    public static FloatBuffer wfbuf(int n) {
+	return(mkfbuf(n));
+    }
+    public static ShortBuffer wsbuf(int n) {
+	return(mksbuf(n));
+    }
+    */
+    public static ByteBuffer wbbuf(int n) {
+	return(ByteBuffer.wrap(new byte[n]));
+    }
+    public static IntBuffer wibuf(int n) {
+	return(IntBuffer.wrap(new int[n]));
+    }
+    public static FloatBuffer wfbuf(int n) {
+	return(FloatBuffer.wrap(new float[n]));
+    }
+    public static ShortBuffer wsbuf(int n) {
+	return(ShortBuffer.wrap(new short[n]));
     }
 
     public static float[] c2fa(Color c) {

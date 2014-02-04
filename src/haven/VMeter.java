@@ -83,6 +83,10 @@ public class VMeter extends Widget {
 	if(msg == "set") {
 	    amount = (Integer)args[0];
 	    amt = null;
+	    if(args.length > 1)
+		cl = (Color)args[1];
+	} else if(msg == "col") {
+	    cl = (Color)args[0];
 	} else {
 	    super.uimsg(msg, args);
 	}

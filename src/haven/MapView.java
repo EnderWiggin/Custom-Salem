@@ -471,7 +471,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
     public boolean visol(int ol) {
 	return(visol[ol] > 0);
     }
-	
+
     private final Rendered map = new Rendered() {
 	    public void draw(GOut g) {}
 	    
@@ -577,10 +577,40 @@ public class MapView extends PView implements DTarget, Console.Directory {
     public GLState camera()         {return(camera);}
     protected Projection makeproj() {return(null);}
 
-    public Light amb = null;
     private Coord3f smapcc = null;
     private ShadowMap smap = null;
     private long lsmch = 0;
+    private void updsmap(RenderList rl, DirLight light) {
+	if(rl.cfg.pref.lshadow.val) {
+	    if(smap == null)
+		smap = new ShadowMap(new Coord(2048, 2048), 750, 5000, 1);
+	    smap.light = light;
+	    Coord3f dir = new Coord3f(-light.dir[0], -light.dir[1], -light.dir[2]);
+	    Coord3f cc = getcc();
+	    cc.y = -cc.y;
+	    boolean ch = false;
+	    long now = System.currentTimeMillis();
+	    if((smapcc == null) || (smapcc.dist(cc) > 50)) {
+		smapcc = cc;
+		ch = true;
+	    } else {
+		if(now - lsmch > 100)
+		    ch = true;
+	    }
+	    if(ch) {
+		smap.setpos(smapcc.add(dir.neg().mul(1000f)), dir);
+		lsmch = now;
+	    }
+	    rl.prepc(smap);
+	} else {
+	    if(smap != null)
+		smap.dispose();
+	    smap = null;
+	    smapcc = null;
+	}
+    }
+
+    public Light amb = null;
     private Outlines outlines = new Outlines(false);
     public void setup(RenderList rl) {
 	Gob pl = player();
@@ -590,33 +620,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    if(glob.lightamb != null) {
 		DirLight light = new DirLight(glob.lightamb, glob.lightdif, glob.lightspc, Coord3f.o.sadd((float)glob.lightelev, (float)glob.lightang, 1f));
 		rl.add(light, null);
-		if(rl.cfg.pref.lshadow.val) {
-		    if(smap == null)
-			smap = new ShadowMap(new Coord(2048, 2048), 750, 5000, 1);
-		    smap.light = light;
-		    Coord3f dir = new Coord3f(-light.dir[0], -light.dir[1], -light.dir[2]);
-		    Coord3f cc = getcc();
-		    cc.y = -cc.y;
-		    boolean ch = false;
-		    long now = System.currentTimeMillis();
-		    if((smapcc == null) || (smapcc.dist(cc) > 50)) {
-			smapcc = cc;
-			ch = true;
-		    } else {
-			if(now - lsmch > 100)
-			    ch = true;
-		    }
-		    if(ch) {
-			smap.setpos(smapcc.add(dir.neg().mul(1000f)), dir);
-			lsmch = now;
-		    }
-		    rl.prepc(smap);
-		} else {
-		    if(smap != null)
-			smap.dispose();
-		    smap = null;
-		    smapcc = null;
-		}
+		updsmap(rl, light);
 		amb = light;
 	    } else {
 		amb = null;
@@ -665,6 +669,13 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    return(pl.getc());
 	else
 	    return(new Coord3f(cc.x, cc.y, glob.map.getcz(cc)));
+    }
+
+    private final RenderContext clickctx = new RenderContext();
+    private GLState.Buffer clickbasic(GOut g) {
+	GLState.Buffer ret = basic(g);
+	clickctx.prep(ret);
+	return(ret);
     }
 
     private abstract static class Clicklist<T> extends RenderList {
@@ -738,8 +749,8 @@ public class MapView extends PView implements DTarget, Console.Directory {
     }
 
     private Coord checkmapclick(GOut g, Coord c) {
-	Maplist rl = new Maplist(basic(g));
-	rl.setup(map, basic(g));
+	Maplist rl = new Maplist(clickbasic(g));
+	rl.setup(map, clickbasic(g));
 	rl.fin();
 	{
 	    rl.render(g);
@@ -780,7 +791,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
     }
 
     private ClickInfo checkgobclick(GOut g, Coord c) {
-	Clicklist<ClickInfo> rl = new Clicklist<ClickInfo>(basic(g)) {
+	Clicklist<ClickInfo> rl = new Clicklist<ClickInfo>(clickbasic(g)) {
 		Gob curgob;
 		Gob.Overlay curol;
 		ClickInfo curinfo;
@@ -804,7 +815,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		    curol = prevo;
 		}
 	    };
-	rl.setup(gobs, basic(g));
+	rl.setup(gobs, clickbasic(g));
 	rl.fin();
 	rl.render(g);
 	return(rl.get(g, c));
@@ -1043,7 +1054,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    Coord mc;
 	    try {
 		GL gl = g.gl;
-		g.st.set(basic(g));
+		g.st.set(clickbasic(g));
 		g.apply();
 		gl.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT);
 		mc = checkmapclick(g, pc);
@@ -1073,12 +1084,12 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    ClickInfo gobcl;
 	    try {
 		GL gl = g.gl;
-		g.st.set(basic(g));
+		g.st.set(clickbasic(g));
 		g.apply();
 		gl.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT);
 		mapcl = checkmapclick(g, clickc);
 		g.st.set(bk);
-		g.st.set(basic(g));
+		g.st.set(clickbasic(g));
 		g.apply();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		gobcl = checkgobclick(g, clickc);
