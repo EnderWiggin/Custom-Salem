@@ -36,10 +36,10 @@ public class CharWnd extends Window {
     public final Map<String, Attr> attrs = new HashMap<String, Attr>();
     public final SkillList csk, nsk;
     public final Widget attrwdgs;
-    public int cmod;
+    public int tmexp;
     public boolean skavail;
     private final SkillInfo ski;
-    private final Label cmodl;
+    private final Label tmexpl;
 
     @RName("chr")
     public static class $_ implements Factory {
@@ -96,12 +96,10 @@ public class CharWnd extends Window {
 	public int afforded() {
 	    int ret = 0;
 	    for(int i = 0; i < costa.length; i++) {
-		if(attrs.get(costa[i]).attr.comp * 100 < costv[i])
+		if(attrs.get(costa[i]).attr.base * 100 < costv[i])
 		    return(3);
-		if(attrs.get(costa[i]).sexp < costv[i])
+		if(attrs.get(costa[i]).exp < costv[i])
 		    ret = Math.max(ret, 2);
-		else if(attrs.get(costa[i]).hexp < costv[i])
-		    ret = Math.max(ret, 1);
 	    }
 	    return(ret);
 	}
@@ -255,7 +253,7 @@ public class CharWnd extends Window {
 	public final String nm;
 	public final Resource res;
 	public final Glob.CAttr attr;
-	public int sexp, hexp;
+	public int exp, cap = 500;
 	public boolean av = false;
 	private Text rnm, rv, rexp;
 	private int cv;
@@ -295,13 +293,11 @@ public class CharWnd extends Window {
 	    g.frect(c, sz);
 	    g.chcolor(0, 0, 0, 255);
 	    g.frect(c.add(1, 1), sz.sub(2, 2));
-	    g.chcolor(64, 64, 64, 255);
-	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * sexp) / (attr.comp * 100), sz.y - 2));
 	    if(av)
 		g.chcolor(0, (a == 1)?255:128, 0, 255);
 	    else
 		g.chcolor(0, 0, 128, 255);
-	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * hexp) / (attr.comp * 100), sz.y - 2));
+	    g.frect(c.add(1, 1), new Coord(((sz.x - 2) * Math.min(exp, cap)) / cap, sz.y - 2));
 	    if(ui.lasttip instanceof WItem.ItemTip) {
 		try {
 		    GItem item = ((WItem.ItemTip)ui.lasttip).item();
@@ -309,9 +305,9 @@ public class CharWnd extends Window {
 		    if(insp != null) {
 			for(int i = 0; i < insp.attrs.length; i++) {
 			    if(insp.attrs[i].equals(nm)) {
-				int w = Math.min(((sz.x - 2) * insp.exp[i]) / (attr.comp * 100),
+				int w = Math.min(((sz.x - 2) * insp.exp[i]) / cap,
 						 sz.x - 2);
-				if(insp.exp[i] > (attr.comp * 100))
+				if(insp.exp[i] > cap)
 				    g.chcolor(255, 255, 0, 255);
 				else
 				    g.chcolor(255, 192, 0, 255);
@@ -326,9 +322,9 @@ public class CharWnd extends Window {
 		Skill sk = nsk.sel;
 		for(int i = 0; i < sk.costa.length; i++) {
 		    if(sk.costa[i].equals(nm)) {
-			int w = Math.min(((sz.x - 2) * sk.costv[i]) / (attr.comp * 100),
+			int w = Math.min(((sz.x - 2) * sk.costv[i]) / cap,
 					 sz.x - 2);
-			if(sk.costv[i] > (attr.comp * 100))
+			if(sk.costv[i] > (attr.base * 100))
 			    g.chcolor(255, 0, 0, 255);
 			else
 			    g.chcolor(128, 0, 0, 255);
@@ -339,7 +335,7 @@ public class CharWnd extends Window {
 	    }
 	    g.chcolor();
 	    if(rexp == null)
-		rexp = Text.render(String.format("%d/%d", sexp, attr.comp * 100));
+		rexp = Text.render(String.format("%d/%d", exp, cap));
 	    g.aimage(rexp.tex(), c.add(sz.x / 2, 1), 0.5, 0);
 	}
 
@@ -394,14 +390,16 @@ public class CharWnd extends Window {
 	}
 	attrwdgs.pack();
 	y = attrwdgs.c.y + attrwdgs.sz.y + 15;
-	cmodl = new Label(new Coord(0, y + 5), this, "Learning Ability: ");
-	new CPButton(new Coord(190, y), 50, this, "Reset") {
-	    {tooltip = RichText.render("Discard all currently accumulated proficiency points, and reset learning ability to 100%.", 250).tex();}
-
-	    public void cpclick() {
-		CharWnd.this.wdgmsg("lreset");
-	    }
-	};
+	tmexpl = new Label(new Coord(0, y + 5), this, "Inspiration: ") {
+		Glob.CAttr ac = ui.sess.glob.cattr.get("scap"), ar = ui.sess.glob.cattr.get("srate");
+		int lc = -1, lr = -1;
+		Tex tt = null;
+		public Object tooltip(Coord c, Widget prev) {
+		    if((tt == null) || (ac.comp != lc) || (ar.comp != lr))
+			tt = Text.renderf(Color.WHITE, "Cap: %,d, Rate: %.2f/s", lc = ac.comp, 3 * (lr = ar.comp) / 1000.0).tex();
+		    return(tt);
+		}
+	    };
 	new Label(new Coord(270, 0), this, "Skills:");
 	new Label(new Coord(270, 30), this, "Current:");
 	this.csk = new SkillList(new Coord(270, 45), 170, 6, this) {
@@ -488,12 +486,12 @@ public class CharWnd extends Window {
 	if(msg == "exp") {
 	    for(int i = 0; i < args.length; i += 4) {
 		String nm = (String)args[i];
-		int s = (Integer)args[i + 1];
-		int h = (Integer)args[i + 2];
+		int c = (Integer)args[i + 1];
+		int e = (Integer)args[i + 2];
 		boolean av = ((Integer)args[i + 3]) != 0;
 		Attr a = attrs.get(nm);
-		a.sexp = s;
-		a.hexp = h;
+		a.cap = c;
+		a.exp = e;
 		a.rexp = null;
 		a.av = av;
 	    }
@@ -528,9 +526,9 @@ public class CharWnd extends Window {
 		accnsk = buf;
 	    else
 		nsk.pop(buf);
-	} else if(msg == "cmod") {
-	    cmod = (Integer)args[0];
-	    cmodl.settext(String.format("Learning ability: %d%%", cmod));
+	} else if (msg == "tmexp") {
+	    tmexp = (Integer)args[0];
+	    tmexpl.settext(String.format("Inspiration: %,d", tmexp));
 	}
     }
 }
