@@ -1,8 +1,10 @@
 package haven.minimap;
 
+import java.awt.Color;
 import java.util.*;
 
 import haven.*;
+import haven.minimap.Marker.Shape;
 
 class MarkerFactory {
     private final Set<String> unknownNameCache;
@@ -20,10 +22,15 @@ class MarkerFactory {
     }
 
     public Marker makeMarker(String resname, Gob gob) {
-            MarkerTemplate mt = findTemplate(resname);
-            if (mt != null)
-                return new Marker(resname, gob, mt);
-            return null;
+	MarkerTemplate mt = findTemplate(resname);
+	if ((mt == null) && Config.radar_icons && (gob.getattr(GobIcon.class) != null)){
+	    mt = new MarkerTemplate(Color.WHITE, true, resname, true, Shape.CIRCLE);
+	    templateCache.put(resname, mt);
+	}
+	if(mt != null){
+	    return new Marker(resname, gob, mt);
+	}
+	return null;
     }
 
     private MarkerTemplate findTemplate(String resname) {

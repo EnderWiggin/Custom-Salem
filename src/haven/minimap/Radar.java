@@ -50,7 +50,6 @@ public class Radar {
         if (m != null) {
             markers.put(gob.id, m);
             gob.setattr(new GobBlink(gob));
-            //System.out.println("Marker added: " + name);
         }
     }
 
