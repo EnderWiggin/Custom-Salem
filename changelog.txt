@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 21.02.14:}}
+  * merged loftar's code
+  * disabled food info on craft icons tooltip for now
+ 
 $size[14]{$u{Update for 03.02.14:}}
   * merged loftar's code
  
