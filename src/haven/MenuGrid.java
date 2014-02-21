@@ -227,8 +227,8 @@ public class MenuGrid extends Widget {
 		    evs[3][i] = (int) (1000*lead[i]);
 		}
 		FoodInfo fi = new FoodInfo(null, tempers);
-		GobbleInfo gi = new GobbleInfo(null, evs, 0);
-		return ItemInfo.catimgs(3, fi.longtip(), gi.longtip());
+		//GobbleInfo gi = new GobbleInfo(null, evs, 0);
+		return ItemInfo.catimgs(3, fi.longtip()/*, gi.longtip()*/);
 	    }
 	}
 	return null;

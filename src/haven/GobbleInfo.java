@@ -26,37 +26,70 @@
 
 package haven;
 
+import java.util.*;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class GobbleInfo extends ItemInfo.Tip {
-    private static final String[] colors;
-    static {
-	String[] c = new String[Alchemy.colors.length];
-	for(int i = 0; i < c.length; i++) {
-	    Color col = Alchemy.colors[i];
-	    c[i] = String.format("%d,%d,%d", col.getRed(), col.getGreen(), col.getBlue());
-	}
-	colors = c;
-    };
-    public final int[][] evs;
-    public final int time;
+    public final int[] l, h;
+    public final int[] types;
+    public final int ft;
+    public final List<Event> evs;
     
-    public GobbleInfo(Owner owner, int[][] evs, int time) {
+    public static class Event {
+	public final List<ItemInfo> info;
+	public final double p;
+	private BufferedImage rinf, rp;
+	public Event(List<ItemInfo> info, double p) {this.info = info; this.p = p;}
+    }
+
+    public GobbleInfo(Owner owner, int[] l, int[] h, int[] types, int ft, List<Event> evs) {
 	super(owner);
-	this.evs = evs;
-	this.time = time;
+	this.l = l;
+	this.h = h;
+	this.types = types;
+	this.ft = ft;
+	for(Event ev : this.evs = evs) {
+	    ev.rinf = ItemInfo.longtip(ev.info);
+	    if(ev.p < 1)
+		ev.rp = RichText.render(String.format("$i{(%d%% chance)}", (int)Math.round(ev.p * 100)), 0).img;
+	}
     }
     
+    private static final Text.Line head = Text.render("When gobbled:");
     public BufferedImage longtip() {
 	StringBuilder buf = new StringBuilder();
-	buf.append("Events:\n");
-	for(int i = 0; i < 4; i++) {
-	    buf.append(String.format("  $col[%s]{%s, %s, %s, %s}\n", colors[i], 
-				     Utils.fpformat(evs[i][0], 3, 1), Utils.fpformat(evs[i][1], 3, 1),
-				     Utils.fpformat(evs[i][2], 3, 1), Utils.fpformat(evs[i][3], 3, 1)));
+	buf.append(String.format("Points: %s-%s, %s-%s, %s-%s, %s-%s\n",
+				 Utils.fpformat(l[0], 3, 1), Utils.fpformat(h[0], 3, 1),
+				 Utils.fpformat(l[1], 3, 1), Utils.fpformat(h[1], 3, 1),
+				 Utils.fpformat(l[2], 3, 1), Utils.fpformat(h[2], 3, 1),
+				 Utils.fpformat(l[3], 3, 1), Utils.fpformat(h[3], 3, 1)));
+	int min = (ft + 30) / 60;
+	buf.append(String.format("Full and Fed Up for %02d:%02d\n", min / 60, min % 60));
+	BufferedImage gi = RichText.render(buf.toString(), 0).img;
+	Coord sz = PUtils.imgsz(gi);
+	for(Event ev : evs) {
+	    int w = ev.rinf.getWidth();
+	    if(ev.rp != null)
+		w += 5 + ev.rp.getWidth();
+	    sz.x = Math.max(sz.x, w);
+	    sz.y += ev.rinf.getHeight();
 	}
-	return(RichText.render(buf.toString(), 0).img);
+	BufferedImage img = TexI.mkbuf(sz.add(10, head.sz().y + 2));
+	Graphics g = img.getGraphics();
+	int y = 0;
+	g.drawImage(head.img, 0, y, null);
+	y += head.sz().y + 2;
+	g.drawImage(gi, 10, y, null);
+	y += gi.getHeight();
+	for(Event ev : evs) {
+	    g.drawImage(ev.rinf, 10, y, null);
+	    if(ev.rp != null)
+		g.drawImage(ev.rp, 10 + ev.rinf.getWidth() + 5, y, null);
+	    y += ev.rinf.getHeight();
+	}
+	g.dispose();
+	return(img);
     }
 }

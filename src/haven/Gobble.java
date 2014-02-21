@@ -26,6 +26,7 @@
 
 package haven;
 
+import java.util.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -35,135 +36,107 @@ import static haven.Tempers.*;
 
 public class Gobble extends SIWidget {
     public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/gbg");
-    static final Text.Foundry vf = new Text.Foundry("Serif", 20).aa(true);
+    static Text.Foundry tnf = new Text.Foundry(new java.awt.Font("serif", java.awt.Font.BOLD, 16)).aa(true);
     public int[] lev = new int[4];
-    public int var;
-    public Event[] cevs = null;
-    public Event[] ttevs = null;
-    public Progress prog;
+    public List<TypeMod> mods = new ArrayList<TypeMod>();
+    static final Color loc = new Color(0, 128, 255);
+    static final Color hic = new Color(0, 128, 64);
+    static final BufferedImage[] lobars, hibars;
+    private boolean updt = false;
+    private TypeList typelist;
     private int[] lmax = new int[4];
     private int max;
     private Tex lvlmask;
     private long lvltime;
     Tex[] texts = null;
 
-    public static class Event extends SIWidget {
-	public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/epbg");
-	public static final BufferedImage cap = Resource.loadimg("gfx/hud/tempers/epmask");
-	public static final BufferedImage chm = Resource.loadimg("gfx/hud/tempers/epchm");
-	public static final BufferedImage[] bars;
-	public static final BufferedImage[] titles;
-	public static final Coord[] mc = {new Coord(28, 35), new Coord(28, 59), new Coord(28, 83), new Coord(28, 107)};
-	public static final Coord chmc = new Coord(33, 124);
-	public static final Text.Furnace chmf = new Text.Imager(new Text.Foundry(new Font("Serif", Font.BOLD, 13), Color.WHITE).aa(true)) {
-		protected BufferedImage proc(Text text) {
-		    return(rasterimg(blurmask2(text.img.getRaster(), 1, 1, Color.BLACK)));
+    static {
+	int n = bars.length;
+	BufferedImage[] l = new BufferedImage[n];
+	BufferedImage[] h = new BufferedImage[n];
+	for(int i = 0; i < n; i++) {
+	    l[i] = monochromize(bars[i], loc);
+	    h[i] = monochromize(bars[i], hic);
+	}
+	lobars = l;
+	hibars = h;
+    }
+
+    public static class TypeMod {
+	public final Indir<Resource> t;
+	public double a;
+	private Tex rn, rh, ra;
+	public TypeMod(Indir<Resource> t, double a) {this.t = t; this.a = a;}
+    }
+
+    private class TypeList extends Widget {
+	private int nw;
+
+	private TypeList(Coord c, Widget parent) {
+	    super(c, Coord.z, parent);
+	}
+
+	public void tick(double dt) {
+	    if(updt) {
+		nw = 0;
+		int aw = 0;
+		for(TypeMod m : mods) {
+		    if(m.rn == null) {
+			try {
+			    BufferedImage img = m.t.get().layer(Resource.imgc).img;
+			    String nm = m.t.get().layer(Resource.tooltip).t;
+			    Text rt = tnf.render(nm);
+			    int h = Inventory.sqsz.y;
+			    BufferedImage buf = TexI.mkbuf(new Coord(img.getWidth() + 10 + rt.sz().x, h));
+			    Graphics g = buf.getGraphics();
+			    g.drawImage(img, 0, (h - img.getHeight()) / 2, null);
+			    g.drawImage(rt.img, img.getWidth() + 10, (h - rt.sz().y) / 2, null);
+			    g.dispose();
+			    m.rn = new TexI(rasterimg(blurmask2(buf.getRaster(), 2, 1, new Color(32, 0, 0))));
+			    m.rh = new TexI(rasterimg(blurmask2(buf.getRaster(), 2, 1, new Color(192, 128, 0))));
+			} catch(Loading l) {
+			}
+		    }
+		    if(m.ra == null) {
+			Text rt = tnf.render((int)Math.round(m.a * 100) + "%", new Color(255, (int)(255 * m.a), (int)(255 * m.a)));
+			m.ra = new TexI(rasterimg(blurmask2(rt.img.getRaster(), 2, 1, new Color(0, 0, 0))));
+		    }
+		    nw = Math.max(nw, m.rn.sz().x);
+		    aw = Math.max(aw, m.ra.sz().x);
 		}
-	    };
-	public final int ch, prob;
-	public final int[] acc;
-	public final int max;
-	public int alpha = 255;
-
-	static {
-	    int n = anm.length;
-	    BufferedImage[] b = new BufferedImage[n];
-	    for(int i = 0; i < n; i++)
-		b[i] = Resource.loadimg("gfx/hud/tempers/ep-" + anm[i]);
-	    bars = b;
-	    int an = Alchemy.names.length;
-	    BufferedImage[] t = new BufferedImage[an];
-	    Text.Foundry fnd = new Text.Foundry(new Font("Serif", Font.BOLD, 14)).aa(true);
-	    for(int i = 0; i < n; i++) {
-		t[i] = fnd.render(Alchemy.names[i], Alchemy.colors[i]).img;
+		resize(new Coord(nw + 20 + aw, (Inventory.sqsz.y + 5) * mods.size()));
+		updt = false;
 	    }
-	    titles = t;
-	}
-
-	public Event(Coord c, Widget parent, int ch, int prob, int[] acc, int max) {
-	    super(c, imgsz(bg), parent);
-	    this.ch = ch;
-	    this.prob = prob;
-	    this.acc = acc;
-	    this.max = max;
-	}
-
-	public static WritableRaster evmeter(Raster tex, int val, int max) {
-	    int w = (Utils.clip(val, 0, max) * tex.getWidth()) / Math.max(max, 1);
-	    WritableRaster bar = imgraster(imgsz(tex));
-	    for(int y = 0; y < bar.getHeight(); y++) {
-		for(int x = 0; x < bar.getWidth(); x++)
-		    bar.setSample(x, y, 3, 255);
-	    }
-	    blit(bar, tex, Coord.z);
-	    gayblit(bar, 3, new Coord(w - cap.getWidth(), 0), cap.getRaster(), 0, Coord.z);
-	    for(int y = 0; y < bar.getHeight(); y++) {
-		for(int x = w; x < bar.getWidth(); x++)
-		    bar.setSample(x, y, 3, 0);
-	    }
-	    return(bar);
-	}
-
-	public static WritableRaster chm(int prob) {
-	    BufferedImage mask = TexI.mkbuf(imgsz(chm));
-	    Graphics g = mask.getGraphics();
-	    Utils.AA(g);
-	    g.fillArc(0, 0, mask.getWidth(), mask.getHeight(), 90, (-360 * prob) / 100);
-	    g.dispose();
-	    WritableRaster pm = copy(chm.getRaster());
-	    gayblit(pm, 3, Coord.z, mask.getRaster(), 3, Coord.z);
-	    return(pm);
-	}
-
-	public void draw(BufferedImage buf) {
-	    WritableRaster dst = buf.getRaster();
-	    blit(dst, bg.getRaster(), Coord.z);
-	    alphablit(dst, titles[ch].getRaster(), new Coord((bg.getWidth() - titles[ch].getWidth()) / 2, 5));
-
-	    for(int i = 0; i < bars.length; i++)
-		alphablit(dst, evmeter(bars[i].getRaster(), acc[i], max), mc[i]);
-
-	    alphablit(dst, chm(prob), chmc);
-	    BufferedImage pt = chmf.renderf("%d%%", prob).img;
-	    alphablit(dst, pt.getRaster(), chmc.add(imgsz(chm).sub(imgsz(pt)).div(2)));
 	}
 	
 	public void draw(GOut g) {
-	    if(alpha != 255)
-		g.chcolor(255, 255, 255, alpha);
-	    super.draw(g);
-	}
-
-	public class Discard extends NormAnim {
-	    public Discard() {super(0.5);}
-
-	    public void ntick(double a) {
-		alpha = (int)(255 * (1.0 - a));
-		if(a == 1.0)
-		    destroy();
+	    int tn = 0;
+	    int y = 0;
+	    int h = Inventory.sqsz.y;
+	    boolean[] hl = new boolean[mods.size()];
+	    if(lfood != null) {
+		for(int t : lfood.types)
+		    hl[t] = true;
 	    }
-	}
-
-	public class Trigger extends NormAnim {
-	    Coord oc = c;
-
-	    public Trigger() {super(1.25);}
-
-	    public void ntick(double a) {
-		Coord tc = new Coord(getparent(GameUI.class).sz.x / 2, 0).sub(sz.x / 2, sz.y);
-		if(a < 0.25) {
-		} else {
-		    a = (a - 0.25) / 0.75;
-		    c = new Coord((int)((c.x * (1.0 - a)) + (tc.x * a)), (int)((c.y * (1.0 - a)) + (tc.y * a)));
-		}
-		if(a == 1.0)
-		    destroy();
+	    for(TypeMod m : mods) {
+		if(m.rn != null)
+		    g.image(hl[tn]?m.rh:m.rn, new Coord(0, y));
+		if(m.ra != null)
+		    g.image(m.ra, new Coord(nw + 20, y + ((h - m.ra.sz().y) / 2)));
+		tn++;
+		y += h + 5;
 	    }
 	}
     }
 
     public Gobble(Coord c, Widget parent) {
-	super(c, Utils.imgsz(Tempers.bg).add(0, vf.height() + 6), parent);
+	super(c, Utils.imgsz(Tempers.bg), parent);
+    }
+
+    public void destroy() {
+	if(typelist != null)
+	    typelist.destroy();
+	super.destroy();
     }
 
     private GobbleInfo lfood;
@@ -194,27 +167,28 @@ public class Gobble extends SIWidget {
 	    } catch(Loading e) {}
 	}
 	if(lfood != food) {
-	    if(ttevs != null) {
-		for(Event ev : ttevs)
-		    ev.destroy();
-		ttevs = null;
-	    }
-	    if(food != null) {
-		ttevs = new Event[4];
-		final GameUI gui = getparent(GameUI.class);
-		for(int i = 0; i < Alchemy.names.length; i++) {
-		    final int ic = i;
-		    ttevs[i] = new Event(Coord.z, gui, i, ch.a[i] / 100, food.evs[i], max) {
-			    public void presize() {
-				c = new Coord((gui.sz.x / 2) + (Event.bg.getWidth() * (ic - 2)), (gui.sz.y / 2) + 30);
-			    }
-			};
-		    ttevs[i].alpha = 192;
-		    ttevs[i].presize();
-		}
-	    }
 	    lfood = food;
+	    redraw();
 	}
+    }
+
+    private double foodeff(GobbleInfo food) {
+	double ret = 1.0;
+	for(int t : lfood.types)
+	    ret *= mods.get(t).a;
+	return(ret);
+    }
+
+    private WritableRaster rgmeter(GobbleInfo food, double e, int t) {
+	return(alphablit(rmeter(hibars[t].getRaster(), lev[t] + (int)(e * food.h[t]), max),
+			 rmeter(lobars[t].getRaster(), lev[t] + (int)(e * food.l[t]), max),
+			 Coord.z));
+    }
+
+    private WritableRaster lgmeter(GobbleInfo food, double e, int t) {
+	return(alphablit(lmeter(hibars[t].getRaster(), lev[t] + (int)(e * food.h[t]), max),
+			 lmeter(lobars[t].getRaster(), lev[t] + (int)(e * food.l[t]), max),
+			 Coord.z));
     }
 
     public void draw(BufferedImage buf) {
@@ -226,23 +200,18 @@ public class Gobble extends SIWidget {
 	alphablit(dst, lmeter(sbars[2].getRaster(), lmax[2], max), mc[2].sub(bars[2].getWidth() - 1, 0));
 	alphablit(dst, rmeter(sbars[3].getRaster(), lmax[3], max), mc[3]);
 
+	if(lfood != null) {
+	    double e = foodeff(lfood);
+	    alphablit(dst, rgmeter(lfood, e, 0), mc[0]);
+	    alphablit(dst, lgmeter(lfood, e, 1), mc[1].sub(bars[1].getWidth() - 1, 0));
+	    alphablit(dst, lgmeter(lfood, e, 2), mc[2].sub(bars[1].getWidth() - 1, 0));
+	    alphablit(dst, rgmeter(lfood, e, 3), mc[3]);
+	}
+
 	alphablit(dst, rmeter(bars[0].getRaster(), lev[0], max), mc[0]);
 	alphablit(dst, lmeter(bars[1].getRaster(), lev[1], max), mc[1].sub(bars[1].getWidth() - 1, 0));
 	alphablit(dst, lmeter(bars[2].getRaster(), lev[2], max), mc[2].sub(bars[2].getWidth() - 1, 0));
 	alphablit(dst, rmeter(bars[3].getRaster(), lev[3], max), mc[3]);
-
-	int cv = Math.min(var, 4);
-	WritableRaster vt = vf.render("Invariance: " + var, new Color(Math.min(192 + (cv * 16), 255), Math.max(255 - (cv * 64), 0), 192 - (cv * 48))).img.getRaster();
-	Coord vc = new Coord((sz.x - vt.getWidth()) / 2, boxsz.y + 5);
-	for(int y = vc.y - 3; y < vc.y + vt.getHeight() + 6; y++) {
-	    for(int x = vc.x - 3; x < vc.x + vt.getWidth() + 6; x++) {
-		dst.setSample(x, y, 0, 0);
-		dst.setSample(x, y, 1, 0);
-		dst.setSample(x, y, 2, 0);
-	    }
-	}
-	alphablit(dst, blurmask(vt, 2, 1, Color.BLACK), vc.sub(3, 3));
-	alphablit(dst, vt, vc);
 
 	StringBuilder tbuf = new StringBuilder();
 	for(int i = 0; i < 4; i++)
@@ -280,39 +249,10 @@ public class Gobble extends SIWidget {
 	}
     }
 
-    private void cleareating() {
-	if(cevs != null) {
-	    for(Event ev : cevs)
-		ev.destroy();
-	    prog.destroy();
-	    cevs = null;
-	}
-    }
-
-    public void destroy() {
-	cleareating();
-	if(ttevs != null) {
-	    for(Event ev : ttevs)
-		ev.destroy();
-	}
-	super.destroy();
-    }
-
     public void updt(int[] n) {
 	this.lev = n;
 	texts = null;
 	redraw();
-    }
-
-    public void trig(int a) {
-	for(int i = 0; i < cevs.length; i++) {
-	    if(i == a)
-		cevs[i].new Trigger();
-	    else
-		cevs[i].new Discard();
-	}
-	prog.destroy();
-	cevs = null;
     }
 
     public void lvlup(int a) {
@@ -326,49 +266,20 @@ public class Gobble extends SIWidget {
 	lvltime = System.currentTimeMillis();
     }
 
-    public void updv(int v) {
-	this.var = v;
-	redraw();
-    }
-
-    public void eating(Object... args) {
-	cleareating();
-	if(args.length > 0) {
-	    int a = 0;
-	    Indir<Resource> res = ui.sess.getres((Integer)args[a++]);
-	    int time = (Integer)args[a++];
-	    boolean newt = ((Integer)args[a++]) != 0;
-	    int[] probs = new int[4];
-	    int[][] evs = new int[4][];
-	    for(int i = 0; i < Alchemy.names.length; i++) {
-		probs[i] = (Integer)args[a++] / 100;
-		evs[i] = new int[4];
-		for(int o = 0; o < anm.length; o++) {
-		    evs[i][o] = (Integer)args[a++];
-		}
+    public void typemod(Indir<Resource> t, double a) {
+	updt = true;
+	for(TypeMod m : mods) {
+	    if(m.t == t) {
+		m.a = a;
+		m.ra = null;
+		return;
 	    }
-	    cevs = new Event[4];
-	    final GameUI gui = getparent(GameUI.class);
-	    for(int i = 0; i < Alchemy.names.length; i++) {
-		final int ic = i;
-		cevs[i] = new Event(Coord.z, gui, i, probs[i], evs[i], max) {
-			public void presize() {
-			    c = new Coord((gui.sz.x / 2) + (Event.bg.getWidth() * (ic - 2)), (gui.sz.y / 2) - Event.bg.getHeight() - 30);
-			}
-		    };
-		cevs[i].presize();
-	    }
-	    prog = new Progress(Coord.z, gui) {
-		    public void presize() {
-			c = gui.sz.sub(sz).div(2);
-		    }
-		};
-	    prog.presize();
 	}
-    }
-
-    public void prog(int p) {
-	this.prog.ch(p);
+	mods.add(new TypeMod(t, a));
+	if(typelist == null) {
+	    GameUI gui = getparent(GameUI.class);
+	    typelist = new TypeList(parentpos(gui).add(boxc).add(0, boxsz.y + 5), gui);
+	}
     }
 
     public Object tooltip(Coord c, Widget prev) {

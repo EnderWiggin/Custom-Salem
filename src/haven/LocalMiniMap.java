@@ -43,6 +43,7 @@ import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import haven.resutil.RidgeTile;
 
 import javax.imageio.ImageIO;
 
@@ -148,7 +149,32 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		}
 	    }
 	}
+
+	drawRidges(ul, sz, m, buf, c);
 	return(buf);
+    }
+
+    private void drawRidges(Coord ul, Coord sz, MCache m, BufferedImage buf, Coord c) {
+	for(c.y = 1; c.y < sz.y - 1; c.y++) {
+	    for(c.x = 1; c.x < sz.x - 1; c.x++) {
+		int t = m.gettile(ul.add(c));
+		Tiler tl = m.tiler(t);
+		if(tl instanceof RidgeTile) {
+		    if(((RidgeTile)tl).ridgep(m, ul.add(c))) {
+			for(int y = c.y; y <= c.y + 1; y++) {
+			    for(int x = c.x; x <= c.x + 1; x++) {
+				int rgb = buf.getRGB(x, y);
+				rgb = (rgb & 0xff000000) |
+					(((rgb & 0x00ff0000) >> 17) << 16) |
+					(((rgb & 0x0000ff00) >>  9) << 8) |
+					(((rgb & 0x000000ff) >>  1) << 0);
+				buf.setRGB(x, y, rgb);
+			    }
+			}
+		    }
+		}
+	    }
+	}
     }
 
     private Future<BufferedImage> getheightmap(final Coord plg){
