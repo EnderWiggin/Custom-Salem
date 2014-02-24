@@ -45,8 +45,9 @@ public class Screenshooter extends Window {
     private final CheckBox decobox, pub;
     private final int w, h;
     private Label prog;
-    private Coord btnc;
-    private Button btn;
+    private Label progSave;
+    private Coord btnc, btns;
+    private Button btn, btnSave;
     
     public Screenshooter(Coord c, Widget parent, URL tgt, Shot shot) {
 	super(c, Coord.z, parent, "Screenshot");
@@ -64,11 +65,17 @@ public class Screenshooter extends Window {
 	this.pub = new CheckBox(new Coord(0, comment.c.y + comment.sz.y + 5), this, "Make public");
 	pub.a = true;
 	btnc = new Coord((comment.sz.x - 125) / 2, pub.c.y + pub.sz.y + 20);
+	btns = btnc.add(130, 0);
 	btn = new Button(btnc, 125, this, "Upload") {
 		public void click() {
 		    upload();
 		}
 	    };
+	btnSave = new Button(btns, 125, this, "Save"){
+	    public void click(){
+		save();
+	    }
+	};
 	pack();
     }
     
@@ -304,6 +311,89 @@ public class Screenshooter extends Window {
 		    th.interrupt();
 		}
 	    };
+    }
+    
+    public class Saver extends HackThread {
+	private final TexI img;
+	private final Shot info;
+	private final ImageFormat fmt;
+	
+	public Saver(TexI img, Shot info, ImageFormat fmt) {
+	    super("Screenshot saver");
+	    this.img = img;
+	    this.info = info;
+	    this.fmt = fmt;
+	}
+	
+	public void run() {
+	    try {
+		save(img, info, fmt);
+	    } catch(IOException e) {
+		setstate("Could not save image");
+		synchronized(ui) {
+		    ui.destroy(btn);
+		    btn = new Button(btns, 125, Screenshooter.this, "Retry") {
+			    public void click() {
+				Screenshooter.this.save();
+			    }
+			};
+		}
+	    }
+	}
+
+	private void setstate(String t) {
+	    synchronized(ui) {
+		if(progSave != null)
+		    ui.destroy(progSave);
+		progSave = new Label(btns.sub(0, 15), Screenshooter.this, t);
+	    }
+	}
+
+	private BufferedImage convert(BufferedImage img) {
+	    WritableRaster buf = PUtils.byteraster(PUtils.imgsz(img), 3);
+	    BufferedImage ret = new BufferedImage(outcm, buf, false, null);
+	    java.awt.Graphics g = ret.getGraphics();
+	    g.drawImage(img, 0, 0, null);
+	    g.dispose();
+	    return(ret);
+	}
+
+	public void save(TexI ss, Shot info, ImageFormat fmt) throws IOException {
+	    setstate("Preparing image...");
+	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
+	    
+	    fmt.write(buf, convert(ss.back), info);
+	    
+	    byte[] data = buf.toByteArray();
+	    buf = null;
+	    
+	    File ssfolder = Config.getFile("screenshots");
+	    if(!ssfolder.exists()){
+		ssfolder.mkdirs();
+	    }
+	    File f = new File(ssfolder, String.format("shot_%s_%d.png", Utils.current_date(), System.currentTimeMillis()));
+	    FileOutputStream fos = new FileOutputStream(f);
+	    fos.write(data);
+	    fos.close();
+	    setstate("Done");
+	    final URL result = f.toURI().toURL();
+	    synchronized(ui) {
+		ui.destroy(btnSave);
+		btnSave = new Button(btns, 125, Screenshooter.this, "Open") {
+		    public void click() {
+			if(WebBrowser.self != null)
+			    WebBrowser.self.show(result);
+		    }
+		};
+		ui.message("Screenshot saved");
+	    }
+	}
+    }
+    
+    protected void save() {
+	final Saver th = new Saver(decobox.a?shot.ui:shot.map, shot, png);
+	th.start();
+	ui.destroy(btnSave);
     }
 
     public static void take(final GameUI gameui, final URL tgt) {
