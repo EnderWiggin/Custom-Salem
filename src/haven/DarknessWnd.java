@@ -32,7 +32,7 @@ public class DarknessWnd extends Window {
 	if(instance == null){return;}
 	Glob g = instance.ui.sess.glob;
 	float b = Color.RGBtoHSB(g.origamb.getRed(),g.origamb.getGreen(),g.origamb.getBlue(), null)[2]*100;
-	instance.lbl.settext(String.format("Angle: %.2f°, Elevation: %.2f°, color: (%d, %d, %d), b: %.2f",
+	instance.lbl.settext(String.format("Angle: %.2f\u00b0, Elevation: %.2f\u00b0, color: (%d, %d, %d), b: %.2f",
 				180*g.lightang/Math.PI,
 				180*g.lightelev/Math.PI,
 				g.origamb.getRed(),g.origamb.getGreen(),g.origamb.getBlue(), b));
