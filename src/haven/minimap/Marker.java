@@ -6,15 +6,16 @@ public class Marker {
     public final String name;
     public final Gob gob;
     public final MarkerTemplate template;
-    private final Tex tex;
 
     public static enum Shape{
 	CIRCLE(10),
 	TRIANGLE(13),
 	TRIANGLED(13),
 	DIAMOND(13),
-	SQUARE(9);
+	SQUARE(9),
+	PENTAGON(13);
 	
+	public Tex tex;
 	public int sz;
 
 	Shape(int sz){
@@ -32,6 +33,8 @@ public class Marker {
 		return DIAMOND;
 	    } else if(val.equals("square")){
 		return SQUARE;
+	    } else if(val.equals("pentagon")){
+		return PENTAGON;
 	    }
 	    return CIRCLE;
 	}
@@ -42,7 +45,9 @@ public class Marker {
         this.name = name;
         this.gob = gob;
         this.template = template;
-        this.tex = Utils.generateMarkerTex(template.shape);
+        if(template.shape.tex == null){
+            template.shape.tex = Utils.generateMarkerTex(template.shape);
+        }
     }
     
     public boolean hit(Coord c) {
@@ -71,7 +76,8 @@ public class Marker {
             } catch(Loading l) {}
         }
         g.chcolor(template.color);
-        g.image(tex, ptc.sub(tex.sz().div(2)));
+        Tex tex = template.shape.tex;
+	g.image(tex, ptc.sub(tex.sz().div(2)));
         g.chcolor();
     }
 }

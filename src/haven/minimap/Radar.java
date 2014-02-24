@@ -10,9 +10,7 @@ public class Radar {
     private final MarkerFactory factory;
     private final Map<Long, Marker> markers = new HashMap<Long, Marker>();
     private final Map<Long, GobRes> undefined = new HashMap<Long, GobRes>();
-    private final Map<Long, Color> colors = new HashMap<Long, Color>();
     private final Object markerLock = new Object();
-    private final Object colorLock = new Object();
 
     public Radar() {
         factory = new MarkerFactory();
