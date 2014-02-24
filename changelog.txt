@@ -1,5 +1,12 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 24.02.14:}}
+  * returned ability to save screenshots to disk
+  * fixed path to screenshot upload server
+  * fixed degree symbol in darkness tool
+  * added new radar shape - pentagon
+  * updated radar config - added spiders, wells and mines (to get new config delete $b{Salem/radar.xml} and client will recreate it)
+ 
 $size[14]{$u{Update for 21.02.14:}}
   * merged loftar's code
   * disabled food info on craft icons tooltip for now
