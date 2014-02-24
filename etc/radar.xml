@@ -25,6 +25,7 @@
 	<marker match="gfx/terobjs/herbs/virginiasnail" text="Virginia Snail" show="true" color="#ffffb3" />
 	<marker match="gfx/terobjs/herbs/blackberry" text="Blackberries" color="#5F3299" />
 	<marker match="gfx/terobjs/blackberrybush" text="Blackberry Bush" color="#7647B3" />
+	<marker match="gfx/terobjs/cranberry" text="Cranberry Bush" color="#B23B3D" />
 	<marker match="gfx/terobjs/herbs/huckleberry" text="Huckleberries" color="#5F6699" />
 	<marker match="gfx/terobjs/herbs/crowberry" text="Crowberry Stalk" color="#5F6699" />
 	<marker match="gfx/terobjs/herbs/wildgarlic" text="Wild Garlic" color="#FFF700" />
