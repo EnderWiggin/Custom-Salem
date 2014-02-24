@@ -56,6 +56,7 @@ public class Screenshooter extends Window {
 	this.w = Math.min(200 * shot.sz.x / shot.sz.y, 150);
 	this.h = w * shot.sz.y / shot.sz.x;
 	this.decobox = new CheckBox(new Coord(w, (h - CheckBox.box.sz().y) / 2), this, "Include interface");
+	this.decobox.a = Config.ss_ui;
 	Label clbl = new Label(new Coord(0, h + 5), this, "If you wish, leave a comment:");
 	this.comment = new TextEntry(new Coord(0, clbl.c.y + clbl.sz.y + 5), w + 130, this, "") {
 		public void activate(String text) {
@@ -397,6 +398,7 @@ public class Screenshooter extends Window {
     }
 
     public static void take(final GameUI gameui, final URL tgt) {
+	if(gameui == null){return;}
 	new Object() {
 	    TexI[] ss = {null, null};
 	    {
@@ -421,7 +423,12 @@ public class Screenshooter extends Window {
 		    shot.fl = g.gc.pref.flight.val;
 		    shot.sdw = g.gc.pref.lshadow.val;
 		    shot.fsaa = g.gc.pref.fsaa.val;
-		    new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
+		    Screenshooter s = new Screenshooter(new Coord(100, 100), gameui, tgt, shot);
+		    if(Config.ss_silent){
+			s.visible = false;
+			s.save();
+			s.wdgmsg(s, "close", (Object[])null);
+		    }
 		}
 	    }
 	};
