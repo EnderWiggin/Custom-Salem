@@ -49,7 +49,7 @@ public class Config {
     public static String defserv = getprop("haven.defserv", "127.0.0.1");
     public static URL resurl = geturl("haven.resurl", "");
     public static URL mapurl = geturl("haven.mapurl", "");
-    public static URL screenurl = geturl("haven.screenurl", "http://plymouth.seatribe.se/mt/ss");
+    public static URL screenurl = geturl("haven.screenurl", "http://game.salemthegame.com/mt/ss");
     public static URL storeurl = geturl("haven.storeurl", "http://services.paradoxplaza.com/adam/storelette/salem");
     public static URL regurl = geturl("haven.regurl", "http://login.salemthegame.com/beta/nregister");
     public static boolean dbtext = getprop("haven.dbtext", "off").equals("on");
