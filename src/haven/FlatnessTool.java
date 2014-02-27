@@ -1,11 +1,8 @@
 package haven;
 
 import haven.MCache.LoadingMap;
-import haven.MapView.GrabXL;
-import haven.MapView.Grabber;
 
 import java.awt.event.KeyEvent;
-import java.nio.charset.Charset;
 
 class FlatnessTool extends Window implements MapView.Grabber {
     static final String title = "Area selection";
