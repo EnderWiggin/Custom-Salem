@@ -1,6 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
 $size[14]{$u{Update for 24.02.14:}}
+  * added safeguard to MenuGrid tooltips with data from wiki
+  * fixed FlatnessTool not releasing map grab properly if closed while grabbing mouse
+  * added cranberries to radar
+ 
+$size[14]{$u{Update for 24.02.14:}}
   * returned ability to save screenshots to disk
   * fixed path to screenshot upload server
   * fixed degree symbol in darkness tool
