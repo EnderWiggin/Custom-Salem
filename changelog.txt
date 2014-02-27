@@ -1,6 +1,6 @@
 $size[20]{$u{CHANGE LOG:}}
  
-$size[14]{$u{Update for 24.02.14:}}
+$size[14]{$u{Update for 27.02.14:}}
   * added safeguard to MenuGrid tooltips with data from wiki
   * fixed FlatnessTool not releasing map grab properly if closed while grabbing mouse
   * added cranberries to radar
