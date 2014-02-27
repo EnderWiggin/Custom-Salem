@@ -35,7 +35,6 @@ import haven.ItemInfo.Tip;
 import haven.Resource.AButton;
 import haven.Glob.Pagina;
 import haven.ItemInfo.InfoFactory;
-import haven.Resource.Code;
 
 import java.util.*;
 
@@ -171,23 +170,27 @@ public class MenuGrid extends Widget {
     }
     
     public static BufferedImage getXPgain(String name){
-	Item itm = Wiki.get(name);
-	if(itm != null){
-	    Map<String, Integer> props = itm.attgive;
-	    if(props != null){
-		int n = props.size();
-		String attrs[] = new String[n];
-		int exp[] = new int[n];
-		n = 0;
-		for(String attr : props.keySet()){
-		    Integer val = props.get(attr);
-		    attrs[n] = attr;
-		    exp[n] = val;
-		    n ++;
+	try {
+	    Item itm = Wiki.get(name);
+	    if(itm != null){
+		Map<String, Integer> props = itm.attgive;
+		if(props != null){
+		    int n = props.size();
+		    String attrs[] = new String[n];
+		    int exp[] = new int[n];
+		    n = 0;
+		    for(String attr : props.keySet()){
+			Integer val = props.get(attr);
+			attrs[n] = attr;
+			exp[n] = val;
+			n ++;
+		    }
+		    Inspiration i = new Inspiration(null, attrs, exp);
+		    return i.longtip();
 		}
-		Inspiration i = new Inspiration(null, attrs, exp);
-		return i.longtip();
 	    }
+	}catch (Exception e) {
+	    e.printStackTrace();
 	}
 	return null;
     }
@@ -207,80 +210,92 @@ public class MenuGrid extends Widget {
     }
     
     public static BufferedImage getFood(String name){
-	Item itm = Wiki.get(name);
-	if(itm != null){
-	    Map<String, Float[]> food = itm.food;
-	    if(food != null){
-		float[] def = new float[]{0, 0, 0, 0};
-		float[] heal = safeFloat(food.get("Heals"), def);
-		float[] salt = safeFloat(food.get("Salt"), def);
-		float[] merc = safeFloat(food.get("Mercury"), def);
-		float[] sulph = safeFloat(food.get("Sulphur"), def);
-		float[] lead = safeFloat(food.get("Lead"), def);
-		int[] tempers = new int[4];
-		int[][] evs = new int[4][4];
-		for(int i=0; i<4; i++){
-		    tempers[i] = (int) (1000*heal[i]);
-		    evs[0][i] = (int) (1000*salt[i]);
-		    evs[1][i] = (int) (1000*merc[i]);
-		    evs[2][i] = (int) (1000*sulph[i]);
-		    evs[3][i] = (int) (1000*lead[i]);
+	try {
+	    Item itm = Wiki.get(name);
+	    if(itm != null){
+		Map<String, Float[]> food = itm.food;
+		if(food != null){
+		    float[] def = new float[]{0, 0, 0, 0};
+		    float[] heal = safeFloat(food.get("Heals"), def);
+		    float[] salt = safeFloat(food.get("Salt"), def);
+		    float[] merc = safeFloat(food.get("Mercury"), def);
+		    float[] sulph = safeFloat(food.get("Sulphur"), def);
+		    float[] lead = safeFloat(food.get("Lead"), def);
+		    int[] tempers = new int[4];
+		    int[][] evs = new int[4][4];
+		    for(int i=0; i<4; i++){
+			tempers[i] = (int) (1000*heal[i]);
+			evs[0][i] = (int) (1000*salt[i]);
+			evs[1][i] = (int) (1000*merc[i]);
+			evs[2][i] = (int) (1000*sulph[i]);
+			evs[3][i] = (int) (1000*lead[i]);
+		    }
+		    FoodInfo fi = new FoodInfo(null, tempers);
+		    //GobbleInfo gi = new GobbleInfo(null, evs, 0);
+		    return ItemInfo.catimgs(3, fi.longtip()/*, gi.longtip()*/);
 		}
-		FoodInfo fi = new FoodInfo(null, tempers);
-		//GobbleInfo gi = new GobbleInfo(null, evs, 0);
-		return ItemInfo.catimgs(3, fi.longtip()/*, gi.longtip()*/);
 	    }
-	}
+	} catch (Exception e) {e.printStackTrace();}
 	return null;
     }
     
     public static BufferedImage getArtifact(String name){
-	Item itm = Wiki.get(name);
-	if(itm == null || itm.art_profs == null || itm.art_profs.length == 0){return null;}
-	
-	Resource res = Resource.load("ui/tt/slot");
-	if(res == null){return null;}
-	InfoFactory f = res.layer(Resource.CodeEntry.class).get(InfoFactory.class);
-	Session sess = UI.instance.sess;
-	int rid = sess.getresid("ui/tt/dattr");
-	if(rid == 0){return null;}
-	Object[] bonuses = itm.getArtBonuses();
-	bonuses[0] = rid;
-	Object[] args = new Object[4 + itm.art_profs.length];//{0, itm.art_pmin, itm.art_pmax, "arts", "faith", new Object[]{bonuses}};
-	int i=0;
-	args[i++] = 0;
-	args[i++] = itm.art_pmin;
-	args[i++] = itm.art_pmax;
-	for(String prof : itm.art_profs){
-	    args[i++] = CharWnd.attrbyname(prof);
+	try{
+	    Item itm = Wiki.get(name);
+	    if(itm == null || itm.art_profs == null || itm.art_profs.length == 0){return null;}
+
+	    Resource res = Resource.load("ui/tt/slot");
+	    if(res == null){return null;}
+	    InfoFactory f = res.layer(Resource.CodeEntry.class).get(InfoFactory.class);
+	    Session sess = UI.instance.sess;
+	    int rid = sess.getresid("ui/tt/dattr");
+	    if(rid == 0){return null;}
+	    Object[] bonuses = itm.getArtBonuses();
+	    bonuses[0] = rid;
+	    Object[] args = new Object[4 + itm.art_profs.length];//{0, itm.art_pmin, itm.art_pmax, "arts", "faith", new Object[]{bonuses}};
+	    int i=0;
+	    args[i++] = 0;
+	    args[i++] = itm.art_pmin;
+	    args[i++] = itm.art_pmax;
+	    for(String prof : itm.art_profs){
+		args[i++] = CharWnd.attrbyname(prof);
+	    }
+	    args[i++] = new Object[]{bonuses};
+	    ItemInfo.Tip tip = (Tip) f.build(sess, args);
+	    List<ItemInfo> list = new LinkedList<ItemInfo>();
+	    list.add(tip);
+
+	    return tip.longtip();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return null;
 	}
-	args[i++] = new Object[]{bonuses};
-	ItemInfo.Tip tip = (Tip) f.build(sess, args);
-	List<ItemInfo> list = new LinkedList<ItemInfo>();
-	list.add(tip);
-	
-	return tip.longtip();
     }
     
     public static BufferedImage getSlots(String name){
-	Item itm = Wiki.get(name);
-	if(itm == null || itm.cloth_slots == 0){return null;}
-	
-	Object[] args = new Object[5 + itm.cloth_profs.length];
-	int i = 0;
-	args[i++] = 0;
-	args[i++] = itm.cloth_slots;
-	args[i++] = itm.cloth_pmin;
-	args[i++] = itm.cloth_pmax;
-	for(String prof : itm.cloth_profs){
-	    args[i++] = CharWnd.attrbyname(prof);
+	try {
+	    Item itm = Wiki.get(name);
+	    if(itm == null || itm.cloth_slots == 0){return null;}
+
+	    Object[] args = new Object[5 + itm.cloth_profs.length];
+	    int i = 0;
+	    args[i++] = 0;
+	    args[i++] = itm.cloth_slots;
+	    args[i++] = itm.cloth_pmin;
+	    args[i++] = itm.cloth_pmax;
+	    for(String prof : itm.cloth_profs){
+		args[i++] = CharWnd.attrbyname(prof);
+	    }
+	    args[i++] = 0;
+	    Resource res = Resource.load("ui/tt/slots");
+	    if(res == null){return null;}
+	    InfoFactory f = res.layer(Resource.CodeEntry.class).get(InfoFactory.class);
+	    ItemInfo.Tip tip = (Tip) f.build(null, args);
+	    return tip.longtip();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return null;
 	}
-	args[i++] = 0;
-	Resource res = Resource.load("ui/tt/slots");
-	if(res == null){return null;}
-	InfoFactory f = res.layer(Resource.CodeEntry.class).get(InfoFactory.class);
-	ItemInfo.Tip tip = (Tip) f.build(null, args);
-	return tip.longtip();
     }
     
     public static Tex rendertt(Resource res, boolean withpg, boolean hotkey) {
