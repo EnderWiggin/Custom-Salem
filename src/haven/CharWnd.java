@@ -26,12 +26,16 @@
 
 package haven;
 
+import haven.Tabs.Tab;
+
 import java.awt.Color;
 import java.util.*;
 import java.util.Map.Entry;
 import java.awt.image.BufferedImage;
 
 public class CharWnd extends Window {
+    private static final Color selcol = new Color(0xEAEFB4);
+    private static final Color defcol = new Color(0xB5B094);
     private static final Coord SZ_FULL = new Coord(640, 360);
     public static final Map<String, String> attrnm;
     public static final List<String> attrorder;
@@ -487,19 +491,29 @@ public class CharWnd extends Window {
 	    }
 	};
 	new Label(new Coord(270, 0), this, "Skills:");
-	new Label(new Coord(270, 30), this, "Current:");
-	this.csk = new SkillList(new Coord(270, 45), 170, 6, this) {
+	Tabs body = new Tabs(new Coord(270, 10), new Coord(180, 335), this) {
+	    public void changed(Tab from, Tab to) {
+		from.btn.change(defcol);
+		to.btn.change(selcol);
+	    }
+	};
+	Tab tab;
+	tab = body.new Tab(new Coord(335, 20), 60, "Learned");
+	tab.btn.change(defcol);
+	this.csk = new SkillList(new Coord(0, 30), 170, 14, tab) {
 		public void change(Skill sk) {
 		    Skill p = sel;
 		    super.change(sk);
 		    if(sk != null)
 			nsk.change(null);
 		    if((sk != null) || (p != null))
-		    ski.setsk(sk);
+			ski.setsk(sk);
 		}
 	    };
-	new Label(new Coord(270, 180), this, "Available:");
-	this.nsk = new SkillList(new Coord(270, 195), 170, 6, this) {
+	tab = body.new Tab(new Coord(270, 20), 60, "Available");
+	tab.btn.change(selcol);
+	body.showtab(tab);
+	this.nsk = new SkillList(new Coord(0, 30), 170, 14, tab) {
 		protected void drawitem(GOut g, Skill sk) {
 		    int astate = sk.afforded();
 		    if(astate == 3) {
@@ -525,7 +539,7 @@ public class CharWnd extends Window {
 		    if(sk != null)
 			csk.change(null);
 		    if((sk != null) || (p != null))
-		    ski.setsk(sk);
+			ski.setsk(sk);
 		}
 	    };
 	new Button(new Coord(270, 340), 50, this, "Buy") {
