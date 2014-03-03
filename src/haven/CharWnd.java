@@ -450,10 +450,11 @@ public class CharWnd extends Window {
 	    int delta = attr.comp - (Integer) arg;
 	    if(delta == 0){return;}
 	    rexp = null;
-	    ui.message(String.format("Your '%s' profficiency %s to %d",
+	    ui.message(String.format("Your '%s' profficiency %s to %d (%+d)",
 		    attrnm.get(nm),
 		    (delta>0?"increased":"decreased"),
-		    attr.comp));
+		    attr.comp,
+		    delta));
 	}
     }
 
