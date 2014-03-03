@@ -1,5 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 03.03.14:}}
+  * merged loftar's changes
+  * made flower menu always fit the screen
+  * added proficiency delta displaying to proficiency increased/decreased message
+ 
 $size[14]{$u{Update for 27.02.14:}}
   * added safeguard to MenuGrid tooltips with data from wiki
   * fixed FlatnessTool not releasing map grab properly if closed while grabbing mouse
