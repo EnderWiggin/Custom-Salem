@@ -107,6 +107,13 @@ public class Button extends SIWidget {
     public void change(String text) {
 	change(text, defcol);
     }
+    
+    public void change(Color col) {
+	if(col == null){
+	    col = defcol;
+	}
+	change(text.text, col);
+    }
 
     public void click() {
 	wdgmsg("activate");
