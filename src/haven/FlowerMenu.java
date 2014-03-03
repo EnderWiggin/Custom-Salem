@@ -28,6 +28,8 @@ package haven;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Rectangle;
+
 import static java.lang.Math.PI;
 
 public class FlowerMenu extends Widget {
@@ -142,22 +144,31 @@ public class FlowerMenu extends Widget {
 	}
     }
 
-    private static void organize(Petal[] opts) {
+    private static Rectangle organize(Petal[] opts) {
 	int l = 1, p = 0, i = 0;
 	int lr = -1;
+	Coord min = new Coord(Integer.MAX_VALUE, Integer.MAX_VALUE);
+	Coord max = new Coord(Integer.MIN_VALUE, Integer.MIN_VALUE);
 	for(i = 0; i < opts.length; i++) {
 	    if(lr == -1) {
 		//lr = (int)(ph / (1 - Math.cos((2 * PI) / (ppl * l))));
 		lr = 75 + (50 * (l - 1));
 	    }
-	    opts[i].ta = (PI / 2) - (p * (2 * PI / (l * ppl)));
-	    opts[i].tr = lr;
+	    Petal petal = opts[i];
+	    petal.ta = (PI / 2) - (p * (2 * PI / (l * ppl)));
+	    petal.tr = lr;
 	    if(++p >= (ppl * l)) {
 		l++;
 		p = 0;
 		lr = -1;
 	    }
+	    Coord tc = Coord.sc(petal.ta, petal.tr).sub(petal.sz.div(2));
+	    max.x = Math.max(max.x, tc.x + petal.sz.x);
+	    max.y = Math.max(max.y, tc.y + petal.sz.y);
+	    min.x = Math.min(min.x, tc.x);
+	    min.y = Math.min(min.y, tc.y);
 	}
+	return new Rectangle(min.x, min.y, max.x-min.x, max.y-min.y);
     }
 
     public FlowerMenu(Coord c, Widget parent, String... options) {
@@ -181,10 +192,25 @@ public class FlowerMenu extends Widget {
 	} else {
 	    opts = new Petal[]{study};
 	}
-	organize(opts);
+	fitscreen(organize(opts));
 	ui.grabmouse(this);
 	ui.grabkeys(this);
 	new Opening();
+    }
+
+    private void fitscreen(Rectangle rect) {
+	Coord ssz = ui.gui.sz;
+	Coord wsz = new Coord(rect.width, rect.height);
+	Coord wc = c.add(rect.x, rect.y);
+	
+	if(wc.x < 0)
+	    c.x -= wc.x;
+	if(wc.y < 0)
+	    c.y -= wc.y;
+	if(wc.x + wsz.x > ssz.x)
+	    c.x -= wc.x + wsz.x - ssz.x;
+	if(wc.y + wsz.y > ssz.y)
+	    c.y -= wc.y + wsz.y - ssz.y;
     }
 
     public boolean mousedown(Coord c, int button) {
