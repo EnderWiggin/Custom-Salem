@@ -76,6 +76,7 @@ public class Wiki {
 	imap.put("Thread & Needle", "thread");
 	imap.put("Natural Philosophy", "natp");
 	imap.put("Perennial Philosophy", "perp");
+	imap.put("uses", "uses");
 
 	folder = cfg;
 	if(!folder.exists()){folder.mkdirs();}
@@ -240,7 +241,9 @@ public class Wiki {
 	    Map<String, Integer> attrs = new HashMap<String, Integer>();
 	    for(Entry<String, String> e : args.entrySet()){
 		try {
-		    attrs.put(imap.get(e.getKey()), Integer.parseInt(e.getValue()));
+		    String name = e.getKey();
+		    if(name.equals("inspiration")){continue;}//skip inspiration required, as it is calculated locally
+		    attrs.put(imap.get(name), Integer.parseInt(e.getValue()));
 		} catch (NumberFormatException ex){}
 	    }
 	    item.attgive = attrs;
@@ -414,6 +417,8 @@ public class Wiki {
 	    return item;
 	} catch (MalformedURLException e) {
 	    e.printStackTrace();
+	} catch (NullPointerException e) {
+	    e.printStackTrace();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (SAXException e) {
@@ -504,7 +509,7 @@ public class Wiki {
 	return null;
     }
 
-    private static Map<String, Integer> parse_cache_map(Document doc, String tag) {
+    private static Map<String, Integer> parse_cache_map(Document doc, String tag) throws NullPointerException{
 	NodeList list = doc.getElementsByTagName(tag);
 	if(list.getLength() > 0){
 	    Node item = list.item(0);
@@ -512,7 +517,12 @@ public class Wiki {
 	    NamedNodeMap attrs = item.getAttributes();
 	    for(int i=0; i< attrs.getLength(); i++){
 		Node attr = attrs.item(i);
-		items.put(attr.getNodeName(), Integer.decode(attr.getNodeValue()));
+		String name = attr.getNodeName();
+		Integer value = Integer.decode(attr.getNodeValue());
+		if(name.equalsIgnoreCase("null")){
+		    throw new NullPointerException("WIKI: argument name is null!");
+		}
+		items.put(name, value);
 	    }
 	    return items;
 	}

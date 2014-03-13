@@ -51,15 +51,21 @@ public class Inspiration extends ItemInfo.Tip {
     public BufferedImage longtip() {
 	StringBuilder buf = new StringBuilder();
 	Color[] cs = UI.instance.gui.chrwdg.attrcols(attrs);
-	buf.append("When studied:\n");
+	buf.append("When studied:");
+	int uses = -1;
 	for (int i = 0; i < attrs.length; i++) {
-	    if (i > 0)
-		buf.append('\n');
-	    String attr = CharWnd.attrnm.get(attrs[o[i]]);
+	    String type = attrs[o[i]];
+	    if(type.equals("uses")){
+		uses = exp[o[i]];
+		continue;
+	    }
+	    String attr = CharWnd.attrnm.get(type);
+	    if(attr == null){continue;}
 	    Color c = cs[o[i]];
-	    buf.append(String.format("$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[o[i]] ));
+	    buf.append(String.format("\n$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[o[i]] ));
 	}
 	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", total()));
+	if(uses > 0){ buf.append(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)); }
 	return RichText.stdf.render(buf.toString(), 0).img;
     }
 }
