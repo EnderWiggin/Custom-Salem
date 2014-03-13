@@ -1,5 +1,16 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 13.03.14:}}
+  * made brightness slider work only in darker places
+  * added ability to transfer item to and from building sign with clicks:
+      $b{SHIFT} - transfer 1 item into sign
+      $b{SHIFT+ALT} - transfer all items into sign
+      $b{CTRL} - transfer 1 item out
+      $b{CTRL+ALT} - transfer all items out
+  * moved skill lists to different tabs (available and learned)
+
+
+ 
 $size[14]{$u{Update for 03.03.14:}}
   * merged loftar's changes
   * made flower menu always fit the screen
