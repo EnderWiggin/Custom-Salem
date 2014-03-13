@@ -93,7 +93,7 @@ public class Config {
     protected static boolean fsaa = false;
     protected static boolean water = false;
     public static boolean center = false;
-    public static float brighten = Utils.getpreff("brighten", 0.0f), maxbright = 2.0f;
+    public static float brighten = Utils.getpreff("brighten", 0.0f);
     protected static boolean ss_silent = Utils.getprefb("ss_slent", false);
     protected static boolean ss_ui = Utils.getprefb("ss_ui", false);
     public static boolean hptr = Utils.getprefb("hptr", false);

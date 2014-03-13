@@ -34,7 +34,6 @@ import java.util.Observable;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
-import java.awt.Color;
 
 import org.ender.timer.Timer;
 
@@ -43,6 +42,7 @@ public class Glob {
     public static final int GMSG_ASTRO = 1;
     public static final int GMSG_LIGHT = 2;
     public static final int GMSG_SKY = 3;
+    public static final float MAX_BRIGHT = 0.62f;
 	
     public long time, epoch = System.currentTimeMillis();
     public OCache oc = new OCache(this);
@@ -296,7 +296,10 @@ public class Glob {
 	
     public synchronized void brighten() {
 	float hsb[] = Color.RGBtoHSB(origamb.getRed(), origamb.getGreen(), origamb.getBlue(), null);
-	hsb[2] = 1.0f - (1.0f - hsb[2])/(Config.brighten*Config.maxbright + 1.0f);
+	float b = hsb[2];
+	if(b < MAX_BRIGHT){
+	    hsb[2] = b + Config.brighten*(MAX_BRIGHT - b);
+	}
 	lightamb = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
 	DarknessWnd.update();
     }
