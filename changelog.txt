@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 14.03.14:}}
+  * fixed 'null' in inspirational tooltips in crafting menu
+  * made inspirational tooltips in crafting menu show uses if available
+  * changed gobble event debuffs tooltip to show reduce/restore in different color
+  * changed gobble event debuffs tooltip to show food category name
+ 
 $size[14]{$u{Update for 13.03.14:}}
   * made brightness slider work only in darker places
   * added ability to transfer item to and from building sign with clicks:
