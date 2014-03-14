@@ -69,7 +69,7 @@
 
 	<target name="jar" depends="salem-client,buildinfo,lib-classes,resources">
 		<jar destfile="build/salem.jar" update="true">
-			<fileset dir="build/classes" />
+			<fileset dir="build/classes" excludes="*.class"/>
 			<fileset dir="build/classes-lib" />
 			<fileset file="changelog.txt" />
 			<fileset file="etc/radar.xml" />
