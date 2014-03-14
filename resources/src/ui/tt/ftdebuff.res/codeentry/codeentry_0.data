@@ -1,0 +1,11 @@
+#CODEENTRY LAYER FOR RES www//\ui\tt\ftdebuff.res
+#int32 length
+2
+#String key[0]
+tt
+#String value[0]
+Debuff
+#String key[1]
+
+#String value[1]
+

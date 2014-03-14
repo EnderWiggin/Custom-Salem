@@ -53,7 +53,7 @@ public class GobbleInfo extends ItemInfo.Tip {
 	for(Event ev : this.evs = evs) {
 	    ev.rinf = ItemInfo.longtip(ev.info);
 	    if(ev.p < 1)
-		ev.rp = RichText.render(String.format("$i{(%d%% chance)}", (int)Math.round(ev.p * 100)), 0).img;
+		ev.rp = RichText.render(String.format("[%d%%]", (int)Math.round(ev.p * 100)), Color.LIGHT_GRAY).img;
 	}
     }
     
