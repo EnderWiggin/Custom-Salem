@@ -26,21 +26,22 @@
 
 package haven;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class FoodInfo extends ItemInfo.Tip {
+    public static final String colors[] = {"250,96,96", "128,224,96", "224,224,96", "144,128,224"};
     public final int[] tempers;
-    
     public FoodInfo(Owner owner, int[] tempers) {
 	super(owner);
 	this.tempers = tempers;
     }
     
     public BufferedImage longtip() {
-	return(Text.std.renderf("Heals: %s, %s, %s, %s", 
-				Utils.fpformat(tempers[0], 3, 1), Utils.fpformat(tempers[1], 3, 1),
-				Utils.fpformat(tempers[2], 3, 1), Utils.fpformat(tempers[3], 3, 1)).img);
+	String text = String.format("Heals: $b{$col[%s]{%s} : $col[%s]{%s} : $col[%s]{%s} : $col[%s]{%s}}", 
+		colors[0], Utils.fpformat(tempers[0], 3, 1), 
+		colors[1], Utils.fpformat(tempers[1], 3, 1),
+		colors[2], Utils.fpformat(tempers[2], 3, 1), 
+		colors[3], Utils.fpformat(tempers[3], 3, 1));
+	return(RichText.stdf.render(text).img);
     }
 }
