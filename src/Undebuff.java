@@ -1,4 +1,3 @@
-import haven.CharWnd;
 import haven.Coord;
 import haven.GobIcon;
 import haven.Indir;
@@ -7,11 +6,13 @@ import haven.PUtils;
 import haven.Resource;
 import haven.RichText;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 public class Undebuff
 implements ItemInfo.InfoFactory
 {
+    public static final Color undebuff = new Color(192, 255, 192);
     public ItemInfo build(ItemInfo.Owner owner, Object... params)
     {
 	final Indir<Resource> res = owner.glob().sess.getres(((Integer)params[1]).intValue());
@@ -20,7 +21,7 @@ implements ItemInfo.InfoFactory
 	    public BufferedImage longtip() {
 		int val = (int)Math.round(100.0D * m);
 		int i = 16;
-		BufferedImage head = RichText.render(String.format("+%d%%", val), CharWnd.GREEN).img;
+		BufferedImage head = RichText.render(String.format("+%d%%", val), undebuff).img;
 		BufferedImage icon = PUtils.convolvedown(res.get().layer(Resource.imgc).img, new Coord(i, i), GobIcon.filter);
 		String name = res.get().layer(Resource.tooltip).t;
 		BufferedImage tail = RichText.render(name).img;
