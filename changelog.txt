@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 25.03.14:}}
+  * added displaying of new Gluttony values to MenuGrid tooltips
+  * added coloring to food heal and glutton values
+ 
 $size[14]{$u{Update for 14.03.14:}}
   * fixed 'null' in inspirational tooltips in crafting menu
   * made inspirational tooltips in crafting menu show uses if available
