@@ -41,7 +41,9 @@ public class Wiki {
     private static final Pattern PAT_ARGS = Pattern.compile("\\s*\\|\\s*(.*?)\\s*=\\s*([^\\|]*)", Pattern.MULTILINE|Pattern.DOTALL);
     private static final String CONTENT_URL = "action=query&prop=revisions&titles=%s&rvprop=content&format=json";
     private static final String SEARCH_URL = "action=query&list=search&format=json&srprop=snippet&srsearch=%s";
-
+    
+    private static final String[] FOOD_ATTRS = new String[]{"Heals", "GluttonMin", "GluttonMax"};
+    
     static private final Map<String, String> imap = new HashMap<String, String>(15);
     static private final LinkedBlockingQueue<Request> requests = new LinkedBlockingQueue<Request>();
     static private File folder;
@@ -248,22 +250,7 @@ public class Wiki {
 	    }
 	    item.attgive = attrs;
 	} else if(method.equals("Food")){
-	    Map<String, Float[]> food = new HashMap<String, Float[]>(5);
-	    for(String key : args.keySet()){
-		String[] svals = args.get(key).split(",");
-		Float[] vals = new Float[4];
-		int i=0;
-		for(String sval : svals){
-		    float val = 0;
-		    try{
-			val = Float.parseFloat(sval);
-		    } catch (NumberFormatException ex){}
-		    vals[i] = val;
-		    i++;
-		}
-		food.put(key,  vals);
-	    }
-	    item.food = food;
+	    item_parse_food(item, args);
 	} else if(method.equals("Artifact")) {
 	    String difficulty = null;
 	    String[] profs = null;
@@ -284,6 +271,33 @@ public class Wiki {
 	} else {
 	    //System.out.println(String.format("Item '%s': Unknown method '%s', args: %s",item.name, method, args.toString()));
 	}
+    }
+
+    private static void item_parse_food(Item item, Map<String, String> args) {
+	Map<String, Float[]> food = new HashMap<String, Float[]>(3);
+	for(String key : FOOD_ATTRS){
+	    String arg = args.get(key);
+	    if(arg == null){continue;}
+	    String[] svals = arg.split(",");
+	    Float[] vals = new Float[4];
+	    int i=0;
+	    for(String sval : svals){
+		float val = 0;
+		try{
+		    val = Float.parseFloat(sval);
+		} catch (NumberFormatException ex){}
+		vals[i] = val;
+		i++;
+	    }
+	    food.put(key,  vals);
+	}
+	try{
+	    item.food_full = Integer.parseInt(args.get("FullAndFedUp"));
+	} catch (NumberFormatException ex){}
+	try{
+	    item.food_uses = Integer.parseInt(args.get("Uses"));
+	} catch (NumberFormatException ex){}
+	item.food = food;
     }
 
     private static void item_parse_cloth(Item item, Map<String, String> args) {
@@ -409,7 +423,7 @@ public class Wiki {
 	    item.unlocks = parse_cache(doc, "unlocks");
 	    item.attreq = parse_cache_map(doc, "attreq");
 	    item.attgive = parse_cache_map(doc, "attgive");
-	    item.food = parse_cache_food(doc, "food");
+	    parse_cache_food(doc, item);
 	    item.content = parse_cache_content(doc, "content");
 	    item_parse_cloth(item, parse_cache_str_map(doc, "cloth"));
 	    item_parse_artifact(item, doc);
@@ -458,14 +472,14 @@ public class Wiki {
 	return null;
     }
 
-    private static Map<String, Float[]> parse_cache_food(Document doc, String tag) {
-	NodeList list = doc.getElementsByTagName(tag);
+    private static void parse_cache_food(Document doc, Item item) {
+	NodeList list = doc.getElementsByTagName("food");
 	if(list.getLength() > 0){
-	    Node item = list.item(0);
+	    Node node = list.item(0);
 	    Map<String, Float[]> food = new HashMap<String, Float[]>();
-	    NamedNodeMap attrs = item.getAttributes();
-	    for(int i=0; i< attrs.getLength(); i++){
-		Node attr = attrs.item(i);
+	    NamedNodeMap attrs = node.getAttributes();
+	    for(String name : FOOD_ATTRS){
+		Node attr = attrs.getNamedItem(name);
 		String svals[] = attr.getNodeValue().split(" ");
 		Float[] vals = new Float[4];
 		for(int j=0; j<4; j++){
@@ -475,11 +489,16 @@ public class Wiki {
 			vals[j] = 0.0f;
 		    }
 		}
-		food.put(attr.getNodeName(), vals);
+		food.put(name, vals);
 	    }
-	    return food;
+	    item.food = food;
+	    try{
+		item.food_full = Integer.parseInt(attrs.getNamedItem("full").getNodeValue());
+	    } catch (NumberFormatException ex){}
+	    try{
+		item.food_uses = Integer.parseInt(attrs.getNamedItem("uses").getNodeValue());
+	    } catch (NumberFormatException ex){}
 	}
-	return null;
     }
 
     private static Set<String> parse_cache(Document doc, String tag) {

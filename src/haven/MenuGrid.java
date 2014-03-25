@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 
+import haven.GobbleInfo.Event;
 import haven.ItemInfo.Tip;
 import haven.Resource.AButton;
 import haven.Glob.Pagina;
@@ -217,22 +218,22 @@ public class MenuGrid extends Widget {
 		if(food != null){
 		    float[] def = new float[]{0, 0, 0, 0};
 		    float[] heal = safeFloat(food.get("Heals"), def);
-		    float[] salt = safeFloat(food.get("Salt"), def);
-		    float[] merc = safeFloat(food.get("Mercury"), def);
-		    float[] sulph = safeFloat(food.get("Sulphur"), def);
-		    float[] lead = safeFloat(food.get("Lead"), def);
+		    float[] gmax = safeFloat(food.get("GluttonMax"), def);
+		    float[] gmin = safeFloat(food.get("GluttonMin"), def);
+		    int[] low = new int[4];
+		    int[] high = new int[4];
 		    int[] tempers = new int[4];
-		    int[][] evs = new int[4][4];
 		    for(int i=0; i<4; i++){
 			tempers[i] = (int) (1000*heal[i]);
-			evs[0][i] = (int) (1000*salt[i]);
-			evs[1][i] = (int) (1000*merc[i]);
-			evs[2][i] = (int) (1000*sulph[i]);
-			evs[3][i] = (int) (1000*lead[i]);
+			high[i] = (int) (1000*gmax[i]);
+			low[i] = (int) (1000*gmin[i]);
 		    }
 		    FoodInfo fi = new FoodInfo(null, tempers);
-		    //GobbleInfo gi = new GobbleInfo(null, evs, 0);
-		    return ItemInfo.catimgs(3, fi.longtip()/*, gi.longtip()*/);
+		    int ft = itm.food_full*60;
+		    GobbleInfo gi = new GobbleInfo(null, low, high, new int[0], ft, new LinkedList<Event>());
+		    String uses = String.format("$b{$col[192,192,64]{Uses: %d}}\n", itm.food_uses);
+		    BufferedImage uses_img = RichText.stdf.render(uses).img;
+		    return ItemInfo.catimgs(3, fi.longtip(), gi.longtip(), uses_img);
 		}
 	    }
 	} catch (Exception e) {e.printStackTrace();}

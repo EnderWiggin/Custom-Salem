@@ -15,6 +15,8 @@ public class Item {
     public Map<String, Integer> attgive;
     public String content;
     public Map<String, Float[]> food;
+    public int food_full = 0;
+    public int food_uses = 1;
     public int cloth_slots = 0;
     public int cloth_pmin = 0;
     public int cloth_pmax = 0;
@@ -83,6 +85,7 @@ public class Item {
 	    Float[] vals = e.getValue();
 	    builder.append(String.format(" %s=\"%s %s %s %s\"", e.getKey(), vals[0], vals[1], vals[2], vals[3]));
 	}
+	builder.append(String.format(" full=\"%d\" uses=\"%d\"", food_full, food_uses));
 	builder.append(String.format(" />"));
     }
 
