@@ -191,6 +191,18 @@ public class OptWnd2 extends Window {
 		
 	    }.a = Config.ss_silent;
 	    
+	    new CheckBox(new Coord(200, y), tab, "Compress screenshots"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.ss_compress = val;
+		    Utils.setprefb("ss_compress", val);
+		}
+
+		{tooltip = Text.render("Compressed screenshots use .JPEG, non-compressed .PNG");}
+		
+	    }.a = Config.ss_compress;
+	    
 	    new CheckBox(new Coord(0, y += 25), tab, "Include UI on screenshots"){
 		@Override
 		public void changed(boolean val) {

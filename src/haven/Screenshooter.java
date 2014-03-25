@@ -304,7 +304,7 @@ public class Screenshooter extends Window {
     
     public void upload() {
 	shot.comment = comment.text;
-	final Uploader th = new Uploader(decobox.a?shot.ui:shot.map, shot, jpeg);
+	final Uploader th = new Uploader(decobox.a?shot.ui:shot.map, shot, Config.ss_compress?jpeg:png);
 	th.start();
 	ui.destroy(btn);
 	btn = new Button(btnc, 125, this, "Cancel") {
@@ -372,7 +372,11 @@ public class Screenshooter extends Window {
 	    if(!ssfolder.exists()){
 		ssfolder.mkdirs();
 	    }
-	    File f = new File(ssfolder, String.format("shot_%s_%d.png", Utils.current_date(), System.currentTimeMillis()));
+	    String fname = String.format("shot_%s_%d.%s", 
+		    Utils.current_date(), 
+		    System.currentTimeMillis(), 
+		    Config.ss_compress?"jpeg":"png");
+	    File f = new File(ssfolder, fname );
 	    FileOutputStream fos = new FileOutputStream(f);
 	    fos.write(data);
 	    fos.close();
@@ -392,7 +396,7 @@ public class Screenshooter extends Window {
     }
     
     protected void save() {
-	final Saver th = new Saver(decobox.a?shot.ui:shot.map, shot, png);
+	final Saver th = new Saver(decobox.a?shot.ui:shot.map, shot, Config.ss_compress?jpeg:png);
 	th.start();
 	ui.destroy(btnSave);
     }
@@ -409,7 +413,7 @@ public class Screenshooter extends Window {
 			    checkcomplete(g);
 			}
 		    });
-		gameui.ui.drawafter(new UI.AfterDraw() {
+		gameui.ui.drawaftertt(new UI.AfterDraw() {
 			public void draw(GOut g) {
 			    ss[1] = new TexI(g.getimage(Coord.z, g.sz));
 			    checkcomplete(g);

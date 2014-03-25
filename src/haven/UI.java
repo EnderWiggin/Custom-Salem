@@ -51,6 +51,7 @@ public class UI {
     public Widget mouseon;
     public Console cons = new WidgetConsole();
     private Collection<AfterDraw> afterdraws = new LinkedList<AfterDraw>();
+    private Collection<AfterDraw> afterttdraws = new LinkedList<AfterDraw>();
     public MenuGrid mnu;
     public final ActAudio audio = new ActAudio();
     
@@ -134,6 +135,20 @@ public class UI {
     public void drawafter(AfterDraw ad) {
 	synchronized(afterdraws) {
 	    afterdraws.add(ad);
+	}
+    }
+    
+    public void drawaftertt(AfterDraw ad) {
+	synchronized(afterttdraws) {
+	    afterttdraws.add(ad);
+	}
+    }
+    
+    public void lastdraw(GOut g) {
+	synchronized(afterttdraws) {
+	    for(AfterDraw ad : afterttdraws)
+		ad.draw(g);
+	    afterttdraws.clear();
 	}
     }
 
