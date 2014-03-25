@@ -29,7 +29,6 @@ package haven;
 import java.util.*;
 import haven.Skeleton.Pose;
 import haven.Skeleton.PoseMod;
-import haven.Skeleton.TrackMod;
 
 public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
     private static final GLState
@@ -40,6 +39,7 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
     public static final float defipol = 0;
     private final Skeleton skel;
     public final Pose pose;
+    private final PoseMorph morph;
     private Pose oldpose;
     private float ipold, ipol;
     private PoseMod[] mods = new PoseMod[0];
@@ -69,6 +69,7 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
 	super(owner, res);
 	skel = res.layer(Skeleton.Res.class).s;
 	pose = skel.new Pose(skel.bindpose);
+	morph = new PoseMorph(pose);
 	int fl = sdt.eom()?0xffff0000:SkelSprite.decnum(sdt);
 	chparts(fl);
 	chposes(fl, 0);
@@ -79,10 +80,10 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
 	for(FastMesh.MeshRes mr : res.layers(FastMesh.MeshRes.class)) {
 	    if((mr.mat != null) && ((mr.id < 0) || (((1 << mr.id) & mask) != 0))) {
 		Rendered r;
-		if(MorphedMesh.boned(mr.m)) {
-		    String bnm = MorphedMesh.boneidp(mr.m);
+		if(PoseMorph.boned(mr.m)) {
+		    String bnm = PoseMorph.boneidp(mr.m);
 		    if(bnm == null) {
-			r = mr.mat.get().apply(new MorphedMesh(mr.m, pose));
+			r = mr.mat.get().apply(new MorphedMesh(mr.m, morph));
 			if(bonedb)
 			    r = morphed.apply(r);
 		    } else {
@@ -121,9 +122,8 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
 	stat = true;
 	for(Skeleton.ResPose p : res.layers(Skeleton.ResPose.class)) {
 	    if((p.id < 0) || ((mask & (1 << p.id)) != 0)) {
-		Skeleton.TrackMod mod = p.forskel(skel, p.defmode);
-		if(owner instanceof Gob)
-		    mod.fxgob = (Gob)owner;
+		Skeleton.ModOwner mo = (owner instanceof Skeleton.ModOwner)?(Skeleton.ModOwner)owner:Skeleton.ModOwner.nil;
+		Skeleton.PoseMod mod = p.forskel(mo, skel, p.defmode);
 		if(!mod.stat())
 		    stat = false;
 		poses.add(mod);
@@ -146,18 +146,11 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
 	return(false);
     }
     
-    private boolean tick(int idt, double v) {
+    public boolean tick(int idt) {
 	if(!stat || (ipold > 0)) {
 	    float dt = idt / 1000.0f;
-	    for(PoseMod m : mods) {
-		float mdt = dt;
-		if(m instanceof TrackMod) {
-		    TrackMod t = (TrackMod)m;
-		    if(t.speedmod)
-			mdt *= (float)(v / t.nspeed);
-		}
-		m.tick(mdt);
-	    }
+	    for(PoseMod m : mods)
+		m.tick(dt);
 	    if(ipold > 0) {
 		if((ipold -= (dt / ipol)) < 0) {
 		    ipold = 0;
@@ -167,16 +160,6 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd {
 	    rebuild();
 	}
 	return(false);
-    }
-
-    public boolean tick(int dt) {
-	double v = 0;
-	if(owner instanceof Gob) {
-	    Moving mv = ((Gob)owner).getattr(Moving.class);
-	    if(mv != null)
-		v = mv.getv();
-	}
-	return(tick(dt, v));
     }
 
     static {
