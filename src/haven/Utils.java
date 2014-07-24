@@ -972,5 +972,10 @@ public class Utils {
 		    haven.test.ScriptDebug.start(args[1], Integer.parseInt(args[2]), true);
 		}
 	    });
+	Console.setscmd("cscript", new Console.Command() {
+		public void run(Console cons, String[] args) throws IOException {
+		    haven.test.ScriptDebug.connect(args[1], args[2], Integer.parseInt(args[3]));
+		}
+	    });
     }
 }
