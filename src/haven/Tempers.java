@@ -138,11 +138,13 @@ public class Tempers extends SIWidget {
     }
 
     public void show() {
+	super.show();
 	if(gbtn != null)
 	    gbtn.show();
     }
 
     public void hide() {
+	super.hide();
 	if(gbtn != null)
 	    gbtn.hide();
     }
