@@ -32,10 +32,10 @@ import java.awt.image.BufferedImage;
 
 public class Alchemy extends ItemInfo.Tip {
     public static final Color[] colors = {
-	new Color(255, 0, 0),
-	new Color(0, 255, 0),
-	new Color(0, 128, 255),
-	new Color(255, 255, 0),
+	new Color(192, 192, 255),
+	new Color(6, 250, 55),
+	new Color(230, 102, 47),
+	new Color(225, 68, 255),
     };
     public static final String[] names = {"\u00c6ther", "Mercury", "Sulphur", "Lead"};
     public static final String[] tcolors;
@@ -54,13 +54,10 @@ public class Alchemy extends ItemInfo.Tip {
     }
     
     public BufferedImage longtip() {
-	StringBuilder buf = new StringBuilder();
-	for(int i = 0; i < 4; i++) {
-	    if(i > 0)
-		buf.append(", ");
-	    buf.append(String.format("%s: $col[%s]{%.2f}", names[i], tcolors[i], a[i] * 100.0));
-	}
-	return(RichText.render(buf.toString(), 0).img);
+	Object[] p = new String[4];
+	for(int i = 0; i < 4; i++)
+	    p[i] = String.format("%s: $col[%s]{%.2f}", names[i], tcolors[i], a[i] * 100.0);
+	return(RichText.render(String.format("%s\n  (%s, %s, %s)", p), 0).img);
     }
     
     public BufferedImage smallmeter() {
