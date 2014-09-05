@@ -41,6 +41,13 @@ public class Tempers extends SIWidget {
 	Resource.loadimg("gfx/hud/tempers/gbtn"),
     };
     public static final Coord boxc = new Coord(96, 0), boxsz = new Coord(339, 62);
+    public static final Color[] colors = {
+	new Color(255, 64, 64),
+	new Color(0, 128, 255),
+	new Color(255, 255, 64),
+	new Color(160, 160, 160),
+    };
+    public static final String[] tcolors;
     static final Color softc = new Color(64, 64, 64);
     static final Color foodc = new Color(128, 128, 0);
     static final Coord[] mc = {new Coord(295, 11), new Coord(235, 11), new Coord(235, 35), new Coord(295, 35)};
@@ -65,6 +72,10 @@ public class Tempers extends SIWidget {
 	bars = b;
 	sbars = s;
 	fbars = f;
+	String[] buf = new String[colors.length];
+	for(int i = 0; i < colors.length; i++)
+	    buf[i] = String.format("%d,%d,%d", colors[i].getRed(), colors[i].getGreen(), colors[i].getBlue());
+	tcolors = buf;
     }
     
     public Tempers(Coord c, Widget parent) {
