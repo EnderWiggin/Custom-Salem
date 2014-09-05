@@ -39,8 +39,13 @@ public class FoodInfo extends ItemInfo.Tip {
     }
     
     public BufferedImage longtip() {
-	return(Text.std.renderf("Heals: %s, %s, %s, %s", 
-				Utils.fpformat(tempers[0], 3, 1), Utils.fpformat(tempers[1], 3, 1),
-				Utils.fpformat(tempers[2], 3, 1), Utils.fpformat(tempers[3], 3, 1)).img);
+	StringBuilder buf = new StringBuilder();
+	buf.append("Heals: ");
+	for(int i = 0; i < 4; i++) {
+	    if(i > 0)
+		buf.append(", ");
+	    buf.append(String.format("$col[%s]{%s}", Tempers.tcolors[i], Utils.fpformat(tempers[i], 3, 1)));
+	}
+	return(RichText.render(buf.toString(), 0).img);
     }
 }
