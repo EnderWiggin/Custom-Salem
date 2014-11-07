@@ -53,7 +53,7 @@ public class WItem extends Widget implements DTarget {
 	    h = Inventory.sqsz.y * ((h / Inventory.sqsz.y) + 1);
 	return(new Coord(w, h));
     }
-
+    
     public void drawmain(GOut g, Tex tex) {
 	g.image(tex, Coord.z);
 	if(tex != ltex) {
@@ -61,7 +61,7 @@ public class WItem extends Widget implements DTarget {
 	    ltex = tex;
 	}
     }
-
+    
     public static BufferedImage rendershort(List<ItemInfo> info) {
 	ItemInfo.Name nm = find(ItemInfo.Name.class, info);
 	if(nm == null)
@@ -70,10 +70,10 @@ public class WItem extends Widget implements DTarget {
 	Alchemy ch = find(Alchemy.class, info);
 	if(ch != null)
 	    img = ItemInfo.catimgsh(5, img, ch.smallmeter(),
-				    Text.std.renderf("(%d%% pure)", (int)(ch.purity() * 100)).img);
+		    Text.std.renderf("(%d%% pure)", (int)(ch.a[0] * 100)).img);
 	return(img);
     }
-
+    
     public static BufferedImage shorttip(List<ItemInfo> info) {
 	BufferedImage img = rendershort(info);
 	ItemInfo.Contents cont = find(ItemInfo.Contents.class, info);
@@ -126,7 +126,7 @@ public class WItem extends Widget implements DTarget {
     public class LongTip extends ItemTip {
 	public LongTip(List<ItemInfo> info) {super(longtip(info));}
     }
-
+    
     private long hoverstart;
     private ItemTip shorttip = null, longtip = null;
     private List<ItemInfo> ttinfo = null;
@@ -166,7 +166,7 @@ public class WItem extends Widget implements DTarget {
 	    return("...");
 	}
     }
-
+    
     public abstract class AttrCache<T> {
 	private List<ItemInfo> forinfo = null;
 	private T save = null;
@@ -269,8 +269,9 @@ public class WItem extends Widget implements DTarget {
 		alch = ItemInfo.find(Alchemy.class, cont.sub);
 		if(alch == null){return(null);}
 	    }
-	    String num = String.format("%d%%",(int)(100*alch.purity()));
-	    return(new TexI(Utils.outline2(Text.render(num, alch.color()).img, Color.DARK_GRAY)));
+	    String num = String.format("%.2f%%",100*alch.purity());
+	    Color c = tryGetFoodColor(info, alch);
+	    return(new TexI(Utils.outline2(Text.render(num, c).img, Color.DARK_GRAY)));
 	}
     };
     
@@ -283,10 +284,40 @@ public class WItem extends Widget implements DTarget {
 		alch = ItemInfo.find(Alchemy.class, cont.sub);
 		if(alch == null){return(null);}
 	    }
-	    String num = String.format("%.2f",alch.mult());
-	    return(new TexI(Utils.outline2(Text.render(num, alch.color()).img, Color.DARK_GRAY)));
+	    String num = String.format("%.2f",1+alch.purity());
+	    Color c = tryGetFoodColor(info, alch);
+	    return(new TexI(Utils.outline2(Text.render(num, c).img, Color.DARK_GRAY)));
 	}
     };
+    
+    private Color tryGetFoodColor(List<ItemInfo> info, Alchemy alch)
+    {
+	GobbleInfo food = ItemInfo.find(GobbleInfo.class, info);
+	Color c = alch.color();
+	if(food!=null)
+	{
+	    int[] means = new int[4];
+	    int i_highest=-1,i_nexthighest=-1;
+	    for(int b = 0;b<4;b++)
+	    {
+		means[b]=(food.h[b]+food.l[b])/2;
+		if(i_highest < 0 || means[i_highest] < means[b])
+		{
+		    i_nexthighest = i_highest;
+		    i_highest = b;
+		}
+		else if(i_nexthighest < 0 || means[i_nexthighest] < means[b])
+		{
+		    i_nexthighest = b;
+		}
+	    }
+	    if(means[i_nexthighest] < means[i_highest])
+	    {
+		c = Tempers.colors[i_highest];
+	    }
+	}
+	return c;
+    }
     
     private void drawpurity(GOut g) {
 	if(ui.modflags() == 0){return;}//show purity only when any mod key pressed
@@ -295,11 +326,11 @@ public class WItem extends Widget implements DTarget {
 	    g.aimage(img, new Coord(0, sz.y), 0, 1);
 	}
     }
-
+    
     private void heurmeters(GOut g) {
 	List<Integer> meters = heurmeter.get();
 	if(meters == null){return;}
-
+	
 	int k = 0;
 	Coord s2 = sz.sub(0, 4);
 	for (Integer meter : meters){
@@ -313,7 +344,7 @@ public class WItem extends Widget implements DTarget {
 	    k++;
 	}
     }
-
+    
     public boolean mousedown(Coord c, int btn) {
 	boolean inv = parent instanceof Inventory;
 	if(btn == 1) {
@@ -339,11 +370,11 @@ public class WItem extends Widget implements DTarget {
 	}
 	return(false);
     }
-
+    
     public boolean drop(Coord cc, Coord ul) {
 	return(false);
     }
-	
+    
     public boolean iteminteract(Coord cc, Coord ul) {
 	item.wdgmsg("itemact", ui.modflags());
 	return(true);

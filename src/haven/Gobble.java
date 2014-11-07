@@ -42,13 +42,14 @@ public class Gobble extends SIWidget {
     static final Color loc = new Color(0, 128, 255);
     static final Color hic = new Color(0, 128, 64);
     static final BufferedImage[] lobars, hibars;
-    private boolean updt = false;
+    private boolean updt = true;
     private TypeList typelist;
     private int[] lmax = new int[4];
     private int max;
     private Tex lvlmask;
     private long lvltime;
     Tex[] texts = null;
+    private Tex levels;
 
     static {
 	int n = bars.length;
@@ -104,7 +105,10 @@ public class Gobble extends SIWidget {
 		    nw = Math.max(nw, m.rn.sz().x);
 		    aw = Math.max(aw, m.ra.sz().x);
 		}
-		resize(new Coord(nw + 20 + aw, (Inventory.sqsz.y + 5) * mods.size()));
+		int h = (Inventory.sqsz.y + 5) * mods.size();
+		h += levels.sz().y + 20;
+		resize(new Coord(Math.max(nw + 20 + aw, boxsz.x), h));
+		this.c = Gobble.this.parentpos(parent).add(boxc).add(0, boxsz.y + 5);
 		updt = false;
 	    }
 	}
@@ -118,6 +122,8 @@ public class Gobble extends SIWidget {
 		for(int t : lfood.types)
 		    hl[t] = true;
 	    }
+	    g.aimage(levels, new Coord(sz.x / 2, y), 0.5, 0);
+	    y += levels.sz().y + 20;
 	    for(TypeMod m : mods) {
 		if(m.rn != null)
 		    g.image(hl[tn]?m.rh:m.rn, new Coord(0, y));
@@ -131,11 +137,12 @@ public class Gobble extends SIWidget {
 
     public Gobble(Coord c, Widget parent) {
 	super(c, Utils.imgsz(Tempers.bg), parent);
+	lcount(0, Color.WHITE);
+	typelist = new TypeList(Coord.z, getparent(GameUI.class));
     }
 
     public void destroy() {
-	if(typelist != null)
-	    typelist.destroy();
+	typelist.destroy();
 	super.destroy();
     }
 
@@ -266,6 +273,11 @@ public class Gobble extends SIWidget {
 	lvltime = System.currentTimeMillis();
     }
 
+    public void lcount(int n, Color c) {
+	Text rt = tnf.render(String.format("Gobble Points: %d", n), c);
+	levels = new TexI(rasterimg(blurmask2(rt.img.getRaster(), 2, 1, new Color(0, 0, 0))));
+    }
+
     public void typemod(Indir<Resource> t, double a) {
 	updt = true;
 	for(TypeMod m : mods) {
@@ -276,10 +288,6 @@ public class Gobble extends SIWidget {
 	    }
 	}
 	mods.add(new TypeMod(t, a));
-	if(typelist == null) {
-	    GameUI gui = getparent(GameUI.class);
-	    typelist = new TypeList(parentpos(gui).add(boxc).add(0, boxsz.y + 5), gui);
-	}
     }
 
     public Object tooltip(Coord c, Widget prev) {

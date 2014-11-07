@@ -91,7 +91,7 @@ public class GobbleInfo extends ItemInfo.Tip {
     
     private String point(int i) {
 	return String.format("$col[%s]{%s} - $col[%s]{%s}",
-		FoodInfo.colors[i], Utils.fpformat(l[i], 3, 1), 
-		FoodInfo.colors[i], Utils.fpformat(h[i], 3, 1));
+		Tempers.tcolors[i], Utils.fpformat(l[i], 3, 1), 
+		Tempers.tcolors[i], Utils.fpformat(h[i], 3, 1));
     }
 }

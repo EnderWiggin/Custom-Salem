@@ -57,8 +57,8 @@ public class ScriptDebug {
 		Object ret;
 		try {
 		    ret = eng.eval(ln);
-		} catch(ScriptException e) {
-		    if(e.getCause() == null)
+		} catch(Throwable e) {
+		    if(!(e instanceof ScriptException) || (e.getCause() == null))
 			e.printStackTrace(new PrintWriter(out));
 		    else
 			out.write(e.getCause().toString() + "\r\n");
@@ -137,5 +137,24 @@ public class ScriptDebug {
 	srv.setDaemon(true);
 	srv.start();
 	return(srv);
+    }
+
+    public static Client connect(String type, String host, int port) throws IOException {
+	ScriptEngine eng = new ScriptEngineManager().getEngineByName(type);
+	if(eng == null)
+	    throw(new RuntimeException("No such script engine installed: " + type));
+	ScriptDebug db = new ScriptDebug(eng);
+	Socket sk = new HackSocket();
+	try {
+	    sk.connect(new InetSocketAddress(host, port));
+	    Client cl = db.new Client(sk);
+	    cl.setDaemon(true);
+	    cl.start();
+	    sk = null;
+	    return(cl);
+	} finally {
+	    if(sk != null)
+		sk.close();
+	}
     }
 }

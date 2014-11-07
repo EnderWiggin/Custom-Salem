@@ -81,12 +81,12 @@ public class CharWnd extends Window {
 	an.put("arts", "Arts & Crafts");
 	an.put("cloak", "Cloak & Dagger");
 	an.put("faith", "Faith & Wisdom");
-	an.put("wild", "Frontier & Wilderness");
+	an.put("wild", "Flora & Fauna");
 	an.put("nail", "Hammer & Nail");
-	an.put("hung", "Hunting & Gathering");
+	an.put("hung", "Hunting & Hideworking");
 	an.put("law", "Law & Lore");
 	an.put("mine", "Mines & Mountains");
-	an.put("pots", "Pots & Pans");
+	an.put("pots", "Herbs & Sprouts");
 	an.put("fire", "Sparks & Embers");
 	an.put("stock", "Stocks & Cultivars");
 	an.put("spice", "Sugar & Spice");

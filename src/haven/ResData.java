@@ -26,23 +26,28 @@
 
 package haven;
 
-import java.awt.image.BufferedImage;
+import java.util.*;
 
-public class FoodInfo extends ItemInfo.Tip {
-    public final int[] tempers;
-    public FoodInfo(Owner owner, int[] tempers) {
-	super(owner);
-	this.tempers = tempers;
-    }
+public class ResData {
+    public Indir<Resource> res;
+    public Message sdt;
     
-    public BufferedImage longtip() {
-	StringBuilder buf = new StringBuilder();
-	buf.append("Heals: ");
-	for(int i = 0; i < 4; i++) {
-	    if(i > 0)
-		buf.append(", ");
-	    buf.append(String.format("$col[%s]{%s}", Tempers.tcolors[i], Utils.fpformat(tempers[i], 3, 1)));
-	}
-	return(RichText.render(buf.toString(), 0).img);
+    public ResData(Indir<Resource> res, Message sdt) {
+	this.res = res;
+	this.sdt = sdt;
+    }
+
+    public static List<ResData> wrap(List<? extends Indir<Resource>> in) {
+	List<ResData> ret = new ArrayList<ResData>(in.size());
+	for(Indir<Resource> res : in)
+	    ret.add(new ResData(res, new Message(0, new byte[0])));
+	return(ret);
+    }
+
+    public static ResData[] wrap(Indir<Resource>[] in) {
+	ResData[] ret = new ResData[in.length];
+	for(int i = 0; i < in.length; i++)
+	    ret[i] = new ResData(in[i], Message.nil);
+	return(ret);
     }
 }

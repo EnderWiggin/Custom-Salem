@@ -649,6 +649,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    gobble.updt(n);
 	} else if(msg == "glvlup") {
 	    gobble.lvlup((Integer)args[0]);
+	} else if(msg == "glvls") {
+	    gobble.lcount((Integer)args[0], (Color)args[1]);
 	} else if(msg == "gtypemod") {
 	    gobble.typemod(ui.sess.getres((Integer)args[0]), ((Integer)args[1]) / 100.0);
 	} else if(msg == "polowner") {
