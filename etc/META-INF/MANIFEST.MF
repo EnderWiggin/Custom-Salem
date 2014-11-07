@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: jogl-all.jar gluegen-rt.jar client-res.jar builtin-res.jar
+  salem-res.jar
+Main-Class: haven.MainFrame
+
