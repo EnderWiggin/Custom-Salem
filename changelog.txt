@@ -1,4 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
+
+$size[14]{$u{Update for 07.11.14:}}
+  * merged with default client
+  * made purity color on items display as in Latikai client - if it is food and has dominant gobble value, then use that gobble color, otherwise use Aether color
  
 $size[14]{$u{Update for 25.03.14:}}
   * added displaying of new Gluttony values to MenuGrid tooltips
