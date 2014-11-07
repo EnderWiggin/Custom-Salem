@@ -55,6 +55,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	       KeyEvent.VK_9, KeyEvent.VK_0, KeyEvent.VK_MINUS, KeyEvent.VK_EQUALS};
     public final long plid;
     public MenuGrid menu;
+    public CraftWnd craftwnd;
     public Tempers tm;
     public Gobble gobble;
     public MapView map;
@@ -376,6 +377,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(g);
 	} else if(place == "craft") {
 	    final Widget[] mk = {null};
+	    if(craftwnd != null){
+		mk[0] = gettype(type).create(new Coord(215, 250), craftwnd, cargs);
+		craftwnd.setMakewindow(mk[0]);
+		return (mk[0]);
+	    } else {
 	    makewnd = new Window(new Coord(350, 100), Coord.z, this, "Crafting") {
 		    public void wdgmsg(Widget sender, String msg, Object... args) {
 			if((sender == this) && msg.equals("close")) {
@@ -393,7 +399,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		};
 	    mk[0] = gettype(type).create(Coord.z, makewnd, cargs);
 	    makewnd.pack();
-	    return(mk[0]);
+		return (mk[0]);
+	    }
 	} else if(place == "buddy") {
 	    buddies = (BuddyWnd)gettype(type).create(new Coord(187, 50), this, cargs);
 	    buddies.hide();
@@ -795,7 +802,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			    invwnd.raise();
 			    fitwdg(invwnd);
 			}
+
+		    if(craftwnd == null){
+			new CraftWnd(Coord.z, GameUI.this);
 		    }
+		}
+
 		    public void tick(double dt) {
 			if(maininv != null) {
 			    if(invwnd.visible) {

@@ -71,7 +71,7 @@ public class MenuGrid extends Widget {
 	}
     }
 
-    private boolean cons(Pagina p, Collection<Pagina> buf) {
+    public boolean cons(Pagina p, Collection<Pagina> buf) {
 	Pagina[] cp = new Pagina[0];
 	Collection<Pagina> open, close = new HashSet<Pagina>();
 	synchronized(ui.sess.glob.paginae) {
@@ -132,7 +132,7 @@ public class MenuGrid extends Widget {
 	//cons(null);
     }
 	
-    private static Comparator<Pagina> sorter = new Comparator<Pagina>() {
+    public static Comparator<Pagina> sorter = new Comparator<Pagina>() {
 	public int compare(Pagina a, Pagina b) {
 	    AButton aa = a.act(), ab = b.act();
 	    if((aa.ad.length == 0) && (ab.ad.length > 0))
@@ -478,6 +478,9 @@ public class MenuGrid extends Widget {
 	if(sub.size() > 0) {
 	    this.cur = r;
 	    curoff = 0;
+	    if(ui.gui.craftwnd != null){
+		ui.gui.craftwnd.select(r);
+	    }
 	} else if(r == bk) {
 	    this.cur = paginafor(this.cur.act().parent);
 	    curoff = 0;
@@ -498,6 +501,9 @@ public class MenuGrid extends Widget {
 	    }
 	    this.cur = null;
 	    curoff = 0;
+	    if(ui.gui.craftwnd != null){
+		ui.gui.craftwnd.select(r);
+	    }
 	}
 	updlayout();
     }
