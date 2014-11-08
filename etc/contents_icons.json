@@ -1,0 +1,19 @@
+{
+  "seeds of Cotton"     : "gfx/invobjs/cottonraw",
+  "seeds of Cabbage"    : "gfx/invobjs/cabbage",
+  "seeds of Pumpkin"    : "gfx/invobjs/pumpkin",
+  "seeds of Cereal"     : "gfx/invobjs/cereal",
+  "seeds of Yellow Corn": "gfx/invobjs/maize0",
+  "seeds of White Corn" : "gfx/invobjs/maize0",
+  "seeds of Blue Corn"  : "gfx/invobjs/maize0",
+  "seeds of Golden Corn": "gfx/invobjs/maize0",
+  "Oatmeal"             : "gfx/invobjs/flour0",
+  "Rye Flour"           : "gfx/invobjs/flour1",
+  "Barley Flour"        : "gfx/invobjs/flour2",
+  "Wheat Flour"         : "gfx/invobjs/flour3",
+  "Yellow Cornmeal"     : "gfx/invobjs/cornmeal0",
+  "White Cornmeal"      : "gfx/invobjs/cornmeal1",
+  "Blue Cornmeal"       : "gfx/invobjs/cornmeal2",
+  "Golden Cornmeal"     : "gfx/invobjs/cornmeal3",
+  "Bonemeal"            : "gfx/invobjs/bonemeal"
+}

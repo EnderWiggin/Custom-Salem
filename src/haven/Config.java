@@ -26,22 +26,20 @@
 
 package haven;
 
-import static haven.Utils.getprop;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import haven.GLSettings.SettingException;
-import haven.error.ErrorHandler;
+import org.ender.wiki.Wiki;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.ender.wiki.Wiki;
+import static haven.Utils.getprop;
 
 public class Config {
     public static String authuser = getprop("haven.authuser", null);
@@ -73,12 +71,12 @@ public class Config {
     public static boolean show_tempers = Utils.getprefb("show_tempers", false);
     public static boolean store_map = Utils.getprefb("store_map", true);
     public static boolean radar_icons = Utils.getprefb("radar_icons", true);
-    
+
     public static String currentCharName = "";
     static Properties window_props;
     public static Properties options;
     private static Map<String, Object> buildinfo = new HashMap<String, Object>();
-    
+
     public static boolean isUpdate;
     public static boolean isShowNames = true;
     public static boolean timestamp = true;
@@ -98,7 +96,8 @@ public class Config {
     protected static boolean ss_compress = Utils.getprefb("ss_compress", true);
     protected static boolean ss_ui = Utils.getprefb("ss_ui", false);
     public static boolean hptr = Utils.getprefb("hptr", false);
-    
+    public static Map<String, String> contents_icons;
+
     static {
 	String p;
 	if((p = getprop("haven.authck", null)) != null)
@@ -107,8 +106,17 @@ public class Config {
 	if(!f.exists()){
 	    f.mkdirs();
 	}
-	
-	InputStream in = ErrorHandler.class.getResourceAsStream("/buildinfo");
+
+	loadBuildVersion();
+	loadOptions();
+	window_props = loadProps("windows.conf");
+
+	loadContentsIcons();
+	Wiki.init(getFile("cache"), 3);
+    }
+
+    private static void loadBuildVersion() {
+	InputStream in = Config.class.getResourceAsStream("/buildinfo");
 	try {
 	    try {
 		if(in != null) {
@@ -118,16 +126,31 @@ public class Config {
 			buildinfo.put((String)e.getKey(), e.getValue());
 		}
 	    } finally {
-		in.close();
+		if (in != null) { in.close(); }
 	    }
 	} catch(IOException e) {
 	    throw(new Error(e));
 	}
 	version = (String) buildinfo.get("git-rev");
-	loadOptions();
-	window_props = loadProps("windows.conf");
-	
-	Wiki.init(getFile("cache"), 3);
+    }
+
+    private static void loadContentsIcons() {
+	InputStream in = Config.class.getResourceAsStream("/contents_icons.json");
+	try {
+	    try {
+		if (in != null) {
+		    Gson gson = new Gson();
+		    Type collectionType = new TypeToken<HashMap<String, String>>(){}.getType();
+		    String json = Utils.stream2str(in);
+		    contents_icons = gson.fromJson(json, collectionType);
+		}
+	    } catch (JsonSyntaxException ignore){
+	    } finally {
+		if (in != null) { in.close(); }
+	    }
+	} catch(IOException e) {
+	    throw(new Error(e));
+	}
     }
     
     public static void setCharName(String name){
@@ -326,4 +349,5 @@ public class Config {
 	brighten = val;
 	Utils.setpreff("brighten", val);
     }
+
 }
