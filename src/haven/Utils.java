@@ -1153,4 +1153,9 @@ public class Utils {
     public static String timestamp(String text) {
 	return String.format("[%s] %s", timestamp(), text);
     }
+
+    public static String stream2str(InputStream is) {
+	Scanner s = new Scanner(is).useDelimiter("\\A");
+	return s.hasNext() ? s.next() : "";
+    }
 }

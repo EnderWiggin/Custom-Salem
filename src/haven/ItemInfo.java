@@ -157,7 +157,7 @@ public abstract class ItemInfo {
 	}
 	if(buf.size() < 1)
 	    return(null);
-	return(catimgs(3, buf.toArray(new BufferedImage[0])));
+	return(catimgs(3, buf.toArray(new BufferedImage[buf.size()])));
     }
 
     public static <T> T find(Class<T> cl, List<ItemInfo> il) {
@@ -252,5 +252,22 @@ public abstract class ItemInfo {
 	    if(res != null){return res;}
 	}
 	return res;
+    }
+
+    public static String getContent(List<ItemInfo> infos){
+	String res = null;
+	for (ItemInfo info : infos){
+	    if(info instanceof Contents){
+		Contents cnt = (Contents) info;
+		for(ItemInfo subInfo : cnt.sub){
+		    if(subInfo instanceof Name){
+			Name name = (Name) subInfo;
+			res = name.str.text;
+		    }
+		    if(res != null){return res;}
+		}
+	    }
+	}
+	return null;
     }
 }
