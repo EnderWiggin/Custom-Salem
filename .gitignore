@@ -8,3 +8,6 @@
 /resources/res
 /resources/compiled
 /bin
+out
+.idea
+/salem.iml
