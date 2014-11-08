@@ -96,6 +96,7 @@ public class Config {
     protected static boolean ss_compress = Utils.getprefb("ss_compress", true);
     protected static boolean ss_ui = Utils.getprefb("ss_ui", false);
     public static boolean hptr = Utils.getprefb("hptr", false);
+    public static boolean show_contents_icons = Utils.getprefb("show_contents_icons", false);
     public static Map<String, String> contents_icons;
 
     static {

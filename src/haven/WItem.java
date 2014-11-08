@@ -342,6 +342,7 @@ public class WItem extends Widget implements DTarget {
     }
 
     private void checkContents(GOut g) {
+	if(!Config.show_contents_icons){return;}
 	String contents = contentName.get();
 	if(contents == null){ return; }
 
