@@ -45,4 +45,14 @@ public class FoodInfo extends ItemInfo.Tip {
 	}
 	return(RichText.render(buf.toString(), 0).img);
     }
+
+    public static class Data implements ItemData.ITipData {
+	public int[] tempers;
+
+	@Override
+	public ItemInfo.Tip create()
+	{
+	    return new FoodInfo(null, tempers);
+	}
+    }
 }

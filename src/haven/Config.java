@@ -27,6 +27,7 @@
 package haven;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import haven.GLSettings.SettingException;
@@ -98,6 +99,7 @@ public class Config {
     public static boolean hptr = Utils.getprefb("hptr", false);
     public static boolean show_contents_icons = Utils.getprefb("show_contents_icons", false);
     public static Map<String, String> contents_icons;
+    public static Map<String, ItemData> item_data;
 
     static {
 	String p;
@@ -113,8 +115,10 @@ public class Config {
 	window_props = loadProps("windows.conf");
 
 	loadContentsIcons();
+	loadItemData();
 	Wiki.init(getFile("cache"), 3);
     }
+
 
     private static void loadBuildVersion() {
 	InputStream in = Config.class.getResourceAsStream("/buildinfo");
@@ -153,7 +157,28 @@ public class Config {
 	    throw(new Error(e));
 	}
     }
-    
+
+    private static void loadItemData() {
+	InputStream in = Config.class.getResourceAsStream("/item_data.json");
+	try {
+	    try {
+		if (in != null) {
+		    GsonBuilder builder = new GsonBuilder();
+		    builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
+		    Gson gson = builder.create();
+		    Type collectionType = new TypeToken<HashMap<String, ItemData>>(){}.getType();
+		    String json = Utils.stream2str(in);
+		    item_data = gson.fromJson(json, collectionType);
+		}
+	    } catch (JsonSyntaxException ignore){
+	    } finally {
+		if (in != null) { in.close(); }
+	    }
+	} catch(IOException e) {
+	    throw(new Error(e));
+	}
+    }
+
     public static void setCharName(String name){
 	currentCharName = name;
 	MainFrame.instance.setTitle(name);
