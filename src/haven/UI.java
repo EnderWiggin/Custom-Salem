@@ -337,10 +337,9 @@ public class UI {
 	       (modsuper?8:0));
     }
 
-    public void message(String str) {
+    public void message(String str, GameUI.MsgType type) {
 	if((cons!=null) && (gui!=null)){
-//	    cons.out.println(str);
-	    gui.error(str);
+	    gui.message(str, type);
 	}
     }
 

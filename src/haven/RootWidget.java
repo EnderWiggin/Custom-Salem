@@ -59,7 +59,7 @@ public class RootWidget extends ConsoleHost {
 		DarknessWnd.toggle();
 	    }else if(code == KeyEvent.VK_Z && ctrl){
 		Config.center = !Config.center;
-		ui.message(String.format("Tile centering in turned %s", Config.center?"ON":"OFF"));
+		ui.message(String.format("Tile centering in turned %s", Config.center?"ON":"OFF"), GameUI.MsgType.INFO);
 	    } else if(key != 0) {
 		wdgmsg("gk", (int)key);
 	    }
