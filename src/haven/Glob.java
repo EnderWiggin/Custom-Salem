@@ -341,7 +341,7 @@ public class Glob {
 				public void run() {
 				    pag.res().loadwait();
 				    String name = pag.res().layer(Resource.action).name;
-				    UI.instance.message(String.format("You gain access to '%s'!", name));
+				    UI.instance.message(String.format("You gain access to '%s'!", name), GameUI.MsgType.INFO);
 				}
 			    });
 			}

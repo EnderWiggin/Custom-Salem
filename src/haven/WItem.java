@@ -26,20 +26,27 @@
 
 package haven;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import static haven.ItemInfo.find;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
+    private static final Coord hsz = new Coord(24, 24);//Inventory.sqsz.div(2);
     public final GItem item;
     private Tex ltex = null;
     private Tex mask = null;
     private Resource cmask = null;
     private long ts = 0;
-    
+
     public WItem(Coord c, Widget parent, GItem item) {
 	super(c, Inventory.sqsz, parent);
 	this.item = item;
@@ -166,7 +173,7 @@ public class WItem extends Widget implements DTarget {
 	    return("...");
 	}
     }
-    
+
     public abstract class AttrCache<T> {
 	private List<ItemInfo> forinfo = null;
 	private T save = null;
@@ -216,6 +223,12 @@ public class WItem extends Widget implements DTarget {
 	    return meters;
 	}
     };
+
+    public final AttrCache<String> contentName = new AttrCache<String>() {
+	protected String find(List<ItemInfo> info) {
+	    return ItemInfo.getContent(info);
+	}
+    };
     
     public void draw(GOut g) {
 	try {
@@ -239,6 +252,7 @@ public class WItem extends Widget implements DTarget {
 		g.frect(s2.sub(bsz).sub(4,0), bsz);
 		g.chcolor();
 	    }
+	    checkContents(g);
 	    heurmeters(g);
 	    if(olcol.get() != null) {
 		if(cmask != res) {
@@ -325,6 +339,41 @@ public class WItem extends Widget implements DTarget {
 	if(img != null){
 	    g.aimage(img, new Coord(0, sz.y), 0, 1);
 	}
+    }
+
+    private void checkContents(GOut g) {
+	if(!Config.show_contents_icons){return;}
+	String contents = contentName.get();
+	if(contents == null){ return; }
+
+	Tex tex = getContentTex(contents);
+	if(tex == null){return;}
+
+	g.image(tex, Coord.z,hsz);
+    }
+    
+    private Tex getContentTex(String contents) {
+	if(Config.contents_icons == null){ return null;}
+
+	String name = null;
+	for(Map.Entry<String, String> entry : Config.contents_icons.entrySet()) {
+	    if(contents.contains(entry.getKey())){
+	    	name = entry.getValue();
+		break;
+	    }
+	}
+
+	Tex tex = null;
+	if(name != null){
+	    try {
+		//return Resource.loadtex(name);
+		Resource res = Resource.load(name);
+		tex =  new TexI(Utils.outline2(Utils.outline2(res.layer(Resource.imgc).img, Color.BLACK, true), Color.BLACK, true));
+	    } catch (Loading e){
+		tex =  missing.layer(Resource.imgc).tex();
+	    }
+	}
+	return tex;
     }
     
     private void heurmeters(GOut g) {

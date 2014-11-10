@@ -226,6 +226,18 @@ public class OptWnd2 extends Window {
 
 		{tooltip = Text.render("Makes home pointer display as green arrow over character head");}
 	    }.a = Config.hptr;
+
+	    y = 125;
+	    new CheckBox(new Coord(200, y += 25), tab, "Show item contents as icons"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.show_contents_icons = val;
+		    Utils.setprefb("show_contents_icons", val);
+		}
+
+		{tooltip = Text.render("draws small icons of content of seed and flour bags");}
+	    }.a = Config.show_contents_icons;
 	}
 
 	

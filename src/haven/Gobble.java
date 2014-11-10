@@ -157,7 +157,7 @@ public class Gobble extends SIWidget {
 	    if(lmax[i] != this.lmax[i]){
 		redraw();
 		if(this.lmax[i] != 0){
-		    ui.message(String.format("You have raised %s!", Tempers.rnm[i]));
+		    ui.message(String.format("You have raised %s!", Tempers.rnm[i]), GameUI.MsgType.GOOD);
 		}
 	    }
 	    max = Math.max(max, lmax[i]);

@@ -390,7 +390,7 @@ public class Screenshooter extends Window {
 			    WebBrowser.self.show(result);
 		    }
 		};
-		ui.message("Screenshot saved");
+		ui.message("Screenshot saved", GameUI.MsgType.INFO);
 	    }
 	}
     }

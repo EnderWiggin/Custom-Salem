@@ -458,7 +458,7 @@ public class CharWnd extends Window {
 		    attrnm.get(nm),
 		    (delta>0?"increased":"decreased"),
 		    attr.comp,
-		    delta));
+		    delta),(delta>0? GameUI.MsgType.GOOD: GameUI.MsgType.BAD));
 	}
     }
 
