@@ -1,6 +1,6 @@
 {
   "paginae/craft/sundaysteak": {
-	"food": {"tempers": [1, 2, 3, 4]},
+	"food": [1, 2, 3, 4],
 	"inspiration": {
 	  "arts": 100,
 	  "law" : 200
