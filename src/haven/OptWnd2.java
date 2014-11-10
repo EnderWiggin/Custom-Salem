@@ -238,6 +238,17 @@ public class OptWnd2 extends Window {
 
 		{tooltip = Text.render("draws small icons of content of seed and flour bags");}
 	    }.a = Config.show_contents_icons;
+	    
+	    new CheckBox(new Coord(200, y += 25), tab, "Menu grid resets"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.menugrid_resets = val;
+		    Utils.setprefb("menugrid_resets", val);
+		}
+		
+		{tooltip = Text.render("Makes the menu grid reset after selecting an action from it.");}
+	    }.a = Config.menugrid_resets;
 	}
 
 	
