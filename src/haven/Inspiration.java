@@ -26,8 +26,15 @@
 
 package haven;
 
-import java.awt.Color;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Inspiration extends ItemInfo.Tip {
     public final String[] attrs;
@@ -67,5 +74,47 @@ public class Inspiration extends ItemInfo.Tip {
 	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", total()));
 	if(uses > 0){ buf.append(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)); }
 	return RichText.stdf.render(buf.toString(), 0).img;
+    }
+
+    public static class Data implements ItemData.ITipData {
+	String[] attrs;
+	int[] exp;
+
+	@Override
+	public Tip create() {
+	    return new Inspiration(null, attrs, exp);
+	}
+
+	public static class DataAdapter extends TypeAdapter<Data>
+	{
+
+	    @Override
+	    public void write(JsonWriter writer, Data data) throws IOException {
+
+	    }
+
+	    @Override
+	    public Data read(JsonReader reader) throws IOException {
+		List<String> names = new LinkedList<String>();
+		List<Integer> vals = new LinkedList<Integer>();
+
+		reader.beginObject();
+		while(reader.hasNext()){
+		    names.add(reader.nextName());
+		    vals.add(reader.nextInt());
+		}
+		reader.endObject();
+
+		Data data = new Data();
+		data.attrs = names.toArray(new String[names.size()]);
+
+		data.exp = new int[vals.size()];
+		for(int i = 0;i < data.exp.length;i++) {
+		    data.exp[i] = vals.get(i);
+		}
+
+		return data;
+	    }
+	}
     }
 }

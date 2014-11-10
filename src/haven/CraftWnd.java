@@ -73,7 +73,13 @@ public class CraftWnd extends Window {
 	if(box != null){
 	    box.change(r);
 	}
-	setDescription(MenuGrid.rendertt(r.res(), true, false));
+	ItemData data = Config.item_data.get(r.res().name);
+	if(data != null){
+	    setDescription(data.longtip(r.res()));
+	} else {
+	    setDescription(null);
+	}
+//	setDescription(MenuGrid.rendertt(r.res(), true, false));
     }
 
     @Override
