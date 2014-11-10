@@ -85,6 +85,7 @@
 			<fileset dir="build/classes-lib" />
 			<fileset file="changelog.txt" />
 			<fileset file="etc/radar.xml" />
+			<fileset file="etc/contents_icons.json" />
 			<manifest>
 				<attribute name="Main-Class" value="haven.MainFrame" />
 				<attribute name="Class-Path" value="jogl-all.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />
