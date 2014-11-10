@@ -166,6 +166,7 @@ public class Config {
 		if (in != null) {
 		    GsonBuilder builder = new GsonBuilder();
 		    builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
+		    builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
 		    Gson gson = builder.create();
 		    Type collectionType = new TypeToken<HashMap<String, ItemData>>(){}.getType();
 		    String json = Utils.stream2str(in);
