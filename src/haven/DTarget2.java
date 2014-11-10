@@ -28,4 +28,5 @@ package haven;
 
 public interface DTarget2 {
     public boolean drop(Coord cc, Coord ul, GItem item);
+    public boolean iteminteract(Coord cc, Coord ul, GItem item);
 }

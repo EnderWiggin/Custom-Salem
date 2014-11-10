@@ -67,6 +67,10 @@ public class ItemDrag extends WItem {
 	    if(((DTarget)w).iteminteract(c, c.add(doff.inv())))
 		return(true);
 	}
+	if(w instanceof DTarget2) {
+	    if(((DTarget2)w).iteminteract(c, c.add(doff.inv()), this.item))
+		return(true);
+	}
 	for(Widget wdg = w.lchild; wdg != null; wdg = wdg.prev) {
 	    if(wdg == this)
 		continue;

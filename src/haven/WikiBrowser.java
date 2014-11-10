@@ -244,4 +244,9 @@ public class WikiBrowser extends Window implements DTarget2, DropTarget{
 	return true;
     }
 
+    @Override
+    public boolean iteminteract(Coord cc, Coord ul, GItem item) {
+	return false;
+    }
+
 }
