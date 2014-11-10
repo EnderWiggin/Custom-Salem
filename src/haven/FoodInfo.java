@@ -26,7 +26,16 @@
 
 package haven;
 
+import haven.Inspiration.Data;
+
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 public class FoodInfo extends ItemInfo.Tip {
     public final int[] tempers;
@@ -49,10 +58,47 @@ public class FoodInfo extends ItemInfo.Tip {
     public static class Data implements ItemData.ITipData {
 	public int[] tempers;
 
+	public Data(){ }
+	public Data(FoodInfo info){
+	    tempers = info.tempers;
+	}
+	
 	@Override
 	public ItemInfo.Tip create()
 	{
 	    return new FoodInfo(null, tempers);
+	}
+	
+	public static class DataAdapter extends TypeAdapter<Data>{
+
+	    @Override
+	    public Data read(JsonReader reader) throws IOException {
+		Data data = new Data();
+		List<Integer> vals = new LinkedList<Integer>();
+		
+		reader.beginArray();
+		while(reader.hasNext()){
+		    vals.add(reader.nextInt());
+		}
+		reader.endArray();
+		
+		data.tempers = new int[vals.size()];
+		for(int i = 0;i < data.tempers.length; i++) {
+		    data.tempers[i] = vals.get(i);
+		}
+		return data;
+	    }
+
+	    @Override
+	    public void write(JsonWriter writer, Data data) throws IOException {
+		writer.beginArray();
+		int n = data.tempers.length;
+		for(int i = 0; i < n; i++){
+		    writer.value(data.tempers[i]);
+		}
+		writer.endArray();
+	    }
+	    
 	}
     }
 }
