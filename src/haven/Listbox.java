@@ -34,6 +34,7 @@ public abstract class Listbox<T> extends ListWidget<T> {
     public final Scrollbar sb;
     public final Color sell = new Color(52, 35, 36);
     public final Color selr = new Color(178, 93, 91);
+    public Color bgcolor = Color.BLACK;
 
     public Listbox(Coord c, Widget parent, int w, int h, int itemh) {
 	super(c, new Coord(w, h * itemh).add(fbox.bisz()), parent, itemh);
@@ -52,8 +53,10 @@ public abstract class Listbox<T> extends ListWidget<T> {
 
     public void draw(GOut g) {
 	sb.max = listitems() - h;
-	g.chcolor(Color.BLACK);
-	g.frect(Coord.z, sz);
+	if(bgcolor != null) {
+	    g.chcolor(Color.BLACK);
+	    g.frect(Coord.z, sz);
+	}
 	g.chcolor();
 	fbox.draw(g, Coord.z, sz);
 	Coord off = fbox.btloff();
