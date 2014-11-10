@@ -30,7 +30,7 @@ public class CraftWnd extends Window implements DTarget2{
     private void init() {
 	List<Pagina> children = getPaginaChilds("paginae/craft/toys");
 	box = new RecipeListBox(Coord.z, this, 200, WND_SZ.y/SZ);
-	//box.bgcolor = null;
+	box.bgcolor = null;
 	box.list = children;
 	Collections.sort(children, MenuGrid.sorter);
 	box.itemclick(children.get(1), 1);
