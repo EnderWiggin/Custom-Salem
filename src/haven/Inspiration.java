@@ -90,7 +90,12 @@ public class Inspiration extends ItemInfo.Tip {
 
 	    @Override
 	    public void write(JsonWriter writer, Data data) throws IOException {
-
+		writer.beginObject();
+		int n = data.attrs.length;
+		for(int i=0; i < n; i++){
+		    writer.name(data.attrs[i]).value(data.exp[i]);
+		}
+		writer.endObject();
 	    }
 
 	    @Override
