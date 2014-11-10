@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CraftWnd extends Window {
+public class CraftWnd extends Window implements DTarget2{
     private static final int SZ = 20;
     private static final Coord WND_SZ = new Coord(635, 360);
     private static final Coord ICON_SZ = new Coord(SZ, SZ);
@@ -28,7 +28,7 @@ public class CraftWnd extends Window {
     }
 
     private void init() {
-	List<Pagina> children = getPaginaChilds("paginae/craft/gmt");
+	List<Pagina> children = getPaginaChilds("paginae/craft/toys");
 	box = new RecipeListBox(Coord.z, this, 200, WND_SZ.y/SZ);
 	//box.bgcolor = null;
 	box.list = children;
@@ -73,7 +73,8 @@ public class CraftWnd extends Window {
 	if(box != null){
 	    box.change(r);
 	}
-	ItemData data = Config.item_data.get(r.res().name);
+	Resource res = r.res();
+	ItemData data = Config.item_data.get(res.name);
 	if(data != null){
 	    setDescription(data.longtip(r.res()));
 	} else {
@@ -100,7 +101,19 @@ public class CraftWnd extends Window {
     public void setMakewindow(Widget widget) {
 	makewnd = widget;
     }
-
+    
+    @Override
+    public boolean drop(Coord cc, Coord ul, GItem item) {
+	ItemData.actualize(item, box.sel);
+	return true;
+    }
+    
+    @Override
+    public boolean iteminteract(Coord cc, Coord ul, GItem item) {
+	// TODO Auto-generated method stub
+	return false;
+    }
+    
     private static class RecipeListBox extends Listbox<Pagina> {
 	public List<Pagina> list;
 	public RecipeListBox(Coord c, Widget parent, int w, int h) {

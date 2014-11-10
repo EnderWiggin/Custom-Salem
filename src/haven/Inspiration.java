@@ -80,6 +80,12 @@ public class Inspiration extends ItemInfo.Tip {
 	String[] attrs;
 	int[] exp;
 
+	public Data(){}
+	public Data(Inspiration info){
+	    attrs = info.attrs;
+	    exp = info.exp;
+	}
+	
 	@Override
 	public Tip create() {
 	    return new Inspiration(null, attrs, exp);

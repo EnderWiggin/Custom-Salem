@@ -26,8 +26,6 @@
 
 package haven;
 
-import haven.Inspiration.Data;
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.LinkedList;
