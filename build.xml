@@ -27,6 +27,7 @@
 				<pathelement path="lib/jorbis.jar" />
 				<pathelement path="lib/jogg.jar" />
 				<pathelement path="lib/jglob.jar" />
+				<pathelement path="lib/gson-2.3.jar" />
 			</classpath>
 			<compilerarg value="-Xlint:unchecked" />
 			<!-- <compilerarg value="-Xbarda" /> -->
@@ -64,6 +65,9 @@
 		<unjar src="lib/jglob.jar" dest="build/classes-lib">
 			<patternset excludes="META-INF/**" />
 		</unjar>
+		<unjar src="lib/gson-2.3.jar" dest="build/classes-lib">
+			<patternset excludes="META-INF/**" />
+		</unjar>
 	</target>
 
 	<target name="resources">
@@ -81,6 +85,7 @@
 			<fileset dir="build/classes-lib" />
 			<fileset file="changelog.txt" />
 			<fileset file="etc/radar.xml" />
+			<fileset file="etc/contents_icons.json" />
 			<manifest>
 				<attribute name="Main-Class" value="haven.MainFrame" />
 				<attribute name="Class-Path" value="jogl-all.jar gluegen-rt.jar client-res.jar builtin-res.jar salem-res.jar" />

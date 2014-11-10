@@ -1,8 +1,12 @@
 $size[20]{$u{CHANGE LOG:}}
 
+$size[14]{$u{Update for 10.11.14:}}
+  * copied from latikai client option to not reset menu grid after action has been selected
+  * made system messages draw with different color depending on message type
+ 
 $size[14]{$u{Update for 08.11.14:}}
   * added option to show contents of seed and flour bags as small icons (Options->General)
-
+ 
 $size[14]{$u{Update for 07.11.14:}}
   * fixed store url
   * merged with default client
