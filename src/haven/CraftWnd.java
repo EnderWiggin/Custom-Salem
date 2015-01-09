@@ -2,6 +2,7 @@ package haven;
 
 import haven.Glob.Pagina;
 
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +42,13 @@ public class CraftWnd extends Window implements DTarget2{
 	    selected = CRAFT;
 	}
 	select(selected);
+
+	List<Breadcrumbs.Crumb> items = new LinkedList<Breadcrumbs.Crumb>();
+	items.add(new Breadcrumbs.Crumb(CRAFT.res().layer(Resource.imgc).img, "Craft", CRAFT));
+
+	Breadcrumbs breadcrumbs = new Breadcrumbs(new Coord(0,-2), new Coord(560, 20), this);
+	breadcrumbs.setSteps(items);
+
     }
 
     @Override
@@ -113,7 +121,7 @@ public class CraftWnd extends Window implements DTarget2{
     public void cdraw(GOut g) {
 	super.cdraw(g);
 
-	drawBreadcrumbs(g);
+	//drawBreadcrumbs(g);
 
 	if(description != null){
 	    g.image(description, new Coord(215, PANEL_H));
