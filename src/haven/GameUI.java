@@ -135,7 +135,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    }
 	};
 	new Bufflist(new Coord(80, 40), this);
-	new EquipProxyWdg(new Coord(80, 2), new int[]{6, 7, 9, 14}, this);
+	new EquipProxyWdg(new Coord(80, 2), new int[]{6, 7, 9, 14, 5, 4}, this);
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
 	syslog = new ChatUI.Log(chat, "System");
