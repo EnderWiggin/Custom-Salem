@@ -43,6 +43,7 @@ public class RootWidget extends ConsoleHost {
     public boolean globtype(char key, KeyEvent ev) {
 	int code = ev.getKeyCode();
 	boolean ctrl = ev.isControlDown();
+	boolean alt = ev.isAltDown();
 	if(!super.globtype(key, ev)) {
 	    if(key == 0){return false;}
 	    if(Config.profile && (key == '`')) {
@@ -57,6 +58,13 @@ public class RootWidget extends ConsoleHost {
 		FlatnessTool.instance(ui).toggle();
 	    }else if(code == KeyEvent.VK_D && ctrl){
 		DarknessWnd.toggle();
+	    }else if(code == KeyEvent.VK_C && alt){
+		CraftWnd craftwnd = ui.gui.craftwnd;
+		if(craftwnd == null) {
+		    ui.gui.showCraftWnd(true);
+		} else {
+		    craftwnd.wdgmsg(craftwnd, "close");
+		}
 	    }else if(code == KeyEvent.VK_Z && ctrl){
 		Config.center = !Config.center;
 		ui.message(String.format("Tile centering in turned %s", Config.center?"ON":"OFF"), GameUI.MsgType.INFO);

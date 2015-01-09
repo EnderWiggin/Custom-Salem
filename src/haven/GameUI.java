@@ -377,6 +377,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    return(g);
 	} else if(place == "craft") {
 	    final Widget[] mk = {null};
+	    showCraftWnd();
 	    if(craftwnd != null){
 		mk[0] = gettype(type).create(new Coord(215, 250), craftwnd, cargs);
 		craftwnd.setMakewindow(mk[0]);
@@ -695,6 +696,25 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
 
+    @Override
+    public void wdgmsg(String msg, Object... args) {
+	super.wdgmsg(msg, args);
+	if(msg.equals("belt")){
+	    checkBelt(args);
+	}
+    }
+
+    private void checkBelt(Object... args) {
+	int index = (Integer) args[0];
+	Resource res = belt[index].get();
+	if(menu.isCrafting(res)){
+	    showCraftWnd();
+	}
+	if(craftwnd != null) {
+	    craftwnd.select(res);
+	}
+    }
+
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(sender == menu) {
 	    wdgmsg(msg, args);
@@ -802,11 +822,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			    invwnd.raise();
 			    fitwdg(invwnd);
 			}
-
-		    if(craftwnd == null){
-			new CraftWnd(Coord.z, GameUI.this);
 		    }
-		}
 
 		    public void tick(double dt) {
 			if(maininv != null) {
@@ -985,6 +1001,16 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    cash.presize();
 	}
 
+    }
+
+    public void showCraftWnd() {
+	showCraftWnd(false);
+    }
+
+    public void showCraftWnd(boolean force) {
+	if(craftwnd == null && (force || Config.autoopen_craftwnd)){
+	    new CraftWnd(Coord.z, this);
+	}
     }
     
     private void makemenu() {

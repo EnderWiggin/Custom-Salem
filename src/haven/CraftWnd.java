@@ -14,6 +14,8 @@ public class CraftWnd extends Window implements DTarget2{
     private RecipeListBox box;
     private Tex description;
     private Widget makewnd;
+    private MenuGrid menu;
+    private Pagina CRAFT;
 
     public CraftWnd(Coord c, Widget parent) {
 	super(c, WND_SZ, parent, "Craft window");
@@ -28,12 +30,15 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
     private void init() {
-	List<Pagina> children = getPaginaChilds("paginae/craft/toys");
 	box = new RecipeListBox(Coord.z, this, 200, WND_SZ.y/SZ);
 	box.bgcolor = null;
-	box.list = children;
-	Collections.sort(children, MenuGrid.sorter);
-	box.itemclick(children.get(1), 1);
+	CRAFT = paginafor("paginae/act/craft");
+	menu = ui.gui.menu;
+	Pagina selected = menu.cur;
+	if(selected == null || !menu.isCrafting(selected)){
+	    selected = CRAFT;
+	}
+	select(selected);
     }
 
     @Override
@@ -58,29 +63,43 @@ public class CraftWnd extends Window implements DTarget2{
 	super.wdgmsg(sender, msg, args);
     }
 
-    private List<Pagina> getPaginaChilds(String parent) {
-	return getPaginaChilds(parent, null);
-    }
-
-    private List<Pagina> getPaginaChilds(String parent, List<Pagina> buf) {
+    private List<Pagina> getPaginaChildren(Pagina parent, List<Pagina> buf) {
 	if(buf == null){buf = new LinkedList<Pagina>();}
-
-	ui.gui.menu.cons(ui.sess.glob.paginafor(Resource.load(parent)), buf);
+	menu.cons(parent, buf);
 	return buf;
     }
 
-    public void select(Pagina r) {
+
+    public void select(Resource resource) {
+	select(paginafor(resource));
+    }
+
+    public void select(Pagina p) {
+	if (!menu.isCrafting(p)){return;}
 	if(box != null){
-	    box.change(r);
+	    List<Pagina> children = getPaginaChildren(p, null);
+	    if(children.size() == 0){
+		children = getPaginaChildren(menu.getParent(p), null);
+	    } else {
+		if(makewnd != null){
+		    makewnd.wdgmsg("close");
+		}
+	    }
+	    Collections.sort(children, MenuGrid.sorter);
+	    if(p != CRAFT){
+		children.add(0, menu.bk);
+	    }
+	    box.list = children;
+	    box.change(p);
 	}
-	Resource res = r.res();
+	Resource res = p.res();
 	ItemData data = Config.item_data.get(res.name);
 	if(data != null){
-	    setDescription(data.longtip(r.res()));
+	    setDescription(data.longtip(p.res()));
 	} else {
-	    setDescription(null);
+	    //setDescription(null);
+	    setDescription(MenuGrid.rendertt(p.res(), true, false));
 	}
-//	setDescription(MenuGrid.rendertt(r.res(), true, false));
     }
 
     @Override
@@ -101,19 +120,27 @@ public class CraftWnd extends Window implements DTarget2{
     public void setMakewindow(Widget widget) {
 	makewnd = widget;
     }
-    
+
     @Override
     public boolean drop(Coord cc, Coord ul, GItem item) {
 	ItemData.actualize(item, box.sel);
 	return true;
     }
-    
+
     @Override
     public boolean iteminteract(Coord cc, Coord ul, GItem item) {
 	// TODO Auto-generated method stub
 	return false;
     }
-    
+
+    private Pagina paginafor(String name){
+	return paginafor(Resource.load(name));
+    }
+
+    private Pagina paginafor(Resource res){
+	return ui.sess.glob.paginafor(res);
+    }
+
     private static class RecipeListBox extends Listbox<Pagina> {
 	public List<Pagina> list;
 	public RecipeListBox(Coord c, Widget parent, int w, int h) {
@@ -149,7 +176,14 @@ public class CraftWnd extends Window implements DTarget2{
 		return;
 	    }
 	    g.image(item.img.tex(), Coord.z, ICON_SZ);
-	    g.atext(item.act().name, TEXT_POS, 0, 0.5);
+	    Resource.AButton act = item.act();
+	    String name = "...";
+	    if(act != null){
+		name = act.name;
+	    } else if(item == ui.gui.menu.bk){
+		name = "Back";
+	    }
+	    g.atext(name, TEXT_POS, 0, 0.5);
 	}
     }
 }

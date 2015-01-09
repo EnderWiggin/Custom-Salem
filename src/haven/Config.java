@@ -72,6 +72,7 @@ public class Config {
     public static boolean show_tempers = Utils.getprefb("show_tempers", false);
     public static boolean store_map = Utils.getprefb("store_map", true);
     public static boolean radar_icons = Utils.getprefb("radar_icons", true);
+    public static boolean autoopen_craftwnd = Utils.getprefb("autoopen_craftwnd", false);
 
     public static String currentCharName = "";
     static Properties window_props;
@@ -164,10 +165,7 @@ public class Config {
 	try {
 	    try {
 		if (in != null) {
-		    GsonBuilder builder = new GsonBuilder();
-		    builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
-		    builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
-		    Gson gson = builder.create();
+		    Gson gson = getGson();
 		    Type collectionType = new TypeToken<HashMap<String, ItemData>>(){}.getType();
 		    String json = Utils.stream2str(in);
 		    item_data = gson.fromJson(json, collectionType);
@@ -179,6 +177,17 @@ public class Config {
 	} catch(IOException e) {
 	    throw(new Error(e));
 	}
+    }
+
+    private static void saveItemData() {
+
+    }
+
+    private static Gson getGson() {
+	GsonBuilder builder = new GsonBuilder();
+	builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
+	builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
+	return builder.create();
     }
 
     public static void setCharName(String name){

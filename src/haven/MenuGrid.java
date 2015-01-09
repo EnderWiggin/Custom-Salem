@@ -45,6 +45,7 @@ import org.ender.wiki.Wiki;
 public class MenuGrid extends Widget {
     public final static Tex bg = Resource.loadtex("gfx/hud/invsq");
     public final static Coord bgsz = bg.sz().add(-1, -1);
+    private final Pagina CRAFT;
     public final Pagina next = paginafor(Resource.load("gfx/hud/sc-next").loadwait());
     public final Pagina bk = paginafor(Resource.load("gfx/hud/sc-back").loadwait());
     public final static RichText.Foundry ttfnd = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
@@ -54,7 +55,7 @@ public class MenuGrid extends Widget {
     private int pagseq = 0;
     private boolean loading = true;
     private Map<Character, Pagina> hotmap = new TreeMap<Character, Pagina>();
-	
+
     @RName("scm")
     public static class $_ implements Factory {
 	public Widget create(Coord c, Widget parent, Object[] args) {
@@ -120,6 +121,7 @@ public class MenuGrid extends Widget {
     public MenuGrid(Coord c, Widget parent) {
 	super(c, Inventory.invsz(gsz), parent);
 	ui.mnu = this;
+	CRAFT = paginafor(Resource.load("paginae/act/craft"));
 	Glob glob = ui.sess.glob;
 	Collection<Pagina> p = glob.paginae;
 	p.add(glob.paginafor(Resource.load("paginae/act/add")));
@@ -475,15 +477,15 @@ public class MenuGrid extends Widget {
 	    cur = new LinkedList<Pagina>();
 	cons(r, sub);
 	cons(this.cur, cur);
+	if(isCrafting(r)){ui.gui.showCraftWnd();}
+	selectCraft(r);
 	if(sub.size() > 0) {
 	    this.cur = r;
 	    curoff = 0;
-	    if(ui.gui.craftwnd != null){
-		ui.gui.craftwnd.select(r);
-	    }
 	} else if(r == bk) {
 	    this.cur = paginafor(this.cur.act().parent);
 	    curoff = 0;
+	    selectCraft(this.cur);
 	} else if(r == next) {
 	    int off = gsz.x*gsz.y - 2;
 	    if((curoff + off) >= cur.size())
@@ -503,11 +505,17 @@ public class MenuGrid extends Widget {
 	    this.cur = null;
 	    curoff = 0;
 	    }
-	    if(ui.gui.craftwnd != null){
-		ui.gui.craftwnd.select(r);
-	    }
 	}
 	updlayout();
+    }
+
+    private void selectCraft(Pagina r) {
+	if(r == null){
+	    r = CRAFT;
+	}
+	if(ui.gui.craftwnd != null){
+	    ui.gui.craftwnd.select(r);
+	}
     }
     
     public void tick(double dt) {
@@ -577,5 +585,34 @@ public class MenuGrid extends Widget {
 	    return(true);
 	}
 	return(false);
+    }
+
+    public boolean isCrafting(Pagina p) {
+	return isChildOf(p, CRAFT) || CRAFT == p;
+    }
+
+    public boolean isCrafting(Resource res){
+	return isCrafting(paginafor(res));
+    }
+
+    public Pagina getParent(Pagina p){
+	try {
+	    Resource res = p.res();
+	    Resource.AButton ad = res.layer(Resource.action);
+	    if (ad == null)
+		return null;
+	    return paginafor(ad.parent);
+	} catch (Loading e){
+	    return null;
+	}
+    }
+
+    public boolean isChildOf(Pagina item, Pagina parent) {
+	Pagina p;
+	while((p = getParent(item)) != null){
+	    if(p == parent){ return true; }
+	    item = p;
+	}
+	return false;
     }
 }

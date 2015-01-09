@@ -249,6 +249,17 @@ public class OptWnd2 extends Window {
 		
 		{tooltip = Text.render("Makes the menu grid reset after selecting an action from it.");}
 	    }.a = Config.menugrid_resets;
+
+	    new CheckBox(new Coord(200, y += 25), tab, "Auto open craft window"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.autoopen_craftwnd = val;
+		    Utils.setprefb("autoopen_craftwnd", val);
+		}
+
+		{tooltip = Text.render("Makes open if you click on any crafting item in menugrid or toolbelt.");}
+	    }.a = Config.autoopen_craftwnd;
 	}
 
 	
