@@ -124,6 +124,10 @@ public class CraftWnd extends Window implements DTarget2{
     private void setCurrent(Pagina current) {
     	List<Breadcrumbs.Crumb> crumbs = new LinkedList<Breadcrumbs.Crumb>();
 	List<Pagina> parents = getParents(current);
+	Pagina parent = parents.get(0);
+	if(menu.cur != parent){
+	    menu.setCurrent(parent, true);
+	}
 	Collections.reverse(parents);
 	for(Pagina item : parents){
 	    BufferedImage img = item.res().layer(Resource.imgc).img;

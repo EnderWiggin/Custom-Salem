@@ -483,8 +483,7 @@ public class MenuGrid extends Widget {
 	    this.cur = r;
 	    curoff = 0;
 	} else if(r == bk) {
-	    this.cur = paginafor(this.cur.act().parent);
-	    curoff = 0;
+	    setCurrent(paginafor(this.cur.act().parent), false);
 	    selectCraft(this.cur);
 	} else if(r == next) {
 	    int off = gsz.x*gsz.y - 2;
@@ -507,6 +506,14 @@ public class MenuGrid extends Widget {
 	    }
 	}
 	updlayout();
+    }
+
+    public void setCurrent(Pagina cur, boolean update) {
+	this.cur = cur;
+	this.curoff = 0;
+	if(update){
+	    updlayout();
+	}
     }
 
     private void selectCraft(Pagina r) {
