@@ -19,6 +19,7 @@ public class CraftWnd extends Window implements DTarget2{
     private MenuGrid menu;
     private Pagina CRAFT;
     private Breadcrumbs breadcrumbs;
+    private Pagina current;
 
     public CraftWnd(Coord c, Widget parent) {
 	super(c, WND_SZ.add(0,5), parent, "Craft window");
@@ -33,7 +34,21 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
     private void init() {
-	box = new RecipeListBox(new Coord(0, PANEL_H), this, 200, (WND_SZ.y-PANEL_H)/SZ);
+	box = new RecipeListBox(new Coord(0, PANEL_H), this, 200, (WND_SZ.y-PANEL_H)/SZ){
+	    @Override
+	    protected void itemclick(Pagina item, int button) {
+		if(button == 1){
+		    if(item == menu.bk){
+			item = current;
+			if(getPaginaChildren(current, null).size()==0){
+			    item = menu.getParent(item);
+			}
+			item = menu.getParent(item);
+		    }
+		    menu.use(item);
+		}
+	    }
+	};
 	box.bgcolor = null;
 	CRAFT = paginafor("paginae/act/craft");
 	menu = ui.gui.menu;
@@ -122,12 +137,9 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
     private void setCurrent(Pagina current) {
+	this.current = current;
     	List<Breadcrumbs.Crumb> crumbs = new LinkedList<Breadcrumbs.Crumb>();
 	List<Pagina> parents = getParents(current);
-	Pagina parent = parents.get(0);
-	if(menu.cur != parent){
-	    menu.setCurrent(parent, true);
-	}
 	Collections.reverse(parents);
 	for(Pagina item : parents){
 	    BufferedImage img = item.res().layer(Resource.imgc).img;
@@ -205,13 +217,6 @@ public class CraftWnd extends Window implements DTarget2{
 		return 0;
 	    }
 	    return list.size();
-	}
-
-	@Override
-	protected void itemclick(Pagina item, int button) {
-	    if(button == 1){
-		ui.gui.menu.use(item);
-	    }
 	}
 
 	@Override
