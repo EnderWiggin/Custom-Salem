@@ -7,6 +7,7 @@ import java.util.List;
 
 public abstract class Breadcrumbs extends Widget {
     private static final Coord border = new Coord(2,2);
+    private static final BufferedImage separator = Resource.loadimg("gfx/hud/breadcrumb");
     private final Coord SZ;
     private List<Crumb> crumbs;
     private List<IButton> buttons;
@@ -38,6 +39,14 @@ public abstract class Breadcrumbs extends Widget {
 
     public abstract void selected(Object data);
 
+    @Override
+    public void draw(GOut g) {
+	for(int i = 1; i<buttons.size(); i++){
+	    g.image(separator,buttons.get(i).c.sub(12,-2));
+	}
+	super.draw(g);
+    }
+
     private void createButtons() {
 	int w = 0;
 	for(Crumb item : crumbs){
@@ -59,7 +68,7 @@ public abstract class Breadcrumbs extends Widget {
 	    btn.recthit = true;
 	    buttons.add(btn);
 
-	    w += isz.x + 5;
+	    w += isz.x + 14;
 	}
     }
 
