@@ -8,7 +8,8 @@ import java.util.List;
 
 public class CraftWnd extends Window implements DTarget2{
     private static final int SZ = 20;
-    private static final Coord WND_SZ = new Coord(635, 360);
+    private static final int PANEL_H = 24;
+    private static final Coord WND_SZ = new Coord(635, 360+PANEL_H);
     private static final Coord ICON_SZ = new Coord(SZ, SZ);
     private static final Coord TEXT_POS = new Coord(SZ+2, SZ/2);
     private RecipeListBox box;
@@ -16,9 +17,10 @@ public class CraftWnd extends Window implements DTarget2{
     private Widget makewnd;
     private MenuGrid menu;
     private Pagina CRAFT;
+    private Pagina current;
 
     public CraftWnd(Coord c, Widget parent) {
-	super(c, WND_SZ, parent, "Craft window");
+	super(c, WND_SZ.add(0,5), parent, "Craft window");
 	ui.gui.craftwnd = this;
 	init();
     }
@@ -30,7 +32,7 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
     private void init() {
-	box = new RecipeListBox(Coord.z, this, 200, WND_SZ.y/SZ);
+	box = new RecipeListBox(new Coord(0, PANEL_H), this, 200, (WND_SZ.y-PANEL_H)/SZ);
 	box.bgcolor = null;
 	CRAFT = paginafor("paginae/act/craft");
 	menu = ui.gui.menu;
@@ -91,6 +93,7 @@ public class CraftWnd extends Window implements DTarget2{
 	    }
 	    box.list = children;
 	    box.change(p);
+	    setCurrent(p);
 	}
 	Resource res = p.res();
 	ItemData data = Config.item_data.get(res.name);
@@ -102,12 +105,50 @@ public class CraftWnd extends Window implements DTarget2{
 	}
     }
 
+    private void setCurrent(Pagina p) {
+	current = p;
+    }
+
     @Override
     public void cdraw(GOut g) {
 	super.cdraw(g);
+
+	drawBreadcrumbs(g);
+
 	if(description != null){
-	    g.image(description, new Coord(215, 0));
+	    g.image(description, new Coord(215, PANEL_H));
 	}
+    }
+
+    private void drawBreadcrumbs(GOut g) {
+	if(current != null){
+	    List<Pagina> parents = getParents(current);
+	    Collections.reverse(parents);
+	    Coord text_pos = new Coord(TEXT_POS);
+	    for(Pagina item : parents){
+		g.image(item.img.tex(), text_pos.sub(TEXT_POS), ICON_SZ);
+		Resource.AButton act = item.act();
+		String name = "...";
+		if(act != null){
+		    name = act.name;
+		}
+		Coord tsz = g.atext(name+" > ", text_pos, 0, 0.5);
+		text_pos.x += tsz.x+SZ;
+	    }
+	}
+    }
+
+    private List<Pagina> getParents(Pagina p) {
+	List<Pagina> list = new LinkedList<Pagina>();
+	if(p != CRAFT && getPaginaChildren(p, null).size() > 0){
+	    list.add(p);
+	}
+	Pagina parent;
+	while((parent = menu.getParent(p)) != CRAFT && parent != null){
+	    list.add(parent);
+	    p = parent;
+	}
+	return list;
     }
 
     private void setDescription(Tex text) {
