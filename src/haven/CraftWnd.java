@@ -18,7 +18,7 @@ public class CraftWnd extends Window implements DTarget2{
     private Widget makewnd;
     private MenuGrid menu;
     private Pagina CRAFT;
-    private Pagina current;
+    private Breadcrumbs breadcrumbs;
 
     public CraftWnd(Coord c, Widget parent) {
 	super(c, WND_SZ.add(0,5), parent, "Craft window");
@@ -37,18 +37,17 @@ public class CraftWnd extends Window implements DTarget2{
 	box.bgcolor = null;
 	CRAFT = paginafor("paginae/act/craft");
 	menu = ui.gui.menu;
+	breadcrumbs = new Breadcrumbs(new Coord(0, -2), new Coord(560, 20), this) {
+	    @Override
+	    public void selected(Object data) {
+		select((Pagina) data);
+	    }
+	};
 	Pagina selected = menu.cur;
 	if(selected == null || !menu.isCrafting(selected)){
 	    selected = CRAFT;
 	}
 	select(selected);
-
-	List<Breadcrumbs.Crumb> items = new LinkedList<Breadcrumbs.Crumb>();
-	items.add(new Breadcrumbs.Crumb(CRAFT.res().layer(Resource.imgc).img, "Craft", CRAFT));
-
-	Breadcrumbs breadcrumbs = new Breadcrumbs(new Coord(0,-2), new Coord(560, 20), this);
-	breadcrumbs.setSteps(items);
-
     }
 
     @Override
@@ -113,46 +112,38 @@ public class CraftWnd extends Window implements DTarget2{
 	}
     }
 
-    private void setCurrent(Pagina p) {
-	current = p;
-    }
-
     @Override
     public void cdraw(GOut g) {
 	super.cdraw(g);
-
-	//drawBreadcrumbs(g);
 
 	if(description != null){
 	    g.image(description, new Coord(215, PANEL_H));
 	}
     }
 
-    private void drawBreadcrumbs(GOut g) {
-	if(current != null){
-	    List<Pagina> parents = getParents(current);
-	    Collections.reverse(parents);
-	    Coord text_pos = new Coord(TEXT_POS);
-	    for(Pagina item : parents){
-		g.image(item.img.tex(), text_pos.sub(TEXT_POS), ICON_SZ);
-		Resource.AButton act = item.act();
-		String name = "...";
-		if(act != null){
-		    name = act.name;
-		}
-		Coord tsz = g.atext(name+" > ", text_pos, 0, 0.5);
-		text_pos.x += tsz.x+SZ;
+    private void setCurrent(Pagina current) {
+    	List<Breadcrumbs.Crumb> crumbs = new LinkedList<Breadcrumbs.Crumb>();
+	List<Pagina> parents = getParents(current);
+	Collections.reverse(parents);
+	for(Pagina item : parents){
+	    BufferedImage img = item.res().layer(Resource.imgc).img;
+	    Resource.AButton act = item.act();
+	    String name = "...";
+	    if(act != null){
+		name = act.name;
 	    }
+	   crumbs.add(new Breadcrumbs.Crumb(img,name, item));
 	}
+	breadcrumbs.setCrumbs(crumbs);
     }
 
     private List<Pagina> getParents(Pagina p) {
 	List<Pagina> list = new LinkedList<Pagina>();
-	if(p != CRAFT && getPaginaChildren(p, null).size() > 0){
+	if(getPaginaChildren(p, null).size() > 0){
 	    list.add(p);
 	}
 	Pagina parent;
-	while((parent = menu.getParent(p)) != CRAFT && parent != null){
+	while((parent = menu.getParent(p)) != null){
 	    list.add(parent);
 	    p = parent;
 	}

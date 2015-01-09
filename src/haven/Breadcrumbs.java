@@ -5,26 +5,42 @@ import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Breadcrumbs extends Widget {
+public abstract class Breadcrumbs extends Widget {
     private static final Coord border = new Coord(2,2);
     private final Coord SZ;
-    private List<Crumb> steps;
+    private List<Crumb> crumbs;
     private List<IButton> buttons;
 
     public Breadcrumbs(Coord c, Coord sz, Widget parent) {
 	super(c, sz.add(0, border.x*2), parent);
-	SZ = new Coord(sz.y, sz.y);
+	int d = sz.y;
+	SZ = new Coord(d, d);
 	buttons = new LinkedList<IButton>();
     }
 
-    public void setSteps(List<Crumb> steps){
-	this.steps = steps;
+    public void setCrumbs(List<Crumb> crumbs){
+	this.crumbs = crumbs;
 	cleanButtons();
 	createButtons();
     }
 
+    @Override
+    public void wdgmsg(Widget sender, String msg, Object... args) {
+	if (sender instanceof IButton && buttons.contains(sender)) {
+	    if(msg.equals("activate")){
+		int k = buttons.indexOf(sender);
+		selected(crumbs.get(k).data);
+	    }
+	    return;
+	}
+	super.wdgmsg(sender, msg, args);
+    }
+
+    public abstract void selected(Object data);
+
     private void createButtons() {
-	for(Crumb item : steps){
+	int w = 0;
+	for(Crumb item : crumbs){
 	    BufferedImage txt = Text.render(item.text).img;
 
 	    Coord isz = Utils.imgsz(txt).add(border.x*3+SZ.x,0);
@@ -36,12 +52,14 @@ public class Breadcrumbs extends Widget {
 	    g.drawImage(item.img, border.x, border.y, SZ.x, SZ.y,null);
 	    g.drawImage(txt, SZ.x+border.x*2, ty, null);
 
-	    BufferedImage down = highlight(up, new Color(0x447CD816, true));
-	    BufferedImage over = highlight(up, new Color(0x44EFE40A, true));
+	    BufferedImage down = highlight(up, new Color(0x44EFE40A, true));
+	    BufferedImage over = highlight(up, new Color(0x44C5C3BD, true));
 
-	    IButton btn = new IButton(Coord.z, this, up, down, over);
+	    IButton btn = new IButton(new Coord(w, 0), this, up, down, over);
 	    btn.recthit = true;
 	    buttons.add(btn);
+
+	    w += isz.x + 5;
 	}
     }
 
@@ -49,9 +67,7 @@ public class Breadcrumbs extends Widget {
 	Coord imgsz = Utils.imgsz(img);
 	BufferedImage ret = TexI.mkbuf(imgsz);
 	Graphics g = ret.getGraphics();
-	g.setColor(color);
-	g.fillRect(0, 0, imgsz.x, imgsz.y);
-	g.drawImage(img, 0, 0, null);
+	g.drawImage(img, 0, 0, color, null);
 	return ret;
     }
 
