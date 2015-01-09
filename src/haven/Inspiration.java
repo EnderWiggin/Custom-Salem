@@ -50,8 +50,11 @@ public class Inspiration extends ItemInfo.Tip {
 
     public int total() {
 	int ret = 0;
-	for(int lp : exp)
-	    ret += lp;
+	int n = attrs.length;
+	for(int i =0; i<n; i++) {
+	    if(attrs[i].equals("uses")){continue;}
+	    ret += exp[i];
+	}
 	return(ret);
     }
     
@@ -61,15 +64,16 @@ public class Inspiration extends ItemInfo.Tip {
 	buf.append("When studied:");
 	int uses = -1;
 	for (int i = 0; i < attrs.length; i++) {
-	    String type = attrs[o[i]];
+	    int k = o[i];
+	    String type = attrs[k];
 	    if(type.equals("uses")){
-		uses = exp[o[i]];
+		uses = exp[k];
 		continue;
 	    }
 	    String attr = CharWnd.attrnm.get(type);
 	    if(attr == null){continue;}
-	    Color c = cs[o[i]];
-	    buf.append(String.format("\n$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[o[i]] ));
+	    Color c = cs[k];
+	    buf.append(String.format("\n$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[k] ));
 	}
 	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", total()));
 	if(uses > 0){ buf.append(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)); }
