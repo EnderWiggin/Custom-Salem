@@ -44,6 +44,7 @@ public class RootWidget extends ConsoleHost {
 	int code = ev.getKeyCode();
 	boolean ctrl = ev.isControlDown();
 	boolean alt = ev.isAltDown();
+	boolean hasGUI = ui.gui != null;
 	if(!super.globtype(key, ev)) {
 	    if(key == 0){return false;}
 	    if(Config.profile && (key == '`')) {
@@ -58,7 +59,7 @@ public class RootWidget extends ConsoleHost {
 		FlatnessTool.instance(ui).toggle();
 	    }else if(code == KeyEvent.VK_D && ctrl){
 		DarknessWnd.toggle();
-	    }else if(code == KeyEvent.VK_C && alt){
+	    }else if(code == KeyEvent.VK_C && alt && hasGUI){
 		CraftWnd craftwnd = ui.gui.craftwnd;
 		if(craftwnd == null) {
 		    ui.gui.showCraftWnd(true);
