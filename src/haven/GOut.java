@@ -227,13 +227,14 @@ public class GOut {
 	atext(text, c, 0, 0);
     }
 	
-    public void atext(String text, Coord c, double ax, double ay) {
+    public Coord atext(String text, Coord c, double ax, double ay) {
 	Text t = Text.render(text);
 	Tex T = t.tex();
 	Coord sz = t.sz();
 	image(T, c.add((int)((double)sz.x * -ax), (int)((double)sz.y * -ay)));
 	T.dispose();
 	checkerr();
+	return sz;
     }
     
     public void poly(Coord... c) {
