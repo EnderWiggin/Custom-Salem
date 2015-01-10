@@ -7,8 +7,8 @@ public class GobbleEventInfo extends ItemInfo.Tip {
     public static final Color undebuff = new Color(192, 255, 192);
     public static final Color debuff = new Color(255, 192, 192);
 
-    private int value;
-    private Indir<Resource> res;
+    public int value;
+    public Indir<Resource> res;
 
     public GobbleEventInfo(Owner owner, int value, Indir<Resource> res) {
 	super(owner);

@@ -31,7 +31,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -192,23 +191,10 @@ public class GobbleInfo extends ItemInfo.Tip {
 		for(Event event : events){
 		    writer.beginObject();
 		    writer.name("chance").value(event.p);
-		    ItemInfo info = event.info.get(0);
+		    GobbleEventInfo info = (GobbleEventInfo) event.info.get(0);
 
-		    try {
-			Field f = info.getClass().getDeclaredField("value");
-			f.setAccessible(true);
-			double v = f.getInt(info);
-			writer.name("value").value(v);
-			f = info.getClass().getDeclaredField("res");
-			f.setAccessible(true);
-			//noinspection unchecked
-			Indir<Resource> res = (Indir<Resource>) f.get(info);
-			writer.name("type").value(res.get().name);
-		    } catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		    } catch (IllegalAccessException e) {
-			e.printStackTrace();
-		    }
+		    writer.name("value").value(info.value);
+		    writer.name("type").value(info.res.get().name);
 
 		    writer.endObject();
 		}
