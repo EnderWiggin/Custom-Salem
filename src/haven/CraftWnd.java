@@ -117,14 +117,6 @@ public class CraftWnd extends Window implements DTarget2{
 	    box.change(p);
 	    setCurrent(p);
 	}
-	Resource res = p.res();
-	ItemData data = ItemData.get(res.name);
-	if(data != null){
-	    setDescription(data.longtip(p.res()));
-	} else {
-	    //setDescription(null);
-	    setDescription(MenuGrid.rendertt(p.res(), true, false));
-	}
     }
 
     @Override
@@ -138,8 +130,13 @@ public class CraftWnd extends Window implements DTarget2{
 
     private void setCurrent(Pagina current) {
 	this.current = current;
-    	List<Breadcrumbs.Crumb> crumbs = new LinkedList<Breadcrumbs.Crumb>();
-	List<Pagina> parents = getParents(current);
+	updateBreadcrumbs(current);
+	updateDescription(current);
+    }
+
+    private void updateBreadcrumbs(Pagina p) {
+	List<Breadcrumbs.Crumb> crumbs = new LinkedList<Breadcrumbs.Crumb>();
+	List<Pagina> parents = getParents(p);
 	Collections.reverse(parents);
 	for(Pagina item : parents){
 	    BufferedImage img = item.res().layer(Resource.imgc).img;
@@ -166,11 +163,19 @@ public class CraftWnd extends Window implements DTarget2{
 	return list;
     }
 
-    private void setDescription(Tex text) {
+    private void updateDescription(Pagina p) {
 	if(description != null){
 	    description.dispose();
 	}
-	description = text;
+
+	Resource res = p.res();
+	ItemData data = ItemData.get(res.name);
+	if(data != null){
+	    description = data.longtip(p.res());
+	} else {
+	    //description = null;
+	    description = MenuGrid.rendertt(p.res(), true, false);
+	}
     }
 
     public void setMakewindow(Widget widget) {
@@ -180,6 +185,7 @@ public class CraftWnd extends Window implements DTarget2{
     @Override
     public boolean drop(Coord cc, Coord ul, GItem item) {
 	ItemData.actualize(item, box.sel);
+	updateDescription(current);
 	return true;
     }
 
