@@ -26,6 +26,12 @@
 
 package haven;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -93,5 +99,147 @@ public class GobbleInfo extends ItemInfo.Tip {
 	return String.format("$col[%s]{%s} - $col[%s]{%s}",
 		Tempers.tcolors[i], Utils.fpformat(l[i], 3, 1), 
 		Tempers.tcolors[i], Utils.fpformat(h[i], 3, 1));
+    }
+
+    public static class Data implements ItemData.ITipData {
+	public int[] l, h;
+	public int ft;
+	public List<Event> evs;
+
+	public Data(){ }
+	public Data(GobbleInfo info){
+	    l = info.l;
+	    h = info.h;
+	    ft = info.ft;
+
+	    evs = info.evs;
+	}
+
+	@Override
+	public Tip create() {
+	    return new GobbleInfo(null, l, h, new int[]{}, ft, evs);
+	}
+
+	public static class DataAdapter extends TypeAdapter<Data> {
+
+	    @Override
+	    public void write(JsonWriter writer, Data data) throws IOException {
+		writer.beginObject();
+
+		writer.name("fed-up_time").value(data.ft);
+		writeArray(writer, "high", data.h);
+		writeArray(writer, "low", data.l);
+
+		writeEvents(writer, data.evs);
+
+		writer.endObject();
+	    }
+
+	    @Override
+	    public Data read(JsonReader reader) throws IOException {
+		Data data = new Data();
+
+		reader.beginObject();
+		while(reader.hasNext()){
+		    String name = reader.nextName();
+		    if(name.equals("fed-up_time")){
+			data.ft = reader.nextInt();
+		    } else if(name.equals("low")){
+			data.l = readArray(reader);
+		    } else if(name.equals("high")){
+			data.h = readArray(reader);
+		    } else if (name.equals("events")){
+			data.evs = readEvents(reader);
+		    }
+		}
+		reader.endObject();
+
+		return data;
+	    }
+
+	    private List<Event> readEvents(JsonReader reader) throws IOException {
+		List<Event> events = new LinkedList<Event>();
+		reader.beginArray();
+		while(reader.hasNext()) {
+		    reader.beginObject();
+		    double p = 0;
+		    int value = 0;
+		    String type = null;
+		    while (reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("chance")) {
+			    p = reader.nextDouble();
+			} else if (name.equals("value")) {
+			    value = reader.nextInt();
+			} else if (name.equals("type")) {
+			    type = reader.nextString();
+			}
+		    }
+		    reader.endObject();
+
+		    Indir<Resource> res = Resource.load(type).indir();
+		    LinkedList<ItemInfo> itemInfos = new LinkedList<ItemInfo>();
+		    itemInfos.add(new GobbleEventInfo(null, value, res));
+		    events.add(new Event(itemInfos,p));
+		}
+		reader.endArray();
+		return events;
+	    }
+
+	    private static void writeEvents(JsonWriter writer, List<Event> events) throws IOException {
+		writer.name("events");
+		writer.beginArray();
+		for(Event event : events){
+		    writer.beginObject();
+		    writer.name("chance").value(event.p);
+		    ItemInfo info = event.info.get(0);
+
+		    try {
+			Field f = info.getClass().getDeclaredField("value");
+			f.setAccessible(true);
+			double v = f.getInt(info);
+			writer.name("value").value(v);
+			f = info.getClass().getDeclaredField("res");
+			f.setAccessible(true);
+			//noinspection unchecked
+			Indir<Resource> res = (Indir<Resource>) f.get(info);
+			writer.name("type").value(res.get().name);
+		    } catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		    } catch (IllegalAccessException e) {
+			e.printStackTrace();
+		    }
+
+		    writer.endObject();
+		}
+		writer.endArray();
+	    }
+
+	    private static void writeArray(JsonWriter writer, String name, int[] values) throws IOException {
+		writer.name(name);
+		writer.beginArray();
+		for(int h : values){
+		    writer.value(h);
+		}
+		writer.endArray();
+	    }
+
+	    private static int[] readArray(JsonReader reader) throws IOException {
+		List<Integer> tmp = new LinkedList<Integer>();
+		int[] values;
+
+		reader.beginArray();
+		while(reader.hasNext()){
+		    tmp.add(reader.nextInt());
+		}
+		reader.endArray();
+
+		values = new int[tmp.size()];
+		for(int i = 0;i < values.length; i++) {
+		    values[i] = tmp.get(i);
+		}
+		return values;
+	    }
+	}
     }
 }

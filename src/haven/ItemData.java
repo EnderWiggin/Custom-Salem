@@ -24,16 +24,20 @@ public class ItemData {
 
     public FoodInfo.Data food;
     public Inspiration.Data inspiration;
+    public GobbleInfo.Data gobble;
 
     public Tex longtip(Resource res) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	BufferedImage xp = null, food = null;//, slots = null, art = null;
+	BufferedImage xp = null, food = null, gobble = null;//, slots = null, art = null;
 	if(pg != null){tt += "\n\n" + pg.text;}
 	
 	if(this.food != null){
 	    food = this.food.create().longtip();
+	}
+	if(this.gobble != null){
+	    gobble = this.gobble.create().longtip();
 	}
 	if(this.inspiration != null){
 	    xp = this.inspiration.create().longtip();
@@ -42,6 +46,9 @@ public class ItemData {
 	BufferedImage img = MenuGrid.ttfnd.render(tt, 300).img;
 	if(food != null){
 	    img = ItemInfo.catimgs(3, img, food);
+	}
+	if(gobble != null){
+	    img = ItemInfo.catimgs(3, img, gobble);
 	}
 	if(xp != null){
 	    img = ItemInfo.catimgs(3, img, xp);
@@ -64,6 +71,8 @@ public class ItemData {
 		data.food = new FoodInfo.Data((FoodInfo) ii);
 	    } else if(ii instanceof Inspiration){
 		data.inspiration = new Inspiration.Data((Inspiration) ii);
+	    } else if(ii instanceof GobbleInfo){
+		data.gobble = new GobbleInfo.Data((GobbleInfo) ii);
 	    }
 	}
 	name = pagina.res().name;
@@ -141,6 +150,7 @@ public class ItemData {
 	    GsonBuilder builder = new GsonBuilder();
 	    builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
 	    builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
+	    builder.registerTypeAdapter(GobbleInfo.Data.class, new GobbleInfo.Data.DataAdapter().nullSafe());
 	    builder.setPrettyPrinting();
 	    gson =  builder.create();
 	}
