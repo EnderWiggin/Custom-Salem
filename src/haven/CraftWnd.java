@@ -52,7 +52,7 @@ public class CraftWnd extends Window implements DTarget2{
 	box.bgcolor = null;
 	CRAFT = paginafor("paginae/act/craft");
 	menu = ui.gui.menu;
-	breadcrumbs = new Breadcrumbs(new Coord(0, -2), new Coord(560, 20), this) {
+	breadcrumbs = new Breadcrumbs(new Coord(0, -2), new Coord(WND_SZ.x, SZ), this) {
 	    @Override
 	    public void selected(Object data) {
 		select((Pagina) data);
@@ -185,7 +185,6 @@ public class CraftWnd extends Window implements DTarget2{
 
     @Override
     public boolean iteminteract(Coord cc, Coord ul, GItem item) {
-	// TODO Auto-generated method stub
 	return false;
     }
 
