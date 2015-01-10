@@ -68,7 +68,29 @@ public class ItemData {
 	}
 	name = pagina.res().name;
 	item_data.put(name, data);
-	
+	store(name, data);
+    }
+
+    private static void store(String name, ItemData data) {
+	File file = Config.getFile(getFilename(name));
+	boolean exists = file.exists();
+	if(!exists){
+	    try {
+		exists = file.createNewFile();
+	    } catch (IOException ignored) {}
+	}
+	if(exists && file.canWrite()){
+	    PrintWriter out = null;
+	    try {
+		out = new PrintWriter(file);
+		out.print(getGson().toJson(data));
+	    } catch (FileNotFoundException ignored) {
+	    } finally {
+		if (out != null) {
+		    out.close();
+		}
+	    }
+	}
     }
 
     public static ItemData get(String name) {
@@ -80,7 +102,7 @@ public class ItemData {
 
     private static ItemData load(String name) {
 	ItemData data = null;
-	String filename = "/item_data/" + name + ".json";
+	String filename = getFilename(name);
 	InputStream inputStream = null;
 	File file = Config.getFile(filename);
 	if(file.exists() && file.canRead()) {
@@ -96,6 +118,10 @@ public class ItemData {
 	    item_data.put(name, data);
 	}
 	return data;
+    }
+
+    private static String getFilename(String name) {
+	return "/item_data/" + name + ".json";
     }
 
     private static ItemData parseStream(InputStream inputStream) {
@@ -115,6 +141,7 @@ public class ItemData {
 	    GsonBuilder builder = new GsonBuilder();
 	    builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
 	    builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
+	    builder.setPrettyPrinting();
 	    gson =  builder.create();
 	}
 	return gson;
