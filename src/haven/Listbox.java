@@ -34,7 +34,7 @@ public abstract class Listbox<T> extends ListWidget<T> {
     public final Scrollbar sb;
     public final Color sell = new Color(52, 35, 36);
     public final Color selr = new Color(178, 93, 91);
-    public final Color overr = new Color(58, 55, 57, 33);
+    public final Color overr = new Color(189, 239, 137, 33);
     public Color bgcolor = Color.BLACK;
     private T over;
 
