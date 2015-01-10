@@ -46,14 +46,14 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     public static final Tex online = Resource.loadtex("gfx/hud/online");
     public static final Tex offline = Resource.loadtex("gfx/hud/offline");
     public static final Color[] gc = new Color[] {
-	new Color(255, 255, 255),
-	new Color(64, 255, 64),
-	new Color(255, 64, 64),
-	new Color(96, 160, 255),
-	new Color(0, 255, 255),
-	new Color(255, 255, 0),
-	new Color(211, 64, 255),
-	new Color(255, 128, 16),
+	    new Color(255, 255, 255),
+	    new Color(64, 255, 64),
+	    new Color(255, 64, 64),
+	    new Color(96, 160, 255),
+	    new Color(0, 255, 255),
+	    new Color(255, 255, 0),
+	    new Color(211, 64, 255),
+	    new Color(255, 128, 16),
     };
     private Comparator<Buddy> bcmp;
     private Comparator<Buddy> alphacmp = new Comparator<Buddy>() {
@@ -228,14 +228,14 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	public int listitems() {return(buddies.size());}
 
 	public void drawitem(GOut g, Buddy b) {
-			if(b.online == 1)
+	    if(b.online == 1)
 		g.image(online, Coord.z);
-			else if(b.online == 0)
+	    else if(b.online == 0)
 		g.image(offline, Coord.z);
-			g.chcolor(gc[b.group]);
+	    g.chcolor(gc[b.group]);
 	    g.aimage(b.rname().tex(), new Coord(25, 10), 0, 0.5);
-			g.chcolor();
-		    }
+	    g.chcolor();
+	}
 
 	public void draw(GOut g) {
 	    if(buddies.size() == 0)
@@ -250,21 +250,21 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		    editing = null;
 		    ui.destroy(nicksel);
 		    ui.destroy(grpsel);
-	    }
+		}
 	    } else {
 		if(editing == null) {
 		    nicksel = new CTextEntry(new Coord(6, 165), 188, BuddyWnd.this) {
-			    public void activate(String text) {
-				editing.chname(text);
-	}
-			};
+			public void activate(String text) {
+			    editing.chname(text);
+			}
+		    };
 		    grpsel = new GroupSelector(new Coord(6, 190), BuddyWnd.this, 0) {
-			    public void changed(int group) {
-				editing.chgrp(group);
-	}
-			};
+			public void changed(int group) {
+			    editing.chgrp(group);
+			}
+		    };
 		    BuddyWnd.this.setfocus(nicksel);
-	}
+		}
 		editing = b;
 		nicksel.update(b.name);
 		nicksel.buf.point = nicksel.buf.line.length();
@@ -286,41 +286,41 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		opts.add("Describe");
 	    if(menu == null) {
 		menu = new FlowerMenu(c, ui.root, opts.toArray(new String[0])) {
-			public void destroy() {
-			    menu = null;
-			    super.destroy();
-			}
-			
-			public void choose(Petal opt) {
-			    if(opt != null) {
-				if(opt.name.equals("End kinship")) {
-				    b.endkin();
-				} else if(opt.name.equals("Chat")) {
-				    b.chat();
-				} else if(opt.name.equals("Invite")) {
-				    b.invite();
-				} else if(opt.name.equals("Forget")) {
-				    b.forget();
-				} else if(opt.name.equals("Describe")) {
-				    b.describe();
-				}
-				uimsg("act", opt.num);
-			    } else {
-				uimsg("cancel");
+		    public void destroy() {
+			menu = null;
+			super.destroy();
+		    }
+
+		    public void choose(Petal opt) {
+			if(opt != null) {
+			    if(opt.name.equals("End kinship")) {
+				b.endkin();
+			    } else if(opt.name.equals("Chat")) {
+				b.chat();
+			    } else if(opt.name.equals("Invite")) {
+				b.invite();
+			    } else if(opt.name.equals("Forget")) {
+				b.forget();
+			    } else if(opt.name.equals("Describe")) {
+				b.describe();
 			    }
+			    uimsg("act", opt.num);
+			} else {
+			    uimsg("cancel");
 			}
-		    };
+		    }
+		};
 	    }
 	}
 
 	public void itemclick(Buddy b, int button) {
-		if(button == 1) {
+	    if(button == 1) {
 		change(b);
-		} else if(button == 3) {
+	    } else if(button == 3) {
 		opts(b, ui.mc);
-		}
 	    }
 	}
+    }
 
     public BuddyWnd(Coord c, Widget parent) {
 	super(c, new Coord(200, 450), parent, "Kin");
@@ -340,10 +340,10 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	new HRuler(new Coord(0, 245), 200, this);
 	new Label(new Coord(0, 250), this, "Presentation name:");
 	pname = new CTextEntry(new Coord(0, 265), 200, this) {
-		public void activate(String text) {
-		    BuddyWnd.this.wdgmsg("pname", text);
-		}
-	    };
+	    public void activate(String text) {
+		BuddyWnd.this.wdgmsg("pname", text);
+	    }
+	};
 	new Button(new Coord(68, 290), 64, this, "Set") {
 	    public void click() {
 		BuddyWnd.this.wdgmsg("pname", pname.text);
@@ -352,21 +352,21 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	new HRuler(new Coord(0, 315), 200, this);
 	new Label(new Coord(0, 320), this, "My homestead secret:");
 	charpass = new CTextEntry(new Coord(0, 335), 200, this) {
-		public void activate(String text) {
-		    BuddyWnd.this.wdgmsg("pwd", text);
-		}
-	    };
+	    public void activate(String text) {
+		BuddyWnd.this.wdgmsg("pwd", text);
+	    }
+	};
 	new Button(new Coord(0  , 360), 64, this, "Set")    { public void click() {sendpwd(charpass.text);} };
 	new Button(new Coord(68 , 360), 64, this, "Clear")  { public void click() {sendpwd("");} };
 	new Button(new Coord(136, 360), 64, this, "Random") { public void click() {sendpwd(randpwd());} };
 	new HRuler(new Coord(0, 385), 200, this);
 	new Label(new Coord(0, 390), this, "Make kin by homestead secret:");
 	opass = new TextEntry(new Coord(0, 405), 200, this, "") {
-		public void activate(String text) {
-		    BuddyWnd.this.wdgmsg("bypwd", text);
-		    settext("");
-		}
-	    };
+	    public void activate(String text) {
+		BuddyWnd.this.wdgmsg("bypwd", text);
+		settext("");
+	    }
+	};
 	new Button(new Coord(68, 430), 64, this, "Add kin") {
 	    public void click() {
 		BuddyWnd.this.wdgmsg("bypwd", opass.text);
