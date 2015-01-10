@@ -76,6 +76,7 @@
 		</exec>
 		<jar destfile="build/client-res.jar" update="true">
 			<fileset dir="resources/compiled" />
+			<fileset dir="resources/item_data" />
 		</jar>
 	</target>
 
