@@ -1,14 +1,30 @@
 package haven;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import haven.Glob.Pagina;
 
 import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ItemData {
+    private static Gson gson;
+    private static Map<String, ItemData> item_data = new LinkedHashMap<String, ItemData>(9, 0.75f, true) {
+	private static final long serialVersionUID = 1L;
+
+	protected boolean removeEldestEntry(Map.Entry<String, ItemData> eldest) {
+	    return size() > 75;
+	}
+
+    };
+
     public FoodInfo.Data food;
     public Inspiration.Data inspiration;
-    
+
     public Tex longtip(Resource res) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
@@ -51,7 +67,56 @@ public class ItemData {
 	    }
 	}
 	name = pagina.res().name;
-	Config.item_data.put(name, data);
+	item_data.put(name, data);
 	
+    }
+
+    public static ItemData get(String name) {
+	if(item_data.containsKey(name)){
+	    return item_data.get(name);
+	}
+	return load(name);
+    }
+
+    private static ItemData load(String name) {
+	ItemData data = null;
+	String filename = "/item_data/" + name + ".json";
+	InputStream inputStream = null;
+	File file = Config.getFile(filename);
+	if(file.exists() && file.canRead()) {
+	    try {
+		inputStream = new FileInputStream(file);
+	    } catch (FileNotFoundException ignored) {
+	    }
+	} else {
+	    inputStream = ItemData.class.getResourceAsStream(filename);
+	}
+	if(inputStream != null) {
+	    data = parseStream(inputStream);
+	    item_data.put(name, data);
+	}
+	return data;
+    }
+
+    private static ItemData parseStream(InputStream inputStream) {
+	ItemData data = null;
+	try {
+	    String json = Utils.stream2str(inputStream);
+	    data =  getGson().fromJson(json, ItemData.class);
+	} catch (JsonSyntaxException ignore){
+	} finally {
+	    try {inputStream.close();} catch (IOException ignored) {}
+	}
+	return data;
+    }
+
+    private static Gson getGson() {
+	if(gson == null) {
+	    GsonBuilder builder = new GsonBuilder();
+	    builder.registerTypeAdapter(Inspiration.Data.class, new Inspiration.Data.DataAdapter().nullSafe());
+	    builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
+	    gson =  builder.create();
+	}
+	return gson;
     }
 }

@@ -118,7 +118,7 @@ public class CraftWnd extends Window implements DTarget2{
 	    setCurrent(p);
 	}
 	Resource res = p.res();
-	ItemData data = Config.item_data.get(res.name);
+	ItemData data = ItemData.get(res.name);
 	if(data != null){
 	    setDescription(data.longtip(p.res()));
 	} else {
