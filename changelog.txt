@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
-
+ 
+$size[14]{$u{Update for 11.01.15:}}
+  * added ability to set what slots to show in equip proxy widget - accessible by new button in equip screen
+  * highlight items under cursor in list box
+  * added craft window - opened by ALT+C or on any craft button, if "auto open craft window" option is turned on.
+    You can drop items on craft window with recipe selected - it will store this item stats as stats for this recipe in <Salem>/item_data
+ 
 $size[14]{$u{Update for 10.11.14:}}
   * copied from latikai client option to not reset menu grid after action has been selected
   * made system messages draw with different color depending on message type
