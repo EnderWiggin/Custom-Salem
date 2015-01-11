@@ -54,6 +54,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	       KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8,
 	       KeyEvent.VK_9, KeyEvent.VK_0, KeyEvent.VK_MINUS, KeyEvent.VK_EQUALS};
     public final long plid;
+    public final EquipProxyWdg equipProxy;
     public MenuGrid menu;
     public CraftWnd craftwnd;
     public Tempers tm;
@@ -135,7 +136,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    }
 	};
 	new Bufflist(new Coord(80, 40), this);
-	new EquipProxyWdg(new Coord(80, 2), new int[]{6, 7, 9, 14, 5, 4}, this);
+	equipProxy = new EquipProxyWdg(new Coord(80, 2), new int[]{6, 7, 9, 14, 5, 4}, this);
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
 	syslog = new ChatUI.Log(chat, "System");
@@ -432,7 +433,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     
     public Equipory getEquipory(){
 	if(equwnd != null){
-	    for(Widget wdg = equwnd.lchild; wdg != null; wdg = wdg.next){
+	    for(Widget wdg = equwnd.child; wdg != null; wdg = wdg.next){
 		if(wdg instanceof Equipory){
 		    return (Equipory) wdg;
 		}

@@ -6,13 +6,19 @@ import static haven.Inventory.sqoff;
 import static haven.Inventory.sqroff;
 
 public class EquipProxyWdg extends Widget implements DTarget {
-    private static Coord slotsz;
+    private Coord slotsz;
     private int slots[];
     public EquipProxyWdg(Coord c, int[] slots, Widget parent) {
-	super(c, invsz(slotsz = new Coord(slots.length, 1)), parent);
-	this.slots = slots;
+	super(c, Coord.z, parent);
+	setSlots(slots);
     }
-    
+
+    public void setSlots(int[] slots){
+	this.slots = slots;
+	slotsz = new Coord(slots.length, 1);
+	sz = invsz(slotsz);
+    }
+
     private int slot(Coord c){
 	int slot = sqroff(c).x;
 	if(slot < 0){slot = 0;}
@@ -46,6 +52,11 @@ public class EquipProxyWdg extends Widget implements DTarget {
 		WItem w = e.slots[slot];
 		if(w != null){
 		    w.draw(g.reclipl(sqoff(c0), g.sz));
+		} else {
+		    Tex ebg = Equipory.ebgs[slot];
+		    if(ebg != null){
+			g.image(ebg,sqoff(c0));
+		    }
 		}
 		k++;
 	    }

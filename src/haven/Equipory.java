@@ -82,7 +82,8 @@ public class Equipory extends Widget implements DTarget {
     }
     WItem[] slots = new WItem[ecoords.length];
     Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
-	
+    private EquipOpts opts;
+
     @RName("epry")
     public static class $_ implements Factory {
 	public Widget create(Coord c, Widget parent, Object[] args) {
@@ -121,8 +122,24 @@ public class Equipory extends Widget implements DTarget {
 		protected java.awt.Color clearcolor() {return(null);}
 	    };
 	new Boxen();
+
+	opts = new EquipOpts(new Coord(200,100), ui.gui);
+	opts.hide();
+	Window p = (Window) parent;
+	Coord btnc = new Coord(sz.x - Window.cbtni[0].getWidth() - p.cbtn.sz.x - 2, p.cbtn.c.y);
+	new IButton(btnc, p, Window.rbtni[0], Window.rbtni[1], Window.rbtni[2]) {
+	    public void click() {
+		toggleOptions();
+	    }
+	};
     }
-	
+
+    private void toggleOptions() {
+	if(opts != null){
+	    opts.toggle();
+	}
+    }
+
     public Widget makechild(String type, Object[] pargs, Object[] cargs) {
 	Widget ret = gettype(type).create(Coord.z, this, cargs);
 	if(ret instanceof GItem) {
