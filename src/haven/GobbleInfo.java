@@ -106,9 +106,14 @@ public class GobbleInfo extends ItemInfo.Tip {
 	public List<Event> evs;
 
 	public Data(){ }
-	public Data(GobbleInfo info){
-	    l = info.l;
-	    h = info.h;
+	public Data(GobbleInfo info, double mult){
+	    if(mult == 1) {
+		l = info.l;
+		h = info.h;
+	    } else {
+		l = FoodInfo.Data.fixMult(mult, info.l);
+		h = FoodInfo.Data.fixMult(mult, info.h);
+	    }
 	    ft = info.ft;
 
 	    evs = info.evs;

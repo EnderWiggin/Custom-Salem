@@ -57,10 +57,23 @@ public class FoodInfo extends ItemInfo.Tip {
 	public int[] tempers;
 
 	public Data(){ }
-	public Data(FoodInfo info){
-	    tempers = info.tempers;
+	public Data(FoodInfo info, double mult){
+	    if(mult == 1) {
+		tempers = info.tempers;
+	    } else {
+		tempers = fixMult(mult, info.tempers);
+	    }
 	}
-	
+
+	public static int[] fixMult(double mult, int[] from) {
+	    int[] res = new int[from.length];
+	    for(int i = 0; i< from.length; i++){
+		double a = from[i] / (100.0*mult);
+		res[i] = (int) (100*Math.round(a));
+	    }
+	    return  res;
+	}
+
 	@Override
 	public ItemInfo.Tip create()
 	{
