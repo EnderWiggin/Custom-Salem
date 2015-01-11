@@ -95,6 +95,7 @@ public class ItemData {
 	boolean exists = file.exists();
 	if(!exists){
 	    try {
+		//noinspection ResultOfMethodCallIgnored
 		new File(file.getParent()).mkdirs();
 		exists = file.createNewFile();
 	    } catch (IOException ignored) {}
