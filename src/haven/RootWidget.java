@@ -60,12 +60,7 @@ public class RootWidget extends ConsoleHost {
 	    }else if(code == KeyEvent.VK_D && ctrl){
 		DarknessWnd.toggle();
 	    }else if(code == KeyEvent.VK_C && alt && hasGUI){
-		CraftWnd craftwnd = ui.gui.craftwnd;
-		if(craftwnd == null) {
-		    ui.gui.showCraftWnd(true);
-		} else {
-		    craftwnd.wdgmsg(craftwnd, "close");
-		}
+		ui.gui.toggleCraftWnd();
 	    }else if(code == KeyEvent.VK_Z && ctrl){
 		Config.center = !Config.center;
 		ui.message(String.format("Tile centering in turned %s", Config.center?"ON":"OFF"), GameUI.MsgType.INFO);

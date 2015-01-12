@@ -1013,6 +1013,14 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    new CraftWnd(Coord.z, this);
 	}
     }
+
+    public void toggleCraftWnd() {
+	if(craftwnd == null) {
+	    showCraftWnd(true);
+	} else {
+	    craftwnd.wdgmsg(craftwnd, "close");
+	}
+    }
     
     private void makemenu() {
 	mainmenu = new MainMenu(new Coord(0, sz.y - menubg.sz().y), menubg.sz(), this);
