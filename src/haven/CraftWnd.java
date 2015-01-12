@@ -116,7 +116,7 @@ public class CraftWnd extends Window implements DTarget2{
 	    if(p != CRAFT){
 		children.add(0, menu.bk);
 	    }
-	    box.list = children;
+	    box.setitems(children);
 	    box.change(p);
 	    setCurrent(p);
 	}
@@ -206,7 +206,7 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
     private static class RecipeListBox extends Listbox<Pagina> {
-	public List<Pagina> list;
+	private List<Pagina> list;
 	public RecipeListBox(Coord c, Widget parent, int w, int h) {
 	    super(c, parent, w, h, SZ);
 	}
@@ -217,6 +217,27 @@ public class CraftWnd extends Window implements DTarget2{
 		return null;
 	    }
 	    return list.get(i);
+	}
+
+	public void setitems(List<Pagina> list){
+	    if(list.equals(this.list)){return;}
+	    this.list = list;
+	    sb.max = listitems() - h;
+	    sb.val = 0;
+	}
+
+	@Override
+	public void change(Pagina item) {
+	    super.change(item);
+	    int k = list.indexOf(item);
+	    if(k>=0){
+		if(k < sb.val){
+		    sb.val = k;
+		}
+		if(k >= sb.val+h){
+		    sb.val = Math.min(sb.max, k-h+1);
+		}
+	    }
 	}
 
 	@Override
