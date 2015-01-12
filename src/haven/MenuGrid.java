@@ -503,8 +503,8 @@ public class MenuGrid extends Widget {
 		wdgmsg("act", (Object[])ad);
 	    }
 	    if(Config.menugrid_resets){
-	    this.cur = null;
-	    curoff = 0;
+		this.cur = null;
+		curoff = 0;
 	    }
 	}
 	updlayout();
@@ -512,7 +512,7 @@ public class MenuGrid extends Widget {
 
     private void selectCraft(Pagina r) {
 	if(r == null){
-	    r = CRAFT;
+	    return;
 	}
 	if(ui.gui.craftwnd != null){
 	    ui.gui.craftwnd.select(r);
