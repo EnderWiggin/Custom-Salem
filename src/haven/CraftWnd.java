@@ -19,7 +19,7 @@ public class CraftWnd extends Window implements DTarget2{
     private MenuGrid menu;
     private Pagina CRAFT;
     private Breadcrumbs breadcrumbs;
-    private Pagina current;
+    private static Pagina current = null;
 
     public CraftWnd(Coord c, Widget parent) {
 	super(c, WND_SZ.add(0,5), parent, "Craft window");
@@ -58,9 +58,12 @@ public class CraftWnd extends Window implements DTarget2{
 		select((Pagina) data);
 	    }
 	};
-	Pagina selected = menu.cur;
-	if(selected == null || !menu.isCrafting(selected)){
-	    selected = CRAFT;
+	Pagina selected = current;
+	if(selected == null) {
+	    selected = menu.cur;
+	    if (selected == null || !menu.isCrafting(selected)) {
+		selected = CRAFT;
+	    }
 	}
 	select(selected);
     }
@@ -129,7 +132,7 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
     private void setCurrent(Pagina current) {
-	this.current = current;
+	CraftWnd.current = current;
 	updateBreadcrumbs(current);
 	updateDescription(current);
     }
