@@ -73,13 +73,14 @@ public class ItemData {
 	
 	List<ItemInfo> info = item.info();
 	double mult = getMultiplier(info);
+	int uses = getUses(info);
 	ItemData data = new ItemData();
 	for(ItemInfo ii : info){
 	    String className = ii.getClass().getCanonicalName();
 	    if(ii instanceof FoodInfo){
 		data.food = new FoodInfo.Data((FoodInfo) ii, mult);
 	    } else if(ii instanceof Inspiration){
-		data.inspiration = new Inspiration.Data((Inspiration) ii);
+		data.inspiration = new Inspiration.Data((Inspiration) ii, uses);
 	    } else if(ii instanceof GobbleInfo){
 		data.gobble = new GobbleInfo.Data((GobbleInfo) ii, mult);
 	    } else if(className.equals("Slotted")){
@@ -89,6 +90,14 @@ public class ItemData {
 	name = pagina.res().name;
 	item_data.put(name, data);
 	store(name, data);
+    }
+
+    private static int getUses(List<ItemInfo> info) {
+	GItem.NumberInfo ninf = ItemInfo.find(GItem.NumberInfo.class, info);
+	if(ninf != null){
+	    return ninf.itemnum();
+	}
+	return -1;
     }
 
     private static double getMultiplier(List<ItemInfo> info) {

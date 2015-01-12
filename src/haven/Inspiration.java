@@ -85,9 +85,21 @@ public class Inspiration extends ItemInfo.Tip {
 	int[] exp;
 
 	public Data(){}
-	public Data(Inspiration info){
-	    attrs = info.attrs;
-	    exp = info.exp;
+	public Data(Inspiration info, int uses){
+	    if(uses > 1){
+		int n = info.attrs.length;
+		attrs = new String[n +1];
+		System.arraycopy(info.attrs, 0, attrs, 0, n);
+		attrs[n] = "uses";
+
+		n = info.exp.length;
+		exp = new int[n +1];
+		System.arraycopy(info.exp, 0, exp, 0, n);
+		exp[n] = uses;
+	    } else {
+		attrs = info.attrs;
+		exp = info.exp;
+	    }
 	}
 	
 	@Override
