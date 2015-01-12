@@ -127,6 +127,7 @@ public class MenuGrid extends Widget {
 	p.add(glob.paginafor(Resource.load("paginae/act/add")));
 	p.add(glob.paginafor(Resource.load("paginae/add/timer")));
 	p.add(glob.paginafor(Resource.load("paginae/add/wiki")));
+	p.add(glob.paginafor(Resource.load("paginae/add/craft")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/lol")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/raeg")));
 //	p.add(glob.paginafor(Resource.load("paginae/add/anime/facepalm")));
@@ -533,6 +534,8 @@ public class MenuGrid extends Widget {
 	    TimerPanel.toggle();
 	} else if(ad[1].equals("wiki")) {
 	    WikiBrowser.toggle();
+	} else if(ad[1].equals("craft")) {
+	    ui.gui.toggleCraftWnd();
 	}
 	use(null);
     }
@@ -596,6 +599,9 @@ public class MenuGrid extends Widget {
     }
 
     public Pagina getParent(Pagina p){
+	if(p == null){
+	    return null;
+	}
 	try {
 	    Resource res = p.res();
 	    Resource.AButton ad = res.layer(Resource.action);
