@@ -66,6 +66,7 @@ public class CraftWnd extends Window implements DTarget2{
 	    }
 	}
 	select(selected);
+	menu.senduse(selected);
     }
 
     @Override

@@ -495,19 +495,26 @@ public class MenuGrid extends Widget {
 		curoff += off;
 	} else {
 	    r.newp = 0;
-	    String [] ad = r.act().ad;
-	    if((ad == null) || (ad.length < 1)){return;}
-	    if(ad[0].equals("@")) {
-		usecustom(ad);
-	    } else {
-		wdgmsg("act", (Object[])ad);
-	    }
+	    if (!senduse(r)) return;
 	    if(Config.menugrid_resets){
 		this.cur = null;
 		curoff = 0;
 	    }
 	}
 	updlayout();
+    }
+
+    public boolean senduse(Pagina r) {
+	String [] ad = r.act().ad;
+	if((ad == null) || (ad.length < 1)){
+	    return false;
+	}
+	if(ad[0].equals("@")) {
+	    usecustom(ad);
+	} else {
+	    wdgmsg("act", (Object[])ad);
+	}
+	return true;
     }
 
     private void selectCraft(Pagina r) {
