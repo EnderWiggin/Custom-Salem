@@ -8,6 +8,7 @@ import haven.Glob.Pagina;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,39 +27,30 @@ public class ItemData {
     public Inspiration.Data inspiration;
     public GobbleInfo.Data gobble;
     public ArtificeData artifice;
+    public int uses;
 
     public Tex longtip(Resource res) {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	BufferedImage xp = null, food = null, gobble = null, art = null;//, slots = null;
+	List<BufferedImage> list = new LinkedList<BufferedImage>();
 	if(pg != null){tt += "\n\n" + pg.text;}
-	
-	if(this.food != null){
-	    food = this.food.create().longtip();
+
+	ITipData[] data = new ITipData[]{food, gobble, inspiration, artifice};
+	for(ITipData tip : data) {
+	    if (tip != null) {
+		list.add(tip.create().longtip());
+	    }
 	}
-	if(this.gobble != null){
-	    gobble = this.gobble.create().longtip();
-	}
-	if(this.inspiration != null){
-	    xp = this.inspiration.create().longtip();
-	}
-	if(this.artifice != null){
-	    art = this.artifice.create().longtip();
+	if(uses > 0){
+	    list.add(RichText.stdf.render(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)).img);
 	}
 	
 	BufferedImage img = MenuGrid.ttfnd.render(tt, 300).img;
-	if(food != null){
-	    img = ItemInfo.catimgs(3, img, food);
-	}
-	if(gobble != null){
-	    img = ItemInfo.catimgs(3, img, gobble);
-	}
-	if(xp != null){
-	    img = ItemInfo.catimgs(3, img, xp);
-	}
-	if(art != null){
-	    img = ItemInfo.catimgs(3, img, art);
+	for(BufferedImage tmp : list){
+	    if(tmp != null){
+		img = ItemInfo.catimgs(3, img, tmp);
+	    }
 	}
 	return new TexI(img);
     }
@@ -73,14 +65,14 @@ public class ItemData {
 	
 	List<ItemInfo> info = item.info();
 	double mult = getMultiplier(info);
-	int uses = getUses(info);
 	ItemData data = new ItemData();
+	data.uses = getUses(info);
 	for(ItemInfo ii : info){
 	    String className = ii.getClass().getCanonicalName();
 	    if(ii instanceof FoodInfo){
 		data.food = new FoodInfo.Data((FoodInfo) ii, mult);
 	    } else if(ii instanceof Inspiration){
-		data.inspiration = new Inspiration.Data((Inspiration) ii, uses);
+		data.inspiration = new Inspiration.Data((Inspiration) ii);
 	    } else if(ii instanceof GobbleInfo){
 		data.gobble = new GobbleInfo.Data((GobbleInfo) ii, mult);
 	    } else if(className.equals("Slotted")){
