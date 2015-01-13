@@ -57,17 +57,17 @@ public class ItemData {
 	if(name == null){ return; }
 	
 	List<ItemInfo> info = item.info();
-	double mult = getMultiplier(info);
+	double multiplier = getMultiplier(info);
 	ItemData data = new ItemData();
 	data.uses = getUses(info);
 	for(ItemInfo ii : info){
 	    String className = ii.getClass().getCanonicalName();
 	    if(ii instanceof FoodInfo){
-		data.food = new FoodInfo.Data((FoodInfo) ii, mult);
+		data.food = new FoodInfo.Data((FoodInfo) ii, multiplier);
 	    } else if(ii instanceof Inspiration){
 		data.inspiration = new Inspiration.Data((Inspiration) ii);
 	    } else if(ii instanceof GobbleInfo){
-		data.gobble = new GobbleInfo.Data((GobbleInfo) ii, mult);
+		data.gobble = new GobbleInfo.Data((GobbleInfo) ii, multiplier);
 	    } else if(className.equals("Slotted")){
 		data.artifice = new ArtificeData(ii);
 	    }
