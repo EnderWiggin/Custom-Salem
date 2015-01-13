@@ -8,7 +8,6 @@ import haven.Glob.Pagina;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,25 +32,19 @@ public class ItemData {
 	Resource.AButton ad = res.layer(Resource.action);
 	Resource.Pagina pg = res.layer(Resource.pagina);
 	String tt = ad.name;
-	List<BufferedImage> list = new LinkedList<BufferedImage>();
 	if(pg != null){tt += "\n\n" + pg.text;}
 
+	BufferedImage img = MenuGrid.ttfnd.render(tt, 300).img;
 	ITipData[] data = new ITipData[]{food, gobble, inspiration, artifice};
 	for(ITipData tip : data) {
 	    if (tip != null) {
-		list.add(tip.create().longtip());
+		img = ItemInfo.catimgs(3, img, tip.create().longtip());
 	    }
 	}
 	if(uses > 0){
-	    list.add(RichText.stdf.render(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)).img);
+	    img = ItemInfo.catimgs(3, img, RichText.stdf.render(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)).img);
 	}
-	
-	BufferedImage img = MenuGrid.ttfnd.render(tt, 300).img;
-	for(BufferedImage tmp : list){
-	    if(tmp != null){
-		img = ItemInfo.catimgs(3, img, tmp);
-	    }
-	}
+
 	return new TexI(img);
     }
     
