@@ -39,6 +39,7 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
     public int num = -1;
     private Object[] rawinfo;
     private List<ItemInfo> info = Collections.emptyList();
+    public boolean sendttupdate = false;
     
     @RName("item")
     public static class $_ implements Factory {
@@ -117,6 +118,7 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	} else if(name == "tt") {
 	    info = null;
 	    rawinfo = args;
+	    if(sendttupdate){wdgmsg("ttupdate");}
 	} else if(name == "meter") {
 	    meter = (Integer)args[0];
 	}

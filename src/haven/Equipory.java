@@ -80,6 +80,8 @@ public class Equipory extends Widget implements DTarget {
 		isz.y = ec.y + sqlite.sz().y;
 	}
     }
+
+    private final AttrBonusWdg bonuses;
     WItem[] slots = new WItem[ecoords.length];
     Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
     private EquipOpts opts;
@@ -113,7 +115,8 @@ public class Equipory extends Widget implements DTarget {
     }
 
     public Equipory(Coord c, Widget parent, long gobid) {
-	super(c, isz, parent);
+	super(c, isz/*.add(175, 0)*/, parent);
+	bonuses = new AttrBonusWdg(this, new Coord(isz.x, 0));
 	Avaview ava = new Avaview(Coord.z, isz, this, gobid, "equcam") {
 		public boolean mousedown(Coord c, int button) {
 		    return(false);
@@ -132,6 +135,7 @@ public class Equipory extends Widget implements DTarget {
 		toggleOptions();
 	    }
 	};
+	pack();
     }
 
     private void toggleOptions() {
@@ -140,10 +144,20 @@ public class Equipory extends Widget implements DTarget {
 	}
     }
 
+    @Override
+    public void wdgmsg(Widget sender, String msg, Object... args) {
+	if (sender  instanceof GItem && wmap.containsKey(sender) && msg.equals("ttupdate")) {
+	    bonuses.update(slots);
+	} else {
+	    super.wdgmsg(sender, msg, args);
+	}
+    }
+
     public Widget makechild(String type, Object[] pargs, Object[] cargs) {
 	Widget ret = gettype(type).create(Coord.z, this, cargs);
 	if(ret instanceof GItem) {
 	    GItem g = (GItem)ret;
+	    g.sendttupdate = true;
 	    WItem[] v = new WItem[pargs.length];
 	    for(int i = 0; i < pargs.length; i++) {
 		int ep = (Integer)pargs[i];
@@ -165,6 +179,7 @@ public class Equipory extends Widget implements DTarget {
 			slots[s] = null;
 		}
 	    }
+	    bonuses.update(slots);
 	}
     }
     
