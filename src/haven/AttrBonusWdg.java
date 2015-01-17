@@ -7,6 +7,30 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class AttrBonusWdg extends Widget {
+    private static String[] order = new String[]{
+	    "Blunt power",
+	    "Concussive power",
+	    "Impact power",
+	    "Feral power",
+	    "Piercing power",
+	    "Common combat power",
+	    "Blunt defence",
+	    "Concussive defence",
+	    "Impact defence",
+	    "Feral defence",
+	    "Piercing defence",
+	    "Common combat defence",
+	    "Culinary",
+	    "Mining",
+	    "Soil digging",
+	    "Weaving",
+	    "Woodworking",
+	    "Productivity",
+	    "Affluence",
+	    "Criminality",
+	    "Spellcraft",
+    };
+
     private BufferedImage bonusImg;
     private static Coord bonusc = new Coord(5, 0);
     private boolean needUpdate;
@@ -76,6 +100,13 @@ public class AttrBonusWdg extends Widget {
 	    Object[] bonuses = new Object[2 * n + 1];
 	    bonuses[0] = null;
 	    int k = 0;
+	    for (String name : order) {
+		if(map.containsKey(name)){
+		    bonuses[1 + 2 * k] = name;
+		    bonuses[2 + 2 * k] = map.remove(name);
+		    k++;
+		}
+	    }
 	    for (Map.Entry<String, Integer> entry : map.entrySet()) {
 		bonuses[1 + 2 * k] = entry.getKey();
 		bonuses[2 + 2 * k] = entry.getValue();
