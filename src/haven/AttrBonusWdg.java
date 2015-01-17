@@ -1,5 +1,6 @@
 package haven;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,16 +34,17 @@ public class AttrBonusWdg extends Widget {
     };
 
     private BufferedImage bonusImg;
-    private static Coord bonusc = new Coord(5, 0);
+    private static Coord bonusc = new Coord(5, 20);
     private boolean needUpdate;
     private WItem[] witems;
     private Scrollbar bar;
 
     public AttrBonusWdg(Equipory equip, Coord c) {
 	super(c, SZ, equip);
-	bar = new Scrollbar(new Coord(170, 0), SZ.y, this, 0, 1);
+	bar = new Scrollbar(new Coord(170, bonusc.y), SZ.y-bonusc.y, this, 0, 1);
 	bar.visible = false;
 	visible = Utils.getprefb("artifice_bonuses", true);
+	new Label(new Coord(5, 0), this, "Artifice bonuses:", new Text.Foundry(new Font("SansSerif", Font.PLAIN, 12)));
     }
 
     @Override
@@ -138,7 +140,7 @@ public class AttrBonusWdg extends Widget {
 	}
 	int delta = 0;
 	if(bonusImg != null) {
-	    delta = bonusImg.getHeight() - SZ.y;
+	    delta = bonusImg.getHeight() - SZ.y + bonusc.y;
 	}
 	bar.visible = delta > 0;
 	bar.max = delta;
