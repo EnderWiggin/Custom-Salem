@@ -124,8 +124,11 @@ public class Window extends Widget implements DTarget {
 
     protected void placetwdgs() {
 	int x = sz.x - 5;
-	for(Widget ch : twdgs)
-	    ch.c = xlate(new Coord(x -= ch.sz.x + 5, tc - (ch.sz.y / 2)), false);
+	for(Widget ch : twdgs) {
+	    if(ch.visible){
+		ch.c = xlate(new Coord(x -= ch.sz.x + 5, tc - (ch.sz.y / 2)), false);
+	    }
+	}
     }
 
     public void addtwdg(Widget wdg) {
