@@ -7,7 +7,8 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class AttrBonusWdg extends Widget {
-    private static String[] order = new String[]{
+    private static final Coord SZ = new Coord(175, 255);
+    private static final String[] order = new String[]{
 	    "Blunt power",
 	    "Concussive power",
 	    "Impact power",
@@ -35,9 +36,12 @@ public class AttrBonusWdg extends Widget {
     private static Coord bonusc = new Coord(5, 0);
     private boolean needUpdate;
     private WItem[] witems;
+    private Scrollbar bar;
 
     public AttrBonusWdg(Equipory equip, Coord c) {
-	super(c, new Coord(175, 255), equip);
+	super(c, SZ, equip);
+	bar = new Scrollbar(new Coord(170, 0), SZ.y, this, 0, 1);
+	bar.visible = false;
     }
 
     @Override
@@ -47,8 +51,18 @@ public class AttrBonusWdg extends Widget {
 	    doUpdate();
 	}
 	if (bonusImg != null) {
-	    g.image(bonusImg, bonusc);
+	    Coord c = bonusc;
+	    if(bar.visible){
+		c = bonusc.sub(0, bar.val);
+	    }
+	    g.image(bonusImg, c);
 	}
+    }
+
+    @Override
+    public boolean mousewheel(Coord c, int amount) {
+	bar.ch(amount * 15);
+	return(true);
     }
 
     public void update(WItem[] witems) {
@@ -116,5 +130,12 @@ public class AttrBonusWdg extends Widget {
 	    list.add(f.build(null, bonuses));
 	    bonusImg = ItemInfo.longtip(list);
 	}
+	int delta = 0;
+	if(bonusImg != null) {
+	    delta = bonusImg.getHeight() - SZ.y;
+	}
+	bar.visible = delta > 0;
+	bar.max = delta;
+	bar.ch(0);
     }
 }
