@@ -42,6 +42,7 @@ public class AttrBonusWdg extends Widget {
 	super(c, SZ, equip);
 	bar = new Scrollbar(new Coord(170, 0), SZ.y, this, 0, 1);
 	bar.visible = false;
+	visible = Utils.getprefb("artifice_bonuses", true);
     }
 
     @Override
@@ -68,6 +69,11 @@ public class AttrBonusWdg extends Widget {
     public void update(WItem[] witems) {
 	this.witems = witems;
 	needUpdate = true;
+    }
+
+    public void toggle(){
+	visible = !visible;
+	Utils.setprefb("artifice_bonuses", visible);
     }
 
     private void doUpdate() {

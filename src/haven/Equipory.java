@@ -82,6 +82,7 @@ public class Equipory extends Widget implements DTarget {
     }
 
     private final AttrBonusWdg bonuses;
+    private final IButton showbonus, hidebonus;
     WItem[] slots = new WItem[ecoords.length];
     Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
     private EquipOpts opts;
@@ -129,13 +130,44 @@ public class Equipory extends Widget implements DTarget {
 	opts = new EquipOpts(new Coord(200,100), ui.gui);
 	opts.hide();
 	Window p = (Window) parent;
-	Coord btnc = new Coord(sz.x - Window.cbtni[0].getWidth() - p.cbtn.sz.x - 2, p.cbtn.c.y);
-	new IButton(btnc, p, Window.rbtni[0], Window.rbtni[1], Window.rbtni[2]) {
+
+	showbonus = new IButton(Coord.z, p, Window.rbtni[0], Window.rbtni[1], Window.rbtni[2]){
+	    {tooltip = Text.render("Show artifice bonuses");}
+
+	    @Override
+	    public void click() {
+		toggleBonuses();
+	    }
+	};
+	showbonus.visible = !bonuses.visible;
+	p.addtwdg(showbonus);
+
+	hidebonus = new IButton(Coord.z, p, Window.lbtni[0], Window.lbtni[1], Window.lbtni[2]){
+	    {tooltip = Text.render("Hide artifice bonuses");}
+
+	    @Override
+	    public void click() {
+		toggleBonuses();
+	    }
+	};
+	hidebonus.visible = bonuses.visible;
+	p.addtwdg(hidebonus);
+
+	p.addtwdg(new IButton(Coord.z, p, Window.rbtni[0], Window.rbtni[1], Window.rbtni[2]) {
 	    public void click() {
 		toggleOptions();
 	    }
-	};
+	});
 	pack();
+	parent.pack();
+    }
+
+    private void toggleBonuses() {
+	bonuses.toggle();
+	showbonus.visible = !bonuses.visible;
+	hidebonus.visible = bonuses.visible;
+	pack();
+	parent.pack();
     }
 
     private void toggleOptions() {
