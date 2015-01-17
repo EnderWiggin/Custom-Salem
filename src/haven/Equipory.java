@@ -153,7 +153,8 @@ public class Equipory extends Widget implements DTarget {
 	hidebonus.visible = bonuses.visible;
 	p.addtwdg(hidebonus);
 
-	p.addtwdg(new IButton(Coord.z, p, Window.rbtni[0], Window.rbtni[1], Window.rbtni[2]) {
+	p.addtwdg(new IButton(Coord.z, p, Window.obtni[0], Window.obtni[1], Window.obtni[2]) {
+	    {tooltip = Text.render("Toggle equip shortcuts config");}
 	    public void click() {
 		toggleOptions();
 	    }
