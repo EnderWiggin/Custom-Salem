@@ -64,7 +64,7 @@ public class Landwindow extends Window {
     private void fmtarea() {
 	int area = (c2.x - c1.x + 1) * (c2.y - c1.y + 1);
 	this.area.settext(String.format("Area: %d m²", area));
-	upkeep = 4 + area/300;
+	upkeep = 4 + area/300f;
 	updupkeep();
     }
 
