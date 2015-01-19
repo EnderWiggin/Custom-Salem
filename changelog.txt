@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 19.01.15:}}
+  * added displaying of scalp score to character window
+ 
 $size[14]{$u{Update for 18.01.15:}}
   * added displaying of artifice bonuses from all equipped items to equipment screen. Can be hidden by $b{<} button on the title bar of equipment window.
   * added upkeep info to claim management window
