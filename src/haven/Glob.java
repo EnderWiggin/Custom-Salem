@@ -64,6 +64,7 @@ public class Glob {
     public Indir<Resource> sky1 = null, sky2 = null;
     public double skyblend = 0.0;
     public java.awt.Color origamb = null;
+    public  long cattr_lastupdate = 0;
     
     public Glob(Session sess) {
 	this.sess = sess;
@@ -371,6 +372,7 @@ public class Glob {
 		}
 	    }
 	}
+	cattr_lastupdate = System.currentTimeMillis();
     }
     
     public void buffmsg(Message msg) {

@@ -46,7 +46,7 @@ public class CharWnd extends Window {
     public boolean skavail;
     private final SkillInfo ski;
     private final Label tmexpl;
-    
+
     public static final Color GREEN = new Color(0xaaeeaa);
     public static final Color GRAY = new Color(0xbda3a3);
     
@@ -483,6 +483,7 @@ public class CharWnd extends Window {
 		    return(tt);
 		}
 	    };
+	new ScalpScore(new Coord(400, 0), this);
 	new CPButton(new Coord(580, y), 40, this, "Reset") {
 	    {tooltip = RichText.render("Discard all currently accumulated proficiency points, and reset learning ability to 100%.", 250).tex();}
 
@@ -630,6 +631,44 @@ public class CharWnd extends Window {
 	} else if (msg == "tmexp") {
 	    tmexp = (Integer)args[0];
 	    tmexpl.settext(String.format("Inspiration: %,d", tmexp));
+	}
+    }
+
+    static class ScalpScore extends Label{
+	private static final String format = "Scalp score: %d";
+	private long lastupdate = 0;
+
+	public ScalpScore(Coord c, Widget parent) {
+	    super(c, parent, format);
+	}
+
+	@Override
+	public void draw(GOut g) {
+	    long lastupdate = ui.sess.glob.cattr_lastupdate;
+	    if(this.lastupdate < lastupdate){
+		doUpdate(lastupdate);
+	    }
+	    super.draw(g);
+	}
+
+	private void doUpdate(long lastupdate){
+	    this.lastupdate = lastupdate;
+	    int score = 0;
+	    //noinspection SynchronizeOnNonFinalField
+	    synchronized (ui.sess.glob.cattr){
+		Map<String, Glob.CAttr> cattr = ui.sess.glob.cattr;
+		for(String bile : Tempers.anm){
+		    score += 2*(getAttr(cattr, bile)/1000-5);
+		}
+		for(String prof : CharWnd.attrorder){
+		    score+=getAttr(cattr, prof)-5;
+		}
+	    }
+	    settext(String.format(format, score));
+	}
+
+	private int getAttr(Map<String, Glob.CAttr> attrs, String name) {
+	    return attrs.containsKey(name)?attrs.get(name).base:0;
 	}
     }
 }
