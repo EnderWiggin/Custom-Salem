@@ -277,6 +277,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		repack();
 	    }
 	}
+
+	public void cresize(Widget w) {
+	    if((w instanceof Inventory) && names.containsKey(w))
+		repack();
+	}
     }
 
     private void updhand() {
