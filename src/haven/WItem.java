@@ -191,10 +191,18 @@ public class WItem extends Widget implements DTarget {
     
     public final AttrCache<Color> olcol = new AttrCache<Color>() {
 	protected Color find(List<ItemInfo> info) {
+	    if(testMatch(info)){
+		return Color.CYAN;
+	    }
 	    GItem.ColorInfo cinf = ItemInfo.find(GItem.ColorInfo.class, info);
 	    return((cinf == null)?null:cinf.olcol());
 	}
     };
+
+    private boolean testMatch(List<ItemInfo> info) {
+	ItemFilter filter = new ItemFilter.Text("Dagger");
+	return filter.matches(info);
+    }
     
     public final AttrCache<Tex> itemnum = new AttrCache<Tex>() {
 	protected Tex find(List<ItemInfo> info) {
