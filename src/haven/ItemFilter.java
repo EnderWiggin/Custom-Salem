@@ -89,6 +89,8 @@ public abstract class ItemFilter {
 	protected final String text;
 	protected final Sign sign;
 	protected float value;
+	protected final boolean all;
+	protected final boolean any;
 
 	public Complex(String text, String sign, String value){
 	    this.text = text;
@@ -98,6 +100,9 @@ public abstract class ItemFilter {
 		tmp = Float.parseFloat(value);
 	    } catch (Exception ignored){}
 	    this.value = tmp;
+
+	    all = text.equals("*") || text.equals("all");
+	    any = text.equals("any");
 	}
 
 	protected boolean test(float actual, float target){
@@ -129,22 +134,17 @@ public abstract class ItemFilter {
 
     public static class Heal extends Complex{
 
-	private final boolean all;
-
 	public Heal(String text, String sign, String value) {
 	    super(text, sign, value);
 	    this.value = 1000*this.value;
-	    all = text.equals("*") || text.equals("all");
 	}
 
 	@Override
 	protected boolean match(FoodInfo item) {
 	    int[] tempers = item.tempers;
 	    if(all){
-		boolean b = true;
 		for(int k = 0; k < anm.length; k++){
-		    b =  b&&test(tempers[k], value);
-		    if(b){return b;}
+		    if(!test(tempers[k], value)){return false;}
 		}
 	    } else {
 		for(int k = 0; k < anm.length; k++){
@@ -165,8 +165,9 @@ public abstract class ItemFilter {
 	@Override
 	protected boolean match(Inspiration item) {
 	    for(int k = 0; k<item.attrs.length; k++){
-		if(item.attrs[k].equals(text) && test(item.exp[k], value)){return true;}
-		if(CharWnd.attrnm.get(item.attrs[k]).toLowerCase().contains(text)){return true;}
+		boolean enough = test(item.exp[k], value);
+		if((any || item.attrs[k].equals(text)) && enough){return true;}
+		if((any || CharWnd.attrnm.get(item.attrs[k]).toLowerCase().contains(text)) && enough){return true;}
 	    }
 	    return false;
 	}
