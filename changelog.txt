@@ -1,7 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
- 
+
+$size[14]{$u{Update for 22.01.15:}}
+  * fixed crash when trying to set pclaim as homestead
+
 $size[14]{$u{Update for 21.01.15:}}
-  * fixed crash if when trying to activate empty toolbelt slot
+  * fixed crash when trying to activate empty toolbelt slot
  
 $size[14]{$u{Update for 19.01.15:}}
   * added displaying of scalp score to character window
