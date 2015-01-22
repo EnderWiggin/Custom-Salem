@@ -55,6 +55,10 @@ public abstract class ItemFilter {
 	    ItemFilter filter = null;
 	    if(tag == null){
 		filter = new Text(text);
+	    } else {
+		if(tag.equals("heal")){
+		    filter = new Heal(text, sign, value);
+		}
 	    }
 	    if(filter != null){
 		result.add(filter);
@@ -76,6 +80,67 @@ public abstract class ItemFilter {
 
 	public void add(ItemFilter filter){
 	    filters.add(filter);
+	}
+    }
+
+    public static class Complex extends ItemFilter{
+	protected final String text;
+	protected final Sign sign;
+	protected float value;
+
+	public Complex(String text, String sign, String value){
+	    this.text = text;
+	    this.sign = getSign(sign);
+	    float tmp = 0;
+	    try {
+		tmp = Float.parseFloat(value);
+	    } catch (Exception ignored){}
+	    this.value = tmp;
+	}
+
+	protected boolean test(float actual, float target){
+	    switch(sign){
+		case GREATER	: return actual > target;
+		case LESS	: return actual < target;
+		case EQUAL	: return actual == target;
+	    }
+	    return false;
+	}
+
+	protected static Sign getSign(String sign){
+	    if(sign == null){
+		return null;
+	    }
+	    if(sign.equals(">")){
+		return Sign.GREATER;
+	    } else if(sign.equals("<")){
+		return Sign.LESS;
+	    } else if(sign.equals("=")) {
+		return Sign.EQUAL;
+	    } else {
+		return null;
+	    }
+	}
+
+	public static enum Sign {GREATER, LESS, EQUAL}
+    }
+
+    public static class Heal extends Complex{
+
+	public Heal(String text, String sign, String value) {
+	    super(text, sign, value);
+	    this.value = 1000*this.value;
+	}
+
+	@Override
+	protected boolean match(FoodInfo item) {
+	    for(int k = 0; k < anm.length; k++){
+		if(anm[k].equals(text) && test(item.tempers[k], value)){return true;}
+	    }
+	    for(int k = 0; k < rnm.length; k++){
+		if(rnm[k].toLowerCase().contains(text) && test(item.tempers[k], value)){return true;}
+	    }
+	    return false;
 	}
     }
 
