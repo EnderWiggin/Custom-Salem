@@ -9,7 +9,7 @@ import static haven.Tempers.anm;
 import static haven.Tempers.rnm;
 
 public abstract class ItemFilter {
-    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=+])(?<value>\\d+(?:\\.\\d+)?)?)?");
+    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=+~])(?<value>\\d+(?:\\.\\d+)?)?(?<opt>[<>=+~])?)?");
     public boolean matches(List<ItemInfo> info){
 	for(ItemInfo item : info){
 	    String className = item.getClass().getCanonicalName();
@@ -57,24 +57,27 @@ public abstract class ItemFilter {
 	    String text = m.group("text").toLowerCase();
 	    String sign = m.group("sign");
 	    String value = m.group("value");
+	    String opt = m.group("opt");
 
 	    ItemFilter filter = null;
 	    if(tag == null){
 		if(sign != null && text.equals("q")){
-		    filter = new Alch(Alchemy.names[0], sign, value);
+		    filter = new Alch(Alchemy.names[0], sign, value, opt);
 		} else {
 		    filter = new Text(text, false);
 		}
 	    } else {
 		tag = tag.toLowerCase();
 		if(tag.equals("heal")){
-		    filter = new Heal(text, sign, value);
+		    filter = new Heal(text, sign, value, opt);
+		} else if(tag.equals("gob")){
+			filter = new Gobble(text, sign, value, opt);
 		} else if(tag.equals("txt")){
 		    filter = new Text(text, true);
 		} else if(tag.equals("xp")){
-		    filter = new XP(text, sign, value);
+		    filter = new XP(text, sign, value, opt);
 		} else if(tag.equals("alch")){
-		    filter = new Alch(text, sign, value);
+		    filter = new Alch(text, sign, value, opt);
 		}
 	    }
 	    if(filter != null){
@@ -103,13 +106,15 @@ public abstract class ItemFilter {
     public static class Complex extends ItemFilter{
 	protected final String text;
 	protected final Sign sign;
+	protected final Sign opts;
 	protected float value;
 	protected final boolean all;
 	protected final boolean any;
 
-	public Complex(String text, String sign, String value){
+	public Complex(String text, String sign, String value, String opts){
 	    this.text = text.toLowerCase();
 	    this.sign = getSign(sign);
+	    this.opts = getSign(opts);
 	    float tmp = 0;
 	    try {
 		tmp = Float.parseFloat(value);
@@ -142,18 +147,20 @@ public abstract class ItemFilter {
 		return Sign.EQUAL;
 	    } else if(sign.equals("+")) {
 		return Sign.GREQUAL;
+	    } else if(sign.equals("~")) {
+		return Sign.WAVE;
 	    } else {
 		return Sign.DEFAULT;
 	    }
 	}
 
-	public static enum Sign {GREATER, LESS, EQUAL, GREQUAL, DEFAULT}
+	public static enum Sign {GREATER, LESS, EQUAL, GREQUAL, WAVE, DEFAULT}
     }
 
     public static class Heal extends Complex{
 
-	public Heal(String text, String sign, String value) {
-	    super(text, sign, value);
+	public Heal(String text, String sign, String value, String opts) {
+	    super(text, sign, value, opts);
 	    this.value = 1000*this.value;
 	}
 
@@ -175,10 +182,56 @@ public abstract class ItemFilter {
 	}
     }
 
+    public static class Gobble extends Complex {
+
+	public Gobble(String text, String sign, String value, String opts) {
+	    super(text, sign, value, opts);
+	    this.value = 1000*this.value;
+	}
+
+	@Override
+	protected boolean match(GobbleInfo item) {
+	    if (all) {
+		for (int k = 0; k < anm.length; k++) {
+		    if (!test(getBile(item, k), value)) {
+			return false;
+		    }
+		}
+	    } else {
+		for (int k = 0; k < anm.length; k++) {
+		    boolean enough = test(getBile(item, k), value);
+		    if ((any || anm[k].equals(text)) && enough) {
+			return true;
+		    }
+		    if ((any || rnm[k].toLowerCase().contains(text)) && enough) {
+			return true;
+		    }
+		}
+	    }
+	    return false;
+	}
+
+	private int getBile(GobbleInfo item, int k) {
+	    int result;
+	    switch (opts) {
+		case EQUAL:
+		    result = (item.h[k] + item.l[k]) / 2;
+		    break;
+		case LESS:
+		    result = item.l[k];
+		    break;
+		case GREATER:
+		default:
+		    result = item.h[k];
+	    }
+	    return 100*(result/100);
+	}
+    }
+
     public static class XP extends Complex {
 
-	public XP(String text, String sign, String value) {
-	    super(text, sign, value);
+	public XP(String text, String sign, String value, String opts) {
+	    super(text, sign, value, opts);
 	}
 
 	@Override
@@ -194,8 +247,8 @@ public abstract class ItemFilter {
 
     public static class Alch extends Complex {
 
-	public Alch(String text, String sign, String value) {
-	    super(text, sign, value);
+	public Alch(String text, String sign, String value, String opts) {
+	    super(text, sign, value, opts);
 	    this.value = (int)(100*this.value);
 	}
 
