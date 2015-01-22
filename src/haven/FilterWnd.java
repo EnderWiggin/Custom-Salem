@@ -10,7 +10,7 @@ public class FilterWnd extends GameUI.Hidewnd{
 	input = new TextEntry(Coord.z, 200, this, ""){
 	    @Override
 	    protected void changed() {
-		if(text.length() >= 3){
+		if(text.length() >= 2){
 		    setFilter(text);
 		} else {
 		    setFilter(null);

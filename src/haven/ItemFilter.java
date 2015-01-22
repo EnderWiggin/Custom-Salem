@@ -9,7 +9,7 @@ import static haven.Tempers.anm;
 import static haven.Tempers.rnm;
 
 public abstract class ItemFilter {
-    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=])(?<value>\\d+(?:\\.\\d+)?)?)?");
+    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=+])(?<value>\\d+(?:\\.\\d+)?)?)?");
     public boolean matches(List<ItemInfo> info){
 	for(ItemInfo item : info){
 	    String className = item.getClass().getCanonicalName();
@@ -19,11 +19,17 @@ public abstract class ItemFilter {
 		if(match((FoodInfo)item)){return true;}
 	    } else if(item instanceof Inspiration){
 		if(match((Inspiration)item)){return true;}
+	    } else if(item instanceof Alchemy){
+		if(match((Alchemy)item)){return true;}
 	    } else if(item instanceof GobbleInfo){
 		if(match((GobbleInfo)item)){return true;}
 	    } else if(className.equals("Slotted")){
 	    }
 	}
+	return false;
+    }
+
+    protected boolean match(Alchemy item) {
 	return false;
     }
 
@@ -48,18 +54,25 @@ public abstract class ItemFilter {
 	Matcher m = q.matcher(query);
 	while(m.find()){
 	    String tag = m.group("tag");
-	    String text = m.group("text");
+	    String text = m.group("text").toLowerCase();
 	    String sign = m.group("sign");
 	    String value = m.group("value");
 
 	    ItemFilter filter = null;
 	    if(tag == null){
-		filter = new Text(text);
+		if(sign != null && text.equals("q")){
+		    filter = new Alch(Alchemy.names[0], sign, value);
+		} else {
+		    filter = new Text(text);
+		}
 	    } else {
+		tag = tag.toLowerCase();
 		if(tag.equals("heal")){
 		    filter = new Heal(text, sign, value);
 		} else if(tag.equals("xp")){
 		    filter = new XP(text, sign, value);
+		} else if(tag.equals("alch")){
+		    filter = new Alch(text, sign, value);
 		}
 	    }
 	    if(filter != null){
@@ -93,7 +106,7 @@ public abstract class ItemFilter {
 	protected final boolean any;
 
 	public Complex(String text, String sign, String value){
-	    this.text = text;
+	    this.text = text.toLowerCase();
 	    this.sign = getSign(sign);
 	    float tmp = 0;
 	    try {
@@ -105,12 +118,13 @@ public abstract class ItemFilter {
 	    any = text.equals("any");
 	}
 
-	protected boolean test(float actual, float target){
+	protected boolean test(double actual, double target){
 	    switch(sign){
-		case GREATER	: return actual >= target;
+		case GREATER	: return actual >  target;
 		case LESS	: return actual <= target;
 		case EQUAL	: return actual == target;
-		default		: return actual > 0;
+		case GREQUAL	: return actual >= target;
+		default		: return actual >  0;
 	    }
 	}
 
@@ -124,12 +138,14 @@ public abstract class ItemFilter {
 		return Sign.LESS;
 	    } else if(sign.equals("=")) {
 		return Sign.EQUAL;
+	    } else if(sign.equals("+")) {
+		return Sign.GREQUAL;
 	    } else {
 		return Sign.DEFAULT;
 	    }
 	}
 
-	public static enum Sign {GREATER, LESS, EQUAL, DEFAULT}
+	public static enum Sign {GREATER, LESS, EQUAL, GREQUAL, DEFAULT}
     }
 
     public static class Heal extends Complex{
@@ -148,8 +164,9 @@ public abstract class ItemFilter {
 		}
 	    } else {
 		for(int k = 0; k < anm.length; k++){
-		    if(anm[k].equals(text) && test(tempers[k], value)){return true;}
-		    if(rnm[k].toLowerCase().contains(text) && test(tempers[k], value)){return true;}
+		    boolean enough = test(tempers[k], value);
+		    if((any || anm[k].equals(text)) && enough){return true;}
+		    if((any || rnm[k].toLowerCase().contains(text)) && enough){return true;}
 		}
 	    }
 	    return false;
@@ -168,6 +185,23 @@ public abstract class ItemFilter {
 		boolean enough = test(item.exp[k], value);
 		if((any || item.attrs[k].equals(text)) && enough){return true;}
 		if((any || CharWnd.attrnm.get(item.attrs[k]).toLowerCase().contains(text)) && enough){return true;}
+	    }
+	    return false;
+	}
+    }
+
+    public static class Alch extends Complex {
+
+	public Alch(String text, String sign, String value) {
+	    super(text, sign, value);
+	    this.value = (int)(100*this.value);
+	}
+
+	@Override
+	protected boolean match(Alchemy item) {
+	    for(int k = 0; k<item.a.length; k++){
+		boolean enough = test((int)(10000*item.a[k]), value);
+		if((any || Alchemy.names[k].toLowerCase().equals(text)) && enough){return true;}
 	    }
 	    return false;
 	}
