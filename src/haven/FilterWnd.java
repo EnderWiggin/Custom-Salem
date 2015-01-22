@@ -4,10 +4,11 @@ public class FilterWnd extends GameUI.Hidewnd{
     TextEntry input;
 
     FilterWnd(Widget parent) {
-	super(Coord.z, Coord.z, parent, "Filter");
+	super(new Coord(120, 200), Coord.z, parent, "Filter");
+	cbtn.visible = false;
 	cap = null;
 
-	input = new TextEntry(new Coord(120, 200), 200, this, ""){
+	input = new TextEntry(Coord.z, 200, this, ""){
 	    @Override
 	    protected void changed() {
 		if(text.length() >= 2){
