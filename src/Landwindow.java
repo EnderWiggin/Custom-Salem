@@ -159,7 +159,7 @@ public class Landwindow extends Window {
 
 	    public boolean mousedown(Coord c, int button) {
 		if(!this.a) {
-		    wdgmsg("mkhome");
+		    Landwindow.this.wdgmsg("mkhome");
 		    this.set(true);
 		}
 
