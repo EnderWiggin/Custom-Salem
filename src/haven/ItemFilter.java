@@ -140,9 +140,17 @@ public abstract class ItemFilter {
 	@Override
 	protected boolean match(FoodInfo item) {
 	    int[] tempers = item.tempers;
-	    for(int k = 0; k < anm.length; k++){
-		if((all || anm[k].equals(text)) && test(tempers[k], value)){return true;}
-		if((all || rnm[k].toLowerCase().contains(text)) && test(tempers[k], value)){return true;}
+	    if(all){
+		boolean b = true;
+		for(int k = 0; k < anm.length; k++){
+		    b =  b&&test(tempers[k], value);
+		    if(b){return b;}
+		}
+	    } else {
+		for(int k = 0; k < anm.length; k++){
+		    if(anm[k].equals(text) && test(tempers[k], value)){return true;}
+		    if(rnm[k].toLowerCase().contains(text) && test(tempers[k], value)){return true;}
+		}
 	    }
 	    return false;
 	}
