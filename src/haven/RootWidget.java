@@ -60,6 +60,7 @@ public class RootWidget extends ConsoleHost {
 	    }else if(code == KeyEvent.VK_D && ctrl){
 		DarknessWnd.toggle();
 	    }else if(code == KeyEvent.VK_C && alt && hasGUI){
+		ui.gui.toggleCraftWnd();
 	    }else if(code == KeyEvent.VK_F && alt && hasGUI){
 		ui.gui.toggleFilterWnd();
 	    }else if(code == KeyEvent.VK_Z && ctrl){
