@@ -13,7 +13,6 @@ public abstract class ItemFilter {
     private static final Pattern float_p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
     public boolean matches(List<ItemInfo> info){
 	for(ItemInfo item : info){
-	    String className = item.getClass().getCanonicalName();
 	    if(item instanceof ItemInfo.Name){
 		if(match((ItemInfo.Name) item)){ return true;}
 	    } else if(item instanceof FoodInfo){
@@ -26,7 +25,6 @@ public abstract class ItemFilter {
 		if(match((Alchemy)item)){return true;}
 	    } else if(item instanceof GobbleInfo){
 		if(match((GobbleInfo)item)){return true;}
-	    } else if(className.equals("Slotted")){
 	    }
 	}
 	return false;
@@ -78,7 +76,7 @@ public abstract class ItemFilter {
 		if(tag.equals("heal")){
 		    filter = new Heal(text, sign, value, opt);
 		} else if(tag.equals("gob")){
-			filter = new Gobble(text, sign, value, opt);
+		    filter = new Gobble(text, sign, value, opt);
 		} else if(tag.equals("txt")){
 		    filter = new Text(text, true);
 		} else if(tag.equals("xp")){
