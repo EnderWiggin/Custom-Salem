@@ -58,6 +58,8 @@ public abstract class ItemFilter {
 	    } else {
 		if(tag.equals("heal")){
 		    filter = new Heal(text, sign, value);
+		} else if(tag.equals("xp")){
+		    filter = new XP(text, sign, value);
 		}
 	    }
 	    if(filter != null){
@@ -100,16 +102,16 @@ public abstract class ItemFilter {
 
 	protected boolean test(float actual, float target){
 	    switch(sign){
-		case GREATER	: return actual > target;
-		case LESS	: return actual < target;
+		case GREATER	: return actual >= target;
+		case LESS	: return actual <= target;
 		case EQUAL	: return actual == target;
+		default		: return actual > 0;
 	    }
-	    return false;
 	}
 
 	protected static Sign getSign(String sign){
 	    if(sign == null){
-		return null;
+		return Sign.DEFAULT;
 	    }
 	    if(sign.equals(">")){
 		return Sign.GREATER;
@@ -118,11 +120,11 @@ public abstract class ItemFilter {
 	    } else if(sign.equals("=")) {
 		return Sign.EQUAL;
 	    } else {
-		return null;
+		return Sign.DEFAULT;
 	    }
 	}
 
-	public static enum Sign {GREATER, LESS, EQUAL}
+	public static enum Sign {GREATER, LESS, EQUAL, DEFAULT}
     }
 
     public static class Heal extends Complex{
@@ -139,6 +141,22 @@ public abstract class ItemFilter {
 	    }
 	    for(int k = 0; k < rnm.length; k++){
 		if(rnm[k].toLowerCase().contains(text) && test(item.tempers[k], value)){return true;}
+	    }
+	    return false;
+	}
+    }
+
+    public static class XP extends Complex {
+
+	public XP(String text, String sign, String value) {
+	    super(text, sign, value);
+	}
+
+	@Override
+	protected boolean match(Inspiration item) {
+	    for(int k = 0; k<item.attrs.length; k++){
+		if(item.attrs[k].equals(text) && test(item.exp[k], value)){return true;}
+		if(CharWnd.attrnm.get(item.attrs[k]).toLowerCase().contains(text)){return true;}
 	    }
 	    return false;
 	}
