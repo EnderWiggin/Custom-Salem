@@ -9,7 +9,7 @@ import static haven.Tempers.anm;
 import static haven.Tempers.rnm;
 
 public abstract class ItemFilter {
-    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>\\w+)(?:(?<sign>[<>=])(?<value>\\d+(?:\\.\\d+)?)?)?");
+    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=])(?<value>\\d+(?:\\.\\d+)?)?)?");
     public boolean matches(List<ItemInfo> info){
 	for(ItemInfo item : info){
 	    String className = item.getClass().getCanonicalName();
@@ -129,18 +129,20 @@ public abstract class ItemFilter {
 
     public static class Heal extends Complex{
 
+	private final boolean all;
+
 	public Heal(String text, String sign, String value) {
 	    super(text, sign, value);
 	    this.value = 1000*this.value;
+	    all = text.equals("*") || text.equals("all");
 	}
 
 	@Override
 	protected boolean match(FoodInfo item) {
+	    int[] tempers = item.tempers;
 	    for(int k = 0; k < anm.length; k++){
-		if(anm[k].equals(text) && test(item.tempers[k], value)){return true;}
-	    }
-	    for(int k = 0; k < rnm.length; k++){
-		if(rnm[k].toLowerCase().contains(text) && test(item.tempers[k], value)){return true;}
+		if((all || anm[k].equals(text)) && test(tempers[k], value)){return true;}
+		if((all || rnm[k].toLowerCase().contains(text)) && test(tempers[k], value)){return true;}
 	    }
 	    return false;
 	}
@@ -181,10 +183,9 @@ public abstract class ItemFilter {
 	@Override
 	protected boolean match(FoodInfo item) {
 	    for(int k = 0; k < anm.length; k++){
-		if(anm[k].equals(text) && item.tempers[k] > 0){return true;}
-	    }
-	    for(int k = 0; k < rnm.length; k++){
-		if(rnm[k].toLowerCase().contains(text) && item.tempers[k] > 0){return true;}
+		boolean notEmpty = item.tempers[k] > 0;
+		if(anm[k].equals(text) && notEmpty){return true;}
+		if(rnm[k].toLowerCase().contains(text) && notEmpty){return true;}
 	    }
 	    return false;
 	}
