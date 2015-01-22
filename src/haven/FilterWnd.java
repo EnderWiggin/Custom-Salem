@@ -7,7 +7,7 @@ public class FilterWnd extends GameUI.Hidewnd{
 	super(Coord.z, Coord.z, parent, "Filter");
 	cap = null;
 
-	input = new TextEntry(Coord.z, 200, this, ""){
+	input = new TextEntry(new Coord(120, 200), 200, this, ""){
 	    @Override
 	    protected void changed() {
 		if(text.length() >= 2){
@@ -23,9 +23,9 @@ public class FilterWnd extends GameUI.Hidewnd{
 
     private void setFilter(String text) {
 	if(text == null){
-	    WItem.filter = null;
+	    WItem.setFilter(null);
 	} else {
-	    WItem.filter = ItemFilter.create(text);
+	    WItem.setFilter(ItemFilter.create(text));
 	}
     }
 

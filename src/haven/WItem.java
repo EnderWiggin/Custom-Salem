@@ -37,12 +37,15 @@ public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
     private static final Coord hsz = new Coord(24, 24);//Inventory.sqsz.div(2);
     private static final Color MATCH_COLOR = new Color(96, 255, 255, 128);
-    public static ItemFilter filter = null;
+    private static ItemFilter filter = null;
+    private static long lastFilter = 0;
     public final GItem item;
     private Tex ltex = null;
     private Tex mask = null;
     private Resource cmask = null;
     private long ts = 0;
+    private boolean matched = false;
+    private long filtered = 0;
 
     public WItem(Coord c, Widget parent, GItem item) {
 	super(c, Inventory.sqsz, parent);
@@ -74,7 +77,7 @@ public class WItem extends Widget implements DTarget {
 	Alchemy ch = find(Alchemy.class, info);
 	if(ch != null)
 	    img = ItemInfo.catimgsh(5, img, ch.smallmeter(),
-		    Text.std.renderf("(%d%% pure)", (int)(ch.a[0] * 100)).img);
+		    Text.std.renderf("(%d%% pure)", (int) (ch.a[0] * 100)).img);
 	return(img);
     }
     
@@ -103,6 +106,11 @@ public class WItem extends Widget implements DTarget {
     
     public BufferedImage longtip(List<ItemInfo> info) {
 	return(longtip(item, info));
+    }
+
+    public static void setFilter(ItemFilter filter) {
+	WItem.filter = filter;
+	lastFilter = System.currentTimeMillis();
     }
     
     public class ItemTip implements Indir<Tex> {
@@ -256,7 +264,7 @@ public class WItem extends Widget implements DTarget {
 	    checkContents(g);
 	    heurmeters(g);
 	    Color col = olcol.get();
-	    if(col == null && testMatch(item.info())){
+	    if(col == null && matched && filter != null){
 		col = MATCH_COLOR;
 	    }
 	    if(col != null) {
@@ -276,6 +284,10 @@ public class WItem extends Widget implements DTarget {
 	} catch(Loading e) {
 	    missing.loadwait();
 	    g.image(missing.layer(Resource.imgc).tex(), Coord.z, sz);
+	}
+	if(filtered < lastFilter){
+	    matched = testMatch(item.info());
+	    filtered = lastFilter;
 	}
     }
 
