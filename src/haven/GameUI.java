@@ -77,6 +77,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public Collection<GItem> hand = new LinkedList<GItem>();
     private WItem vhand;
     public ChatUI chat;
+    public FilterWnd filter = new FilterWnd(this);
     public ChatUI.Channel syslog;
     private HomeTrackerFX.HTrackWdg hrtptr;
     public int prog = -1;
@@ -1023,6 +1024,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	} else {
 	    craftwnd.wdgmsg(craftwnd, "close");
 	}
+    }
+
+    public void toggleFilterWnd() {
+	filter.show(!filter.visible);
     }
     
     private void makemenu() {

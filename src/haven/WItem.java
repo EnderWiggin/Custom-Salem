@@ -37,7 +37,7 @@ public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
     private static final Coord hsz = new Coord(24, 24);//Inventory.sqsz.div(2);
     private static final Color MATCH_COLOR = new Color(96, 255, 255, 128);
-    private static final ItemFilter filter = ItemFilter.create("Dagger");
+    public static ItemFilter filter = null;
     public final GItem item;
     private Tex ltex = null;
     private Tex mask = null;
@@ -199,7 +199,7 @@ public class WItem extends Widget implements DTarget {
     };
 
     private boolean testMatch(List<ItemInfo> info) {
-	return filter.matches(info);
+	return filter != null && filter.matches(info);
     }
     
     public final AttrCache<Tex> itemnum = new AttrCache<Tex>() {
