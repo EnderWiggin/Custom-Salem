@@ -10,6 +10,7 @@ import static haven.Tempers.rnm;
 
 public abstract class ItemFilter {
     private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=+~])(?<value>\\d+(?:\\.\\d+)?)?(?<opt>[<>=+~])?)?");
+    private static final Pattern float_p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
     public boolean matches(List<ItemInfo> info){
 	for(ItemInfo item : info){
 	    String className = item.getClass().getCanonicalName();
@@ -19,6 +20,8 @@ public abstract class ItemFilter {
 		if(match((FoodInfo)item)){return true;}
 	    } else if(item instanceof Inspiration){
 		if(match((Inspiration)item)){return true;}
+	    } else if(item instanceof ItemInfo.Contents){
+		if(match((ItemInfo.Contents)item)){return true;}
 	    } else if(item instanceof Alchemy){
 		if(match((Alchemy)item)){return true;}
 	    } else if(item instanceof GobbleInfo){
@@ -26,6 +29,10 @@ public abstract class ItemFilter {
 	    } else if(className.equals("Slotted")){
 	    }
 	}
+	return false;
+    }
+
+    protected boolean match(ItemInfo.Contents item) {
 	return false;
     }
 
@@ -76,6 +83,8 @@ public abstract class ItemFilter {
 		    filter = new Text(text, true);
 		} else if(tag.equals("xp")){
 		    filter = new XP(text, sign, value, opt);
+		} else if(tag.equals("has")){
+		    filter = new Has(text, sign, value, opt);
 		} else if(tag.equals("alch")){
 		    filter = new Alch(text, sign, value, opt);
 		}
@@ -135,9 +144,9 @@ public abstract class ItemFilter {
 	    }
 	}
 
-	protected static Sign getSign(String sign){
+	protected Sign getSign(String sign){
 	    if(sign == null){
-		return Sign.DEFAULT;
+		return getaDefaultSign();
 	    }
 	    if(sign.equals(">")){
 		return Sign.GREATER;
@@ -150,8 +159,12 @@ public abstract class ItemFilter {
 	    } else if(sign.equals("~")) {
 		return Sign.WAVE;
 	    } else {
-		return Sign.DEFAULT;
+		return getaDefaultSign();
 	    }
+	}
+
+	protected Sign getaDefaultSign() {
+	    return Sign.DEFAULT;
 	}
 
 	public static enum Sign {GREATER, LESS, EQUAL, GREQUAL, WAVE, DEFAULT}
@@ -225,6 +238,48 @@ public abstract class ItemFilter {
 		    result = item.h[k];
 	    }
 	    return 100*(result/100);
+	}
+    }
+
+    public  static class Has extends Complex {
+	public Has(String text, String sign, String value, String opts) {
+	    super(text, sign, value, opts);
+	}
+
+	@Override
+	protected boolean match(ItemInfo.Contents item) {
+	    String name = this.name(item.sub).toLowerCase();
+	    float num = count(name);
+	    return name.contains(text) && test(num, value);
+	}
+
+	@Override
+	protected Sign getaDefaultSign() {
+	    return Sign.GREQUAL;
+	}
+
+	private float count(String txt){
+	    float n = 0;
+	    if (txt != null) {
+		try {
+		    Matcher matcher = float_p.matcher(txt);
+		    if(matcher.find()) {
+			n = Float.parseFloat(matcher.group(1));
+		    }
+		} catch (Exception ignored){}
+	    }
+	    return n;
+	}
+
+	private String name(List<ItemInfo> sub) {
+	    String txt = null;
+	    for(ItemInfo subInfo : sub){
+		if(subInfo instanceof ItemInfo.Name){
+		    ItemInfo.Name name = (ItemInfo.Name) subInfo;
+		    txt = name.str.text;
+		}
+	    }
+	    return txt;
 	}
     }
 
