@@ -63,12 +63,14 @@ public abstract class ItemFilter {
 		if(sign != null && text.equals("q")){
 		    filter = new Alch(Alchemy.names[0], sign, value);
 		} else {
-		    filter = new Text(text);
+		    filter = new Text(text, false);
 		}
 	    } else {
 		tag = tag.toLowerCase();
 		if(tag.equals("heal")){
 		    filter = new Heal(text, sign, value);
+		} else if(tag.equals("txt")){
+		    filter = new Text(text, true);
 		} else if(tag.equals("xp")){
 		    filter = new XP(text, sign, value);
 		} else if(tag.equals("alch")){
@@ -209,8 +211,10 @@ public abstract class ItemFilter {
 
     public static class Text extends ItemFilter{
 	private String text;
+	private final boolean full;
 
-	public  Text(String text){
+	public  Text(String text, boolean full){
+	    this.full = full;
 	    this.text = text.toLowerCase();
 	}
 
@@ -225,6 +229,7 @@ public abstract class ItemFilter {
 
 	@Override
 	protected boolean match(FoodInfo item) {
+	    if(!full){return false;}
 	    for(int k = 0; k < anm.length; k++){
 		boolean notEmpty = item.tempers[k] > 0;
 		if(anm[k].equals(text) && notEmpty){return true;}
@@ -235,6 +240,7 @@ public abstract class ItemFilter {
 
 	@Override
 	protected boolean match(GobbleInfo item) {
+	    if(!full){return false;}
 	    for(int k = 0; k < anm.length; k++){
 		if(anm[k].equals(text) && item.h[k] > 0){return true;}
 	    }
@@ -246,6 +252,7 @@ public abstract class ItemFilter {
 
 	@Override
 	protected boolean match(Inspiration item) {
+	    if(!full){return false;}
 	    for(String attr : item.attrs){
 		if(attr.equals(text)){return true;}
 		if(CharWnd.attrnm.get(attr).toLowerCase().contains(text)){return true;}
