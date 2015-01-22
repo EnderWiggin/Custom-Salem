@@ -281,13 +281,13 @@ public class WItem extends Widget implements DTarget {
 		}
 	    }
 	    drawpurity(g);
+	    if(filtered < lastFilter){
+		matched = testMatch(item.info());
+		filtered = lastFilter;
+	    }
 	} catch(Loading e) {
 	    missing.loadwait();
 	    g.image(missing.layer(Resource.imgc).tex(), Coord.z, sz);
-	}
-	if(filtered < lastFilter){
-	    matched = testMatch(item.info());
-	    filtered = lastFilter;
 	}
     }
 
