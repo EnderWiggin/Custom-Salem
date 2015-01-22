@@ -11,11 +11,7 @@ public class FilterWnd extends GameUI.Hidewnd{
 	input = new TextEntry(Coord.z, 200, this, ""){
 	    @Override
 	    protected void changed() {
-		if(text.length() >= 2){
-		    setFilter(text);
-		} else {
-		    setFilter(null);
-		}
+		chectInput();
 	    }
 	};
 	pack();
@@ -30,6 +26,14 @@ public class FilterWnd extends GameUI.Hidewnd{
 	}
     }
 
+    private void chectInput() {
+	if(input.text.length() >= 2){
+	    setFilter(input.text);
+	} else {
+	    setFilter(null);
+	}
+    }
+
     @Override
     public void hide() {
 	super.hide();
@@ -40,5 +44,6 @@ public class FilterWnd extends GameUI.Hidewnd{
     public void show() {
 	super.show();
 	setfocus(input);
+	chectInput();
     }
 }
