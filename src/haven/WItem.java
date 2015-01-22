@@ -36,6 +36,8 @@ import java.util.Map;
 public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
     private static final Coord hsz = new Coord(24, 24);//Inventory.sqsz.div(2);
+    private static final Color MATCH_COLOR = new Color(96, 255, 255, 128);
+    public static ItemFilter filter = null;
     public final GItem item;
     private Tex ltex = null;
     private Tex mask = null;
@@ -191,17 +193,13 @@ public class WItem extends Widget implements DTarget {
     
     public final AttrCache<Color> olcol = new AttrCache<Color>() {
 	protected Color find(List<ItemInfo> info) {
-	    if(testMatch(info)){
-		return Color.CYAN;
-	    }
 	    GItem.ColorInfo cinf = ItemInfo.find(GItem.ColorInfo.class, info);
 	    return((cinf == null)?null:cinf.olcol());
 	}
     };
 
     private boolean testMatch(List<ItemInfo> info) {
-	ItemFilter filter = new ItemFilter.Text("Dagger");
-	return filter.matches(info);
+	return filter != null && filter.matches(info);
     }
     
     public final AttrCache<Tex> itemnum = new AttrCache<Tex>() {
@@ -257,7 +255,11 @@ public class WItem extends Widget implements DTarget {
 	    }
 	    checkContents(g);
 	    heurmeters(g);
-	    if(olcol.get() != null) {
+	    Color col = olcol.get();
+	    if(col == null && testMatch(item.info())){
+		col = MATCH_COLOR;
+	    }
+	    if(col != null) {
 		if(cmask != res) {
 		    mask = null;
 		    if(tex instanceof TexI)
@@ -265,7 +267,7 @@ public class WItem extends Widget implements DTarget {
 		    cmask = res;
 		}
 		if(mask != null) {
-		    g.chcolor(olcol.get());
+		    g.chcolor(col);
 		    g.image(mask, Coord.z);
 		    g.chcolor();
 		}
@@ -276,7 +278,7 @@ public class WItem extends Widget implements DTarget {
 	    g.image(missing.layer(Resource.imgc).tex(), Coord.z, sz);
 	}
     }
-    
+
     public final AttrCache<Tex> purity = new AttrCache<Tex>() {
 	protected Tex find(List<ItemInfo> info) {
 	    Alchemy alch = ItemInfo.find(Alchemy.class, info);
