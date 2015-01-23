@@ -30,7 +30,7 @@ public class ItemDrag extends WItem {
     public Coord doff;
     
     public ItemDrag(Coord dc, Widget parent, GItem item) {
-	super(parent.ui.mc.add(dc.inv()), parent, item);
+	super(parent.ui.mc.add(dc.inv()), parent.ui.root, item);
 	this.doff = dc;
 	ui.grabmouse(this);
     }
