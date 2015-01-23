@@ -42,13 +42,15 @@ public class ItemDrag extends WItem {
     }
 
     public boolean dropon(Widget w, Coord c) {
-	if(w instanceof DTarget) {
-	    if(((DTarget)w).drop(c, c.add(doff.inv())))
-		return(true);
-	}
-	if(w instanceof DTarget2) {
-	    if(((DTarget2)w).drop(c, c.add(doff.inv()), this.item))
-		return(true);
+	if(w.tvisible()) {
+	    if (w instanceof DTarget) {
+		if (((DTarget) w).drop(c, c.add(doff.inv())))
+		    return (true);
+	    }
+	    if (w instanceof DTarget2) {
+		if (((DTarget2) w).drop(c, c.add(doff.inv()), this.item))
+		    return (true);
+	    }
 	}
 	for(Widget wdg = w.lchild; wdg != null; wdg = wdg.prev) {
 	    if(wdg == this)
