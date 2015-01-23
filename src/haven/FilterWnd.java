@@ -45,5 +45,6 @@ public class FilterWnd extends GameUI.Hidewnd{
 	super.show();
 	setfocus(input);
 	chectInput();
+	raise();
     }
 }
