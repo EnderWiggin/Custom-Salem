@@ -244,6 +244,7 @@ public class WItem extends Widget implements DTarget {
 	    Resource res = item.res.get();
 	    Tex tex = res.layer(Resource.imgc).tex();
 	    drawmain(g, tex);
+	    draw_highlight(g, res, tex);
 	    if(item.num >= 0) {
 		g.atext(Integer.toString(item.num), tex.sz(), 1, 1);
 	    } else if(itemnum.get() != null) {
@@ -263,23 +264,6 @@ public class WItem extends Widget implements DTarget {
 	    }
 	    checkContents(g);
 	    heurmeters(g);
-	    Color col = olcol.get();
-	    if(col == null && matched && filter != null){
-		col = MATCH_COLOR;
-	    }
-	    if(col != null) {
-		if(cmask != res) {
-		    mask = null;
-		    if(tex instanceof TexI)
-			mask = ((TexI)tex).mkmask();
-		    cmask = res;
-		}
-		if(mask != null) {
-		    g.chcolor(col);
-		    g.image(mask, Coord.z);
-		    g.chcolor();
-		}
-	    }
 	    drawpurity(g);
 	    if(filtered < lastFilter){
 		matched = testMatch(item.info());
@@ -288,6 +272,26 @@ public class WItem extends Widget implements DTarget {
 	} catch(Loading e) {
 	    missing.loadwait();
 	    g.image(missing.layer(Resource.imgc).tex(), Coord.z, sz);
+	}
+    }
+
+    private void draw_highlight(GOut g, Resource res, Tex tex) {
+	Color col = olcol.get();
+	if(col == null && matched && filter != null){
+	    col = MATCH_COLOR;
+	}
+	if(col != null) {
+	    if(cmask != res) {
+		mask = null;
+		if(tex instanceof TexI)
+		    mask = ((TexI)tex).mkmask();
+		cmask = res;
+	    }
+	    if(mask != null) {
+		g.chcolor(col);
+		g.image(mask, Coord.z);
+		g.chcolor();
+	    }
 	}
     }
 
