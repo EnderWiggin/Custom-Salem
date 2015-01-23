@@ -34,12 +34,22 @@ import java.util.List;
 
 public class GItem extends AWidget implements ItemInfo.ResOwner {
     public static volatile long infoUpdated;
+    static ItemFilter filter = null;
+    private static long lastFilter = 0;
     public Indir<Resource> res;
     public int meter = 0;
     public int num = -1;
     private Object[] rawinfo;
     private List<ItemInfo> info = Collections.emptyList();
     public boolean sendttupdate = false;
+    public boolean matched = false;
+    private long filtered = 0;
+
+    public static void setFilter(ItemFilter filter) {
+	GItem.filter = filter;
+	lastFilter = System.currentTimeMillis();
+    }
+
     
     @RName("item")
     public static class $_ implements Factory {
@@ -110,6 +120,13 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	return null;
     }
 
+    public void testMatch() {
+	if(filtered < lastFilter){
+	    matched = filter != null && filter.matches(info());
+	    filtered = lastFilter;
+	}
+    }
+
     public void uimsg(String name, Object... args) {
 	if(name == "num") {
 	    num = (Integer)args[0];
@@ -118,6 +135,7 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	} else if(name == "tt") {
 	    info = null;
 	    rawinfo = args;
+	    filtered = 0;
 	    if(sendttupdate){wdgmsg("ttupdate");}
 	} else if(name == "meter") {
 	    meter = (Integer)args[0];

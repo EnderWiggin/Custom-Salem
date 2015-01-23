@@ -20,9 +20,9 @@ public class FilterWnd extends GameUI.Hidewnd{
 
     private void setFilter(String text) {
 	if(text == null){
-	    WItem.setFilter(null);
+	    GItem.setFilter(null);
 	} else {
-	    WItem.setFilter(ItemFilter.create(text));
+	    GItem.setFilter(ItemFilter.create(text));
 	}
     }
 

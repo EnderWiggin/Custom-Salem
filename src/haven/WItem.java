@@ -37,15 +37,11 @@ public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
     private static final Coord hsz = new Coord(24, 24);//Inventory.sqsz.div(2);
     private static final Color MATCH_COLOR = new Color(96, 255, 255, 128);
-    private static ItemFilter filter = null;
-    private static long lastFilter = 0;
     public final GItem item;
     private Tex ltex = null;
     private Tex mask = null;
     private Resource cmask = null;
     private long ts = 0;
-    private boolean matched = false;
-    private long filtered = 0;
 
     public WItem(Coord c, Widget parent, GItem item) {
 	super(c, Inventory.sqsz, parent);
@@ -108,11 +104,6 @@ public class WItem extends Widget implements DTarget {
 	return(longtip(item, info));
     }
 
-    public static void setFilter(ItemFilter filter) {
-	WItem.filter = filter;
-	lastFilter = System.currentTimeMillis();
-    }
-    
     public class ItemTip implements Indir<Tex> {
 	private final TexI tex;
 	
@@ -206,10 +197,6 @@ public class WItem extends Widget implements DTarget {
 	}
     };
 
-    private boolean testMatch(List<ItemInfo> info) {
-	return filter != null && filter.matches(info);
-    }
-    
     public final AttrCache<Tex> itemnum = new AttrCache<Tex>() {
 	protected Tex find(List<ItemInfo> info) {
 	    GItem.NumberInfo ninf = ItemInfo.find(GItem.NumberInfo.class, info);
@@ -265,10 +252,7 @@ public class WItem extends Widget implements DTarget {
 	    checkContents(g);
 	    heurmeters(g);
 	    drawpurity(g);
-	    if(filtered < lastFilter){
-		matched = testMatch(item.info());
-		filtered = lastFilter;
-	    }
+	    item.testMatch();
 	} catch(Loading e) {
 	    missing.loadwait();
 	    g.image(missing.layer(Resource.imgc).tex(), Coord.z, sz);
@@ -277,7 +261,7 @@ public class WItem extends Widget implements DTarget {
 
     private void draw_highlight(GOut g, Resource res, Tex tex) {
 	Color col = olcol.get();
-	if(col == null && matched && filter != null){
+	if(col == null && item.matched && GItem.filter != null){
 	    col = MATCH_COLOR;
 	}
 	if(col != null) {
