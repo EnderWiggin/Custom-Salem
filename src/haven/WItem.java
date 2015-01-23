@@ -135,15 +135,16 @@ public class WItem extends Widget implements DTarget {
     private List<ItemInfo> ttinfo = null;
     public Object tooltip(Coord c, Widget prev) {
 	long now = System.currentTimeMillis();
-	if(prev == this) {
-	} else if(prev instanceof WItem) {
-	    long ps = ((WItem)prev).hoverstart;
-	    if(now - ps < 1000)
+	if (prev != this) {
+	    if(prev instanceof WItem) {
+		long ps = ((WItem)prev).hoverstart;
+		if(now - ps < 1000)
+		    hoverstart = now;
+		else
+		    hoverstart = ps;
+	    } else {
 		hoverstart = now;
-	    else
-		hoverstart = ps;
-	} else {
-	    hoverstart = now;
+	    }
 	}
 	try {
 	    if(item == null){return "...";}
@@ -215,8 +216,7 @@ public class WItem extends Widget implements DTarget {
     
     public final AttrCache<List<Integer>> heurmeter = new AttrCache<List<Integer>>() {
 	protected List<Integer> find(List<ItemInfo> info) {
-	    List<Integer> meters = ItemInfo.getMeters(info);
-	    return meters;
+	    return ItemInfo.getMeters(info);
 	}
     };
 
