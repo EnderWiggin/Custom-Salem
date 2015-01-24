@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
-
+ 
+$size[14]{$u{Update for 23.01.15:}}
+  * item filters update when item tooltip is updated (e.g. you eat part of food and it can't be gobbled anymore)
+  * fixed invisible widgets blocking item drops
+  * fixed interactions with dragged item (you can smash or pry faces all day long!)
+  * draw item highlight under counters
+ 
 $size[14]{$u{Update for 22.01.15:}}
   * fixed crash when trying to set pclaim as homestead
 
