@@ -30,6 +30,7 @@ import haven.Glob.Pagina;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
 public class Makewindow extends Widget {
@@ -163,19 +164,30 @@ public class Makewindow extends Widget {
 	} else {
 	    if(ltip == null) {
 		String t = tres.layer(Resource.tooltip).t;
+		t += "\n" + tres.name;
 		Resource.Pagina p = tres.layer(Resource.pagina);
 		if(p != null)
 		    t += "\n\n" + tres.layer(Resource.pagina).text;
-		ltip = RichText.render(t, 300);
+		RichText ttip = RichText.render(t, 300);
+		ltip = checkVars(tres.name, ttip);
 	    }
 	    return(ltip);
 	}
     }
 
+    private Object checkVars(String name, RichText ltip) {
+	ItemData data = ItemData.get(name);
+	if(data != null && data.variants != null){
+	    BufferedImage longtip = data.variants.create().longtip();
+	    return new TexI(ItemInfo.catimgs(3, ltip.img, longtip));
+	}
+	return ltip;
+    }
+
     @Override
     public boolean mousedown(Coord c, int button) {
 	Object tt = tooltip(c, null, false);
-	if (tt != null || tt instanceof String){
+	if (tt != null && tt instanceof String){
 	    Pagina p = ui.mnu.paginafor((String)tt);
 	    if(p != null){
 		store();

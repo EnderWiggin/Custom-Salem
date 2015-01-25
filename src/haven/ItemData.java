@@ -26,6 +26,7 @@ public class ItemData {
     public Inspiration.Data inspiration;
     public GobbleInfo.Data gobble;
     public ArtificeData artifice;
+    public VariantsInfo.Data variants;
     public int uses;
 
     public ItemData(GItem item){
@@ -177,6 +178,7 @@ public class ItemData {
 	    builder.registerTypeAdapter(FoodInfo.Data.class, new FoodInfo.Data.DataAdapter().nullSafe());
 	    builder.registerTypeAdapter(GobbleInfo.Data.class, new GobbleInfo.Data.DataAdapter().nullSafe());
 	    builder.registerTypeAdapter(ArtificeData.class, new ArtificeData.DataAdapter().nullSafe());
+	    builder.registerTypeAdapter(VariantsInfo.Data.class, new VariantsInfo.Data.DataAdapter().nullSafe());
 	    builder.setPrettyPrinting();
 	    gson =  builder.create();
 	}
