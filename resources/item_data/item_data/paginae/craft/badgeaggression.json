@@ -1,0 +1,13 @@
+{
+  "artifice": {
+    "pmin": 90,
+    "pmax": 100,
+    "profs": [
+      "cloak"
+    ],
+    "bonuses": {
+      "Criminality": 3
+    }
+  },
+  "uses": -1
+}

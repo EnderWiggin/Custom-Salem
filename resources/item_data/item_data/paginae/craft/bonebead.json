@@ -1,0 +1,16 @@
+{
+  "artifice": {
+    "pmin": 80,
+    "pmax": 95,
+    "profs": [
+      "thread",
+      "mine"
+    ],
+    "bonuses": {
+      "Productivity": 4,
+      "Common combat defence": 3,
+      "Mining": 12
+    }
+  },
+  "uses": -1
+}

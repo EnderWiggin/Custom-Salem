@@ -1,0 +1,15 @@
+{
+  "artifice": {
+    "pmin": 90,
+    "pmax": 100,
+    "profs": [
+      "cloak",
+      "wild"
+    ],
+    "bonuses": {
+      "Blunt power": 1,
+      "Piercing power": 1,
+      "Impact power": 3
+    }
+  }
+}

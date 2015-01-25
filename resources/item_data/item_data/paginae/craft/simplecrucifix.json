@@ -1,0 +1,23 @@
+{
+  "inspiration": {
+    "arts": 350,
+    "faith": 700,
+    "nail": 400,
+    "law": 350,
+    "perp": 40
+  },
+  "artifice": {
+    "pmin": 90,
+    "pmax": 100,
+    "profs": [
+      "thread",
+      "nail"
+    ],
+    "bonuses": {
+      "Productivity": 2,
+      "Common combat defence": 1,
+      "Woodworking": 5
+    }
+  },
+  "uses": 2
+}
