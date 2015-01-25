@@ -20,6 +20,8 @@ public class CraftWnd extends Window implements DTarget2{
     private Pagina CRAFT;
     private Breadcrumbs breadcrumbs;
     private static Pagina current = null;
+    private ItemData data;
+    private Resource resd;
 
     public CraftWnd(Coord c, Widget parent) {
 	super(c, WND_SZ.add(0,5), parent, "Craft window");
@@ -127,6 +129,20 @@ public class CraftWnd extends Window implements DTarget2{
     public void cdraw(GOut g) {
 	super.cdraw(g);
 
+	drawDescription(g);
+    }
+
+    public void drawDescription(GOut g) {
+	if(resd == null){return;}
+	if(description == null) {
+	    if (data != null) {
+		try {
+		    description = data.longtip(resd);
+		}catch (Resource.Loading ignored){}
+	    } else {
+		description = MenuGrid.rendertt(resd, true, false);
+	    }
+	}
 	if(description != null){
 	    g.image(description, new Coord(215, PANEL_H));
 	}
@@ -149,7 +165,7 @@ public class CraftWnd extends Window implements DTarget2{
 	    if(act != null){
 		name = act.name;
 	    }
-	   crumbs.add(new Breadcrumbs.Crumb(img,name, item));
+	    crumbs.add(new Breadcrumbs.Crumb(img,name, item));
 	}
 	breadcrumbs.setCrumbs(crumbs);
     }
@@ -170,16 +186,11 @@ public class CraftWnd extends Window implements DTarget2{
     private void updateDescription(Pagina p) {
 	if(description != null){
 	    description.dispose();
+	    description = null;
 	}
 
-	Resource res = p.res();
-	ItemData data = ItemData.get(res.name);
-	if(data != null){
-	    description = data.longtip(p.res());
-	} else {
-	    //description = null;
-	    description = MenuGrid.rendertt(p.res(), true, false);
-	}
+	resd = p.res();
+	data = ItemData.get(resd.name);
     }
 
     public void setMakewindow(Widget widget) {
