@@ -6,7 +6,6 @@ import com.google.gson.stream.JsonWriter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
