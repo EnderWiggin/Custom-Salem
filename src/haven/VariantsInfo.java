@@ -4,7 +4,9 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,33 +20,43 @@ public class VariantsInfo extends ItemInfo.Tip {
 
     @Override
     public BufferedImage longtip() {
-	String buf = "";
-	int k=0;
-	for(Map.Entry<String, float[]> variant: variants.entrySet()){
-	    String resn= variant.getKey();
-	    float[] mults = variant.getValue();
+	BufferedImage img = null;
+	int k = 0;
+	int n = (variants == null)?0:variants.size();
+	if(n > 0) {
+	    BufferedImage names[] = new BufferedImage[n];
+	    BufferedImage vals[] = new BufferedImage[n];
+	    int namew = 0, valuew = 0, totalh = 0;
+	    for (Map.Entry<String, float[]> variant : variants.entrySet()) {
+		String resn = variant.getKey();
+		float[] mults = variant.getValue();
 
-	    Resource.Tooltip tt = Resource.load(resn).layer(Resource.tooltip);
-	    if(k != 0){
-		buf+="\n";
+		Resource.Tooltip tt = Resource.load(resn).layer(Resource.tooltip);
+		names[k] = RichText.render(((tt != null)? tt.t:resn) + ":", 0).img;
+		String buf = "";
+		for (int i = 0; i < 4; i++) {
+		    if (i > 0)
+			buf += ", ";
+		    buf += String.format("$col[%s]{x%.2f}", Tempers.tcolors[i], mults[i]);
+		}
+		vals[k] = RichText.render(buf, 0).img;
+
+		namew = Math.max(namew, names[k].getWidth());
+		valuew = Math.max(valuew, vals[k].getWidth());
+		totalh += names[k].getHeight();
+		k++;
 	    }
-	    k++;
-	    if(tt != null){
-		buf+= tt.t+": ";
-	    } else {
-		buf += resn;
-	    }
-	    for(int i = 0; i < 4; i++) {
-		if(i > 0)
-		    buf+=", ";
-		buf+=String.format("$col[%s]{x%.2f}", Tempers.tcolors[i], mults[i]);
+	    img = TexI.mkbuf(new Coord(namew + 5 + valuew, totalh));
+	    Graphics g = img.getGraphics();
+	    int ch = 0;
+
+	    for(int i = 0; i < names.length; i++) {
+		g.drawImage(names[i], 0, ch, null);
+		g.drawImage(vals[i], namew + 5, ch, null);
+		ch += names[i].getHeight();
 	    }
 	}
-	if(buf.isEmpty()){
-	    return null;
-	} else {
-	    return RichText.render(buf, 0).img ;
-	}
+	return img;
     }
 
     public static class Data implements ItemData.ITipData {
