@@ -715,7 +715,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		showCraftWnd();
 	    }
 	    if (craftwnd != null) {
-		craftwnd.select(res);
+		craftwnd.select(res, true);
 	    }
 	}
     }

@@ -22,6 +22,7 @@ public class CraftWnd extends Window implements DTarget2{
     private static Pagina current = null;
     private ItemData data;
     private Resource resd;
+    private Pagina senduse = null;
 
     public CraftWnd(Coord c, Widget parent) {
 	super(c, WND_SZ.add(0,5), parent, "Craft window");
@@ -57,7 +58,7 @@ public class CraftWnd extends Window implements DTarget2{
 	breadcrumbs = new Breadcrumbs(new Coord(0, -2), new Coord(WND_SZ.x, SZ), this) {
 	    @Override
 	    public void selected(Object data) {
-		select((Pagina) data);
+		select((Pagina) data, false);
 	    }
 	};
 	Pagina selected = current;
@@ -67,8 +68,7 @@ public class CraftWnd extends Window implements DTarget2{
 		selected = CRAFT;
 	    }
 	}
-	select(selected);
-	menu.senduse(selected);
+	select(selected, true);
     }
 
     @Override
@@ -100,20 +100,18 @@ public class CraftWnd extends Window implements DTarget2{
     }
 
 
-    public void select(Resource resource) {
-	select(paginafor(resource));
+    public void select(Resource resource, boolean senduse) {
+	select(paginafor(resource), senduse);
     }
 
-    public void select(Pagina p) {
+    public void select(Pagina p, boolean senduse) {
 	if (!menu.isCrafting(p)){return;}
 	if(box != null){
 	    List<Pagina> children = getPaginaChildren(p, null);
 	    if(children.size() == 0){
 		children = getPaginaChildren(menu.getParent(p), null);
 	    } else {
-		if(makewnd != null){
-		    makewnd.wdgmsg("close");
-		}
+		closemake();
 	    }
 	    Collections.sort(children, MenuGrid.sorter);
 	    if(p != CRAFT){
@@ -123,12 +121,27 @@ public class CraftWnd extends Window implements DTarget2{
 	    box.change(p);
 	    setCurrent(p);
 	}
+	if(senduse){
+	    this.senduse = p;
+	}
+    }
+
+    private void closemake() {
+	if(makewnd != null){
+	    makewnd.wdgmsg("close");
+	}
+	senduse = null;
     }
 
     @Override
     public void cdraw(GOut g) {
 	super.cdraw(g);
 
+	if(senduse != null){
+	    Pagina p = senduse;
+	    closemake();
+	    menu.senduse(p);
+	}
 	drawDescription(g);
     }
 

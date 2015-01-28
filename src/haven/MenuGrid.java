@@ -522,7 +522,7 @@ public class MenuGrid extends Widget {
 	    return;
 	}
 	if(ui.gui.craftwnd != null){
-	    ui.gui.craftwnd.select(r);
+	    ui.gui.craftwnd.select(r, true);
 	}
     }
     
