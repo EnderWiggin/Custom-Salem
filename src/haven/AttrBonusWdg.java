@@ -137,6 +137,8 @@ public class AttrBonusWdg extends Widget {
 	    LinkedList<ItemInfo> list = new LinkedList<ItemInfo>();
 	    list.add(f.build(null, bonuses));
 	    bonusImg = ItemInfo.longtip(list);
+	} else {
+	    bonusImg = null;
 	}
 	int delta = 0;
 	if(bonusImg != null) {
