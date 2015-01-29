@@ -14,6 +14,8 @@ public class Item {
     public Map<String, Integer> attreq;
     public Map<String, Integer> attgive;
     public String content;
+    public Map<String, Integer[]> food_reduce;
+    public Map<String, Integer[]> food_restore;
     public Map<String, Float[]> food;
     public int food_full = 0;
     public int food_uses = 1;
@@ -159,15 +161,12 @@ public class Item {
 	builder.append(';');
     }
 
-    public void setClothing(String difficulty, int slots, String[] profs) {
+    public void setClothing(int slots) {
 	this.cloth_slots = slots;
 	if(slots == 0){return;}
-	String[] ds = difficulty.split(" to ");
-	try{
-	    this.cloth_pmin = 100 - Integer.parseInt(ds[0]);
-	    this.cloth_pmax = 100 - Integer.parseInt(ds[1]);
-	} catch(Exception e){}
-	this.cloth_profs = profs;
+	this.cloth_pmin = 100;
+	this.cloth_pmax = 100;
+	this.cloth_profs = new String[0];
     }
     
     public void setArtifact(String difficulty, String[] profs, Map<String, Integer> bonuses) {
@@ -175,7 +174,7 @@ public class Item {
 	try{
 	    this.art_pmin = 100 - Integer.parseInt(ds[0]);
 	    this.art_pmax = 100 - Integer.parseInt(ds[1]);
-	} catch(Exception e){}
+	} catch(Exception ignored){}
 	this.art_profs = profs;
 	this.art_bonuses = bonuses;
     }

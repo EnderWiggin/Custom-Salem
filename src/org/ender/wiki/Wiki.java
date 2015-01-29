@@ -42,10 +42,13 @@ public class Wiki {
     private static final Pattern PAT_ARGS = Pattern.compile("\\s*\\|\\s*(.*?)\\s*=\\s*([^\\|]*)", Pattern.MULTILINE|Pattern.DOTALL);
     private static final String CONTENT_URL = "action=query&prop=revisions&titles=%s&rvprop=content&format=json";
     private static final String SEARCH_URL = "action=query&list=search&format=json&srprop=snippet&srsearch=%s";
-    
+
     private static final String[] FOOD_ATTRS = new String[]{"Heals", "GluttonMin", "GluttonMax"};
+    private static final String[] GLUTTON_MIN = new String[]{"Min Blood", "Min Phlegm", "Min Yellow Bile", "Min Black Bile"};
+    private static final String[] GLUTTON_MAX = new String[]{"Max Blood", "Max Phlegm", "Max Yellow Bile", "Max Black Bile"};
     
     static private final Map<String, String> imap = new HashMap<String, String>(15);
+    static public final Map<String, String> buffmap = new HashMap<String, String>(21);
     static private final LinkedBlockingQueue<Request> requests = new LinkedBlockingQueue<Request>();
     static private File folder;
     private static long update_date;
@@ -67,34 +70,64 @@ public class Wiki {
 	imap.put("Arts & Crafts", "arts");
 	imap.put("Cloak & Dagger", "cloak");
 	imap.put("Faith & Wisdom", "faith");
-	imap.put("Frontier & Wilderness", "wild");
+	imap.put("Flora & Fauna", "wild");
 	imap.put("Hammer & Nail", "nail");
-	imap.put("Hunting & Gathering", "hung");
+	imap.put("Hunting & Hideworking", "hung");
 	imap.put("Law & Lore", "law");
 	imap.put("Mines & Mountains", "mine");
-	imap.put("Pots & Pans", "pots");
+	imap.put("Herbs & Sprouts", "pots");
 	imap.put("Sparks & Embers", "fire");
 	imap.put("Stocks & Cultivars", "stock");
 	imap.put("Sugar & Spice", "spice");
 	imap.put("Thread & Needle", "thread");
 	imap.put("Natural Philosophy", "natp");
 	imap.put("Perennial Philosophy", "perp");
-	imap.put("uses", "uses");
+	imap.put("Uses", "uses");
+
+	buffmap.put("Bread", "bread");
+	buffmap.put("Vegetables and Greens", "vegfood");
+	buffmap.put("Offal", "offal");
+	buffmap.put("Foraged", "forage");
+	buffmap.put("Poultry", "poultry");
+	buffmap.put("Cabbages", "cabbage");
+	buffmap.put("Candy", "candy");
+	buffmap.put("Pies", "pies");
+	buffmap.put("Cereal", "cereal");
+	buffmap.put("Meat", "meat");
+	buffmap.put("Cookies and Crackers", "cookies");
+	buffmap.put("Berries", "berry");
+	buffmap.put("Flowers and Herbs", "flowerfood");
+	buffmap.put("Seafood", "seafood");
+	buffmap.put("Fishes", "fish");
+	buffmap.put("Game", "game");
+	buffmap.put("Slugs Bugs and Kritters", "slugsnbugs");
+	buffmap.put("Nuts and Seeds", "nut");
+	buffmap.put("Crustacea and Shellfish", "shellfish");
+	buffmap.put("Pumpkins and Gourds", "pumpkin");
+	buffmap.put("Mushrooms", "shroom");
 
 	folder = cfg;
-	if(!folder.exists()){folder.mkdirs();}
+	if(!folder.exists()){
+	    //noinspection ResultOfMethodCallIgnored
+	    folder.mkdirs();
+	}
 
 	for(int i=0; i<workers; i++){
 	    Thread t = new Thread(new Runnable() {
-
 		@Override
 		public void run() {
-		    while(true){
-			try {
-			    load(requests.take());
-			} catch (InterruptedException e) {
-			    e.printStackTrace();
+		    try{
+			//noinspection InfiniteLoopStatement
+			while(true){
+			    try {
+				load(requests.take());
+			    } catch (InterruptedException e) {
+				e.printStackTrace();
+			    }
 			}
+		    } catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("Wiki loader thread has just died!");
 		    }
 		}
 	    }, "Wiki loader "+i);
@@ -185,7 +218,7 @@ public class Wiki {
     private static String do_search(String name) {
 	String content = null;
 	try {
-	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", String.format(SEARCH_URL, name), null);
+	    URI uri = new URI("http", null, "salem-wiki.com/mediawiki", -1, "/api.php", String.format(SEARCH_URL, name), null);
 
 	    URL url = uri.toURL();
 	    String data = Utils.stream2str(url.openStream());
@@ -202,7 +235,7 @@ public class Wiki {
 	    for(int i=0; i<pages.length(); i++){
 		JSONObject page = pages.getJSONObject(i);
 		String title = page.getString("title");
-		//URI link = new URI("http", null, "salemwiki.info", -1, "/index.php/"+title, null, null);
+		//URI link = new URI("http", null, "salem-wiki.com/mediawiki", -1, "/index.php/"+title, null, null);
 		String snip = page.getString("snippet");
 		if(snip.length() >0){snip+="<BR/>";}
 		content += String.format("<B><a href=\"/index.php/%s\">%s</a></B><BR/>%s<BR/>", title, title, snip);
@@ -233,19 +266,17 @@ public class Wiki {
     }
 
     private static void parse(Item item, String method, Map<String, String> args) {
-	if(method.equals("Crafted")){
-	    String reqs = args.get("Objects required");
-	} else if(method.equals("Inspirational")){
+	if(method.equals("Inspirational")){
 	    Map<String, Integer> attrs = new HashMap<String, Integer>();
 	    for(Entry<String, String> e : args.entrySet()){
 		try {
 		    String name = e.getKey();
 		    if(name.equals("inspiration")){continue;}//skip inspiration required, as it is calculated locally
 		    attrs.put(imap.get(name), Integer.parseInt(e.getValue()));
-		} catch (NumberFormatException ex){}
+		} catch (NumberFormatException ignored){}
 	    }
 	    item.attgive = attrs;
-	} else if(method.equals("Food")){
+	} else if(method.contains("Food")){
 	    item_parse_food(item, args);
 	} else if(method.equals("Artifact")) {
 	    String difficulty = null;
@@ -258,53 +289,104 @@ public class Wiki {
 		} else if(key.equals("Difficulty")){
 		    difficulty = entry.getValue();
 		} else {
-		    try{bonuses.put(key, Integer.parseInt(entry.getValue()));}catch(Exception e){};
+		    try{bonuses.put(key, Integer.parseInt(entry.getValue()));}catch(Exception ignored){}
 		}
 	    }
 	    item.setArtifact(difficulty, profs, bonuses);
 	} else if(method.equals("Clothing")) {
 	    item_parse_cloth(item, args);
-	} else {
-	    //System.out.println(String.format("Item '%s': Unknown method '%s', args: %s",item.name, method, args.toString()));
 	}
     }
 
     private static void item_parse_food(Item item, Map<String, String> args) {
 	Map<String, Float[]> food = new HashMap<String, Float[]>(3);
-	for(String key : FOOD_ATTRS){
-	    String arg = args.get(key);
-	    if(arg == null){continue;}
+	String key = "Heals";
+	String arg = args.get(key);
+	if(arg != null) {
 	    String[] svals = arg.split(",");
 	    Float[] vals = new Float[4];
-	    int i=0;
-	    for(String sval : svals){
+	    int i = 0;
+	    for (String sval : svals) {
 		float val = 0;
-		try{
+		try {
 		    val = Float.parseFloat(sval);
-		} catch (NumberFormatException ex){}
+		} catch (NumberFormatException ignored) {
+		}
+		if (i > 3)
+		    System.out.println("Higher? Oo");
 		vals[i] = val;
 		i++;
 	    }
-	    food.put(key,  vals);
+	    food.put(key, vals);
 	}
+	food.put("GluttonMax", parse_glutton(args, GLUTTON_MAX));
+	food.put("GluttonMin", parse_glutton(args, GLUTTON_MIN));
+	Map<String, Integer[]> food_reduce = new HashMap<String, Integer[]>(3);
+	Map<String, Integer[]> food_restore = new HashMap<String, Integer[]>(3);
+	for(int i = 0;i<3;i++)
+	{
+	    String namerestore = args.get("FoodRestore"+(i+1));
+	    String namereduce = args.get("FoodReduce"+(i+1));
+	    if(namerestore.length()>0)
+	    {
+		Integer[] restore = {Integer.parseInt(args.get("%Restore"+(i+1))),Integer.parseInt(args.get("%ChanceRestore"+(i+1)))};
+		food_restore.put(namerestore, restore);
+	    }
+	    if(namereduce.length()>0)
+	    {
+		Integer[] reduce = {Integer.parseInt(args.get("%Reduce"+(i+1))),Integer.parseInt(args.get("%ChanceReduce"+(i+1)))};
+		food_reduce.put(namereduce, reduce);
+	    }
+	}
+	item.food_restore = food_restore;
+	item.food_reduce = food_reduce;
 	try{
-	    item.food_full = Integer.parseInt(args.get("FullAndFedUp"));
-	} catch (NumberFormatException ex){}
+	    item.food_full = parseTime(args.get("Gluttony Time"));
+	} catch (NumberFormatException ignored){}
 	try{
 	    item.food_uses = Integer.parseInt(args.get("Uses"));
-	} catch (NumberFormatException ex){}
+	} catch (NumberFormatException ignored){}
 	item.food = food;
     }
 
+    private static Float[] parse_glutton(Map<String, String> args, String[] keys) {
+	Float[] vals = new Float[4];
+	for(int k=0; k<4; k++){
+	    String key = keys[k];
+	    String arg = args.get(key);
+	    Float val = 0f;
+	    if(arg != null) {
+		try {
+		    val = Float.parseFloat(arg);
+		} catch (NumberFormatException ignored) { }
+		vals[k] = val;
+	    }
+	}
+	return vals;
+    }
+
+    //should return the number of minutes
+    private static Integer parseTime(String time)
+    {
+	int mid = time.indexOf(':');
+	if(mid<0)
+	{
+	    return 0;
+	}
+	else
+	{
+	    Integer hours = Integer.parseInt(time.substring(0, mid));
+	    Integer minutes = Integer.parseInt(time.substring(mid+1));
+	    return hours*60+minutes;
+	}
+    }
+    
     private static void item_parse_cloth(Item item, Map<String, String> args) {
 	if(args == null){ return; }
-	String difficulty = args.containsKey("Difficulty")?args.get("Difficulty"):args.get("difficulty");
 	int slots = 0;
 	String sslots = args.containsKey("Artificer Slots")?args.get("Artificer Slots"):args.get("slots");
-	try{slots = Integer.parseInt(sslots);}catch(Exception e){}
-	String sprofs = args.containsKey("Proficiency Type")?args.get("Proficiency Type"):args.get("profs");
-	String[] profs = sprofs.split(", ");
-	item.setClothing(difficulty, slots, profs);
+	try{slots = Integer.parseInt(sslots);}catch(Exception ignored){}
+	item.setClothing(slots);
     }
 
     private static Map<String, String> getargs(String argsline) {
@@ -321,16 +403,17 @@ public class Wiki {
     }
 
     private static String get_content(String name){
-	String content = null;
+	String content;
+	String data = null;
 	try {
-	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", null, null);
+	    URI uri = new URI("http", null, "www.salem-wiki.com/mediawiki", -1, "/api.php", null, null);
 
 	    URL link = uri.toURL();
 	    HttpURLConnection conn = (HttpURLConnection) link.openConnection();
 	    conn.setRequestMethod("POST");
 	    conn.setDoOutput(true);
 	    conn.setDoInput(true);
-	    String data = String.format(CONTENT_URL, URLEncoder.encode(name, "UTF-8"));
+	    data = String.format(CONTENT_URL, URLEncoder.encode(name, "UTF-8"));
 	    DataOutputStream wr = new DataOutputStream(conn.getOutputStream ());
 	    wr.writeBytes(data);
 	    wr.flush();
@@ -346,7 +429,7 @@ public class Wiki {
 	    }
 	    return content;
 	} catch (JSONException e) {
-	    System.err.println(String.format("Error while parsing '%s':\n%s\nContent:'%s'", name, e.getMessage(), content));
+	    System.err.println(String.format("Error while parsing '%s':\n%s\nData:'%s'", name, e.getMessage(), data));
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (URISyntaxException e) {
@@ -356,9 +439,9 @@ public class Wiki {
     }
 
     private static String parse_wiki(Item item){
-	String content = null;
+	String content;
 	try {
-	    URI uri = new URI("http", null, "salemwiki.info", -1, "/api.php", null, null);
+	    URI uri = new URI("http", null, "salem-wiki.com/mediawiki", -1, "/api.php", null, null);
 
 	    URL link = uri.toURL();
 	    HttpURLConnection conn = (HttpURLConnection) link.openConnection();
@@ -453,7 +536,7 @@ public class Wiki {
 	    Map<String, Integer> art_bonuses = new HashMap<String, Integer>(bonuses.length);
 	    for(String bonus : bonuses){
 		String[] entry = bonus.split("=");
-		try{art_bonuses.put(entry[0], Integer.parseInt(entry[1]));}catch(Exception e){}
+		try{art_bonuses.put(entry[0], Integer.parseInt(entry[1]));}catch(Exception ignored){}
 	    }
 	    item.setArtifact(difficulty, profs, art_bonuses);
 	}
@@ -476,24 +559,42 @@ public class Wiki {
 	    NamedNodeMap attrs = node.getAttributes();
 	    for(String name : FOOD_ATTRS){
 		Node attr = attrs.getNamedItem(name);
-		String svals[] = attr.getNodeValue().split(" ");
-		Float[] vals = new Float[4];
-		for(int j=0; j<4; j++){
-		    try{
-			vals[j] = Float.parseFloat(svals[j]);
-		    }catch (NumberFormatException ex){
-			vals[j] = 0.0f;
+		if(attr != null && attr.getNodeValue()!=null)
+		{
+		    String svals[] = attr.getNodeValue().split(" ");
+		    Float[] vals = new Float[4];
+		    for(int j=0; j<4; j++){
+			try{
+			    vals[j] = Float.parseFloat(svals[j]);
+			}catch (NumberFormatException ex){
+			    vals[j] = 0.0f;
+			}
 		    }
+		    food.put(name, vals);
 		}
-		food.put(name, vals);
 	    }
 	    item.food = food;
+	    Map<String, Integer[]> food_reduce = new HashMap<String, Integer[]>(3);
+	    Map<String, Integer[]> food_restore = new HashMap<String, Integer[]>(3);
+	    for(int i = 0;i<3;i++)
+	    {
+		String namerestore = attrs.getNamedItem("FoodRestore"+(i+1)).getNodeValue();
+		Integer[] restore = {Integer.parseInt(attrs.getNamedItem("%Restore"+(i+1)).getNodeValue()),Integer.parseInt(attrs.getNamedItem("%ChanceRestore"+(i+1)).getNodeValue())};
+		String namereduce = attrs.getNamedItem("FoodReduce"+(i+1)).getNodeValue();
+		Integer[] reduce = {Integer.parseInt(attrs.getNamedItem("%Reduce"+(i+1)).getNodeValue()),Integer.parseInt(attrs.getNamedItem("%ChanceReduce"+(i+1)).getNodeValue())};
+		if(namerestore.length()>0)
+		    food_restore.put(namerestore, restore);
+		if(namereduce.length()>0)
+		    food_reduce.put(namereduce, reduce);
+	    }
+	    item.food_restore = food_restore;
+	    item.food_reduce = food_reduce;
 	    try{
-		item.food_full = Integer.parseInt(attrs.getNamedItem("full").getNodeValue());
-	    } catch (NumberFormatException ex){}
+		item.food_full = parseTime(attrs.getNamedItem("full").getNodeValue());
+	    } catch (NumberFormatException ignored){}
 	    try{
 		item.food_uses = Integer.parseInt(attrs.getNamedItem("uses").getNodeValue());
-	    } catch (NumberFormatException ex){}
+	    } catch (NumberFormatException ignored){}
 	}
     }
 
@@ -548,7 +649,7 @@ public class Wiki {
 	try {
 	    if(date < update_date){return true;}//ignore old cache
 	    //String p = String.format("%s%s", WIKI_URL, name);
-	    URI uri = new URI("http","salemwiki.info","/index.php/"+name, null);
+	    URI uri = new URI("http","salem-wiki.com/mediawiki","/index.php/"+name, null);
 	    URL  url = uri.toURL();
 	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	    conn.setRequestMethod("HEAD");
