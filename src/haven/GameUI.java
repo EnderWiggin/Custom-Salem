@@ -228,6 +228,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    if(ca != null)
 		cap = ca.comp;
 	    wlbl.settext(String.format("Carrying %.2f/%.2f kg", weight / 1000.0, cap / 1000.0));
+	    wlbl.setcolor((weight > cap)?Color.RED:Color.WHITE);
 	}
 
 	private void repack() {
