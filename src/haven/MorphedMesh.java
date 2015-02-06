@@ -30,7 +30,7 @@ import java.util.*;
 import java.nio.*;
 import java.lang.ref.*;
 
-public class MorphedMesh extends FastMesh {
+public class MorphedMesh extends FastMesh implements ResPart {
     private static Map<Morpher.Factory, Collection<MorphedBuf>> bufs = new CacheMap<Morpher.Factory, Collection<MorphedBuf>>(CacheMap.RefType.WEAK);
     
     private static MorphedBuf buf(VertexBuf buf, Morpher.Factory morph) {
@@ -63,7 +63,13 @@ public class MorphedMesh extends FastMesh {
     protected boolean compile() {
 	return(false);
     }
-    
+
+    public int partid() {
+	if(from instanceof ResPart)
+	    return(((ResPart)from).partid());
+	return(-1);
+    }
+
     public String toString() {
 	return("morphed(" + from + ")");
     }

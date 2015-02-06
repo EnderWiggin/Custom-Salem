@@ -342,7 +342,7 @@ public class FastMesh implements FRendered, Disposable {
 	return(true);
     }
     
-    public static class ResourceMesh extends FastMesh {
+    public static class ResourceMesh extends FastMesh implements ResPart {
 	public final int id;
 	public final Resource res;
 	
@@ -351,7 +351,11 @@ public class FastMesh implements FRendered, Disposable {
 	    this.id = info.id;
 	    this.res = info.getres();
 	}
-	
+
+	public int partid() {
+	    return(id);
+	}
+
 	public String toString() {
 	    return("FastMesh(" + res.name + ", " + id + ")");
 	}
