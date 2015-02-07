@@ -370,6 +370,12 @@ public class Glob {
 		} else {
 		    a.update(base, comp);
 		}
+		if(nm.equals("carry")){
+		    GameUI gui = UI.instance.gui;
+		    if(gui != null){
+			gui.uimsg("weight", gui.weight);
+		    }
+		}
 	    }
 	}
 	cattr_lastupdate = System.currentTimeMillis();
