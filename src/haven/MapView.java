@@ -1111,8 +1111,8 @@ public class MapView extends PView implements DTarget, Console.Directory {
     }
 
     private static int getid(Rendered tgt) {
-	if(tgt instanceof FastMesh.ResourceMesh)
-	    return(((FastMesh.ResourceMesh)tgt).id);
+	if(tgt instanceof ResPart)
+	    return(((ResPart)tgt).partid());
 	return(-1);
     }
 
