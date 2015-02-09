@@ -206,6 +206,16 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
 	    if(blnk != null)
 		rl.prepc(blnk.getfx());
 	}
+
+	GobHighlight highlight = getattr(GobHighlight.class);
+	if(highlight != null){
+	    if(highlight.duration > 0) {
+		rl.prepc(highlight.getfx());
+	    } else {
+		delattr(GobHighlight.class);
+	    }
+	}
+
 	Drawable d = getattr(Drawable.class);
 	if(d != null)
 	    d.setup(rl);

@@ -1129,6 +1129,12 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		if(Config.center){mc = mc.div(11).mul(11).add(5, 5);}
 		wdgmsg("click", pc, mc, clickb, ui.modflags());
 	    } else {
+		if(ui.modmeta){
+		    ChatUI.Channel channel = ui.gui.chat.sel;
+		    if(channel != null && channel instanceof ChatUI.EntryChannel){
+			((ChatUI.EntryChannel)channel).send(String.format("$hl[%d]", inf.gob.id));
+		    }
+		}
 		if(inf.ol == null) {
 		    wdgmsg("click", pc, mc, clickb, ui.modflags(), 0, (int)inf.gob.id, inf.gob.rc, 0, getid(inf.r));
 		} else {
