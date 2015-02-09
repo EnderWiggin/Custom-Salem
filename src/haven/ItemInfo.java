@@ -227,7 +227,7 @@ public abstract class ItemInfo {
 	return res;
     }
     
-    static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+)[^%0-9]");
+    static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+\\s*%?)");
     public static String getCount(List<ItemInfo> infos){
 	String res = null;
 	for (ItemInfo info : infos){
@@ -238,7 +238,7 @@ public abstract class ItemInfo {
 		AdHoc ah = (AdHoc) info;
 		try{
 		    Matcher m = count_patt.matcher(ah.str.text);
-		    if(m.find()){
+		    if(m.find() && !ah.str.text.contains("Difficulty")){
 			res = m.group(1);
 		    }
 		}catch(Exception ignored){}
