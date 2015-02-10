@@ -37,6 +37,7 @@ public class WItem extends Widget implements DTarget {
     public static final Resource missing = Resource.load("gfx/invobjs/missing");
     private static final Coord hsz = new Coord(24, 24);//Inventory.sqsz.div(2);
     private static final Color MATCH_COLOR = new Color(96, 255, 255, 128);
+    public static final Color CARAT_COLOR = new Color(192, 160, 0);
     public final GItem item;
     private Tex ltex = null;
     private Tex mask = null;
@@ -231,6 +232,16 @@ public class WItem extends Widget implements DTarget {
 	    return ItemInfo.getCarats(info);
 	}
     };
+
+    public final AttrCache<Tex> carats_tex = new AttrCache<Tex>() {
+	protected Tex find(List<ItemInfo> info) {
+	    float c = carats.get();
+	    if(c > 0){
+		return(new TexI(Utils.outline2(Text.render(String.format("%.2f",c), CARAT_COLOR).img, Color.DARK_GRAY)));
+	    }
+	    return null;
+	}
+    };
     
     public void draw(GOut g) {
 	try {
@@ -242,7 +253,9 @@ public class WItem extends Widget implements DTarget {
 		g.atext(Integer.toString(item.num), tex.sz(), 1, 1);
 	    } else if(itemnum.get() != null) {
 		g.aimage(itemnum.get(), tex.sz(), 1, 1);
-	    } else if(heurnum.get() != null){
+	    } else if(carats_tex.get() != null) {
+		g.aimage(carats_tex.get(), tex.sz(), 1, 1);
+	    } else if(heurnum.get() != null) {
 		g.aimage(heurnum.get(), tex.sz(), 1, 1);
 	    }
 	    if(item.meter > 0) {

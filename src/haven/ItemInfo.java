@@ -281,7 +281,7 @@ public abstract class ItemInfo {
 		AdHoc ah = (AdHoc) info;
 		try{
 		    Matcher m = carats_patt.matcher(ah.str.text);
-		    if(m.find() && !ah.str.text.contains("Difficulty")){
+		    if(m.find()){
 			carats = Float.parseFloat(m.group(1));
 		    }
 		}catch(Exception ignored){}
