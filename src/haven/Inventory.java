@@ -43,6 +43,32 @@ public class Inventory extends Widget implements DTarget {
     public static final Tex sqlite = Resource.loadtex("gfx/hud/inv/sq1");
     public static final Coord sqlo = new Coord(4, 4);
     public static final Tex refl = Resource.loadtex("gfx/hud/invref");
+
+    private static final Comparator<WItem> cmp_asc = new Comparator<WItem>() {
+	@Override
+	public int compare(WItem o1, WItem o2) {
+	    Alchemy a = o1.alch.get();
+	    double q1 = (a==null)?0:a.purity();
+
+	    a = o2.alch.get();
+	    double q2 = (a==null)?0:a.purity();
+
+	    if(q1 == q2){
+		return 0;
+	    } else if(q1 > q2){
+		return 1;
+	    } else {
+		return -1;
+	    }
+	}
+    };
+    private static final Comparator<WItem> cmp_desc = new Comparator<WItem>() {
+	@Override
+	public int compare(WItem o1, WItem o2) {
+	    return cmp_asc.compare(o2, o1);
+	}
+    };
+
     Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
     public int newseq = 0;
@@ -178,38 +204,30 @@ public class Inventory extends Widget implements DTarget {
     
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(msg.equals("transfer-same")){
-	    process(getSame((String) args[0]), "transfer");
+	    process(getSame((String) args[0],(Boolean)args[1]), "transfer");
 	} else if(msg.equals("drop-same")){
-	    process(getSame((String) args[0]), "drop");
+	    process(getSame((String) args[0], (Boolean) args[1]), "drop");
 	} else {
 	    super.wdgmsg(sender, msg, args);
 	}
     }
 
-    private void process(List<GItem> items, String action) {
-	for (GItem item : items){
-	    item.wdgmsg(action, Coord.z);
+    private void process(List<WItem> items, String action) {
+	for (WItem item : items){
+	    item.item.wdgmsg(action, Coord.z);
 	}
     }
 
-    private List<GItem> getSame(String name) {
-	List<GItem> items = new ArrayList<GItem>();
+    private List<WItem> getSame(String name, Boolean ascending) {
+	List<WItem> items = new ArrayList<WItem>();
 	for (Widget wdg = lchild; wdg != null; wdg = wdg.prev) {
 	    if (wdg.visible && wdg instanceof WItem) {
 		if (((WItem) wdg).item.resname().equals(name))
-		    items.add(((WItem) wdg).item);
+		    items.add((WItem) wdg);
 	    }
 	}
+	Collections.sort(items, ascending?cmp_asc:cmp_desc);
 	return items;
     }
     
-    private List<GItem> getAll() {
-	List<GItem> items = new ArrayList<GItem>();
-	for (Widget wdg = lchild; wdg != null; wdg = wdg.prev) {
-	    if (wdg.visible && wdg instanceof WItem) {
-		items.add(((WItem) wdg).item);
-	    }
-	}
-	return items;
-    }
 }
