@@ -47,15 +47,24 @@ public class Inventory extends Widget implements DTarget {
     private static final Comparator<WItem> cmp_asc = new Comparator<WItem>() {
 	@Override
 	public int compare(WItem o1, WItem o2) {
-	    Alchemy a = o1.alch.get();
-	    double q1 = (a==null)?0:a.purity();
+	    float c1 = o1.carats.get();
+	    float c2 = o2.carats.get();
 
-	    a = o2.alch.get();
-	    double q2 = (a==null)?0:a.purity();
+	    if(c1 == c2) {
+		Alchemy a = o1.alch.get();
+		double q1 = (a == null) ? 0 : a.purity();
 
-	    if(q1 == q2){
-		return 0;
-	    } else if(q1 > q2){
+		a = o2.alch.get();
+		double q2 = (a == null) ? 0 : a.purity();
+
+		if(q1 == q2) {
+		    return 0;
+		} else if(q1 > q2) {
+		    return 1;
+		} else {
+		    return -1;
+		}
+	    } else if(c1 > c2){
 		return 1;
 	    } else {
 		return -1;

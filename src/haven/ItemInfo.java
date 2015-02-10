@@ -34,7 +34,7 @@ import java.awt.Graphics;
 
 public abstract class ItemInfo {
     public final Owner owner;
-    
+
     public interface Owner {
 	public Glob glob();
 	public List<ItemInfo> info();
@@ -271,5 +271,22 @@ public abstract class ItemInfo {
 	    }
 	}
 	return null;
+    }
+
+    static final Pattern carats_patt = Pattern.compile("Carats: ([0-9]*\\.?[0-9]+)");
+    public static Float getCarats(List<ItemInfo> infos) {
+	float carats = 0;
+	for (ItemInfo info : infos){
+	    if(info instanceof AdHoc){
+		AdHoc ah = (AdHoc) info;
+		try{
+		    Matcher m = carats_patt.matcher(ah.str.text);
+		    if(m.find() && !ah.str.text.contains("Difficulty")){
+			carats = Float.parseFloat(m.group(1));
+		    }
+		}catch(Exception ignored){}
+	    }
+	}
+	return carats;
     }
 }

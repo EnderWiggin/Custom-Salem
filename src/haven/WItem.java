@@ -225,6 +225,12 @@ public class WItem extends Widget implements DTarget {
 	    return ItemInfo.getContent(info);
 	}
     };
+
+    public final AttrCache<Float> carats = new AttrCache<Float>() {
+	protected Float find(List<ItemInfo> info) {
+	    return ItemInfo.getCarats(info);
+	}
+    };
     
     public void draw(GOut g) {
 	try {
