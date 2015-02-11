@@ -492,23 +492,6 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     public boolean mousedown(Coord c, int button) {
-	
-//	if(cc == null)
-//	    return(false);
-//	MapView mv = getparent(GameUI.class).map;
-//	if(mv == null)
-//	    return(false);
-//	Gob gob = findicongob(c);
-//	if(gob == null)
-//	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags());
-//	else
-//	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags(), 0, (int)gob.id, gob.rc, 0, -1);
-	//return(true);
-	
-	//	if(folded) {
-	//	    return super.mousedown(c, button);
-	//	}
-
 	parent.setfocus(this);
 	raise();
 
@@ -529,6 +512,9 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
 	if (button == 1) {
 	    if (m != null || ui.modctrl) {
+		if(m != null && m.gob != null){
+		    m.gob.setattr(new GobHighlight(m.gob));
+		}
 		mv.wdgmsg("click", Coord.z, mc, button, 0);
 		return true;
 	    }
