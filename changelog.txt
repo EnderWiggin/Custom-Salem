@@ -1,5 +1,17 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 11.02.15:}}
+ * fixed item interactions through invisible widgets
+ * highlight object if you click on its icon on radar
+ 
+$size[14]{$u{Update for 10.02.15:}}
+  * added helmet to equip proxy slots (turn it on in equip options)
+  * added sorting by purity on mass transfers (ALT+SHIFT+Click). By default it goes in descending order. With right-click it transfers in ascending order.
+ 
+$size[14]{$u{Update for 09.02.15:}}
+  * fixed gem carat value displaying
+  * added highlighting of objects by ALT+Click. Properly formatted message will be sent in current chat and all recipients with supporting clients will see this object highlighted.
+ 
 $size[14]{$u{Update for 07.02.15:}}
   * merged with default client
   * fixed carry weight not updating when max carry weight changes (e.g. when you study Packrat)
