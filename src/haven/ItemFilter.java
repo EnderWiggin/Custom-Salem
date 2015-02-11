@@ -9,7 +9,7 @@ import static haven.Tempers.anm;
 import static haven.Tempers.rnm;
 
 public abstract class ItemFilter {
-    private static final Pattern q = Pattern.compile("(?:(?<tag>\\w+):)?(?<text>[\\w\\*]+)(?:(?<sign>[<>=+~])(?<value>\\d+(?:\\.\\d+)?)?(?<opt>[<>=+~])?)?");
+    private static final Pattern q = Pattern.compile("(?:(\\w+):)?([\\w\\*]+)(?:([<>=+~])(\\d+(?:\\.\\d+)?)?([<>=+~])?)?");
     private static final Pattern float_p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
     public boolean matches(List<ItemInfo> info){
 	for(ItemInfo item : info){
@@ -58,11 +58,11 @@ public abstract class ItemFilter {
 	Compound result = new Compound();
 	Matcher m = q.matcher(query);
 	while(m.find()){
-	    String tag = m.group("tag");
-	    String text = m.group("text").toLowerCase();
-	    String sign = m.group("sign");
-	    String value = m.group("value");
-	    String opt = m.group("opt");
+	    String tag = m.group(1);
+	    String text = m.group(2).toLowerCase();
+	    String sign = m.group(3);
+	    String value = m.group(4);
+	    String opt = m.group(5);
 
 	    ItemFilter filter = null;
 	    if(tag == null){
