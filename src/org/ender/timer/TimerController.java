@@ -1,45 +1,43 @@
 package org.ender.timer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import haven.Config;
+import haven.Utils;
+
+import java.io.*;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
 public class TimerController extends Thread {
     private static TimerController instance;
     private static File config;
     public List<Timer> timers;
-    private Properties options;
-    
+    final public Object lock = new Object();
+
     public static TimerController getInstance(){
-	if(instance == null){
-	    instance = new TimerController();
-	}
 	return instance;
     }
     
     public TimerController(){
 	super("Timer Thread");
-	options = new Properties();
-	timers = new ArrayList<Timer>();
+	load();
 	setDaemon(true);
 	start();
     }
     
-    public static void init(File folder, String server){
-	config = new File(folder, String.format("timer_%s.cfg", server));
-	getInstance().load();
+    public static void init(String server){
+	config = Config.getFile(String.format("timer_%s.cfg", server));
+	instance = new TimerController();
     }
     
  // Thread main process
     @Override
     public void run() {
+	//noinspection InfiniteLoopStatement
 	while(true) {
-	    synchronized (timers) {
+	    synchronized (lock) {
 		for(Timer timer : timers){
 		    if((timer.isWorking())&&(timer.update())){
 			timer.stop();
@@ -48,63 +46,54 @@ public class TimerController extends Thread {
 	    }	    
 	    try {
 		sleep(1000);
-	    } catch (InterruptedException e) {}
+	    } catch (InterruptedException ignored) {}
 	}
     }
     
     public void add(Timer timer){
-	synchronized (timers) {
+	synchronized (lock) {
 	    timers.add(timer);
+	    save();
 	}
     }
     
     public void remove(Timer timer){
-	synchronized (timers) {
+	synchronized (lock) {
 	    timers.remove(timer);
 	}
     }
 
-    public void load(){
-	synchronized(options){
-	    try {
-		options.load(new FileInputStream(config));
-		synchronized (timers){
-		    timers.clear();
-		    for(Object key : options.keySet()){
-			String str = key.toString();
-			if(str.indexOf("Name")>0){
-			    continue;
-			}
-			String tmp[] = options.getProperty(str).split(",");
-			try{
-			    long start = Long.parseLong(tmp[0]);
-			    long time = Long.parseLong(tmp[1]);
-			    String name = options.getProperty(str+"Name");
-			    new Timer(start, time, name);
-			} catch(Exception e){e.printStackTrace();}
-		    }
-		}
-	    } catch (FileNotFoundException e) {
-	    } catch (IOException e) {
-	    }
+    private void load(){
+	try {
+	    Gson gson = new GsonBuilder().create();
+	    InputStream is = new FileInputStream(config);
+	    timers = gson.fromJson(Utils.stream2str(is), new TypeToken<List<Timer>>(){}.getType());
+	} catch (Exception e) {
+	    timers = new LinkedList<Timer>();
 	}
     }
 
     public void save(){
-	int i=0;
-	synchronized(options){
-	    options.clear();
-	    synchronized (timers){
-		for (Timer timer : timers){
-		    options.setProperty("Timer"+i, String.format("%d,%d",timer.getStart(), timer.getTime()));
-		    options.setProperty("Timer"+i+"Name", timer.getName());
-		    i++;
-		}
-	    }
+	Gson gson = new GsonBuilder().create();
+	String data = gson.toJson(timers);
+	boolean exists = config.exists();
+	if(!exists){
 	    try {
-		options.store(new FileOutputStream(config), "Timers config");
-	    } catch (FileNotFoundException e) {
-	    } catch (IOException e) {
+		//noinspection ResultOfMethodCallIgnored
+		new File(config.getParent()).mkdirs();
+		exists = config.createNewFile();
+	    } catch (IOException ignored) {}
+	}
+	if(exists && config.canWrite()){
+	    PrintWriter out = null;
+	    try {
+		out = new PrintWriter(config);
+		out.print(data);
+	    } catch (FileNotFoundException ignored) {
+	    } finally {
+		if (out != null) {
+		    out.close();
+		}
 	    }
 	}
     }

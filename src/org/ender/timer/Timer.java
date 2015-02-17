@@ -7,6 +7,10 @@ import haven.Window;
 
 
 public class Timer {
+    public void setDuration(long duration) {
+	this.duration = duration;
+    }
+
     public interface  Callback {
 	public void run(Timer timer);
     }
@@ -17,30 +21,21 @@ public class Timer {
     public static long local;
     
     private long start;
-    private long time;
+    private long duration;
     private String name;
-    private long mseconds;
-    public Callback updcallback;
-    
-    public Timer(long start, long time, String name){
-	this.start = start;
-	this.time = time;
-	this.name = name;
-	TimerController.getInstance().add(this);
-    }
-    
-    public Timer(long time, String name){
-	this(0, time, name);
-    }
-    
+    transient private long remaining;
+    transient public Callback updater;
+
+    public Timer(){}
+
     public boolean isWorking(){
 	return start != 0;
     }
     
     public void stop(){
 	start = 0;
-	if(updcallback != null){
-	    updcallback.run(this);
+	if(updater != null){
+	    updater.run(this);
 	}
 	TimerController.getInstance().save();
     }
@@ -52,11 +47,11 @@ public class Timer {
     
     public synchronized boolean update(){
 	long now = System.currentTimeMillis();
-	mseconds = (time - now + local - (server - start)/SERVER_RATIO);
-	if(mseconds <= 0){
+	remaining = (duration - now + local - (server - start)/SERVER_RATIO);
+	if(remaining <= 0){
 	    Window wnd = new Window(new Coord(250,100), Coord.z, UI.instance.root, name);
 	    String str;
-	    if(mseconds < -1500){
+	    if(remaining < -1500){
 		str = String.format("%s elapsed since timer named \"%s\"  finished it's work", toString(), name);
 	    } else {
 		str = String.format("Timer named \"%s\" just finished it's work", name);
@@ -66,8 +61,8 @@ public class Timer {
 	    wnd.pack();
 	    return true;
 	}
-	if(updcallback != null){
-	    updcallback.run(this);
+	if(updater != null){
+	    updater.run(this);
 	}
 	return false;
     }
@@ -88,14 +83,14 @@ public class Timer {
         this.name = name;
     }
 
-    public synchronized long getTime()
+    public synchronized long getDuration()
     {
-	return time;
+	return duration;
     }
 
     @Override
     public String toString() {
-	long t = Math.abs(isWorking()?mseconds:time)/1000;
+	long t = Math.abs(isWorking()? remaining : duration)/1000;
 	int h = (int) (t/3600);
 	int m = (int) ((t%3600)/60);
 	int s = (int) (t%60);
@@ -104,7 +99,7 @@ public class Timer {
     
     public void destroy(){
 	TimerController.getInstance().remove(this);
-	updcallback = null;
+	updater = null;
     }
     
 }

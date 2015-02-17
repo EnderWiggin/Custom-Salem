@@ -14,7 +14,7 @@ public class TimerWdg extends Widget {
 	super(c, bg.sz(), parent);
 
 	this.timer = timer;
-	timer.updcallback =  new Timer.Callback() {
+	timer.updater =  new Timer.Callback() {
 	    
 	    @Override
 	    public void run(Timer timer) {
@@ -42,10 +42,11 @@ public class TimerWdg extends Widget {
     @Override
     public void destroy() {
 	unlink();
-	if(parent instanceof TimerPanel){
-	    ((TimerPanel) parent).pack();
+	Window wnd = getparent(Window.class);
+	if(wnd != null){
+	    wnd.pack();
 	}
-	timer.updcallback = null;
+	timer.updater = null;
 	timer = null;
 	super.destroy();
     }

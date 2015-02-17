@@ -21,7 +21,7 @@ public class TimerPanel extends Window {
 	justclose = true;
 	btnnew = new Button(Coord.z, 100, this, "Add timer");
 	
-	synchronized (TimerController.getInstance().timers){
+	synchronized (TimerController.getInstance().lock){
 	    for(Timer timer : TimerController.getInstance().timers){
 		new TimerWdg(Coord.z, this, timer);
 	    }
@@ -32,7 +32,7 @@ public class TimerPanel extends Window {
     @Override
     public void pack() {
 	int n, i=0, h = 0;
-	synchronized (TimerController.getInstance().timers){
+	synchronized (TimerController.getInstance().lock){
 	    n = TimerController.getInstance().timers.size();
 	}
 	n = (int) Math.ceil(Math.sqrt((double)n/3));
@@ -92,8 +92,10 @@ public class TimerPanel extends Window {
 		    time += Integer.parseInt(seconds.text);
 		    time += Integer.parseInt(minutes.text)*60;
 		    time += Integer.parseInt(hours.text)*3600;
-		    Timer timer = new Timer(1000*time, name.text);
-		    TimerController.getInstance().save();
+		    Timer timer = new Timer();
+		    timer.setDuration(1000*time);
+		    timer.setName(name.text);
+		    TimerController.getInstance().add(timer);
 		    new TimerWdg(Coord.z, panel, timer);
 		    panel.pack();
 		    ui.destroy(this);
