@@ -131,12 +131,11 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		    return null;
 		}
 		BufferedImage tex = tileimg(t, texes);
-		if(tex != null){
-		    buf.setRGB(c.x, c.y, tex.getRGB(Utils.floormod(c.x, tex.getWidth()),
-			    Utils.floormod(c.y, tex.getHeight())));
-		} else {
-		    return null;
+		int rgb = 0xffff33ff;
+		if(tex != null) {
+		    rgb = tex.getRGB(Utils.floormod(c.x, tex.getWidth()), Utils.floormod(c.y, tex.getHeight()));
 		}
+		buf.setRGB(c.x, c.y, rgb);
 
 		try {
 		    if((m.gettile(c2.add(-1, 0)) > t) ||
