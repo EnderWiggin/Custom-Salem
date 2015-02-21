@@ -27,7 +27,7 @@
 package haven;
 
 public class ResDrawable extends Drawable {
-    final Indir<Resource> res;
+    final public  Indir<Resource> res;
     Message sdt;
     Sprite spr = null;
     int delay = 0;
@@ -54,8 +54,8 @@ public class ResDrawable extends Drawable {
 
 	String name = res.get().name;
 	if(Config.item_radius.containsKey(name)){
-	    float size = Config.item_radius.get(name);
-	    radius = new Gob.Overlay(new ColoredRadius(gob, size));
+	    ColoredRadius.Cfg cfg = Config.item_radius.get(name);
+	    radius = new Gob.Overlay(new ColoredRadius(gob, cfg));
 	}
     }
 	

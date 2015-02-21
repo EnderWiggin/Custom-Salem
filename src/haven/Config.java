@@ -100,8 +100,8 @@ public class Config {
     public static boolean show_contents_icons = Utils.getprefb("show_contents_icons", false);
     public static Map<String, String> contents_icons;
     public static boolean menugrid_resets = Utils.getprefb("menugrid_resets", false);
-    public static boolean show_radius = true;
-    public static Map<String, Float> item_radius;
+    public static boolean show_radius = Utils.getprefb("show_radius", false);
+    public static Map<String, ColoredRadius.Cfg> item_radius;
 
     static {
 	String p;
@@ -159,13 +159,18 @@ public class Config {
 	}
     }
 
+    public static void toggleRadius(){
+	show_radius = !show_radius;
+	Utils.setprefb("show_radius", show_radius);
+    }
+
     private static void loadItemRadius() {
 	InputStream in = Config.class.getResourceAsStream("/item_radius.json");
 	try {
 	    try {
 		if (in != null) {
 		    Gson gson = new Gson();
-		    Type collectionType = new TypeToken<HashMap<String, Float>>(){}.getType();
+		    Type collectionType = new TypeToken<HashMap<String, ColoredRadius.Cfg>>(){}.getType();
 		    String json = Utils.stream2str(in);
 		    item_radius = gson.fromJson(json, collectionType);
 		}

@@ -8,16 +8,57 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 public class ColoredRadius extends Sprite {
-    static final GLState smat = new ColState(new Color(13, 186, 192, 128));
-    static final GLState emat = new ColState(new Color(255, 251, 86));
     final VertexArray posa;
     final NormalArray nrma;
     final ShortBuffer sidx;
     final ShortBuffer eidx;
     private Coord lc;
+    private GLState smat;
+    private GLState emat;
 
-    public ColoredRadius(Owner owner, float r) {
+    public static class Cfg {
+	static final GLState defsmat = new ColState(new Color(255, 255, 255, 128));
+	static final GLState defemat = new ColState(new Color(99, 96, 98));
+
+	public String scol, ecol;
+	public float radius;
+
+	public GLState smat(){
+	    Color c = str2color(scol);
+	    if(c == null){
+		return defsmat;
+	    }
+	    return new ColState(c);
+	}
+
+	public GLState emat(){
+	    Color c = str2color(ecol);
+	    if(c == null){
+		return defemat;
+	    }
+	    return new ColState(c);
+	}
+
+	private static Color str2color(String val) {
+	    Color c = null;
+	    if (val != null) {
+		try {
+		    int col = (int) Long.parseLong(val, 16);
+		    boolean hasAlpha = (0xff000000 & col) != 0;
+		    c = new Color(col, hasAlpha);
+		} catch (Exception ignored) {}
+	    }
+	    return c;
+	}
+    }
+
+    public ColoredRadius(Owner owner, Cfg cfg) {
 	super(owner, null);
+
+	smat = cfg.smat();
+	emat = cfg.emat();
+	float r = cfg.radius;
+
 	int sections = Math.max(24, (int)(2*Math.PI * (double)r / 11.0D));
 	FloatBuffer var6 = Utils.mkfbuf(sections * 3 * 2);
 	FloatBuffer var7 = Utils.mkfbuf(sections * 3 * 2);
