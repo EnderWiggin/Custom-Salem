@@ -22,7 +22,7 @@ public class AttrBonusWdg extends Widget {
 	    "Feral defence",
 	    "Piercing defence",
 	    "Common combat defence",
-	    "Culinary",
+	    "Feasting",
 	    "Mining",
 	    "Soil digging",
 	    "Weaving",
