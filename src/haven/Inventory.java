@@ -80,12 +80,16 @@ public class Inventory extends Widget implements DTarget {
 
     Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
+    long changed = 0;
     public int newseq = 0;
 
     @RName("inv")
     public static class $_ implements Factory {
 	public Widget create(Coord c, Widget parent, Object[] args) {
-	    return(new Inventory(c, (Coord)args[0], parent));
+	    Inventory inventory = new Inventory(c, (Coord) args[0], parent);
+	    inventory.show(false);
+	    new ListInventory(Coord.z, new Coord(ListInventory.item_sz.x+20, ListInventory.item_sz.y*5+20), inventory);
+	    return inventory;
 	}
     }
 
@@ -150,25 +154,6 @@ public class Inventory extends Widget implements DTarget {
 	g.image(sqlite, c);
     }
 
-    @Override
-    public boolean mousedown(Coord c, int button) {
-//	if(button == 2){
-//	    int i = 0;
-//	    Coord ct = new Coord();
-//	    List<GItem> items = getAll();
-//	    Collections.sort(items, GItem.comp);
-//	    for(GItem item : items){
-//		item.wdgmsg("take", Coord.z);
-//		ct.x = i%isz.x;
-//		ct.y = i/isz.x;
-//		wdgmsg("drop", ct);
-//		i++;
-//	    }
-//	    return true;
-//	}
-	return super.mousedown(c, button);
-    }
-
     public boolean mousewheel(Coord c, int amount) {
 	if(ui.modshift) {
 	    wdgmsg("xfer", amount);
@@ -183,6 +168,7 @@ public class Inventory extends Widget implements DTarget {
 	    GItem i = (GItem)ret;
 	    wmap.put(i, new WItem(sqoff(c), this, i));
 	    newseq++;
+	    changed = System.currentTimeMillis();
 	}
 	return(ret);
     }
@@ -192,6 +178,7 @@ public class Inventory extends Widget implements DTarget {
 	if(w instanceof GItem) {
 	    GItem i = (GItem)w;
 	    ui.destroy(wmap.remove(i));
+	    changed = System.currentTimeMillis();
 	}
     }
 
