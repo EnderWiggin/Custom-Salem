@@ -803,6 +803,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
     }
 
     private boolean camload = false;
+    private Loading lastload = null;
     public void draw(GOut g) {
 	glob.map.sendreqs();
 	if((olftimer != 0) && (olftimer < System.currentTimeMillis()))
@@ -818,6 +819,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    glob.map.reqarea(cc.div(tilesz).sub(MCache.cutsz.mul(view + 1)),
 			     cc.div(tilesz).add(MCache.cutsz.mul(view + 1)));
 	} catch(Loading e) {
+	    lastload = e;
 	    String text = "Loading...";
 	    g.chcolor(Color.BLACK);
 	    g.frect(Coord.z, sz);
@@ -1167,7 +1169,15 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		    camera = Utils.construct(cc.getConstructor(MapView.class), MapView.this);
 		}
 	    });
-    }
+	cmdmap.put("whyload", new Console.Command() {
+		public void run(Console cons, String[] args) throws Exception {
+		    Loading l = lastload;
+		    if(l == null)
+			throw(new Exception("Not loading"));
+		    l.printStackTrace(cons.out);
+		}
+	    });
+}
     public Map<String, Console.Command> findcmds() {
 	return(cmdmap);
     }
