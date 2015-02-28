@@ -117,6 +117,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
 	syslog = new ChatUI.Log(chat, "System");
+	syslog.cbtn.visible = false;
 	ui.cons.out = new java.io.PrintWriter(new java.io.Writer() {
 		StringBuilder buf = new StringBuilder();
 		
