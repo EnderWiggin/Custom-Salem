@@ -248,6 +248,7 @@ public class ChatUI extends Widget {
 		    sb.val = sb.max;
 	    }
 	    cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+	}
 	
 	public void notify(Message msg) {
 	    getparent(ChatUI.class).notify(this, msg);
@@ -548,6 +549,7 @@ public class ChatUI extends Widget {
 		super.wdgmsg(sender, msg, args);
 	    }
 	}
+	
 
 	public abstract String name();
     }
