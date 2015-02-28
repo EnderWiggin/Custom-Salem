@@ -65,6 +65,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public Indir<Resource> lblk, dblk;
     public Belt beltwdg;
     public String polowner;
+    public int weight;
 
     public abstract class Belt extends Widget {
 	public Belt(Coord c, Coord sz, Widget parent) {
@@ -200,17 +201,35 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public static class InvWindow extends Hidewnd {
 	private final Map<Inventory, String> names = new HashMap<Inventory, String>();
 	private Label[] labels = new Label[0];
+	private final GameUI wui;
+	private final Label wlbl;
 
 	@RName("invwnd")
 	public static class $_ implements Factory {
 	    public Widget create(Coord c, Widget parent, Object[] args) {
 		String cap = (String)args[0];
-		return(new InvWindow(c, new Coord(100, 100), parent, cap));
+		return(new InvWindow(c, new Coord(100, 100), parent, cap, null));
 	    }
 	}
 
-	public InvWindow(Coord c, Coord sz, Widget parent, String cap) {
+	public InvWindow(Coord c, Coord sz, Widget parent, String cap, GameUI wui) {
 	    super(c, sz, parent, cap);
+	    if((this.wui = wui) != null) {
+		wlbl = new Label(Coord.z, this, "");
+		updweight();
+	    } else {
+		wlbl = null;
+	    }
+	}
+
+	private void updweight() {
+	    int weight = wui.weight;
+	    int cap = 25000;
+	    Glob.CAttr ca = ui.sess.glob.cattr.get("carry");
+	    if(ca != null)
+		cap = ca.comp;
+	    wlbl.settext(String.format("Carrying %.2f/%.2f kg", weight / 1000.0, cap / 1000.0));
+	    wlbl.setcolor((weight > cap)?Color.RED:Color.WHITE);
 	}
 
 	private void repack() {
@@ -255,6 +274,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		y += mh + 5;
 		n++;
 	    }
+	    if(wlbl != null)
+		wlbl.c = new Coord(0, y);
 	    this.labels = nl;
 	    pack();
 	}
@@ -277,6 +298,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		names.remove(inv);
 		repack();
 	    }
+	}
+
+	public void cresize(Widget w) {
+	    if((w instanceof Inventory) && names.containsKey(w))
+		repack();
 	}
     }
 
@@ -308,7 +334,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	} else if(place == "inv") {
 	    String nm = (pargs.length > 1)?((String)pargs[1]):null;
 	    if(invwnd == null) {
-		invwnd = new InvWindow(new Coord(100, 100), Coord.z, this, "Inventory");
+		invwnd = new InvWindow(new Coord(100, 100), Coord.z, this, "Inventory", this);
 		invwnd.hide();
 	    }
 	    if(nm == null) {
@@ -588,6 +614,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		help = new HelpWnd(sz.div(2).sub(150, 200), this, res);
 	    else
 		help.res = res;
+	} else if(msg == "weight") {
+	    weight = (Integer)args[0];
+	    if(invwnd != null)
+		invwnd.updweight();
 	} else {
 	    super.uimsg(msg, args);
 	}

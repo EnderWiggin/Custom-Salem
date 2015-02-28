@@ -26,26 +26,6 @@
 
 package haven;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-
-public class FoodInfo extends ItemInfo.Tip {
-    public final int[] tempers;
-    
-    public FoodInfo(Owner owner, int[] tempers) {
-	super(owner);
-	this.tempers = tempers;
-    }
-    
-    public BufferedImage longtip() {
-	StringBuilder buf = new StringBuilder();
-	buf.append("Heals: ");
-	for(int i = 0; i < 4; i++) {
-	    if(i > 0)
-		buf.append(", ");
-	    buf.append(String.format("$col[%s]{%s}", Tempers.tcolors[i], Utils.fpformat(tempers[i], 3, 1)));
-	}
-	return(RichText.render(buf.toString(), 0).img);
-    }
+public interface ResPart {
+    public int partid();
 }
