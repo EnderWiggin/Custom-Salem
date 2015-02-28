@@ -28,6 +28,7 @@ package haven;
 
 import java.util.*;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextHitInfo;
@@ -39,8 +40,8 @@ import java.io.IOException;
 import java.awt.datatransfer.*;
 
 public class ChatUI extends Widget {
-    public static final RichText.Foundry fnd = new RichText.Foundry(new ChatParser(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10, TextAttribute.FOREGROUND, Color.BLACK));
-    public static final Text.Foundry qfnd = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12), new java.awt.Color(192, 255, 192));
+    public static final RichText.Foundry fnd = new RichText.Foundry(new ChatParser(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 12, TextAttribute.FOREGROUND, Color.BLACK));
+    public static final Text.Foundry qfnd = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 14), new Color(192, 255, 192));
     public static final int selw = 100;
     public Channel sel = null;
     private final Selector chansel;
@@ -124,6 +125,13 @@ public class ChatUI extends Widget {
     public static abstract class Channel extends Widget {
 	public final List<Message> msgs = new LinkedList<Message>();
 	private final Scrollbar sb;
+	protected boolean read = true;
+
+	@Override
+	    public void show(){
+	    super.show();
+	    read = true;
+	}
 	
 	public static abstract class Message {
 	    public final long time = System.currentTimeMillis();
@@ -713,6 +721,10 @@ public class ChatUI extends Widget {
 		    if(notify)
 			notify(cmsg);
 		}
+
+		if(!visible)
+		    read = false;
+
 	    } else {
 		super.uimsg(msg, args);
 	    }
@@ -746,6 +758,10 @@ public class ChatUI extends Widget {
 		    append(cmsg);
 		    notify(cmsg);
 		}
+
+		if(!visible)
+		    read = false;
+
 	    } else {
 		super.uimsg(msg, args);
 	    }
@@ -780,9 +796,14 @@ public class ChatUI extends Widget {
 		    Message cmsg = new InMessage(line, iw());
 		    append(cmsg);
 		    notify(cmsg);
+
+		    if(!visible)
+			read = false;
+
 		} else if(t.equals("out")) {
 		    append(new OutMessage(line, iw()));
 		}
+
 	    } else if(msg == "err") {
 		String err = (String)args[0];
 		Message cmsg = new SimpleMessage(err, Color.RED, iw());
@@ -836,16 +857,19 @@ public class ChatUI extends Widget {
     }
 
     private class Selector extends Widget {
-	public final Text.Foundry nf = new Text.Foundry("SansSerif", 10);
+	public final Text.Foundry nf = new Text.Foundry("SansSerif", 12);
 	private final List<DarkChannel> chls = new ArrayList<DarkChannel>();
 	private int s = 0;
+	public final Text.Foundry nfu = new Text.Foundry("SansSerif", 14, Font.BOLD);
 	
 	private class DarkChannel {
 	    public final Channel chan;
 	    public Text rname;
+	    public boolean rread;
 	    
 	    private DarkChannel(Channel chan) {
 		this.chan = chan;
+		this.rread = false;
 	    }
 	}
 	
@@ -882,8 +906,16 @@ public class ChatUI extends Widget {
 			g.frect(new Coord(0, y), new Coord(sz.x, 19));
 		    }
 		    g.chcolor(255, 255, 255, 255);
-		    if((ch.rname == null) || !ch.rname.text.equals(ch.chan.name()))
-			ch.rname = nf.render(ch.chan.name());
+
+		    if((ch.rname == NULL) || !ch.rname.text.equals(ch.chan.name()) || ch.read != ch.chan.read) {
+			ch.rread = ch.chan.read;
+			if(ch.rread){
+			    ch.rname = nf.render(ch.chan.name());
+			} else {
+			    ch.rname = nfu.render(ch.chan.name());
+			}
+		    }
+
 		    g.aimage(ch.rname.tex(), new Coord(sz.x / 2, y + 10), 0.5, 0.5);
 		    g.line(new Coord(5, y + 19), new Coord(sz.x - 5, y + 19), 1);
 		    y += 20;
