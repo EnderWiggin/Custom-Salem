@@ -24,6 +24,7 @@
  *  Boston, MA 02111-1307 USA
  */
 
+
 package haven;
 
 import static haven.Window.cbtni;
@@ -170,8 +171,7 @@ public class ChatUI extends Widget {
 	    super(c, sz, parent);
 	    sb = new Scrollbar(new Coord(sz.x, 0), ih(), this, 0, -ih());
 	    cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
-	    cbtn.recthit = true;
-	    ctbn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+	    cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
 	}
 	
 	public Channel(Widget parent) {
@@ -542,7 +542,7 @@ public class ChatUI extends Widget {
 	    }
 	}
 
-	public void wdgmsg(Widget sender, string msg, Object... args){
+	public void wdgmsg(Widget sender, String msg, Object... args){
 	    if(sender == cbtn){
 		wdgmsg("close");
 	    } else {
@@ -922,7 +922,7 @@ public class ChatUI extends Widget {
 		    }
 		    g.chcolor(255, 255, 255, 255);
 
-		    if((ch.rname == NULL) || !ch.rname.text.equals(ch.chan.name()) || ch.read != ch.chan.read) {
+		    if((ch.rname == null) || !ch.rname.text.equals(ch.chan.name()) || ch.rread != ch.chan.read) {
 			ch.rread = ch.chan.read;
 			if(ch.rread){
 			    ch.rname = nf.render(ch.chan.name());
