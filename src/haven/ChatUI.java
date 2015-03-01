@@ -167,18 +167,21 @@ public class ChatUI extends Widget {
 	    }
 	}
 
-	public Channel(Coord c, Coord sz, Widget parent) {
+	public Channel(Coord c, Coord sz, Widget parent, boolean closeable) {
 	    super(c, sz, parent);
 	    sb = new Scrollbar(new Coord(sz.x, 0), ih(), this, 0, -ih());
-	    cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
-	    cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+
+	    if(closeable){
+		cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
+		cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+	    }
 	}
 	
-	public Channel(Widget parent) {
-	    this(new Coord(selw, 0), parent.sz.sub(selw, 0), parent);
+	public Channel(Widget parent, boolean closeable) {
+	    this(new Coord(selw, 0), parent.sz.sub(selw, 0), parent, closeable);
 	}
 	
-	public void append(Message msg) {
+	public void append(Message msg, boolean attn) {
 	    synchronized(msgs) {
 		msgs.add(msg);
 		int y = 0;
@@ -188,11 +191,15 @@ public class ChatUI extends Widget {
 		sb.max = y - ih();
 		if(b)
 		    sb.val = sb.max;
+		if(attn){
+		    if(!visible)
+			read = false;
+		}
 	    }
 	}
 
 	public void append(String line, Color col) {
-	    append(new SimpleMessage(line, col, iw()));
+	    append(new SimpleMessage(line, col, iw()), false);
 	}
 	
 	public int iw() {
@@ -247,7 +254,9 @@ public class ChatUI extends Widget {
 		if(b)
 		    sb.val = sb.max;
 	    }
-	    cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+	    if(cbtn != null){
+		cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+	    }
 	}
 	
 	public void notify(Message msg) {
@@ -558,7 +567,7 @@ public class ChatUI extends Widget {
 	private final String name;
 	
 	public Log(Widget parent, String name) {
-	    super(parent);
+	    super(parent, false);
 	    this.name = name;
 	}
 	
@@ -572,7 +581,7 @@ public class ChatUI extends Widget {
 	private String hcurrent;
 	
 	public EntryChannel(Widget parent) {
-	    super(parent);
+	    super(parent, true);
 	    setfocusctl(true);
 	    this.in = new TextEntry(new Coord(0, sz.y - 20), new Coord(sz.x, 20), this, "") {
 		    public void activate(String text) {
@@ -639,7 +648,7 @@ public class ChatUI extends Widget {
 		if(col == null) col = Color.WHITE;
 		boolean notify = (args.length > 2)?(((Integer)args[2]) != 0):false;
 		Message cmsg = new SimpleMessage(line, col, iw());
-		append(cmsg);
+		append(cmsg, false);
 		if(notify)
 		    notify(cmsg);
 	    } else {
@@ -729,16 +738,13 @@ public class ChatUI extends Widget {
 		Integer from = (Integer)args[0];
 		String line = (String)args[1];
 		if(from == null) {
-		    append(new MyMessage(line, iw()));
+		    append(new MyMessage(line, iw()), false);
 		} else {
 		    Message cmsg = new NamedMessage(from, line, fromcolor(from), iw());
-		    append(cmsg);
+		    append(cmsg, true);
 		    if(notify)
 			notify(cmsg);
 		}
-
-		if(!visible)
-		    read = false;
 
 	    } else {
 		super.uimsg(msg, args);
@@ -767,15 +773,12 @@ public class ChatUI extends Widget {
 			col = pm.col;
 		}
 		if(from == null) {
-		    append(new MyMessage(line, iw()));
+		    append(new MyMessage(line, iw()), false);
 		} else {
 		    Message cmsg = new NamedMessage(from, line, col, iw());
-		    append(cmsg);
+		    append(cmsg, true);
 		    notify(cmsg);
 		}
-
-		if(!visible)
-		    read = false;
 
 	    } else {
 		super.uimsg(msg, args);
@@ -809,20 +812,16 @@ public class ChatUI extends Widget {
 		String line = (String)args[1];
 		if(t.equals("in")) {
 		    Message cmsg = new InMessage(line, iw());
-		    append(cmsg);
+		    append(cmsg, true);
 		    notify(cmsg);
-
-		    if(!visible)
-			read = false;
-
 		} else if(t.equals("out")) {
-		    append(new OutMessage(line, iw()));
+		    append(new OutMessage(line, iw()), false);
 		}
 
 	    } else if(msg == "err") {
 		String err = (String)args[0];
 		Message cmsg = new SimpleMessage(err, Color.RED, iw());
-		append(cmsg);
+		append(cmsg, false);
 		notify(cmsg);
 	    } else {
 		super.uimsg(msg, args);
