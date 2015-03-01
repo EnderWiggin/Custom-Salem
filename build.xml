@@ -72,9 +72,9 @@
   </target>
   
   <target name="res-jar" depends="build-env" unless="has-res-jar">
-    <get src="http://plymouth.seatribe.se/java/salem-res.jar" dest="lib/salem-res.jar"
+    <get src="http://game.salemthegame.com/java/salem-res.jar" dest="lib/salem-res.jar"
 	 usetimestamp="true" />
-    <get src="http://plymouth.seatribe.se/java/builtin-res.jar" dest="lib/builtin-res.jar"
+    <get src="http://game.salemthegame.com/java/builtin-res.jar" dest="lib/builtin-res.jar"
 	 usetimestamp="true" />
   </target>
   
