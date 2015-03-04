@@ -26,13 +26,13 @@
 
 package haven;
 
-import java.awt.Color;
-
 public class ResDrawable extends Drawable {
-    final Indir<Resource> res;
+    final public  Indir<Resource> res;
     Message sdt;
     Sprite spr = null;
     int delay = 0;
+    boolean show_radius = false;
+    Gob.Overlay radius;
 	
     public ResDrawable(Gob gob, Indir<Resource> res, Message sdt) {
 	super(gob);
@@ -40,7 +40,7 @@ public class ResDrawable extends Drawable {
 	this.sdt = sdt;
 	try {
 	    init();
-	} catch(Loading e) {}
+	} catch(Loading ignored) {}
     }
 	
     public ResDrawable(Gob gob, Resource res) {
@@ -51,6 +51,12 @@ public class ResDrawable extends Drawable {
 	if(spr != null)
 	    return;
 	spr = Sprite.create(gob, res.get(), sdt.clone());
+
+	String name = res.get().name;
+	if(Config.item_radius.containsKey(name)){
+	    ColoredRadius.Cfg cfg = Config.item_radius.get(name);
+	    radius = new Gob.Overlay(new ColoredRadius(gob, cfg));
+	}
     }
 	
     public void setup(RenderList rl) {
@@ -59,9 +65,20 @@ public class ResDrawable extends Drawable {
 	} catch(Loading e) {
 	    return;
 	}
+	checkRadius();
 	spr.setup(rl);
     }
-	
+
+    private void checkRadius() {
+	if(radius != null && show_radius != Config.show_radius){
+	    show_radius = Config.show_radius;
+	    gob.ols.remove(radius);
+	    if(show_radius){
+		gob.ols.add(radius);
+	    }
+	}
+    }
+
     public void ctick(int dt) {
 	if(spr == null) {
 	    delay += dt;

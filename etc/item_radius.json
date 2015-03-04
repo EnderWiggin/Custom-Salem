@@ -1,0 +1,16 @@
+{
+  "gfx/terobjs/minesupport": {
+	"radius": 100,
+	"scol"  : "8866BB66"
+  },
+  "gfx/terobjs/torchpost"  : {
+	"radius": 250,
+	"scol"  : "88ff2233",
+	"ecol"  : "ccbb22"
+  },
+  "gfx/terobjs/brazier"    : {
+	"radius": 121,
+	"scol"  : "88ff2233",
+	"ecol"  : "ffaa44"
+  }
+}

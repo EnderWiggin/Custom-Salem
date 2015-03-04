@@ -1,8 +1,12 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 03.03.15:}}
+  * renamed Culinary to Feasting
+  * added ability to show object radiuses - press ALT+R or X->R. Shows radius of torchposts, braziers and mine supports.
+ 
 $size[14]{$u{Update for 11.02.15:}}
- * fixed item interactions through invisible widgets
- * highlight object if you click on its icon on radar
+  * fixed item interactions through invisible widgets
+  * highlight object if you click on its icon on radar
  
 $size[14]{$u{Update for 10.02.15:}}
   * added helmet to equip proxy slots (turn it on in equip options)

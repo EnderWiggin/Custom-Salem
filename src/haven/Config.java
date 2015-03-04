@@ -100,6 +100,8 @@ public class Config {
     public static boolean show_contents_icons = Utils.getprefb("show_contents_icons", false);
     public static Map<String, String> contents_icons;
     public static boolean menugrid_resets = Utils.getprefb("menugrid_resets", false);
+    public static boolean show_radius = Utils.getprefb("show_radius", false);
+    public static Map<String, ColoredRadius.Cfg> item_radius;
 
     static {
 	String p;
@@ -115,9 +117,9 @@ public class Config {
 	window_props = loadProps("windows.conf");
 
 	loadContentsIcons();
+	loadItemRadius();
 	Wiki.init(getFile("cache"), 3);
     }
-
 
     private static void loadBuildVersion() {
 	InputStream in = Config.class.getResourceAsStream("/buildinfo");
@@ -147,6 +149,30 @@ public class Config {
 		    Type collectionType = new TypeToken<HashMap<String, String>>(){}.getType();
 		    String json = Utils.stream2str(in);
 		    contents_icons = gson.fromJson(json, collectionType);
+		}
+	    } catch (JsonSyntaxException ignore){
+	    } finally {
+		if (in != null) { in.close(); }
+	    }
+	} catch(IOException e) {
+	    throw(new Error(e));
+	}
+    }
+
+    public static void toggleRadius(){
+	show_radius = !show_radius;
+	Utils.setprefb("show_radius", show_radius);
+    }
+
+    private static void loadItemRadius() {
+	InputStream in = Config.class.getResourceAsStream("/item_radius.json");
+	try {
+	    try {
+		if (in != null) {
+		    Gson gson = new Gson();
+		    Type collectionType = new TypeToken<HashMap<String, ColoredRadius.Cfg>>(){}.getType();
+		    String json = Utils.stream2str(in);
+		    item_radius = gson.fromJson(json, collectionType);
 		}
 	    } catch (JsonSyntaxException ignore){
 	    } finally {

@@ -99,21 +99,17 @@ public class LocalMiniMap extends Window implements Console.Directory{
 
     private BufferedImage tileimg(int t, BufferedImage[] texes) {
 	BufferedImage img = texes[t];
-	if(img == null) {
+	if (img == null) {
 	    Resource r = ui.sess.glob.map.tilesetr(t);
-	    if(r == null)
-		return(null);
-	    try{
-		Resource.Image ir = r.layer(Resource.imgc);
-		if(ir == null)
-		    return(null);
-		img = ir.img;
-		texes[t] = img;
-	    }catch (Loading e){
-		return null;
-	    }
+	    if (r == null)
+		return (null);
+	    Resource.Image ir = r.layer(Resource.imgc);
+	    if (ir == null)
+		return (null);
+	    img = ir.img;
+	    texes[t] = img;
 	}
-	return(img);
+	return (img);
     }
 
     public BufferedImage drawmap(Coord ul, Coord sz) {
@@ -130,12 +126,16 @@ public class LocalMiniMap extends Window implements Console.Directory{
 		} catch (LoadingMap e) {
 		    return null;
 		}
-		BufferedImage tex = tileimg(t, texes);
-		int rgb = 0xffff33ff;
-		if(tex != null) {
-		    rgb = tex.getRGB(Utils.floormod(c.x, tex.getWidth()), Utils.floormod(c.y, tex.getHeight()));
+		try {
+		    BufferedImage tex = tileimg(t, texes);
+		    int rgb = 0xffff33ff;
+		    if (tex != null) {
+			rgb = tex.getRGB(Utils.floormod(c.x, tex.getWidth()), Utils.floormod(c.y, tex.getHeight()));
+		    }
+		    buf.setRGB(c.x, c.y, rgb);
+		} catch (Loading e){
+		    return null;
 		}
-		buf.setRGB(c.x, c.y, rgb);
 
 		try {
 		    if((m.gettile(c2.add(-1, 0)) > t) ||
