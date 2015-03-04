@@ -181,6 +181,9 @@ public class Config {
 	} catch(IOException e) {
 	    throw(new Error(e));
 	}
+	if(item_radius == null){
+	    item_radius = new HashMap<String, ColoredRadius.Cfg>();
+	}
     }
 
     public static void setCharName(String name){
