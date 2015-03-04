@@ -52,6 +52,8 @@ public class MapView extends PView implements DTarget, Console.Directory {
     private int[] visol = new int[32];
     private Grabber grab;
     public static final Map<String, Class<? extends Camera>> camtypes = new HashMap<String, Class<? extends Camera>>();
+    private Click sift;
+    private long last_sift = 0;
     {visol[4] = 1;}
     
     {
@@ -61,7 +63,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	camtypes.put("ortho", OrthoCam.class);
 	camtypes.put("sortho", SOrthoCam.class);
     }
-    
+
     public interface Delayed {
 	public void run(GOut g);
     }
@@ -942,6 +944,11 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    g.chcolor(Color.WHITE);
 	    g.atext(text, sz.div(2), 0.5, 0.5);
 	}
+	long now = System.currentTimeMillis();
+	if(sift != null && (now - last_sift)>1600){
+	    delay(sift);
+	    last_sift = now;
+	}
     }
     
     public void tick(double dt) {
@@ -1165,7 +1172,13 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		wdgmsg("place", placing.rc, (int)(placing.a * 180 / Math.PI), button, ui.modflags());
 	} else if((grab != null) && grab.mmousedown(c, button)) {
 	} else {
-	    delay(new Click(c, button));
+	    sift = null;
+	    Click click = new Click(c, button);
+	    Resource cursor = ui.root.cursor;
+	    if(Config.autosift && button == 1 && cursor != null && cursor.name.equals("gfx/hud/curs/sft")){
+		sift = click;
+	    }
+	    delay(click);
 	}
 	return(true);
     }

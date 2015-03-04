@@ -102,6 +102,7 @@ public class Config {
     public static boolean menugrid_resets = Utils.getprefb("menugrid_resets", false);
     public static boolean show_radius = Utils.getprefb("show_radius", false);
     public static Map<String, ColoredRadius.Cfg> item_radius;
+    public static boolean autosift = Utils.getprefb("autosift", false);
 
     static {
 	String p;

@@ -439,6 +439,19 @@ public class OptWnd2 extends Window {
 	    };
 	}
 
+	tab = body.new Tab(new Coord(210, 0), 60, "Cheats");
+
+	int y = 0;
+	(new CheckBox(new Coord(0, y+=30), tab, "Auto sift"){
+	    @Override
+	    public void changed(boolean val) {
+		super.changed(val);
+		Config.autosift = val;
+		Utils.setprefb("autosift", val);
+	    }
+	    {tooltip = Text.render("Clicks on ground with sift cursor will be repeated until non-sift click received.");}
+	}).a = Config.autosift;
+
 	//new Frame(new Coord(-10, 20), new Coord(420, 330), this);
 	String last = Utils.getpref("optwndtab", "");
 	for(Tabs.Tab t : body.tabs) {
