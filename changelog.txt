@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 05.03.15:}}
+  * added automated sifting. Can be toggled in Options->Cheats
+  * added option to display actor path. Can be toggled in Options->Cheats
+ 
 $size[14]{$u{Update for 04.03.15:}}
   * added support radius of mine exit
   * fixed possible crashes related to incorrect radius or timers configurations
