@@ -68,7 +68,8 @@ public class TimerController extends Thread {
 	    Gson gson = new GsonBuilder().create();
 	    InputStream is = new FileInputStream(config);
 	    timers = gson.fromJson(Utils.stream2str(is), new TypeToken<List<Timer>>(){}.getType());
-	} catch (Exception e) {
+	} catch (Exception ignored) {}
+	if(timers == null){
 	    timers = new LinkedList<Timer>();
 	}
     }

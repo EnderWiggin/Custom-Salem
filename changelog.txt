@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 04.03.15:}}
+  * added support radius of mine exit
+  * fixed possible crashes related to incorrect radius or timers configurations
+ 
 $size[14]{$u{Update for 03.03.15:}}
   * renamed Culinary to Feasting
   * added ability to show object radiuses - press ALT+R or X->R. Shows radius of torchposts, braziers and mine supports.
