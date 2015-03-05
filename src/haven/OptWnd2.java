@@ -35,6 +35,7 @@ import java.awt.font.TextAttribute;
 public class OptWnd2 extends Window {
     public static final RichText.Foundry foundry = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
     public static OptWnd2 instance = null;
+    private final CheckBox gob_path_color;
     private Tabs body;
     private String curcam;
     private Map<String, CamInfo> caminfomap = new HashMap<String, CamInfo>();
@@ -441,8 +442,8 @@ public class OptWnd2 extends Window {
 
 	tab = body.new Tab(new Coord(210, 0), 60, "Cheats");
 
-	int y = 0;
-	(new CheckBox(new Coord(0, y+=30), tab, "Auto sift"){
+	int y = 5;
+	(new CheckBox(new Coord(0, y+=25), tab, "Auto sift"){
 	    @Override
 	    public void changed(boolean val) {
 		super.changed(val);
@@ -451,6 +452,29 @@ public class OptWnd2 extends Window {
 	    }
 	    {tooltip = Text.render("Clicks on ground with sift cursor will be repeated until non-sift click received.");}
 	}).a = Config.autosift;
+
+	(new CheckBox(new Coord(0, y+=25), tab, "Show actor path"){
+	    @Override
+	    public void changed(boolean val) {
+		super.changed(val);
+		Config.gobpath = val;
+		Utils.setprefb("gobpath", val);
+		gob_path_color.enabled = val;
+	    }
+	    {tooltip = Text.render("Will draw line to position where actor is moving.");}
+	}).a = Config.gobpath;
+
+	gob_path_color = new CheckBox(new Coord(10, y+=25), tab, "Use kin color"){
+	    @Override
+	    public void changed(boolean val) {
+		super.changed(val);
+		Config.gobpath_color = val;
+		Utils.setprefb("gobpath_color", val);
+	    }
+	    {tooltip = Text.render("Will draw actor path using color from kin list.");}
+	};
+	gob_path_color.a = Config.gobpath_color;
+	gob_path_color.enabled = Config.gobpath;
 
 	//new Frame(new Coord(-10, 20), new Coord(420, 330), this);
 	String last = Utils.getpref("optwndtab", "");
