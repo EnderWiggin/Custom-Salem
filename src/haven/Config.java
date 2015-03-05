@@ -104,6 +104,7 @@ public class Config {
     public static Map<String, ColoredRadius.Cfg> item_radius;
     public static boolean autosift = Utils.getprefb("autosift", false);
     public static boolean gobpath = Utils.getprefb("gobpath", true);
+    public static boolean gobpath_color = Utils.getprefb("gobpath_color", true);;
 
     static {
 	String p;

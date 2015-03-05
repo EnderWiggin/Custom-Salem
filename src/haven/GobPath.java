@@ -40,7 +40,15 @@ public class GobPath extends Sprite
     }
 
     public boolean setup(RenderList list) {
-	list.prepo(new ColState(Color.WHITE));
+	Gob gob = (Gob) owner;
+	Color color = Color.WHITE;
+	if(Config.gobpath_color) {
+	    KinInfo ki = gob.getattr(KinInfo.class);
+	    if(ki != null) {
+		color = BuddyWnd.gc[ki.group];
+	    }
+	}
+	list.prepo(new ColState(color));
 	return true;
     }
 
