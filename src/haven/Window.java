@@ -216,12 +216,12 @@ public class Window extends Widget implements DTarget {
     }
 
     public boolean mousedown(Coord c, int button) {
+	if(c.y < tdh && cap != null)
+	    return(false);
 	parent.setfocus(this);
 	raise();
 	if(super.mousedown(c, button))
 	    return(true);
-	if(c.y < tdh && cap != null)
-	    return(false);
 	if(button == 1) {
 	    ui.grabmouse(this);
 	    dm = true;
