@@ -197,7 +197,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
 	
     public void delattr(Class<? extends GAttrib> c) {
 	GAttrib removed = attr.remove(attrclass(c));
-	if(removed.getClass() == LinMove.class && path != null) {
+	if(removed != null && removed.getClass() == LinMove.class && path != null) {
 	    path.move(null);
 	}
     }
