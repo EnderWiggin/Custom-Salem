@@ -27,11 +27,13 @@
 package haven;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import haven.GLSettings.SettingException;
 import org.ender.wiki.Wiki;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -104,7 +106,8 @@ public class Config {
     public static Map<String, ColoredRadius.Cfg> item_radius;
     public static boolean autosift = Utils.getprefb("autosift", false);
     public static boolean gobpath = Utils.getprefb("gobpath", false);
-    public static boolean gobpath_color = Utils.getprefb("gobpath_color", true);;
+    public static boolean gobpath_color = Utils.getprefb("gobpath_color", true);
+    public static Map<String, GobPath.Cfg> gobPathCfg;
 
     static {
 	String p;
@@ -122,6 +125,20 @@ public class Config {
 	loadContentsIcons();
 	loadItemRadius();
 	Wiki.init(getFile("cache"), 3);
+
+	String json = loadFile("gob_path.json");
+	if(json != null){
+	    try {
+		GsonBuilder builder = new GsonBuilder();
+		builder.setPrettyPrinting();
+		builder.registerTypeAdapter(GobPath.Cfg.class, new GobPath.Cfg.Adapter().nullSafe());
+		Gson gson = builder.create();
+		Type collectionType = new TypeToken<HashMap<String, GobPath.Cfg>>(){}.getType();
+		gobPathCfg = gson.fromJson(json, collectionType);
+	    }catch(Exception e){
+		gobPathCfg = new HashMap<String, GobPath.Cfg>();
+	    }
+	}
     }
 
     private static void loadBuildVersion() {
@@ -386,4 +403,32 @@ public class Config {
 	Utils.setpreff("brighten", val);
     }
 
+    public static String loadFile(String name){
+	InputStream inputStream = null;
+	File file = Config.getFile(name);
+	if(file.exists() && file.canRead()) {
+	    try {
+		inputStream = new FileInputStream(file);
+	    } catch (FileNotFoundException ignored) {
+	    }
+	} else {
+	    inputStream = Config.class.getResourceAsStream("/"+name);
+	}
+	if(inputStream != null) {
+	    try {
+	    	return Utils.stream2str(inputStream);
+	    } catch (Exception ignore){
+	    } finally {
+		try {inputStream.close();} catch (IOException ignored) {}
+	    }
+	}
+	return null;
+    }
+
+    public static GobPath.Cfg getGobPathCfg(String resname) {
+	if(gobPathCfg.containsKey(resname)){
+	    return gobPathCfg.get(resname);
+	}
+	return GobPath.Cfg.def;
+    }
 }
