@@ -1158,4 +1158,23 @@ public class Utils {
 	Scanner s = new Scanner(is).useDelimiter("\\A");
 	return s.hasNext() ? s.next() : "";
     }
+
+    public static Color hex2color(String hex, Color def){
+	Color c = def;
+	if (hex != null) {
+	    try {
+		int col = (int) Long.parseLong(hex, 16);
+		boolean hasAlpha = (0xff000000 & col) != 0;
+		c = new Color(col, hasAlpha);
+	    } catch (Exception ignored) {}
+	}
+	return c;
+    }
+
+    public static String color2hex(Color col){
+	if(col != null){
+	    return Integer.toHexString(col.getRGB());
+	}
+	return null;
+    }
 }
