@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 06.03.15:}}
+  * added button to open settings of which actor path should be displayed. Can be fine tuned gob_path.json
+ 
 $size[14]{$u{Update for 05.03.15:}}
   * added automated sifting. Can be toggled in Options->Cheats
   * added option to display actor path. Can be toggled in Options->Cheats
