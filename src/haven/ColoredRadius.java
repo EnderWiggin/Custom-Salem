@@ -24,7 +24,7 @@ public class ColoredRadius extends Sprite {
 	public float radius;
 
 	public GLState smat(){
-	    Color c = str2color(scol);
+	    Color c = Utils.hex2color(scol, null);
 	    if(c == null){
 		return defsmat;
 	    }
@@ -32,24 +32,13 @@ public class ColoredRadius extends Sprite {
 	}
 
 	public GLState emat(){
-	    Color c = str2color(ecol);
+	    Color c = Utils.hex2color(ecol, null);
 	    if(c == null){
 		return defemat;
 	    }
 	    return new ColState(c);
 	}
 
-	private static Color str2color(String val) {
-	    Color c = null;
-	    if (val != null) {
-		try {
-		    int col = (int) Long.parseLong(val, 16);
-		    boolean hasAlpha = (0xff000000 & col) != 0;
-		    c = new Color(col, hasAlpha);
-		} catch (Exception ignored) {}
-	    }
-	    return c;
-	}
     }
 
     public ColoredRadius(Owner owner, Cfg cfg) {
