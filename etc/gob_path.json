@@ -1,5 +1,17 @@
 {
-  "gfx/kritter/deer/deer":{"color":"E59363"},
-  "gfx/kritter/bear/bear":{"color":"E34444"},
-  "gfx/kritter/cricket/cricket":{"color":"DDFF88"}
+  "gfx/kritter/argopelter/argopelter":{"name":"argopelter"},
+  "gfx/kritter/bear/bear":{"color":"E34444", "name":"bear"},
+  "gfx/kritter/beaver/beaver":{"color":"6091ea", "name":"beaver"},
+  "gfx/kritter/crab/crab":{"color":"aa9999", "show":false, "name":"crab"},
+  "gfx/kritter/cricket/cricket":{"color":"DDFF88", "name":"cricket"},
+  "gfx/kritter/deer/deer":{"color":"E59363", "name":"deer"},
+  "gfx/kritter/frog/frog":{"color":"88ffdd", "show":false, "name":"frog"},
+  "gfx/kritter/marchhare/marchhare":{"name":"march hare"},
+  "gfx/kritter/rabbit/rabbit":{"color":"ffffee", "name":"rabbit"},
+  "gfx/kritter/rattler/rattler":{"color":"ff8888", "name":"timber rattler"},
+  "gfx/kritter/spider/spider":{"color":"BFB938", "name":"spider"},
+  "gfx/kritter/squonk/squonk":{"name":"squonk"},
+  "gfx/kritter/turkey/turkey":{"color":"8888ff", "name":"turkey"},
+  "gfx/kritter/wishpoosh/wishpoosh":{"name":"wishpoosh"},
+  "gfx/terobjs/tumbleweed":{"color":"885A06", "name":"tumbleweed"}
 }

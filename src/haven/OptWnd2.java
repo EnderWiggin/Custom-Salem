@@ -476,6 +476,13 @@ public class OptWnd2 extends Window {
 	gob_path_color.a = Config.gobpath_color;
 	gob_path_color.enabled = Config.gobpath;
 
+	new Button(new Coord(10, y+=25), 75, tab, "options"){
+	    @Override
+	    public void click() {
+		GobPathOptWnd.toggle();
+	    }
+	};
+
 	//new Frame(new Coord(-10, 20), new Coord(420, 330), this);
 	String last = Utils.getpref("optwndtab", "");
 	for(Tabs.Tab t : body.tabs) {

@@ -1,5 +1,7 @@
 package haven;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -80,11 +82,19 @@ public class GobPath extends Sprite
 	public static Cfg def = new Cfg(Color.WHITE, true);
 	public Color color;
 	public boolean show;
+	public String name;
 
 	public Cfg(){}
 	public Cfg(Color color, boolean show) {
 	    this.color = color;
 	    this.show = show;
+	}
+
+	public static Gson getGson() {
+	    GsonBuilder builder = new GsonBuilder();
+	    builder.setPrettyPrinting();
+	    builder.registerTypeAdapter(GobPath.Cfg.class, new GobPath.Cfg.Adapter().nullSafe());
+	    return builder.create();
 	}
 
 	public static class Adapter extends TypeAdapter<Cfg> {
@@ -97,7 +107,10 @@ public class GobPath extends Sprite
 		if(color != null){
 		    writer.name("color").value(color);
 		}
-		writer.endArray();
+		if(cfg.name != null){
+		    writer.name("name").value(cfg.name);
+		}
+		writer.endObject();
 	    }
 
 	    @Override
@@ -110,6 +123,8 @@ public class GobPath extends Sprite
 			cfg.show = reader.nextBoolean();
 		    } else if(name.equals("color")){
 			cfg.color = Utils.hex2color(reader.nextString(), null);
+		    } else if(name.equals("name")){
+			cfg.name = reader.nextString();
 		    }
 		}
 		reader.endObject();

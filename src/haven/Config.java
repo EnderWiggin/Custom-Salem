@@ -126,19 +126,25 @@ public class Config {
 	loadItemRadius();
 	Wiki.init(getFile("cache"), 3);
 
+	loadGobPathCfg();
+    }
+
+    private static void loadGobPathCfg() {
 	String json = loadFile("gob_path.json");
 	if(json != null){
 	    try {
-		GsonBuilder builder = new GsonBuilder();
-		builder.setPrettyPrinting();
-		builder.registerTypeAdapter(GobPath.Cfg.class, new GobPath.Cfg.Adapter().nullSafe());
-		Gson gson = builder.create();
+		Gson gson = GobPath.Cfg.getGson();
 		Type collectionType = new TypeToken<HashMap<String, GobPath.Cfg>>(){}.getType();
 		gobPathCfg = gson.fromJson(json, collectionType);
 	    }catch(Exception e){
 		gobPathCfg = new HashMap<String, GobPath.Cfg>();
 	    }
 	}
+    }
+
+    public static void saveGobPathCfg(){
+	Gson gson = GobPath.Cfg.getGson();
+	saveFile("gob_path.json", gson.toJson(gobPathCfg));
     }
 
     private static void loadBuildVersion() {
@@ -423,6 +429,30 @@ public class Config {
 	    }
 	}
 	return null;
+    }
+
+    public static void saveFile(String name, String data){
+	File file = Config.getFile(name);
+	boolean exists = file.exists();
+	if(!exists){
+	    try {
+		//noinspection ResultOfMethodCallIgnored
+		new File(file.getParent()).mkdirs();
+		exists = file.createNewFile();
+	    } catch (IOException ignored) {}
+	}
+	if(exists && file.canWrite()){
+	    PrintWriter out = null;
+	    try {
+		out = new PrintWriter(file);
+		out.print(data);
+	    } catch (FileNotFoundException ignored) {
+	    } finally {
+		if (out != null) {
+		    out.close();
+		}
+	    }
+	}
     }
 
     public static GobPath.Cfg getGobPathCfg(String resname) {
