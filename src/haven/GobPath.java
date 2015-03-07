@@ -29,6 +29,9 @@ public class GobPath extends Sprite
 	    if(drawable != null && drawable instanceof Composite) {
 		Composite composite = (Composite) drawable;
 		return composite.base.get().name;
+	    } else if(drawable != null && drawable instanceof ResDrawable) {
+		ResDrawable resdraw = (ResDrawable) drawable;
+		return resdraw.res.get().name;
 	    }
 	} catch (Resource.Loading ignored){ }
 	return "<unknown>";
