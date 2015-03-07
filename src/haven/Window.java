@@ -66,8 +66,8 @@ public class Window extends Widget implements DTarget {
     private boolean dm = false;
     public Coord ctl, csz, atl, asz;
     private Coord doff;
-    private final IButton cbtn;
     private final Collection<Widget> twdgs = new LinkedList<Widget>();
+    protected final IButton cbtn;
 
     @RName("wnd")
     public static class $_ implements Factory {

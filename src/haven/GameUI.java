@@ -1248,6 +1248,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    gettype(args[1]).create(new Coord(200, 200), GameUI.this, new Object[0]);
 		}
 	    });
+
+	cmdmap.put("flatness", new Console.Command(){
+		public void run(Console cons, String[] args){
+		    FlatnessTool.instance(GameUI.this);
+		}
+	    });
     }
     public Map<String, Console.Command> findcmds() {
 	return(cmdmap);
