@@ -175,16 +175,16 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     }
 
     public void setattr(GAttrib a) {
-	if(Config.gobpath && a.getClass() == LinMove.class) {
-	    if(path == null) {
-		path = new GobPath(this, (LinMove) a);
-		ols.add(new Overlay(path));
-	    } else {
-		path.move((LinMove) a);
-	    }
-
-	}
 	Class<? extends GAttrib> ac = attrclass(a.getClass());
+	if (Config.gobpath) {
+	    if (ac == Moving.class) {
+		if (path == null) {
+		    path = new GobPath(this);
+		    ols.add(new Overlay(path));
+		}
+		path.move((Moving) a);
+	    }
+	}
 	attr.put(ac, a);
     }
 	
@@ -198,7 +198,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     public void delattr(Class<? extends GAttrib> c) {
 	GAttrib removed = attr.remove(attrclass(c));
 	if(removed != null && removed.getClass() == LinMove.class && path != null) {
-	    path.move(null);
+	    path.stop();
 	}
     }
 	

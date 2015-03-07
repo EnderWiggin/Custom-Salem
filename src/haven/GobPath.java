@@ -13,13 +13,12 @@ import java.io.IOException;
 
 public class GobPath extends Sprite
 {
-    private LinMove move;
+    private Moving move = null;
     private Gob gob;
     float d = 0.0F;
 
-    public GobPath(Gob gob, LinMove m) {
+    public GobPath(Gob gob) {
 	super(gob, null);
-	move = m;
 	this.gob = gob;
     }
 
@@ -38,14 +37,15 @@ public class GobPath extends Sprite
     }
 
     public void draw(GOut g) {
-	if(move == null){return;}
+	Coord t = target();
+	if(t == null){return;}
 	boolean good = false;
 	Coord td = Coord.z;
 	int tz = 0;
 	try {
-	    Coord ss = new Coord((int) (move.t.x - gob.loc.c.x), (int) (move.t.y + gob.loc.c.y));
+	    Coord ss = new Coord((int) (t.x - gob.loc.c.x), (int) (t.y + gob.loc.c.y));
 	    td = ss.rotate(-gob.a);
-	    tz = (int) (gob.glob.map.getcz(move.t) - gob.glob.map.getcz(gob.rc))+1;
+	    tz = (int) (gob.glob.map.getcz(t) - gob.glob.map.getcz(gob.rc))+1;
 	    good = true;
 	} catch (Exception ignored) { }
 	if(!good) { return; }
@@ -58,6 +58,33 @@ public class GobPath extends Sprite
 	gl.glVertex3i(td.x, td.y, tz);
 	gl.glEnd();
 	GOut.checkerr(gl);
+    }
+
+    private Coord target(){
+	if(move != null){
+	    Class<? extends GAttrib> aClass = move.getClass();
+	    if(aClass == LinMove.class){
+		return ((LinMove)move).t;
+	    } else if(aClass == Homing.class) {
+		return getGobCoords(((Homing)move).tgt());
+	    } else if(aClass == Following.class){
+		return getGobCoords(((Following)move).tgt());
+	    }
+	}
+	return null;
+    }
+
+    private Coord getGobCoords(Gob gob){
+	if(gob != null) {
+	    Gob.GobLocation loc = gob.loc;
+	    if (loc != null) {
+		Coord3f c = loc.c;
+		if( c != null){
+		    return new Coord((int)c.x, -(int)c.y);
+		}
+	    }
+	}
+	return null;
     }
 
     public boolean setup(RenderList list) {
@@ -77,8 +104,12 @@ public class GobPath extends Sprite
 	return true;
     }
 
-    public void move(LinMove m) {
+    public void move(Moving m) {
 	move = m;
+    }
+
+    public void stop(){
+	move = null;
     }
 
     public static class Cfg {
@@ -87,7 +118,6 @@ public class GobPath extends Sprite
 	public boolean show;
 	public String name;
 
-	public Cfg(){}
 	public Cfg(Color color, boolean show) {
 	    this.color = color;
 	    this.show = show;
