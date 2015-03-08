@@ -16,5 +16,6 @@
   "Blue Cornmeal"       : "gfx/invobjs/cornmeal2",
   "Golden Cornmeal"     : "gfx/invobjs/cornmeal3",
   "Bonemeal"            : "gfx/invobjs/bonemeal",
-  "Sugar"               : "gfx/invobjs/sugar"
+  "Sugar"               : "gfx/invobjs/sugar",
+  "Goldflakes"          : "gfx/invobjs/goldflakes"
 }
