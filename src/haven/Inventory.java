@@ -124,25 +124,6 @@ public class Inventory extends Widget implements DTarget {
 	g.image(sqlite, c);
     }
 
-    @Override
-    public boolean mousedown(Coord c, int button) {
-//	if(button == 2){
-//	    int i = 0;
-//	    Coord ct = new Coord();
-//	    List<GItem> items = getAll();
-//	    Collections.sort(items, GItem.comp);
-//	    for(GItem item : items){
-//		item.wdgmsg("take", Coord.z);
-//		ct.x = i%isz.x;
-//		ct.y = i/isz.x;
-//		wdgmsg("drop", ct);
-//		i++;
-//	    }
-//	    return true;
-//	}
-	return super.mousedown(c, button);
-    }
-
     public boolean mousewheel(Coord c, int amount) {
 	if(ui.modshift) {
 	    wdgmsg("xfer", amount);
@@ -179,7 +160,7 @@ public class Inventory extends Widget implements DTarget {
     }
 
     public void uimsg(String msg, Object... args) {
-	if(msg == "sz") {
+	if(msg.equals("sz")) {
 	    isz = (Coord)args[0];
 	    resize(invsz(isz));
 	}
