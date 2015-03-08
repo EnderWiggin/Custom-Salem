@@ -66,7 +66,9 @@ public class RemoteUI implements UI.Receiver, UI.Runner {
 		} else if(msg.type == Message.RMSG_WDGMSG) {
 		    int id = msg.uint16();
 		    String name = msg.string();
-		    ui.uimsg(id, name, msg.list());
+		    Object[] args = msg.list();
+		    ui.uimsg(id, name, args);
+		    checkvents(name, args);
 		} else if(msg.type == Message.RMSG_DSTWDG) {
 		    int id = msg.uint16();
 		    ui.destroy(id);
@@ -82,5 +84,23 @@ public class RemoteUI implements UI.Receiver, UI.Runner {
 		sess.wait();
 	    }
 	}
+    }
+
+    private void checkvents(String name, Object[] args) {
+	if(name.equals("prog")){
+	    if(args.length == 0){
+		progressComplete();
+	    }
+	}
+    }
+
+    private void progressComplete() {
+	try {
+	    if (Config.autosift && UI.instance.root.cursor.name.equals("gfx/hud/curs/sft")) {
+		MapView map = UI.instance.gui.map;
+		Gob player = map.player();
+		map.wdgmsg(map, "click", player.sc, player.rc, 1, 0);
+	    }
+	} catch(Exception ignored){}
     }
 }

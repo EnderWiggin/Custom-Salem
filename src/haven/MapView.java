@@ -52,8 +52,6 @@ public class MapView extends PView implements DTarget, Console.Directory {
     private int[] visol = new int[32];
     private Grabber grab;
     public static final Map<String, Class<? extends Camera>> camtypes = new HashMap<String, Class<? extends Camera>>();
-    private Coord siftc;
-    private long last_sift = 0;
     {visol[4] = 1;}
 
     {
@@ -950,11 +948,6 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    g.chcolor(Color.WHITE);
 	    g.atext(text, sz.div(2), 0.5, 0.5);
 	}
-	long now = System.currentTimeMillis();
-	if(siftc != null && (now - last_sift)>1600){
-	    wdgmsg("click", Coord.z, siftc, 1, 0);
-	    last_sift = now;
-	}
     }
     
     public void tick(double dt) {
@@ -1142,11 +1135,6 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    if(inf == null) {
 		if(Config.center){mc = mc.div(11).mul(11).add(5, 5);}
 		wdgmsg("click", pc, mc, clickb, modflags);
-		Resource cursor = ui.root.cursor;
-		if(Config.autosift && modflags == 0 && clickb == 1 && cursor != null && cursor.name.equals("gfx/hud/curs/sft")){
-		    siftc = mc;
-		    last_sift = System.currentTimeMillis();
-		}
 	    } else {
 		if(ui.modmeta){
 		    ChatUI.Channel channel = ui.gui.chat.sel;
@@ -1184,7 +1172,6 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		wdgmsg("place", placing.rc, (int)(placing.a * 180 / Math.PI), button, ui.modflags());
 	} else if((grab != null) && grab.mmousedown(c, button)) {
 	} else {
-	    siftc = null;
 	    delay(new Click(c, button));
 	}
 	return(true);
