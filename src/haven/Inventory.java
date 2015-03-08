@@ -44,33 +44,7 @@ public class Inventory extends Widget implements DTarget {
     public static final Coord sqlo = new Coord(4, 4);
     public static final Tex refl = Resource.loadtex("gfx/hud/invref");
 
-    private static final Comparator<WItem> cmp_asc = new Comparator<WItem>() {
-	@Override
-	public int compare(WItem o1, WItem o2) {
-	    float c1 = o1.carats.get();
-	    float c2 = o2.carats.get();
-
-	    if(c1 == c2) {
-		Alchemy a = o1.alch.get();
-		double q1 = (a == null) ? 0 : a.purity();
-
-		a = o2.alch.get();
-		double q2 = (a == null) ? 0 : a.purity();
-
-		if(q1 == q2) {
-		    return 0;
-		} else if(q1 > q2) {
-		    return 1;
-		} else {
-		    return -1;
-		}
-	    } else if(c1 > c2){
-		return 1;
-	    } else {
-		return -1;
-	    }
-	}
-    };
+    private static final Comparator<WItem> cmp_asc = new WItemComparator();
     private static final Comparator<WItem> cmp_desc = new Comparator<WItem>() {
 	@Override
 	public int compare(WItem o1, WItem o2) {
