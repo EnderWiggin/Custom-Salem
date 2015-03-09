@@ -21,5 +21,6 @@
   "Green Tea"           : "gfx/invobjs/tealeaves",
   "Yellow Tea"          : "gfx/invobjs/yellowtealeaves",
   "Black Tea"           : "gfx/invobjs/blacktealeaves",
-  "White Tea"           : "gfx/invobjs/wiltedtealeaves"
+  "White Tea"           : "gfx/invobjs/wiltedtealeaves",
+  "Raw Egg Yolk"        : "gfx/invobjs/turkeyegg"
 }
