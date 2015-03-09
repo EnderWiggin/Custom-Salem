@@ -17,5 +17,9 @@
   "Golden Cornmeal"     : "gfx/invobjs/cornmeal3",
   "Bonemeal"            : "gfx/invobjs/bonemeal",
   "Sugar"               : "gfx/invobjs/sugar",
-  "Goldflakes"          : "gfx/invobjs/goldflakes"
+  "Goldflakes"          : "gfx/invobjs/goldflakes",
+  "Green Tea"           : "gfx/invobjs/tealeaves",
+  "Yellow Tea"          : "gfx/invobjs/yellowtealeaves",
+  "Black Tea"           : "gfx/invobjs/blacktealeaves",
+  "White Tea"           : "gfx/invobjs/wiltedtealeaves"
 }
