@@ -32,7 +32,7 @@ import static haven.GOut.checkerr;
 import javax.media.opengl.*;
 
 public abstract class PView extends Widget {
-    private RenderList rls;
+    public RenderList rls;
     public static final GLState.Slot<RenderContext> ctx = new GLState.Slot<RenderContext>(GLState.Slot.Type.SYS, RenderContext.class);
     public static final GLState.Slot<RenderState> wnd = new GLState.Slot<RenderState>(GLState.Slot.Type.SYS, RenderState.class, HavenPanel.proj2d, GLFrameBuffer.slot);
     public static final GLState.Slot<Projection> proj = new GLState.Slot<Projection>(GLState.Slot.Type.SYS, Projection.class, wnd);
@@ -260,14 +260,18 @@ public abstract class PView extends Widget {
 	} finally {
 	    g.st.set(bk);
 	}
-	for(RenderList.Slot s : rls.slots()) {
-	    if(s.r instanceof Render2D)
-		((Render2D)s.r).draw2d(g);
-	}
+	render2d(g);
 	if(curf != null)
 	    curf.tick("2d");
 	if(curf != null)
 	    curf.fin();
+    }
+
+    protected void render2d(GOut g) {
+	for(RenderList.Slot s : rls.slots()) {
+	    if(s.r instanceof Render2D)
+		((Render2D)s.r).draw2d(g);
+	}
     }
     
     public interface Render2D extends Rendered {

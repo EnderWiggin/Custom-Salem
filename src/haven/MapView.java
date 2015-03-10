@@ -40,6 +40,7 @@ import java.util.TreeMap;
 import javax.media.opengl.GL;
 public class MapView extends PView implements DTarget, Console.Directory {
     public static final String DEFCAM = "sortho";
+    private final R2DWdg r2dwdg;
     public long plgob = -1;
     public Coord cc;
     private final Glob glob;
@@ -456,6 +457,8 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	this.cc = cc;
 	this.plgob = plgob;
 	setcanfocus(true);
+
+	r2dwdg = new R2DWdg(this);
     }
     
     public void enol(int... overlays) {
@@ -824,7 +827,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	rl.render(g);
 	return(rl.get(g, c));
     }
-    
+
     public void delay(Delayed d) {
 	synchronized(delayed) {
 	    delayed.add(d);
@@ -963,7 +966,13 @@ public class MapView extends PView implements DTarget, Console.Directory {
     
     public void resize(Coord sz) {
 	super.resize(sz);
+	r2dwdg.resize(sz);
 	camera.resized();
+    }
+
+    @Override
+    protected void render2d(GOut g) {
+	//2d render will be done in r2dwdg
     }
 
     private class Plob extends Gob {
