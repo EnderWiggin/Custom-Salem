@@ -303,7 +303,22 @@ public class OptWnd2 extends Window {
 	    for(String camname : clist)
 		cameras.add(camname, new Coord(10, y += 25));
 	    cameras.check(caminfomap.containsKey(curcam) ? caminfomap.get(curcam).name : curcam);
-	    
+
+	    y+=40;
+	    new CheckBox(new Coord(5, y), tab, "Rotate isometric cams by steps"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.isocam_steps = val;
+		    Utils.setprefb("isocam_steps", val);
+		    if(ui.gui != null && ui.gui.map != null && ui.gui.map.camera != null){
+			ui.gui.map.camera.fixangle();
+		    }
+		}
+
+		{tooltip = Text.render("Makes isometric cameras rotate in 90 degree steps.");}
+	    }.a = Config.isocam_steps;
+
 	    y = 200;
 	    
 	    opt_aa = new CheckBox(new Coord(180, y+=25), tab, "Antialiasing"){

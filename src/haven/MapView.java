@@ -92,6 +92,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	public boolean wheel(Coord sc, int amount) {
 	    return(false);
 	}
+	public void fixangle() {}
 	
 	public void resized() {
 	    float field = 0.5f;
@@ -340,13 +341,16 @@ public class MapView extends PView implements DTarget, Console.Directory {
     }
     
     private static class OrthoCam extends Camera {
+
+	public static final float DEFANGLE = -(float) Math.PI / 4.0f;
+
 	public OrthoCam(MapView mv) {
 	    super(mv);
 	}
 
 	protected float dist = 500.0f;
 	protected float elev = (float)Math.PI / 6.0f;
-	protected float angl = -(float)Math.PI / 4.0f;
+	protected float angl = DEFANGLE;
 	protected float field = (float)(100 * Math.sqrt(2));
 	private Coord dragorig = null;
 	private float anglorig;
@@ -375,8 +379,22 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    return(true);
 	}
 
+	@Override
+	public void fixangle() {
+	    angl = stepify(angl - DEFANGLE) + DEFANGLE;
+	}
+
+	protected float stepify(float a) {
+	    if(Config.isocam_steps) {
+		a = Math.round(2 * a / Math.PI);
+		a = (float) (a * Math.PI / 2);
+	    }
+	    return a;
+	}
+
 	public void drag(Coord c) {
-	    angl = anglorig + ((float)(c.x - dragorig.x) / 100.0f);
+	    float delta = stepify((float) (c.x - dragorig.x) / 100.0f);
+	    angl = anglorig + delta;
 	    angl = angl % ((float)Math.PI * 2.0f);
 	}
 	
@@ -414,7 +432,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    while(angl > pi2) {angl -= pi2; tangl -= pi2; anglorig -= pi2;}
 	    while(angl < 0)   {angl += pi2; tangl += pi2; anglorig += pi2;}
 	    if(Math.abs(tangl - angl) < 0.0001)
-		angl = tangl;
+		angl = tangl = tangl % ((float)Math.PI * 2.0f);
 
 	    field = field + ((tfield - field) * (1f - (float)Math.pow(500, -dt)));
 	    if(Math.abs(tfield - field) < 0.0001)
@@ -427,8 +445,14 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    return(true);
 	}
 
+	@Override
+	public void fixangle() {
+	    tangl = stepify(tangl - DEFANGLE) + DEFANGLE;
+	}
+
 	public void drag(Coord c) {
-	    tangl = anglorig + ((float)(c.x - dragorig.x) / 100.0f);
+	    float delta = stepify((float) (c.x - dragorig.x) / 100.0f);
+	    tangl = anglorig + delta;
 	}
 
 	public boolean wheel(Coord c, int amount) {

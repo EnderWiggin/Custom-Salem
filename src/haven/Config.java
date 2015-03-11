@@ -108,6 +108,7 @@ public class Config {
     public static boolean gobpath = Utils.getprefb("gobpath", false);
     public static boolean gobpath_color = Utils.getprefb("gobpath_color", true);
     public static Map<String, GobPath.Cfg> gobPathCfg;
+    public static boolean isocam_steps = Utils.getprefb("isocam_steps", true);
 
     static {
 	String p;
