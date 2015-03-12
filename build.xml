@@ -87,6 +87,7 @@
 			<fileset file="changelog.txt" />
 			<fileset file="etc/radar.xml" />
 			<fileset file="etc/contents_icons.json" />
+            <fileset file="etc/gob_path.json" />
             <fileset file="etc/item_radius.json" />
 			<fileset file="etc/item_data.json" />
 			<manifest>
