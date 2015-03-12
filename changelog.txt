@@ -1,10 +1,12 @@
 $size[20]{$u{CHANGE LOG:}}
  
-$size[14]{$u{Update for 07.03.15:}}
-  * improved auto-sifting - it will now repeat clicks in same map coordinates, instead of screen coordinates
- 
-$size[14]{$u{Update for 06.03.15:}}
+$size[14]{$u{Update for 12.03.15:}}
+  * added fix for floating numbers being invisible near smoke on some videocards.
+  * improved auto-sifting - it will now repeat clicks in same map coordinates, instead of screen coordinates. And will do so just after progress bar finishes, instead of 1.6 seconds.
+  * added ability to display actor path. Activate in Options->Cheats.
   * added button to open settings of which actor path should be displayed. Can be fine tuned gob_path.json
+  * added goldflakes, egg yolk and different teas  to item content icons config.
+  * added option to make isometric cameras rotate in 90 degree steps.
  
 $size[14]{$u{Update for 05.03.15:}}
   * added automated sifting. Can be toggled in Options->Cheats
