@@ -48,7 +48,8 @@ public class CharWnd extends Window {
     private final Label tmexpl;
 
     public static final Color GREEN = new Color(0xaaeeaa);
-    public static final Color GRAY = new Color(0xbda3a3);
+    public static final Color GRAY = new Color(0xABAA8A);
+    public static final Color RED = new Color(0xbda3a3);
     
     public static final Color METER_BORDER = new Color(133, 92, 62, 255);
     public static final Color METER_BACK = new Color(28, 28, 28, 255);
@@ -197,13 +198,16 @@ public class CharWnd extends Window {
     public Color[] attrcols(final String[] attrs){
 	Color[] c = new Color[attrs.length];
 	int i=0;
-	for (String attr : attrs){
+	for (String attrn : attrs){
 	    c[i] = Color.WHITE;
-	    if(ski.cur != null){
+	    Attr attr = this.attrs.get(attrn);
+	    if(attr != null && attr.exp == attr.cap){
+		c[i] = RED;
+	    } else if(ski.cur != null){
 		for(int j = 0; j<ski.cur.costa.length; j++){
 		    String costa = ski.cur.costa[j];
 		    int costv = ski.cur.costv[j];
-		    if(costa.equals(attr)){
+		    if(costa.equals(attrn)){
 			if(this.attrs.get(costa).exp < costv){
 			    c[i] = GREEN;
 			} else {
