@@ -475,7 +475,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	    sp = plg;
 	    synchronized (cache) {
 		for (Future<MapTile> v : cache.values()) {
-		    if(v.done()) {
+		    if(v != null && v.done()) {
 			MapTile tile = v.get();
 			if(tile != null && tile.img != null) {
 			    tile.img.dispose();
