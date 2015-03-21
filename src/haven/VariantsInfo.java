@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class VariantsInfo extends ItemInfo.Tip {
@@ -77,7 +78,7 @@ public class VariantsInfo extends ItemInfo.Tip {
 	    @Override
 	    public Data read(JsonReader reader) throws IOException {
 		Data data = new Data();
-		Map<String,float[]> vars = new HashMap<String, float[]>();
+		Map<String,float[]> vars = new LinkedHashMap<String, float[]>();
 		data.vars = vars;
 		reader.beginObject();
 		while(reader.hasNext()){
