@@ -1,0 +1,10 @@
+{
+  "variants": {
+	"gfx/invobjs/herbs/lavenderblewit" : [0.50, 1.30, 0.50, 0.50],
+	"gfx/invobjs/herbs/lobstermushroom": [1.25, 0.50, 1.25, 0.50],
+	"gfx/invobjs/herbs/sugarcap"       : [0.50, 1.25, 0.50, 0.50],
+	"gfx/invobjs/herbs/morel"          : [0.50, 0.50, 1.35, 0.50],
+	"gfx/invobjs/herbs/waxingtoadstool": [1.35, 0.50, 0.50, 0.50],
+	"gfx/invobjs/herbs/witchshroom"    : [0.50, 0.50, 0.50, 1.35]
+  }
+}
