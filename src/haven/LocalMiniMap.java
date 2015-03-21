@@ -461,7 +461,7 @@ public class LocalMiniMap extends Window implements Console.Directory{
     }
 
     private void store(BufferedImage img, Coord cg) {
-	if(!Config.store_map){return;}
+	if(!Config.store_map || img == null){return;}
 	Coord c = cg.sub(sp);
 	String fileName = mapsessfile(String.format("tile_%d_%d.png", c.x, c.y));
 	File outputfile = new File(fileName);
