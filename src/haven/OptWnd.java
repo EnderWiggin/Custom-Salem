@@ -192,6 +192,7 @@ public class OptWnd extends Window {
 				    } catch (Exception ex) {
 				    }
 				}
+			    Utils.setpref("cameratype", lbl);
 			}
 		    };
                 camera_group.add("Orthographic camera", new Coord(15,y));
@@ -199,6 +200,7 @@ public class OptWnd extends Window {
                 camera_group.add("Follow camera", new Coord(15,y));
 		y += 20;
                 camera_group.add("Freestyle camera", new Coord(15,y));
+		camera_group.check(Utils.getpref("cameratype","Orthographic camera"));
                 camera_group.check("Orthographic camera");
 	    }
 	}
