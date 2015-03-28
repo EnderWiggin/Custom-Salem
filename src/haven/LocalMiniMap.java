@@ -26,10 +26,10 @@
 
 package haven;
 
+import haven.MCache.LoadingMap;
 import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import haven.resutil.RidgeTile;
@@ -38,9 +38,9 @@ public class LocalMiniMap extends Window {
     public final MapView mv;
     private Coord cc = null;
     private MapTile cur = null;
-    private final Map<Coord, Defer.Future<MapTile>> cache = new LinkedHashMap<Coord, Defer.Future<MapTile>>(5, 0.75f, true) {
+    private final Map<Coord, Defer.Future<MapTile>> cache = new LinkedHashMap<Coord, Defer.Future<MapTile>>(9, 0.75f, true) {
 	protected boolean removeEldestEntry(Map.Entry<Coord, Defer.Future<MapTile>> eldest) {
-	    if(size() > 5) {
+	    if(size() > 75) {
 		try {
 		    MapTile t = eldest.getValue().get();
 		    t.img.dispose();
@@ -63,7 +63,7 @@ public class LocalMiniMap extends Window {
 	}
     }
 
-    private BufferedImage tileimg(int t, BufferedImage[] texes) {
+    private BufferedImage tileimg(int t, BufferedImage[] texes) throws Loading{
 	BufferedImage img = texes[t];
 	if(img == null) {
 	    Resource r = ui.sess.glob.map.tilesetr(t);
@@ -85,16 +85,42 @@ public class LocalMiniMap extends Window {
 	Coord c = new Coord();
 	for(c.y = 0; c.y < sz.y; c.y++) {
 	    for(c.x = 0; c.x < sz.x; c.x++) {
-		int t = m.gettile(ul.add(c));
-		BufferedImage tex = tileimg(t, texes);
-		int rgb = 0;
-		if(tex != null)
-		    rgb = tex.getRGB(Utils.floormod(c.x + ul.x, tex.getWidth()),
-				     Utils.floormod(c.y + ul.y, tex.getHeight()));
-		buf.setRGB(c.x, c.y, rgb);
+		Coord c2 = ul.add(c);
+		int t;
+		try{
+		    t = m.gettile(c2);
+		} catch (LoadingMap e){
+		    return null;
+		}
+		try{
+		    BufferedImage tex = tileimg(t, texes);
+		    int rgb = 0;
+		    if(tex != null){
+			rgb = tex.getRGB(Utils.floormod(c.x, tex.getWidth()), Utils.floormod(c.y, tex.getHeight()));
+		    }
+		    buf.setRGB(c.x, c.y, rgb);
+		} catch(Loading e){
+		    return null;
+		}
+		try{
+		    if((m.gettile(c2.add(-1, 0)) > t) ||
+		       (m.gettile(c2.add(1, 0)) > t) ||
+		       (m.gettile(c2.add(0, -1)) > t) ||
+		       (m.gettile(c2.add(0, 1)) > t))
+			buf.setRGB(c.x, c.y, Color.BLACK.getRGB());
+		} catch (LoadingMap e){
+		    continue;
+		}
+	       
 	    }
 	}
-	for(c.y = 1; c.y < sz.y - 1; c.y++) {
+	 
+	drawRidges(ul, sz, m, buf, c);
+	return(buf);
+    }
+
+    private static void drawRidges(Coord ul, Coord sz, MCache m, BufferedImage buf, Coord c) {
+        for(c.y = 1; c.y < sz.y - 1; c.y++) {
 	    for(c.x = 1; c.x < sz.x - 1; c.x++) {
 		int t = m.gettile(ul.add(c));
 		Tiler tl = m.tiler(t);
@@ -105,26 +131,15 @@ public class LocalMiniMap extends Window {
 				int rgb = buf.getRGB(x, y);
 				rgb = (rgb & 0xff000000) |
 				    (((rgb & 0x00ff0000) >> 17) << 16) |
-				    (((rgb & 0x0000ff00) >>  9) << 8) |
-				    (((rgb & 0x000000ff) >>  1) << 0);
+				    (((rgb & 0x0000ff00) >> 9) << 8) |
+				    (((rgb & 0x000000ff) >> 1) << 0);
 				buf.setRGB(x, y, rgb);
 			    }
 			}
 		    }
 		}
 	    }
-	}
-	for(c.y = 0; c.y < sz.y; c.y++) {
-	    for(c.x = 0; c.x < sz.x; c.x++) {
-		int t = m.gettile(ul.add(c));
-		if((m.gettile(ul.add(c).add(-1, 0)) > t) ||
-		   (m.gettile(ul.add(c).add( 1, 0)) > t) ||
-		   (m.gettile(ul.add(c).add(0, -1)) > t) ||
-		   (m.gettile(ul.add(c).add(0,  1)) > t))
-		    buf.setRGB(c.x, c.y, Color.BLACK.getRGB());
-	    }
-	}
-	return(buf);
+        }
     }
 
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
@@ -188,45 +203,62 @@ public class LocalMiniMap extends Window {
     public void draw(GOut g) {
 	if(cc == null)
 	    return;
-	Coord cc = this.cc.add(off);
 	final Coord plg = cc.div(cmaps);
-	if((cur == null) || !plg.equals(cur.c)) {
-	    Defer.Future<MapTile> f;
-	    synchronized(cache) {
-		f = cache.get(plg);
-		if(f == null) {
-		    f = Defer.later(new Defer.Callable<MapTile> () {
+	Coord cc = this.cc.add(off);
+	Coord ulg = cc.div(cmaps);
+	int dy = -cc.y + (sz.y / 2);
+	int dx = -cc.x + (sz.x / 2);
+	while((ulg.x * cmaps.x) + dx > 0)
+	    ulg.x--;
+	while((ulg.y * cmaps.y) + dy > 0)
+	    ulg.y--;
+
+	Coord cg = new Coord();
+	synchronized(cache){
+	    for(cg.y = ulg.y; (cg.y * cmaps.y) + dy < sz.y; cg.y++){
+		for(cg.x = ulg.x; (cg.x * cmaps.x) + dx < sz.x; cg.x++) {
+		    Defer.Future<MapTile> f = cache.get(cg);
+		    final Coord tcg = new Coord(cg);
+		    final Coord ul = cg.mul(cmaps);
+		    Coord diff = cg.sub(plg).abs();
+		    if((f == null) && (Math.max(diff.x,diff.y) <= 1)){
+			f = Defer.later(new Defer.Callable<MapTile> () {
 			    public MapTile call() {
-				Coord ul = plg.mul(cmaps).sub(cmaps).add(1, 1);
-				return(new MapTile(new TexI(drawmap(ul, cmaps.mul(3).sub(2, 2))), ul, plg));
+				BufferedImage img = drawmap(ul, cmaps);
+				if(img == null){return null;}
+				return(new MapTile(new TexI(img), ul, tcg));
 			    }
 			});
-		    cache.put(plg, f);
+		    cache.put(tcg, f);
+		    }
+		    if((f == null || (!f.done()))){
+			continue;
+		    }
+		    MapTile mt = f.get();
+		    if(mt == null){
+			cache.put(cg, null);
+			continue;
+		    }
+		    Tex img = mt.img;
+		    g.image(img, ul.add(cc.inv()).add(sz.div(2)));
 		}
 	    }
-	    if(f.done())
-		cur = f.get();
 	}
-	if(cur != null) {
-	    g.image(cur.img, cur.ul.sub(cc).add(sz.div(2)));
+	Coord c0 = sz.div(2).sub(cc);
+	synchronized(ui.sess.glob.party.memb){
 	    try {
-		synchronized(ui.sess.glob.party.memb) {
-		    for(Party.Member m : ui.sess.glob.party.memb.values()) {
-			Coord ptc;
-			try {
-			    ptc = m.getc();
-			} catch(MCache.LoadingMap e) {
-			    ptc = null;
-			}
-			if(ptc == null)
-			    continue;
-			ptc = p2c(ptc);
-			g.chcolor(m.col.getRed(), m.col.getGreen(), m.col.getBlue(), 255);
-			g.image(MiniMap.plx.layer(Resource.imgc).tex(), ptc.add(MiniMap.plx.layer(Resource.negc).cc.inv()));
-			g.chcolor();
-		    }
+		Tex tx = MiniMap.plx.layer(Resource.imgc).tex();
+		Coord negc = MiniMap.plx.layer(Resource.negc).cc;
+		for(Party.Member memb : ui.sess.glob.party.memb.values()){
+		    Coord ptc = memb.getc();
+		    if(ptc == null)
+			continue;
+		    ptc = c0.add(ptc.div(tilesz));
+		    g.chcolor(memb.col);
+		    g.image(tx, ptc.sub(negc));
+		    g.chcolor();
 		}
-	    } catch(Loading l) {}
+	    } catch(Loading e) {}
 	}
 	drawicons(g);
 	Window.swbox.draw(g, Coord.z, this.sz);
