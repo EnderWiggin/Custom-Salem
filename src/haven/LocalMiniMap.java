@@ -229,7 +229,89 @@ public class LocalMiniMap extends Window {
 	Window.swbox.draw(g, Coord.z, this.sz);
     }
 
+    boolean dm,rsm;
+    Coord gzsz = new Coord(15,15);
+    Coord minsz = new Coord(125,125);
+    Coord off = new Coord(0,0),doff;
+    
+    private Coord uitomap(Coord c) {
+	return c.sub(sz.div(2)).add(off).mul(MCache.tilesz).add(mv.cc);
+    }
+    
     public boolean mousedown(Coord c, int button) {
+	parent.setfocus(this);
+	raise();
+
+	Coord mc = uitomap(c);
+        
+        Gob gob = findicongob(c);
+        if(gob != null)
+	    {
+		mv.wdgmsg("click", rootpos().add(c), mc, button, ui.modflags(), 0, (int) gob.id, gob.rc, 0, -1);
+		return true;
+	    }
+        
+	if(button == 3){            
+	    dm = true;
+	    ui.grabmouse(this);
+	    doff = c;
+	    return true;
+	}
+
+	if (button == 1) {
+	    if (ui.modctrl) {
+		mv.wdgmsg("click", rootpos().add(c), mc, button, 0);
+		return true;
+	    }
+
+	    ui.grabmouse(this);
+	    doff = c;
+	    if(c.isect(sz.sub(gzsz), gzsz)) {
+		rsm = true;
+		return true;
+	    }
+	}
 	return super.mousedown(c, button);
+    }
+
+    public boolean mouseup(Coord c, int button) {
+	if(button == 2){
+	    off.x = off.y = 0;
+	    return true;
+	}
+
+	if(button == 3){
+	    dm = false;
+	    ui.grabmouse(null);
+	    return true;
+	}
+
+	if (rsm){
+	    ui.grabmouse(null);
+	    rsm = false;
+	} else {
+	    super.mouseup(c, button);
+	}
+	return (true);
+    }
+
+    public void mousemove(Coord c) {
+	Coord d;
+	if(dm){
+	    d = c.sub(doff);
+	    off = off.sub(d);
+	    doff = c;
+	    return;
+	}
+
+	if (rsm){
+	    d = c.sub(doff);
+	    sz = sz.add(d);
+	    sz.x = Math.max(minsz.x, sz.x);
+	    sz.y = Math.max(minsz.y, sz.y);
+	    doff = c;
+	} else {
+	    super.mousemove(c);
+	}
     }
 }
