@@ -715,7 +715,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     public class MainMenu extends Widget {
 	public final MenuButton invb, equb, chrb, budb, polb, optb;
-	public final MenuButton clab, towb, warb, ptrb, chatb;
+	public final MenuButton clab, towb, warb, ptrb, digb, chatb;
 	public boolean pv = true;
 
 	public MainMenu(Coord c, Widget parent) {
@@ -827,6 +827,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    pv = !pv;
 		}
 	    };
+	    digb = new MenuButton(new Coord(78, 160), this, "ptr", -1, "Display Landscape Tool") {
+		public void click() {
+		    FlatnessTool.instance(GameUI.this);
+		}
+	    };
 	    chatb = new MenuButton(new Coord(100, 160), this, "chat", 3, "Chat (Ctrl+C)") {
 		public void click() {
 		    chat.toggle();
@@ -932,6 +937,34 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	    }.presize();
 	}
+	
+	if((Config.manualurl != null) && (WebBrowser.self != null)) {
+	    new IButton(Coord.z, this, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd"), Resource.loadimg("gfx/hud/cashh")) {
+		{
+		    tooltip = Text.render("Open Manual");
+		}
+		
+		public void click() {
+		    URL base = Config.manualurl;
+		    try {
+			WebBrowser.self.show(base);
+		    } catch(WebBrowser.BrowserException e) {
+			error("Could not launch web browser.");
+		    }
+		}
+
+		public void presize() {
+		    this.c = mainmenu.c.sub(0, this.sz.y).add(this.sz.x, 0);
+		}
+
+		public Object tooltip(Coord c, Widget prev) {
+		    if(checkhit(c))
+			return(super.tooltip(c, prev));
+		    return(null);
+		}
+	    }.presize();
+	}
+
     }
 
     public boolean globtype(char key, KeyEvent ev) {
