@@ -163,8 +163,46 @@ public class OptWnd extends Window {
 		    };
 		}
 		y += 30;
+
+		new Label(new Coord(0,y),this, "Camera type:");
+                y += 20;
+                RadioGroup camera_group = new RadioGroup(this)
+		    {
+                    @Override
+			public void changed(int btn, String lbl)
+			{
+			    if(lbl.equals("Orthographic camera"))
+				{
+				    try {
+					ui.cons.run("cam ortho");
+				    } catch (Exception ex) {
+				    }
+				}
+			    else if(lbl.equals("Follow camera"))
+				{
+				    try {
+					ui.cons.run("cam follow");
+				    } catch (Exception ex) {
+				    }
+				}
+			    else if(lbl.equals("Freestyle camera"))
+				{
+				    try {
+					ui.cons.run("cam best");
+				    } catch (Exception ex) {
+				    }
+				}
+			}
+		    };
+                camera_group.add("Orthographic camera", new Coord(15,y));
+		y += 20;
+                camera_group.add("Follow camera", new Coord(15,y));
+		y += 20;
+                camera_group.add("Freestyle camera", new Coord(15,y));
+                camera_group.check("Orthographic camera");
 	    }
 	}
+    
 
 	private CPanel curcf = null;
 	public void draw(GOut g) {
