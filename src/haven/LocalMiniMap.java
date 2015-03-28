@@ -128,7 +128,7 @@ public class LocalMiniMap extends Window {
     }
 
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
-	super(c, sz, parent, "Minimap");
+	super(c, sz, parent, "mmap");
 	this.mv = mv;
     }
     
@@ -226,6 +226,7 @@ public class LocalMiniMap extends Window {
 	    } catch(Loading l) {}
 	}
 	drawicons(g);
+	Window.swbox.draw(g, Coord.z, this.sz);
     }
 
     public boolean mousedown(Coord c, int button) {
