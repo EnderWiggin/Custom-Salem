@@ -236,7 +236,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    return(true);
 	}
     }
-    static {camtypes.put("sucky", FreeCam.class);}
+    static {camtypes.put("best", FreeCam.class);}
     
     public class OrthoCam extends Camera {
 	protected float dist = 500.0f;
