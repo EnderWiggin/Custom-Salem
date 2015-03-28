@@ -133,10 +133,12 @@ public class LocalMiniMap extends Window {
     }
     
     public Coord p2c(Coord pc) {
+	Coord cc = this.cc.add(off);
 	return(pc.div(tilesz).sub(cc).add(sz.div(2)));
     }
 
     public Coord c2p(Coord c) {
+	Coord cc = this.cc.add(off);
 	return(c.sub(sz.div(2)).add(cc).mul(tilesz).add(tilesz.div(2)));
     }
 
@@ -186,6 +188,7 @@ public class LocalMiniMap extends Window {
     public void draw(GOut g) {
 	if(cc == null)
 	    return;
+	Coord cc = this.cc.add(off);
 	final Coord plg = cc.div(cmaps);
 	if((cur == null) || !plg.equals(cur.c)) {
 	    Defer.Future<MapTile> f;
