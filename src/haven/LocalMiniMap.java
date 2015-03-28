@@ -34,7 +34,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import haven.resutil.RidgeTile;
 
-public class LocalMiniMap extends Widget {
+public class LocalMiniMap extends Window {
     public final MapView mv;
     private Coord cc = null;
     private MapTile cur = null;
@@ -128,7 +128,7 @@ public class LocalMiniMap extends Widget {
     }
 
     public LocalMiniMap(Coord c, Coord sz, Widget parent, MapView mv) {
-	super(c, sz, parent);
+	super(c, sz, parent, "Minimap");
 	this.mv = mv;
     }
     
@@ -229,16 +229,6 @@ public class LocalMiniMap extends Widget {
     }
 
     public boolean mousedown(Coord c, int button) {
-	if(cc == null)
-	    return(false);
-	MapView mv = getparent(GameUI.class).map;
-	if(mv == null)
-	    return(false);
-	Gob gob = findicongob(c);
-	if(gob == null)
-	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags());
-	else
-	    mv.wdgmsg("click", rootpos().add(c), c2p(c), button, ui.modflags(), 0, (int)gob.id, gob.rc, 0, -1);
-	return(true);
+	return super.mousedown(c, button);
     }
 }
