@@ -720,6 +720,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	public MainMenu(Coord c, Widget parent) {
 	    super(c, menubg.sz(), parent);
 	    new Img(Coord.z, menubg, this);
+	    new SeasonImg(new Coord(6,8), new Coord(146,146), this);
 	    invb = new MenuButton(new Coord(161, 8), this, "inv", 9, "Inventory (Tab)") {
 		int seq = 0;
 
@@ -938,7 +939,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
 	
 	if((Config.manualurl != null) && (WebBrowser.self != null)) {
-	    new IButton(Coord.z, this, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd"), Resource.loadimg("gfx/hud/cashh")) {
+	    new IButton(Coord.z, this, Resource.loadimg("gfx/hud/manu"), Resource.loadimg("gfx/hud/mand"), Resource.loadimg("gfx/hud/manh")) {
 		{
 		    tooltip = Text.render("Open Manual");
 		}
