@@ -29,7 +29,7 @@ package haven;
 import java.awt.Color;
 
 public class SeasonImg extends Widget {
-    private static final Tex seasons[] = {Resource.loadtex("gfx/hud/equup"),Resource.loadtex("gfx/hud/chrup"),Resource.loadtex("gfx/hud/budup"),Resource.loadtex("gfx/hud/polup")};
+    private static final Tex seasons[] = {Resource.loadtex("gfx/hud/coldsnap"),Resource.loadtex("gfx/hud/everbloom"),Resource.loadtex("gfx/hud/bloodmoon")};
     private int cs = 1;
     private double t = 0;
     
@@ -45,8 +45,6 @@ public class SeasonImg extends Widget {
 	    g.chcolor(Color.blue);break;
 	case 2: 
 	    g.chcolor(Color.green);break;
-	case 3: 
-	    g.chcolor(Color.yellow);break;
         }
         g.frect(Coord.z,this.sz);
         g.image(seasons[cs],this.sz.sub(seasons[cs].sz()).div(2));

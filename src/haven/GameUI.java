@@ -714,7 +714,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private static final Tex menubg = Resource.loadtex("gfx/hud/menubg");
     public class MainMenu extends Widget {
 	public final MenuButton invb, equb, chrb, budb, polb, optb;
-	public final MenuButton clab, towb, warb, ptrb, digb, chatb;
+	public final MenuButton clab, towb, warb, ptrb, lndb, chatb;
 	public boolean pv = true;
 
 	public MainMenu(Coord c, Widget parent) {
@@ -827,7 +827,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		    pv = !pv;
 		}
 	    };
-	    digb = new MenuButton(new Coord(78, 160), this, "ptr", -1, "Display Landscape Tool") {
+	    lndb = new MenuButton(new Coord(78, 160), this, "lnd", -1, "Display Landscape Tool") {
 		public void click() {
 		    FlatnessTool.instance(GameUI.this);
 		}
@@ -954,7 +954,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 		public void presize() {
-		    this.c = mainmenu.c.sub(0, this.sz.y).add(this.sz.x, 0);
+		    this.c = mainmenu.c.sub(0, this.sz.y).add((this.sz.x - 50), 0);
 		}
 
 		public Object tooltip(Coord c, Widget prev) {

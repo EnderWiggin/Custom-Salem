@@ -318,7 +318,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 
 	public boolean wheel(Coord c, int amount) {
 	    tfield += amount * 10;
-	    tfield = Math.max(Math.min(tfield, 200), 50);
+	    tfield = Math.max(Math.min(tfield, 400), 50);
 	    return(true);
 	}
     }
