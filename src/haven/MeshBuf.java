@@ -370,6 +370,10 @@ public class MeshBuf {
 	    return(new FastMesh(this.vbuf, idx));
     }
 
+    public FastMesh mkmesh() {
+	return(mkmesh(-1));
+    }
+
     public boolean emptyp() {
 	return(f.isEmpty());
     }
