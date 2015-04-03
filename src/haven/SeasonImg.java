@@ -30,7 +30,6 @@ import java.awt.Color;
 
 public class SeasonImg extends Widget {
     private static final Tex seasons[] = {Resource.loadtex("gfx/hud/coldsnap"),Resource.loadtex("gfx/hud/everbloom"),Resource.loadtex("gfx/hud/bloodmoon")};
-    private int cs = 1;
     private double t = 0;
     
     public SeasonImg(Coord c, Coord sz, Widget parent) {
@@ -38,20 +37,7 @@ public class SeasonImg extends Widget {
     }
     
     public void draw(GOut g) {
-        switch(cs){
-	case 0: 
-	    g.chcolor(Color.red);break;
-	case 1: 
-	    g.chcolor(Color.blue);break;
-	case 2: 
-	    g.chcolor(Color.green);break;
-        }
-        g.frect(Coord.z,this.sz);
-        g.image(seasons[cs],this.sz.sub(seasons[cs].sz()).div(2));
-    }
-
-    public void tick(double dt) {
-        t += dt;
-        cs = ((int)t/3)%4;
+	Tex t = seasons[ui.sess.glob.season];
+        g.image(t, this.sz.sub(t.sz()).div(2));
     }
 }
