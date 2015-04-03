@@ -31,30 +31,25 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class Inspiration extends ItemInfo.Tip {
+    public final int xc;
     public final String[] attrs;
     public final int[] exp;
     public final int[] o;
     
-    public Inspiration(Owner owner, String[] attrs, int[] exp) {
+    public Inspiration(Owner owner, int xc, String[] attrs, int[] exp) {
 	super(owner);
+	this.xc = xc;
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;
     }
 
-    public int total() {
-	int ret = 0;
-	for(int lp : exp)
-	    ret += lp;
-	return(ret);
-    }
-    
     public BufferedImage longtip() {
 	StringBuilder buf = new StringBuilder();
 	buf.append("When studied:\n");
 	for(int i = 0; i < attrs.length; i++)
 	    buf.append(String.format("   %s: %d\n", CharWnd.attrnm.get(attrs[o[i]]), exp[o[i]]));
-	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", total()));
+	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", xc));
 	return(RichText.render(buf.toString(), 0).img);
     }
 }
