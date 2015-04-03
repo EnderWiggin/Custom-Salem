@@ -36,7 +36,7 @@ public class Bufflist extends Widget {
     static final Coord ameteroff = new Coord(4, 52);
     static final Coord cmeteroff = new Coord(20, 20), cmeterul = new Coord(-20, -20), cmeterbr = new Coord(20, 20);
     static final int margin = 2;
-    static final int num = 5;
+    static final int num = 15;
     
     @RName("buffs")
     public static class $_ implements Factory {
