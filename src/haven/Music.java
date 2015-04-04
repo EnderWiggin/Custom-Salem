@@ -29,10 +29,10 @@ package haven;
 import java.util.*;
 
 public class Music {
+    public static double volume = 1.0;
     private static Resource curres = null;
     private static boolean curloop;
     private static Audio.CS clip = null;
-    private static double volume = 1.0;
     
     static {
 	volume = Double.parseDouble(Utils.getpref("bgmvol", "1.0"));
@@ -95,7 +95,7 @@ public class Music {
 	}
     }
 
-    public static void volume(double vol) {
+    public static void setvolume(double vol) {
 	synchronized(Music.class) {
 	    Music.volume = vol;
 	    Utils.setpref("bgmvol", Double.toString(Music.volume));
@@ -130,7 +130,7 @@ public class Music {
 	    });
 	Console.setscmd("bgmvol", new Console.Command() {
 		public void run(Console cons, String[] args) {
-		    volume(Double.parseDouble(args[1]));
+		    setvolume(Double.parseDouble(args[1]));
 		}
 	    });
     }
