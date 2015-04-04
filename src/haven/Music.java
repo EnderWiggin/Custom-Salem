@@ -90,18 +90,23 @@ public class Music {
 		Audio.stop(clip);
 		clip = null;
 	    }
-	    if(res != null)
+	    if(res != null) {
 		Audio.play(clip = new Jukebox(res, loop));
+		curres = res;
+		curloop = loop;
+	    }
 	}
     }
 
     public static void setvolume(double vol) {
 	synchronized(Music.class) {
+	    boolean off = vol < 0.01;
+	    boolean prevoff = volume < 0.01;
 	    Music.volume = vol;
 	    Utils.setpref("bgmvol", Double.toString(Music.volume));
-	    if(vol < 0.01)
+	    if(off && !prevoff)
 		play(null, false);
-	    else
+	    else if(!off && prevoff)
 		play(curres, curloop);
 	}
     }
