@@ -27,29 +27,17 @@
 package haven;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 
-public class Inspiration extends ItemInfo.Tip {
-    public final int xc;
-    public final String[] attrs;
-    public final int[] exp;
-    public final int[] o;
+public class SeasonImg extends Widget {
+    private static final Tex seasons[] = {Resource.loadtex("gfx/hud/coldsnap"),Resource.loadtex("gfx/hud/everbloom"),Resource.loadtex("gfx/hud/bloodmoon")};
+    private double t = 0;
     
-    public Inspiration(Owner owner, int xc, String[] attrs, int[] exp) {
-	super(owner);
-	this.xc = xc;
-	this.o = CharWnd.sortattrs(attrs);
-	this.attrs = attrs;
-	this.exp = exp;
+    public SeasonImg(Coord c, Coord sz, Widget parent) {
+	super(c, sz, parent);
     }
-
-    public BufferedImage longtip() {
-	StringBuilder buf = new StringBuilder();
-	buf.append("When studied:\n");
-	for(int i = 0; i < attrs.length; i++)
-	    buf.append(String.format("   %s: %d\n", CharWnd.attrnm.get(attrs[o[i]]), exp[o[i]]));
-	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", xc));
-	return(RichText.render(buf.toString(), 0).img);
+    
+    public void draw(GOut g) {
+	Tex t = seasons[ui.sess.glob.season];
+        g.image(t, this.sz.sub(t.sz()).div(2));
     }
 }
