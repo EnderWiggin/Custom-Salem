@@ -205,6 +205,7 @@ public class MCache {
 		    cuts[i].ols = null;
 		}
 		this.olseq = nseq;
+		FlatnessTool.recalcheight();
 	    }
 	    Cut cut = geticut(cc);
 	    if(cut.ols == null)
