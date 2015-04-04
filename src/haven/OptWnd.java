@@ -250,7 +250,7 @@ public class OptWnd extends Window {
 		Audio.setvolume(val / 1000.0);
 	    }
 	};
-	y += 0;
+	y += 30;
 	new Label(new Coord(0, y), audio, "Music volume");
 	y += 20;
 	new HSlider(new Coord(0, y), 200, audio, 0, 1000, (int)(Music.volume * 1000)) {
