@@ -954,7 +954,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 
 		public void presize() {
-		    this.c = mainmenu.c.sub(0, this.sz.y).add(30, 0);
+		    this.c = mainmenu.c.sub(0, this.sz.y).add(140, 0);
 		}
 
 		public Object tooltip(Coord c, Widget prev) {

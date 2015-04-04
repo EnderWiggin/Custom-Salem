@@ -383,6 +383,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    }
 	};
     public static final int WFOL = 18;
+    public static final Tex wftex = Resource.loadtex("gfx/hud/flat");
     private final Rendered mapol = new Rendered() {
 	    private final GLState[] mats;
 	    {
@@ -394,7 +395,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		mats[4] = new Material(new Color(0, 0, 0, 64));
 		mats[16] = new Material(new Color(0, 255, 0, 32));
 		mats[17] = new Material(new Color(255, 255, 0, 32));
-		mats[WFOL] = new Material(new Color(255, 255, 255, 255));
+		mats[WFOL] = new Material(wftex);
 	    }
 	    
 	    public void draw(GOut g) {}
