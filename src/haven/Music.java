@@ -52,7 +52,7 @@ public class Music {
 	    int ns = buf[0].length;
 	    int nch = buf.length;
 	    for(int i = 0; i < nch; i++) {
-		for(int o = 0; i < ns; o++) {
+		for(int o = 0; o < ns; o++) {
 		    buf[i][o] = 0;
 		}
 	    }
