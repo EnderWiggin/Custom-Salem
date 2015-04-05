@@ -29,15 +29,26 @@ package haven;
 import java.awt.Color;
 
 public class SeasonImg extends Widget {
-    private static final Tex seasons[] = {Resource.loadtex("gfx/hud/coldsnap"),Resource.loadtex("gfx/hud/everbloom"),Resource.loadtex("gfx/hud/bloodmoon")};
-    private double t = 0;
-    
+    private static final Tex seasons[] = {
+	    Resource.loadtex("gfx/hud/coldsnap"),
+	    Resource.loadtex("gfx/hud/everbloom"),
+	    Resource.loadtex("gfx/hud/bloodmoon")
+    };
+    public static final IBox box = Window.swbox;
+    public static final Color color = new Color(133, 92, 62);
+    private final Coord isz, ic;
+
     public SeasonImg(Coord c, Coord sz, Widget parent) {
 	super(c, sz, parent);
+	isz = sz.sub(box.bisz());
+	ic = box.btloff();
     }
     
     public void draw(GOut g) {
 	Tex t = seasons[ui.sess.glob.season];
-        g.image(t, this.sz.sub(t.sz()).div(2));
+	g.image(t, ic, isz);
+	g.chcolor(color);
+	box.draw(g, Coord.z, sz);
+	g.chcolor();
     }
 }
