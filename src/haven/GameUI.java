@@ -845,13 +845,13 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     
     public class MainMenu extends Widget {
 	public final MenuButton invb, equb, chrb, budb, polb, optb;
-	public final MenuButton clab, towb, warb, ptrb, lndb, chatb;
+	public final MenuButton clab, towb, warb, ptrb, chatb;
 	public boolean hpv = true, pv = hpv && !Config.hptr;
 
 	boolean full = true;
-	public MenuButton[] tohide = {
-		new SeasonImg(new Coord(6,8), new Coord(146,146), this);
-		new MenuButton(new Coord(4, 8), this, "inv", 9, "Inventory (Tab)") {
+	public Widget[] tohide = {
+		new SeasonImg(new Coord(6,8), new Coord(146,146), this),
+		invb = new MenuButton(new Coord(4, 8), this, "inv", 9, "Inventory (Tab)") {
 		    int seq = 0;
 		    public void click() {
 			if((invwnd != null) && invwnd.show(!invwnd.visible)) {
@@ -871,7 +871,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(62, 8), this, "equ", 5, "Equipment (Ctrl+E)") {
+		equb = new MenuButton(new Coord(62, 8), this, "equ", 5, "Equipment (Ctrl+E)") {
 		    public void click() {
 			if((equwnd != null) && equwnd.show(!equwnd.visible)) {
 			    equwnd.raise();
@@ -879,7 +879,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(120, 8), this, "chr", 20, "Studying (Ctrl+T)") {
+		chrb = new MenuButton(new Coord(120, 8), this, "chr", 20, "Studying (Ctrl+T)") {
 		    public void click() {
 			togglecw();
 		    }
@@ -890,7 +890,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			    flash(false);
 		    }
 		},
-		new MenuButton(new Coord(4, 66), this, "bud", 2, "Buddy List (Ctrl+B)") {
+		budb = new MenuButton(new Coord(4, 66), this, "bud", 2, "Buddy List (Ctrl+B)") {
 		    public void click() {
 			if((buddies != null) && buddies.show(!buddies.visible)) {
 			    buddies.raise();
@@ -899,7 +899,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(62, 66), this, "pol", 16, "Town (Ctrl+P)") {
+		polb = new MenuButton(new Coord(62, 66), this, "pol", 16, "Town (Ctrl+P)") {
 		    final Tex gray = Resource.loadtex("gfx/hud/polgray");
 
 		    public void draw(GOut g) {
@@ -917,7 +917,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			}
 		    }
 		},
-		new MenuButton(new Coord(120, 66), this, "opt", 15, "Options (Ctrl+O)") {
+		optb = new MenuButton(new Coord(120, 66), this, "opt", 15, "Options (Ctrl+O)") {
 		    public void click() {
 			OptWnd2.toggle();
 //			if(opts.show(!opts.visible)) {
@@ -932,13 +932,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	
 	public MainMenu(Coord c, Coord sz, Widget parent) {
 	    super(c, sz, parent);
-	    invb = tohide[0];
-	    equb = tohide[1];
-	    chrb = tohide[2];
-	    budb = tohide[3];
-	    polb = tohide[4];
-	    optb = tohide[5];// clab, towb, chatb;
-	    
+
 	    int y = sz.y - 21;
 	    int x = 6;
 	    clab = new MenuButtonT(new Coord(x, y), this, "cla", -1, "Display personal claims") {
@@ -1537,7 +1531,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
 	cmdmap.put("flatness", new Console.Command(){
 		public void run(Console cons, String[] args){
-		    FlatnessTool.instance(GameUI.this);
+		    FlatnessTool.instance(GameUI.this.ui);
 		}
 	    });
     }

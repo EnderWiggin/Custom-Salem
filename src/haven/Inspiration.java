@@ -44,10 +44,24 @@ public class Inspiration extends ItemInfo.Tip {
     
     public Inspiration(Owner owner, int xc, String[] attrs, int[] exp) {
 	super(owner);
-	this.xc = xc;
+	this.xc = (xc >= 0)?xc:total();
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;
+    }
+
+    public Inspiration(Owner o, String[] attrs, int[] exp) {
+	this(o, -1, attrs, exp);
+    }
+
+    public int total() {
+	int ret = 0;
+	int n = attrs.length;
+	for(int i =0; i<n; i++) {
+	    if(attrs[i].equals("uses")){continue;}
+	    ret += exp[i];
+	}
+	return(ret);
     }
 
     public BufferedImage longtip() {
