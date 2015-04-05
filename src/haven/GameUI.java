@@ -132,17 +132,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	setcanfocus(true);
 	setfocusctl(true);
 	menu = new MenuGrid(Coord.z, this);
-	new FramedAva(new Coord(2, 2), Avaview.dasz, this, plid, "avacam") {
-	    public boolean mousedown(Coord c, int button) {
-		return(true);
-	    }
-	};
+	new SeasonImg(new Coord(2,2), Avaview.dasz, this);
 	new Bufflist(new Coord(80, 40), this);
 	equipProxy = new EquipProxyWdg(new Coord(80, 2), new int[]{6, 7, 9, 14, 5, 4}, this);
 	tm = new Tempers(Coord.z, this);
 	chat = new ChatUI(Coord.z, 0, this);
 	syslog = new ChatUI.Log(chat, "System");
-	syslog.cbtn.visible = false;
 	ui.cons.out = new java.io.PrintWriter(new java.io.Writer() {
 		StringBuilder buf = new StringBuilder();
 		
@@ -850,7 +845,6 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
 	boolean full = true;
 	public Widget[] tohide = {
-		new SeasonImg(new Coord(6,8), new Coord(146,146), this),
 		invb = new MenuButton(new Coord(4, 8), this, "inv", 9, "Inventory (Tab)") {
 		    int seq = 0;
 		    public void click() {
@@ -929,7 +923,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		}
 	};
 	public IButton cash;
-	
+	public IButton manual;
+
 	public MainMenu(Coord c, Coord sz, Widget parent) {
 	    super(c, sz, parent);
 
@@ -1028,7 +1023,14 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    for (Widget w: tohide){
 		w.visible = full;
 	    }
-	    cash.presize();
+	    if(cash != null){
+		cash.visible = full;
+		cash.presize();
+	    }
+	    if(manual != null){
+		manual.visible = full;
+		manual.presize();
+	    }
 	}
 
     }
@@ -1154,11 +1156,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    };
 	    cash.presize();
 	    mainmenu.cash = cash;
-	    mainmenu.toggle();
 	}
-	
+
 	if((Config.manualurl != null) && (WebBrowser.self != null)) {
-	    new IButton(Coord.z, this, Resource.loadimg("gfx/hud/manu"), Resource.loadimg("gfx/hud/mand"), Resource.loadimg("gfx/hud/manh")) {
+	    mainmenu.manual = new IButton(Coord.z, this, Resource.loadimg("gfx/hud/manu"), Resource.loadimg("gfx/hud/mand"), Resource.loadimg("gfx/hud/manh")) {
 		{
 		    tooltip = Text.render("Open Manual");
 		}
@@ -1181,8 +1182,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			return(super.tooltip(c, prev));
 		    return(null);
 		}
-	    }.presize();
+	    };
+	    mainmenu.manual.presize();
 	}
+	mainmenu.toggle();
 
     }
     
