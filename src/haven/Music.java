@@ -26,139 +26,89 @@
 
 package haven;
 
-import javax.sound.midi.*;
+import java.util.*;
 
 public class Music {
-    private static Player player;
-    public static boolean enabled = true;
-    private static boolean debug = false;
+    public static double volume = 1.0;
+    private static Resource curres = null;
+    private static boolean curloop;
+    private static Audio.CS clip = null;
     
     static {
-	enabled = Utils.parsebool(Utils.getpref("bgmen", "true"), true);
+	volume = Double.parseDouble(Utils.getpref("bgmvol", "1.0"));
     }
 
-    private static void debug(String str) {
-	if(debug)
-	    System.out.println(str);
-    }
+    public static class Jukebox implements Audio.CS {
+	public final Resource res;
+	private int state;
+	private Audio.DataClip cur = null;
 
-    private static class Player extends HackThread {
-	private Resource res;
-	private Thread waitfor;
-	private Sequencer seq;
-	private Synthesizer synth;
-	private boolean done;
-	private boolean loop = false;
-	
-	private Player(Resource res, Thread waitfor) {
-	    super("Music player");
-	    setDaemon(true);
+	public Jukebox(Resource res, boolean loop) {
 	    this.res = res;
-	    this.waitfor = waitfor;
+	    this.state = loop?0:1;
 	}
-	
-	public void run() {
-	    try {
-		if(waitfor != null)
-		    waitfor.join();
-		res.loadwaitint();
-		try {
-		    seq = MidiSystem.getSequencer(false);
-		    synth = MidiSystem.getSynthesizer();
-		    seq.open();
-		    seq.setSequence(res.layer(Resource.Music.class).seq);
-		    synth.open();
-		    seq.getTransmitter().setReceiver(synth.getReceiver());
-		} catch(MidiUnavailableException e) {
-		    return;
-		} catch(InvalidMidiDataException e) {
-		    return;
-		} catch(IllegalArgumentException e) {
-		    /* The soft synthesizer appears to be throwing
-		     * non-checked exceptions through from the sampled
-		     * audio system. Ignore them and only them. */
-		    if(e.getMessage().startsWith("No line matching"))
-			return;
-		    throw(e);
-		}
-		seq.addMetaEventListener(new MetaEventListener() {
-			public void meta(MetaMessage msg) {
-			    debug("Meta " + msg.getType());
-			    if(msg.getType() == 47) {
-				synchronized(Player.this) {
-				    done = true;
-				    Player.this.notifyAll();
-				}
-			    }
-			}
-		    });
-		do {
-		    debug("Start loop");
-		    done = false;
-		    seq.start();
-		    synchronized(this) {
-			while(!done)
-			    this.wait();
-		    }
-		    seq.setTickPosition(0);
-		} while(loop);
-	    } catch(InterruptedException e) {
-	    } finally {
-		try {
-		    debug("Exit player");
-		    if(seq != null)
-			seq.close();
-		    try {
-			if(synth != null)
-			    synth.close();
-		    } catch(Throwable e2) {
-			if(e2 instanceof InterruptedException) {
-			    /* XXX: There appears to be a bug in Sun's
-			     * software MIDI implementation that throws back
-			     * an unchecked InterruptedException here when two
-			     * interrupts come close together (such as in the
-			     * case when the current player is first stopped,
-			     * and then another started immediately afterwards
-			     * on a new song before the first one has had time
-			     * to terminate entirely). */
-			} else {
-			    throw(new RuntimeException(e2));
-			}
-		    }
-		} finally {
-		    synchronized(Music.class) {
-			if(player == this)
-			    player = null;
-		    }
+
+	public int get(double[][] buf) {
+	    int ns = buf[0].length;
+	    int nch = buf.length;
+	    for(int i = 0; i < nch; i++) {
+		for(int o = 0; o < ns; o++) {
+		    buf[i][o] = 0;
 		}
 	    }
+	    if(cur == null) {
+		if(state == 2)
+		    return(-1);
+		try {
+		    List<Resource.Audio> clips = new ArrayList<Resource.Audio>(res.layers(Resource.audio));
+		    cur = new Audio.DataClip(clips.get((int)(Math.random() * clips.size())).pcmstream());
+		    if(state == 1)
+			state = 2;
+		} catch(Loading l) {
+		    return(ns);
+		}
+	    }
+	    int ret = cur.get(buf);
+	    double vol = volume;
+	    if(ret < 0) {
+		cur = null;
+	    } else {
+		for(int i = 0; i < nch; i++) {
+		    for(int o = 0; o < ret; o++)
+			buf[i][o] *= vol;
+		}
+	    }
+	    return(ns);
 	}
     }
-    
+
     public static void play(Resource res, boolean loop) {
 	synchronized(Music.class) {
-	    if(player != null)
-		player.interrupt();
+	    if(volume < 0.01)
+		res = null;
+	    if(clip != null) {
+		Audio.stop(clip);
+		clip = null;
+	    }
 	    if(res != null) {
-		player = new Player(res, player);
-		player.loop = loop;
-		player.start();
+		Audio.play(clip = new Jukebox(res, loop));
+		curres = res;
+		curloop = loop;
 	    }
 	}
     }
-    
-    public static void main(String[] args) throws Exception {
-	Resource.addurl(new java.net.URL("https://www.havenandhearth.com/res/"));
-	debug = true;
-	play(Resource.load(args[0]), (args.length > 1)?args[1].equals("y"):false);
-	player.join();
-    }
-    
-    public static void enable(boolean enabled) {
-	if(!enabled)
-	    play(null, false);
-	Music.enabled = enabled;
-	Utils.setpref("bgmen", Boolean.toString(enabled));
+
+    public static void setvolume(double vol) {
+	synchronized(Music.class) {
+	    boolean off = vol < 0.01;
+	    boolean prevoff = volume < 0.01;
+	    Music.volume = vol;
+	    Utils.setpref("bgmvol", Double.toString(Music.volume));
+	    if(off && !prevoff)
+		play(null, false);
+	    else if(!off && prevoff)
+		play(curres, curloop);
+	}
     }
 
     static {
@@ -183,12 +133,9 @@ public class Music {
 		    }		
 		}
 	    });
-	Console.setscmd("bgmsw", new Console.Command() {
+	Console.setscmd("bgmvol", new Console.Command() {
 		public void run(Console cons, String[] args) {
-		    if(args.length < 2)
-			enable(!enabled);
-		    else
-			enable(Utils.parsebool(args[1], true));
+		    setvolume(Double.parseDouble(args[1]));
 		}
 	    });
     }

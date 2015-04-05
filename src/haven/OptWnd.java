@@ -161,8 +161,48 @@ public class OptWnd extends Window {
 		    };
 		}
 		y += 30;
+
+		new Label(new Coord(0,y),this, "Camera type:");
+                y += 20;
+                RadioGroup camera_group = new RadioGroup(this)
+		    {
+                    @Override
+			public void changed(int btn, String lbl)
+			{
+			    if(lbl.equals("Orthographic camera"))
+				{
+				    try {
+					ui.cons.run("cam ortho");
+				    } catch (Exception ex) {
+				    }
+				}
+			    else if(lbl.equals("Follow camera"))
+				{
+				    try {
+					ui.cons.run("cam follow");
+				    } catch (Exception ex) {
+				    }
+				}
+			    else if(lbl.equals("Freestyle camera"))
+				{
+				    try {
+					ui.cons.run("cam best");
+				    } catch (Exception ex) {
+				    }
+				}
+			    Utils.setpref("cameratype", lbl);
+			}
+		    };
+                camera_group.add("Orthographic camera", new Coord(15,y));
+		y += 20;
+                camera_group.add("Follow camera", new Coord(15,y));
+		y += 20;
+                camera_group.add("Freestyle camera", new Coord(15,y));
+		camera_group.check(Utils.getpref("cameratype","Orthographic camera"));
+                camera_group.check("Orthographic camera");
 	    }
 	}
+    
 
 	private CPanel curcf = null;
 	public void draw(GOut g) {
@@ -206,6 +246,14 @@ public class OptWnd extends Window {
 	new HSlider(new Coord(0, y), 200, audio, 0, 1000, (int)(Audio.volume * 1000)) {
 	    public void changed() {
 		Audio.setvolume(val / 1000.0);
+	    }
+	};
+	y += 30;
+	new Label(new Coord(0, y), audio, "Music volume");
+	y += 20;
+	new HSlider(new Coord(0, y), 200, audio, 0, 1000, (int)(Music.volume * 1000)) {
+	    public void changed() {
+		Music.setvolume(val / 1000.0);
 	    }
 	};
 	new PButton(new Coord(0, 180), 200, audio, "Back", 27, main);

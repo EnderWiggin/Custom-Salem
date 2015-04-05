@@ -37,27 +37,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Inspiration extends ItemInfo.Tip {
+    public final int xc;
     public final String[] attrs;
     public final int[] exp;
     public final int[] o;
     
-    public Inspiration(Owner owner, String[] attrs, int[] exp) {
+    public Inspiration(Owner owner, int xc, String[] attrs, int[] exp) {
 	super(owner);
+	this.xc = xc;
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;
     }
 
-    public int total() {
-	int ret = 0;
-	int n = attrs.length;
-	for(int i =0; i<n; i++) {
-	    if(attrs[i].equals("uses")){continue;}
-	    ret += exp[i];
-	}
-	return(ret);
-    }
-    
     public BufferedImage longtip() {
 	StringBuilder buf = new StringBuilder();
 	Color[] cs = UI.instance.gui.chrwdg.attrcols(attrs);
@@ -75,7 +67,7 @@ public class Inspiration extends ItemInfo.Tip {
 	    Color c = cs[k];
 	    buf.append(String.format("\n$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[k] ));
 	}
-	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", total()));
+	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", xc));
 	if(uses > 0){ buf.append(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)); }
 	return RichText.stdf.render(buf.toString(), 0).img;
     }
