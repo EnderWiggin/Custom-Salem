@@ -1,5 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 05.04.15:}}
+  * merged with default client
+  * replaced avatar view with season indicator.
+  * made cash shop and manual buttons hide when menu is minimized
+ 
 $size[14]{$u{Update for 12.03.15:}}
   * added fix for floating numbers being invisible near smoke on some videocards.
   * improved auto-sifting - it will now repeat clicks in same map coordinates, instead of screen coordinates. And will do so just after progress bar finishes, instead of 1.6 seconds.
