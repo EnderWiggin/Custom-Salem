@@ -84,17 +84,19 @@ public class Music {
 
     public static void play(Resource res, boolean loop) {
 	synchronized(Music.class) {
-	    if(volume < 0.01)
-		res = null;
-	    if(clip != null) {
-		Audio.stop(clip);
-		clip = null;
-	    }
-	    if(res != null) {
+	    curres = res;
+	    curloop = loop;
+	    stop();
+	    if(volume >= 0.01 && res != null) {
 		Audio.play(clip = new Jukebox(res, loop));
-		curres = res;
-		curloop = loop;
 	    }
+	}
+    }
+
+    private static void stop() {
+	if(clip != null) {
+	    Audio.stop(clip);
+	    clip = null;
 	}
     }
 
@@ -104,10 +106,11 @@ public class Music {
 	    boolean prevoff = volume < 0.01;
 	    Music.volume = vol;
 	    Utils.setpref("bgmvol", Double.toString(Music.volume));
-	    if(off && !prevoff)
-		play(null, false);
-	    else if(!off && prevoff)
+	    if(off && !prevoff) {
+		stop();
+	    } else if(!off && prevoff) {
 		play(curres, curloop);
+	    }
 	}
     }
 
