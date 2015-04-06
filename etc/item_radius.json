@@ -1,24 +1,34 @@
 {
-  "gfx/terobjs/minesupport": {
+  "gfx/terobjs/minesupport"   : {
 	"radius": 100,
 	"scol"  : "8866BB66"
   },
-  "gfx/terobjs/minersupport": {
+  "gfx/terobjs/minersupport"  : {
 	"radius": 200,
 	"scol"  : "8866BB66"
   },
-  "gfx/terobjs/mineexit": {
-    "radius": 100,
-    "scol"  : "8866BB66"
+  "gfx/terobjs/mineexit"      : {
+	"radius": 100,
+	"scol"  : "8866BB66"
   },
-  "gfx/terobjs/torchpost"  : {
+  "gfx/terobjs/torchpost"     : {
 	"radius": 250,
 	"scol"  : "88ff2233",
 	"ecol"  : "ccbb22"
   },
-  "gfx/terobjs/brazier"    : {
+  "gfx/terobjs/brazier"       : {
 	"radius": 121,
 	"scol"  : "88ff2233",
 	"ecol"  : "ffaa44"
+  },
+  "gfx/terobjs/butterflyhouse": {
+	"radius": 121,
+	"scol"  : "883322ff",
+	"ecol"  : "aaff44"
+  },
+  "gfx/terobjs/skep"          : {
+	"radius": 100,
+	"scol"  : "883322ff",
+	"ecol"  : "22bb44"
   }
 }
