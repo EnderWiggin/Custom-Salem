@@ -37,7 +37,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Inspiration extends ItemInfo.Tip {
-    public final int xc;
+    public final int xc, base;
+    public final float multi;
     public final String[] attrs;
     public final int[] exp;
     public final int[] o;
@@ -47,7 +48,10 @@ public class Inspiration extends ItemInfo.Tip {
 	this.o = CharWnd.sortattrs(attrs);
 	this.attrs = attrs;
 	this.exp = exp;
-	this.xc = (xc >= 0)?xc:total();
+	this.base = total();
+	this.xc = (xc >= 0)?xc:base;
+	int k = Math.round(100*(float)xc/base);
+	multi = k/100.0f;
     }
 
     public Inspiration(Owner o, String[] attrs, int[] exp) {
@@ -81,7 +85,10 @@ public class Inspiration extends ItemInfo.Tip {
 	    Color c = cs[k];
 	    buf.append(String.format("\n$col[%d,%d,%d]{%s: %d}",c.getRed(), c.getGreen(), c.getBlue(), attr, exp[k] ));
 	}
-	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}\n", xc));
+	buf.append(String.format("   $b{$col[192,192,64]{Inspiration required: %d}}", xc));
+	if(multi > 1){
+	    buf.append(String.format("$b{$col[190,164,164]{ (%dx%s)}}", base, multi));
+	}
 	if(uses > 0){ buf.append(String.format("$b{$col[192,192,64]{Uses: %d}}\n", uses)); }
 	return RichText.stdf.render(buf.toString(), 0).img;
     }
