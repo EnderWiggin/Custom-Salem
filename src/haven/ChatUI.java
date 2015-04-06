@@ -24,6 +24,7 @@
  *  Boston, MA 02111-1307 USA
  */
 
+
 package haven;
 
 import haven.minimap.Radar;
@@ -32,6 +33,7 @@ import static haven.Window.cbtni;
 
 import java.util.*;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextHitInfo;
@@ -44,7 +46,7 @@ import java.awt.datatransfer.*;
 
 public class ChatUI extends Widget {
     public static final RichText.Foundry fnd = new RichText.Foundry(new ChatParser(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 12, TextAttribute.FOREGROUND, Color.BLACK));
-    public static final Text.Foundry qfnd = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 14), new java.awt.Color(192, 255, 192));
+    public static final Text.Foundry qfnd = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 14), new Color(192, 255, 192));
     public static final int selw = 100;
     public Channel sel = null;
     private final Selector chansel;
@@ -143,6 +145,13 @@ public class ChatUI extends Widget {
 	public final List<Message> msgs = new LinkedList<Message>();
 	private final Scrollbar sb;
 	public IButton cbtn;
+	protected boolean read = true;
+
+	@Override
+	    public void show(){
+	    super.show();
+	    read = true;
+	}
 	
 	public static abstract class Message {
 	    public final long time = System.currentTimeMillis();
@@ -177,19 +186,22 @@ public class ChatUI extends Widget {
 	    }
 	}
 
-	public Channel(Coord c, Coord sz, Widget parent) {
+	public Channel(Coord c, Coord sz, Widget parent, boolean closeable) {
 	    super(c, sz, parent);
 	    sb = new Scrollbar(new Coord(sz.x, 0), ih(), this, 0, -ih());
-	    cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
-	    cbtn.recthit = true;
-	    cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+
+	    if(closeable){
+		cbtn = new IButton(Coord.z, this, cbtni[0], cbtni[1], cbtni[2]);
+		cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+		cbtn.recthit = true;
+	    }
 	}
 	
-	public Channel(Widget parent) {
-	    this(new Coord(selw, 0), parent.sz.sub(selw, 0), parent);
+	public Channel(Widget parent, boolean closeable) {
+	    this(new Coord(selw, 0), parent.sz.sub(selw, 0), parent, closeable);
 	}
 	
-	public void append(Message msg) {
+	public void append(Message msg, boolean attn) {
 	    synchronized(msgs) {
 		msgs.add(msg);
 		int y = 0;
@@ -199,11 +211,15 @@ public class ChatUI extends Widget {
 		sb.max = y - ih();
 		if(b)
 		    sb.val = sb.max;
+		if(attn){
+		    if(!visible)
+			read = false;
+		}
 	    }
 	}
 
 	public void append(String line, Color col) {
-	    append(new SimpleMessage(line, col, iw()));
+	    append(new SimpleMessage(line, col, iw()), false);
 	}
 	
 	public int iw() {
@@ -258,8 +274,9 @@ public class ChatUI extends Widget {
 		if(b)
 		    sb.val = sb.max;
 	    }
-	    if(cbtn != null)
+	    if(cbtn != null){
 		cbtn.c = new Coord(sz.x - cbtn.sz.x - sb.sz.x - 3, 0);
+	    }
 	}
 	
 	public void notify(Message msg) {
@@ -569,7 +586,7 @@ public class ChatUI extends Widget {
 	private final String name;
 	
 	public Log(Widget parent, String name) {
-	    super(parent);
+	    super(parent, false);
 	    this.name = name;
 	}
 	
@@ -583,7 +600,7 @@ public class ChatUI extends Widget {
 	private String hcurrent;
 	
 	public EntryChannel(Widget parent) {
-	    super(parent);
+	    super(parent, true);
 	    setfocusctl(true);
 	    this.in = new TextEntry(new Coord(0, sz.y - 20), new Coord(sz.x, 20), this, "") {
 		    public void activate(String text) {
@@ -651,7 +668,7 @@ public class ChatUI extends Widget {
 		    if (col == null) col = Color.WHITE;
 		    boolean notify = (args.length > 2) ? (((Integer) args[2]) != 0) : false;
 		    Message cmsg = new SimpleMessage(line, col, iw());
-		    append(cmsg);
+		    append(cmsg, false);
 		    if (notify)
 			notify(cmsg);
 		}
@@ -747,14 +764,15 @@ public class ChatUI extends Widget {
 		String line = parseTags((String)args[1]);
 		if(line != null) {
 		    if (from == null) {
-			append(new MyMessage(line, iw()));
+			append(new MyMessage(line, iw()), false);
 		    } else {
 			Message cmsg = new NamedMessage(from, line, fromcolor(from), iw());
-			append(cmsg);
+			append(cmsg, true);
 			if (notify)
 			    notify(cmsg);
 		    }
 		}
+
 	    } else {
 		super.uimsg(msg, args);
 	    }
@@ -783,13 +801,14 @@ public class ChatUI extends Widget {
 			    col = lighter(pm.col);
 		    }
 		    if (from == null) {
-			append(new MyMessage(line, iw()));
+			append(new MyMessage(line, iw()), false);
 		    } else {
 			Message cmsg = new NamedMessage(from, line, col, iw());
-			append(cmsg);
+			append(cmsg, true);
 			notify(cmsg);
 		    }
 		}
+
 	    } else {
 		super.uimsg(msg, args);
 	    }
@@ -827,16 +846,17 @@ public class ChatUI extends Widget {
 		if(line != null) {
 		    if (t.equals("in")) {
 			Message cmsg = new InMessage(line, iw());
-			append(cmsg);
+			append(cmsg, true);
 			notify(cmsg);
 		    } else if (t.equals("out")) {
-			append(new OutMessage(line, iw()));
+			append(new OutMessage(line, iw()), false);
 		    }
 		}
+
 	    } else if(msg == "err") {
 		String err = (String)args[0];
 		Message cmsg = new SimpleMessage(err, Color.RED, iw());
-		append(cmsg);
+		append(cmsg, false);
 		notify(cmsg);
 	    } else {
 		super.uimsg(msg, args);
@@ -886,16 +906,19 @@ public class ChatUI extends Widget {
     }
 
     private class Selector extends Widget {
-	public final Text.Foundry nf = new Text.Foundry("SansSerif", 10);
+	public final Text.Foundry nf = new Text.Foundry("SansSerif", 12);
 	private final List<DarkChannel> chls = new ArrayList<DarkChannel>();
 	private int s = 0;
+	public final Text.Foundry nfu = new Text.Foundry("SansSerif", 14, Font.BOLD);
 	
 	private class DarkChannel {
 	    public final Channel chan;
 	    public Text rname;
+	    public boolean rread;
 	    
 	    private DarkChannel(Channel chan) {
 		this.chan = chan;
+		this.rread = false;
 	    }
 	}
 	
@@ -932,8 +955,16 @@ public class ChatUI extends Widget {
 			g.frect(new Coord(0, y), new Coord(sz.x, 19));
 		    }
 		    g.chcolor(255, 255, 255, 255);
-		    if((ch.rname == null) || !ch.rname.text.equals(ch.chan.name()))
-			ch.rname = nf.render(ch.chan.name());
+
+		    if((ch.rname == null) || !ch.rname.text.equals(ch.chan.name()) || ch.rread != ch.chan.read) {
+			ch.rread = ch.chan.read;
+			if(ch.rread){
+			    ch.rname = nf.render(ch.chan.name());
+			} else {
+			    ch.rname = nfu.render(ch.chan.name());
+			}
+		    }
+
 		    g.aimage(ch.rname.tex(), new Coord(sz.x / 2, y + 10), 0.5, 0.5);
 		    g.line(new Coord(5, y + 19), new Coord(sz.x - 5, y + 19), 1);
 		    y += 20;

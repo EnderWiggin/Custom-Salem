@@ -50,8 +50,9 @@ public class Config {
     public static URL resurl = geturl("haven.resurl", "");
     public static URL mapurl = geturl("haven.mapurl", "");
     public static URL screenurl = geturl("haven.screenurl", "http://game.salemthegame.com/mt/ss");
+    public static URL manualurl = geturl("haven.manualurl", "http://www.salemthegame.com/salemj/index");
     public static URL storeurl = geturl("haven.storeurl", "http://login.salemthegame.com/portal/tostore");
-    public static URL regurl = geturl("haven.regurl", "http://login.salemthegame.com/beta/nregister");
+    public static URL regurl = geturl("haven.regurl", "");
     public static boolean dbtext = getprop("haven.dbtext", "off").equals("on");
     public static boolean bounddb = getprop("haven.bounddb", "off").equals("on");
     public static boolean profile = getprop("haven.profile", "off").equals("on");

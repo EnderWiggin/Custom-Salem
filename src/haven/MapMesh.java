@@ -397,7 +397,7 @@ public class MapMesh implements Rendered, Disposable {
 
 	public void postcalcnrm(Random rnd) {
 	    for(Map.Entry<GLState, MeshBuf> mod : models.entrySet()) {
-		FastMesh mesh = mod.getValue().mkmesh();
+		FastMesh mesh = mod.getValue().mkmesh(-1);
 		m.extras.add(mod.getKey().apply(mesh));
 		m.dparts.add(mesh);
 	    }
@@ -432,7 +432,7 @@ public class MapMesh implements Rendered, Disposable {
 		throw(new RuntimeException("Map layer without planes?!"));
 	    for(Shape p : l.pl)
 		p.build(buf);
-	    l.mesh = buf.mkmesh();
+	    l.mesh = buf.mkmesh(-1);
 	    m.dparts.add(l.mesh);
 	}
 	Collections.sort(m.layers, new Comparator<Layer>() {
@@ -490,7 +490,7 @@ public class MapMesh implements Rendered, Disposable {
 		    splitquad(buf, vm[t.x][t.y], vm[t.x][t.y + 1], vm[t.x + 1][t.y + 1], vm[t.x + 1][t.y]);
 		}
 	    }
-	    mesh = buf.mkmesh();
+	    mesh = buf.mkmesh(-1);
 	}
 
 	@Deprecated
@@ -548,7 +548,7 @@ public class MapMesh implements Rendered, Disposable {
 		}
 	    }
 	    if(h) {
-		final FastMesh mesh = buf.mkmesh(i == MapView.WFOL);;
+		final FastMesh mesh = buf.mkmesh(i);
 		class OL implements Rendered, Disposable {
 		    public void draw(GOut g) {
 			mesh.draw(g);

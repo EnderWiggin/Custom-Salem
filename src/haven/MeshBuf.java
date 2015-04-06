@@ -351,11 +351,7 @@ public class MeshBuf {
 	this.f.clear();
     }
     
-    public FastMesh mkmesh() {
-	return mkmesh(false);
-    }
-    
-    public FastMesh mkmesh(boolean isWireframe) {
+    public FastMesh mkmesh(int i) {
 	if(f.isEmpty())
 	    throw(new RuntimeException("Tried to build empty mesh"));
 	if(this.vbuf == null)
@@ -368,7 +364,14 @@ public class MeshBuf {
 	    idx[ii + 2] = f.v3.idx;
 	    ii += 3;
 	}
-	return isWireframe?(new WireMesh(this.vbuf, idx)):(new FastMesh(this.vbuf, idx));
+	if(i == MapView.WFOL)
+	    return(new WireMesh(this.vbuf, idx));
+	else
+	    return(new FastMesh(this.vbuf, idx));
+    }
+
+    public FastMesh mkmesh() {
+	return(mkmesh(-1));
     }
 
     public boolean emptyp() {

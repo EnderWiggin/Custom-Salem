@@ -34,7 +34,7 @@ import java.io.*;
 import java.lang.ref.*;
 
 public class Session implements Owner {
-    public static final int PVER = 35;
+    public static final int PVER = 36;
     
     public static final int MSG_SESS = 0;
     public static final int MSG_REL = 1;
@@ -535,12 +535,10 @@ public class Session implements Owner {
 		String resnm = msg.string();
 		int resver = msg.uint16();
 		boolean loop = !msg.eom() && (msg.uint8() != 0);
-		if(Music.enabled) {
-		    if(resnm.equals(""))
-			Music.play(null, false);
-		    else
-			Music.play(Resource.load(resnm, resver), loop);
-		}
+		if(resnm.equals(""))
+		    Music.play(null, false);
+		else
+		    Music.play(Resource.load(resnm, resver), loop);
 	    } else if(msg.type == Message.RMSG_TILES) {
 		glob.map.tilemap(msg);
 	    } else if(msg.type == Message.RMSG_BUFF) {
