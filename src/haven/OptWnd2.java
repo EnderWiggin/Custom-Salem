@@ -450,7 +450,7 @@ public class OptWnd2 extends Window {
 	    };
 	    new CheckBox(new Coord(10, 100), tab, "Music enabled") {
 		public void changed(boolean val) {
-		    Music.enable(val);
+		    //Music.enable(val);
 		}
 	    };
 	}

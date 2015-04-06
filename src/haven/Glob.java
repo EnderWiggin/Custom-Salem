@@ -45,6 +45,7 @@ public class Glob {
     public static final float MAX_BRIGHT = 0.62f;
 	
     public long time, epoch = System.currentTimeMillis();
+    public int season;
     public OCache oc = new OCache(this);
     public MCache map;
     public Session sess;
@@ -234,6 +235,7 @@ public class Glob {
 	    switch(t) {
 	    case GMSG_TIME:
 		time = msg.int32();
+		season = msg.uint8();
 		epoch = System.currentTimeMillis();
 		if(!inc)
 		    lastrep = 0;

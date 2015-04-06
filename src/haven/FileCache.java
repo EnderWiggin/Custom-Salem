@@ -67,7 +67,7 @@ public class FileCache implements ResCache {
 	final File tmp = new File(dir, nm.getName() + ".new");
 	dir.mkdirs();
 	tmp.delete();
-	OutputStream ret = new FilterOutputStream(new FileOutputStream(tmp)) {
+	OutputStream ret = new FilterOutputStream(new BufferedOutputStream(new FileOutputStream(tmp))) {
 		public void close() throws IOException {
 		    super.close();
 		    if(!tmp.renameTo(nm)) {
@@ -82,7 +82,7 @@ public class FileCache implements ResCache {
     }
     
     public InputStream fetch(String name) throws IOException {
-	return(new FileInputStream(forres(name)));
+	return(new BufferedInputStream(new FileInputStream(forres(name))));
     }
     
     public String toString() {
