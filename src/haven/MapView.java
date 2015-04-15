@@ -522,6 +522,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 		rl.add(extra, null);
 	    extradraw.clear();
 	}
+	rl.add(new DropSky(haven.resutil.WaterTile.sky), Rendered.last);
     }
 
     public static final haven.glsl.Uniform amblight = new haven.glsl.Uniform.AutoApply(haven.glsl.Type.INT) {
