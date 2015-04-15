@@ -119,7 +119,7 @@ public class WaterTile extends Tiler {
 	public static final MapMesh.DataID<Bottom> id = MapMesh.makeid(Bottom.class);
     }
     
-    static final TexCube sky = new TexCube(Resource.loadimg("gfx/tiles/skycube"));
+    public static final TexCube sky = new TexCube(Resource.loadimg("gfx/tiles/skycube"));
     static final TexI nrm = (TexI)Resource.loadtex("gfx/tiles/wn");
     static {
 	nrm.mipmap();
