@@ -43,7 +43,7 @@ public class DropSky implements Rendered {
 	float iw = 1 / vc[3];
 	for(int i = 0; i < 4; i++) vc[i] *= iw;
 	if(g.st.prog == null)
-	    gl.glMultiTexCoord3f(tsky.id, vc[0] - oc[0], vc[1] - oc[1], vc[2] - oc[2]);
+	    gl.glMultiTexCoord3f(GL.GL_TEXTURE0 + tsky.id, vc[0] - oc[0], vc[1] - oc[1], vc[2] - oc[2]);
 	else
 	    gl.glTexCoord3f(vc[0] - oc[0], vc[1] - oc[1], vc[2] - oc[2]);
 	gl.glVertex4f(vc[0], vc[1], vc[2], vc[3]);
