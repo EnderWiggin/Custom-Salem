@@ -40,8 +40,8 @@ public class WItemComparator implements Comparator<WItem> {
     }
 
     private int carats(WItem o1, WItem o2) {
-	float c1 = o1.carats.get();
-	float c2 = o2.carats.get();
+	float c1 = (o1 != null && o1.carats != null)?o1.carats.get():0;
+	float c2 = (o2 != null && o2.carats != null)?o2.carats.get():0;
 
 	if(c1 > c2){
 	    return 1;
