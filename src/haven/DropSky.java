@@ -123,6 +123,50 @@ public class DropSky implements Rendered {
 
     public boolean setup(RenderList rl) {
 	rl.prepo(st);
+	rl.prepo(States.presdepth);
 	return(true);
+    }
+
+    public static class ResSky implements Rendered {
+	private DropSky sky;
+	private Indir<Resource> res;
+	public double alpha = 1.0;
+
+	public ResSky(Indir<Resource> res) {
+	    this.res = res;
+	}
+
+	public void update(Indir<Resource> res) {
+	    synchronized(this) {
+		if(this.res != res) {
+		    this.sky = null;
+		    this.res = res;
+		}
+	    }
+	}
+
+	public void draw(GOut g) {
+	}
+
+	public boolean setup(RenderList rl) {
+	    DropSky sky = this.sky;
+	    if(sky == null) {
+		synchronized(this) {
+		    if(res != null) {
+			try {
+			    this.sky = sky = new DropSky(new TexCube(res.get().layer(Resource.imgc).img));
+			} catch(Loading l) {
+			}
+		    }
+		}
+	    }
+	    if(sky != null) {
+		GLState blend = null;
+		if(alpha < 1.0)
+		    blend = new States.ColState(255, 255, 255, (int)(255 * alpha));
+		rl.add(sky, blend);
+	    }
+	    return(false);
+	}
     }
 }
