@@ -31,6 +31,7 @@ public class StockBin extends Widget implements DTarget {
     static Text.Foundry lf;
     private Indir<Resource> res;
     private Text label;
+    private int rem=0,bi=0;
     static {
         lf = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 18), java.awt.Color.WHITE);
         lf.aa = true;
@@ -44,6 +45,8 @@ public class StockBin extends Widget implements DTarget {
 	}
     
     private void setlabel(int rem, int bi) {
+	this.rem = rem;
+	this.bi = bi;
         label = lf.renderf("%d/%d", rem, bi);
     }
     
@@ -59,8 +62,7 @@ public class StockBin extends Widget implements DTarget {
             Tex t = res.get().layer(Resource.imgc).tex();
             Coord dc = new Coord(6, (bg.sz().y / 2) - (t.sz().y / 2));
             g.image(t, dc);
-        } catch(Loading exc) {
-	}
+        } catch(Loading ignored) {}
         g.image(label.tex(), new Coord(40, (bg.sz().y / 2) - (label.tex().sz().y / 2)));
     }
     
@@ -68,20 +70,23 @@ public class StockBin extends Widget implements DTarget {
 	try {
 	    if(res.get().layer(Resource.tooltip) != null)
 		return(res.get().layer(Resource.tooltip).t);
-	} catch(Loading e) {
-	}
+	} catch(Loading ignored) {}
 	return(null);
     }
     
     public boolean mousedown(Coord c, int button) {
-        if(button == 1) {
-            if(ui.modshift)
-                wdgmsg("xfer");
-            else
-                wdgmsg("click");
-            return(true);
-        }
-        return(false);
+	if(button == 1) {
+	    if(ui.modshift ^ ui.modctrl){	//SHIFT or CTRL means pull
+		int dir = ui.modctrl?-1:1;	//CTRL means pull out, SHIFT pull in
+		int all = (dir > 0)?bi-rem:rem;	//count depends on direction
+		int k = ui.modmeta?all:1;	//ALT means pull all
+		for(int i=0; i<k; i++){wdgmsg("xfer2", dir, 1);} //modflags set to 1 to emulate only SHIFT pressed
+	    } else {
+		wdgmsg("click");
+	    }
+	    return(true);
+	}
+	return(false);
     }
     
     public boolean mousewheel(Coord c, int amount) {
