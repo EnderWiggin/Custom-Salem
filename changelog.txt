@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 19.04.15:}}
+  * merged with default client
+ 
 $size[14]{$u{Update for 07.04.15:}}
   * improved inspiration xp coloring - show full xp as red, enough for skill xp - yellow
   * inspirations now show also base inspiration cost and current multiplier
