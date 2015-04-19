@@ -339,7 +339,64 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    return(true);
 	}
     }
-    static {camtypes.put("best", FreeCam.class);}
+
+    public class SFreeCam extends Camera {
+	private float dist = 50.0f, tdist = dist;
+	private float elev = (float)Math.PI / 4.0f, telev = elev;
+	private float angl = 0.0f, tangl = angl;
+	private Coord dragorig = null;
+	private float elevorig, anglorig;
+	private final float pi2 = (float)(Math.PI * 2);
+	private Coord3f cc = null;
+
+	public void tick(double dt) {
+	    angl = angl + ((tangl - angl) * (1f - (float)Math.pow(500, -dt)));
+	    while(angl > pi2) {angl -= pi2; tangl -= pi2; anglorig -= pi2;}
+	    while(angl < 0)   {angl += pi2; tangl += pi2; anglorig += pi2;}
+	    if(Math.abs(tangl - angl) < 0.0001) angl = tangl;
+
+	    elev = elev + ((telev - elev) * (1f - (float)Math.pow(500, -dt)));
+	    if(Math.abs(telev - elev) < 0.0001) elev = telev;
+
+	    dist = dist + ((tdist - dist) * (1f - (float)Math.pow(500, -dt)));
+	    if(Math.abs(tdist - dist) < 0.0001) dist = tdist;
+
+	    Coord3f mc = getcc();
+	    mc.y = -mc.y;
+	    if((cc == null) || (Math.hypot(mc.x - cc.x, mc.y - cc.y) > 250))
+		cc = mc;
+	    else
+		cc = cc.add(mc.sub(cc).mul(1f - (float)Math.pow(500, -dt)));
+	    view.update(PointedCam.compute(cc.add(0.0f, 0.0f, 15f), dist, elev, angl));
+	}
+	
+	public float angle() {
+	    return(angl);
+	}
+	
+	public boolean click(Coord c) {
+	    elevorig = elev;
+	    anglorig = angl;
+	    dragorig = c;
+	    return(true);
+	}
+	
+	public void drag(Coord c) {
+	    telev = elevorig - ((float)(c.y - dragorig.y) / 100.0f);
+	    if(telev < 0.0f) telev = 0.0f;
+	    if(telev > (Math.PI / 2.0)) telev = (float)Math.PI / 2.0f;
+	    tangl = anglorig + ((float)(c.x - dragorig.x) / 100.0f);
+	}
+
+	public boolean wheel(Coord c, int amount) {
+	    float d = tdist + (amount * 5);
+	    if(d < 5)
+		d = 5;
+	    tdist = d;
+	    return(true);
+	}
+    }
+    static {camtypes.put("best", SFreeCam.class);}
     
     private static class OrthoCam extends Camera {
 
@@ -638,6 +695,9 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	}
     }
 
+    private DropSky.ResSky sky1 = new DropSky.ResSky(null);
+    private DropSky.ResSky sky2 = new DropSky.ResSky(null);
+
     public Light amb = null;
     private Outlines outlines = new Outlines(false);
     public void setup(RenderList rl) {
@@ -665,6 +725,15 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    for(Rendered extra : extradraw)
 		rl.add(extra, null);
 	    extradraw.clear();
+	}
+	if(glob.sky1 != null) {
+	    sky1.update(glob.sky1);
+	    rl.add(sky1, Rendered.last);
+	    if(glob.sky2 != null) {
+		sky2.update(glob.sky2);
+		sky2.alpha = glob.skyblend;
+		rl.add(sky2, Rendered.last);
+	    }
 	}
     }
 

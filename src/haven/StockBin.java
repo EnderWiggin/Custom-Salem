@@ -29,7 +29,7 @@ package haven;
 public class StockBin extends Widget implements DTarget {
     static Tex bg = Resource.loadtex("gfx/hud/bosq");
     static Text.Foundry lf;
-    private Resource res;
+    private Indir<Resource> res;
     private Text label;
     static {
         lf = new Text.Foundry(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 18), java.awt.Color.WHITE);
@@ -39,7 +39,7 @@ public class StockBin extends Widget implements DTarget {
     @Widget.RName("spbox")
 	public static class $_ implements Widget.Factory {
 	    public Widget create(Coord c, Widget parent, Object[] args) {
-		return(new StockBin(c, parent, Resource.load((String)args[0]), (Integer)args[1], (Integer)args[2]));
+		return(new StockBin(c, parent, parent.ui.sess.getres((Integer)args[0]), (Integer)args[1], (Integer)args[2]));
 	    }
 	}
     
@@ -47,7 +47,7 @@ public class StockBin extends Widget implements DTarget {
         label = lf.renderf("%d/%d", rem, bi);
     }
     
-    public StockBin(Coord c, Widget parent, Resource res, int rem, int bi) {
+    public StockBin(Coord c, Widget parent, Indir<Resource> res, int rem, int bi) {
         super(c, bg.sz(), parent);
         this.res = res;
         setlabel(rem, bi);
@@ -55,17 +55,21 @@ public class StockBin extends Widget implements DTarget {
     
     public void draw(GOut g) {
         g.image(bg, Coord.z);
-        if(!res.loading) {
-            Tex t = res.layer(Resource.imgc).tex();
+	try {
+            Tex t = res.get().layer(Resource.imgc).tex();
             Coord dc = new Coord(6, (bg.sz().y / 2) - (t.sz().y / 2));
             g.image(t, dc);
-        }
+        } catch(Loading exc) {
+	}
         g.image(label.tex(), new Coord(40, (bg.sz().y / 2) - (label.tex().sz().y / 2)));
     }
     
     public Object tooltip(Coord c, Widget prev) {
-	if(!res.loading && (res.layer(Resource.tooltip) != null))
-	    return(res.layer(Resource.tooltip).t);
+	try {
+	    if(res.get().layer(Resource.tooltip) != null)
+		return(res.get().layer(Resource.tooltip).t);
+	} catch(Loading e) {
+	}
 	return(null);
     }
     
@@ -101,6 +105,8 @@ public class StockBin extends Widget implements DTarget {
     public void uimsg(String msg, Object... args) {
         if(msg == "chnum") {
             setlabel((Integer)args[0], (Integer)args[1]);
+	} else if(msg == "chres") {
+	    res = ui.sess.getres((Integer)args[0]);
         } else {
             super.uimsg(msg, args);
         }
