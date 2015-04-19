@@ -274,8 +274,9 @@ public class OptWnd2 extends Window {
 	    addinfo("ortho",	"Isometric Cam",	"Isometric camera centered on character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 	    addinfo("sortho",	"Smooth Isometric Cam",	"Isometric camera centered on character with smoothed movement. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 	    addinfo("follow",	"Follow Cam",		"The camera follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("sfollow",	"Smoot Follow Cam",	"The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
-	    addinfo("free",	"Freestyle",		"You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("sfollow",	"Smooth Follow Cam",	"The camera smoothly follows the character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("free",	"Freestyle Cam",	"You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
+	    addinfo("best",	"Smooth Freestyle Cam",	"You can move around freely within the larger area around character. Use mousewheel scrolling to zoom in and out. Drag with middle mouse button to rotate camera.", null);
 
 	    final Tabs cambox = new Tabs(new Coord(100, 60), new Coord(300, 200), tab);
 	    

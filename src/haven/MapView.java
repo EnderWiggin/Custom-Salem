@@ -340,7 +340,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	}
     }
 
-    public class SFreeCam extends Camera {
+    private static class SFreeCam extends Camera {
 	private float dist = 50.0f, tdist = dist;
 	private float elev = (float)Math.PI / 4.0f, telev = elev;
 	private float angl = 0.0f, tangl = angl;
@@ -365,7 +365,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    dist = dist + ((tdist - dist) * (1f - (float)Math.pow(500, -dt)));
 	    if(Math.abs(tdist - dist) < 0.0001) dist = tdist;
 
-	    Coord3f mc = getcc();
+	    Coord3f mc = mv.getcc();
 	    mc.y = -mc.y;
 	    if((cc == null) || (Math.hypot(mc.x - cc.x, mc.y - cc.y) > 250))
 		cc = mc;
