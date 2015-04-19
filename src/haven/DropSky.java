@@ -96,6 +96,7 @@ public class DropSky implements Rendered {
 	    }
 
 	    private void fapply(GOut g) {
+		g.gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
 		g.gl.glEnable(GL.GL_TEXTURE_CUBE_MAP);
 	    }
 
@@ -114,7 +115,7 @@ public class DropSky implements Rendered {
 
 	    public void unapply(GOut g) {
 		tsky.act();
-		if(g.st.prog == null)
+		if(!g.st.usedprog)
 		    funapply(g);
 		g.gl.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, 0);
 		tsky.free(); tsky = null;
