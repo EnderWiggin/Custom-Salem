@@ -349,6 +349,10 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	private final float pi2 = (float)(Math.PI * 2);
 	private Coord3f cc = null;
 
+	public SFreeCam(MapView mv) {
+	    super(mv);
+	}
+
 	public void tick(double dt) {
 	    angl = angl + ((tangl - angl) * (1f - (float)Math.pow(500, -dt)));
 	    while(angl > pi2) {angl -= pi2; tangl -= pi2; anglorig -= pi2;}
