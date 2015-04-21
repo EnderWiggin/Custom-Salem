@@ -59,10 +59,10 @@ public class DropSky implements Rendered {
 	float iw = 1 / oc[3];
 	for(int i = 0; i < 4; i++) oc[i] *= iw;
 	gl.glBegin(GL2.GL_QUADS);
-	vertex(g, gl, ixf, oc, -1.01f, -1.01f);
-	vertex(g, gl, ixf, oc,  1.01f, -1.01f);
-	vertex(g, gl, ixf, oc,  1.01f,  1.01f);
-	vertex(g, gl, ixf, oc, -1.01f,  1.01f);
+	vertex(g, gl, ixf, oc, -1.05f, -1.05f);
+	vertex(g, gl, ixf, oc,  1.05f, -1.05f);
+	vertex(g, gl, ixf, oc,  1.05f,  1.05f);
+	vertex(g, gl, ixf, oc, -1.05f,  1.05f);
 	gl.glEnd();
     }
 
