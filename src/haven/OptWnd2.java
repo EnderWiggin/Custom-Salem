@@ -508,6 +508,27 @@ public class OptWnd2 extends Window {
 	    if(t.btn.text.text.equals(last))
 		body.showtab(t);
 	}
+
+	//Flower menu
+	tab = body.new Tab(new Coord(280, 0), 60, "Menu"){
+	    FlowerList list = new FlowerList(new Coord(0, 55), this);
+	    Button add = new Button(new Coord(155, 308), 45, this, "Add");
+	    TextEntry value = new TextEntry(new Coord(0, 310), 150, this, "");
+	    {
+		value.canactivate = true;
+	    }
+
+	    @Override
+	    public void wdgmsg(Widget sender, String msg, Object... args) {
+		if((sender == add || sender == value) && msg.equals("activate")){
+		    list.add(value.text);
+		    value.settext("");
+		} else {
+		    super.wdgmsg(sender, msg, args);
+		}
+	    }
+	};
+	new Label(new Coord(0, 30), tab, "Choose menu items to select automatically:");
     }
     
     private static void checkVideoOpt(CheckBox check, BoolSetting setting){

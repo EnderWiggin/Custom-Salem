@@ -33,7 +33,6 @@ import com.google.gson.reflect.TypeToken;
 import haven.GLSettings.SettingException;
 import org.ender.wiki.Wiki;
 
-import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -77,6 +76,7 @@ public class Config {
     public static boolean autoopen_craftwnd = Utils.getprefb("autoopen_craftwnd", false);
 
     public static String currentCharName = "";
+    public static Map<String, Boolean> AUTOCHOOSE = null;
     static Properties window_props;
     public static Properties options;
     private static Map<String, Object> buildinfo = new HashMap<String, Object>();
@@ -126,9 +126,34 @@ public class Config {
 
 	loadContentsIcons();
 	loadItemRadius();
+	loadAutochoose();
 	Wiki.init(getFile("cache"), 3);
 
 	loadGobPathCfg();
+    }
+
+    private static void loadAutochoose() {
+	String json = loadFile("autochoose.json");
+	if(json != null){
+	    try {
+		Gson gson = (new GsonBuilder()).create();
+		Type collectionType = new TypeToken<HashMap<String, Boolean>>(){}.getType();
+		AUTOCHOOSE = gson.fromJson(json, collectionType);
+	    }catch(Exception ignored){ }
+	}
+	if(AUTOCHOOSE == null){
+	    AUTOCHOOSE = new HashMap<String, Boolean>();
+	    AUTOCHOOSE.put("Pick", true);
+	    AUTOCHOOSE.put("Open", true);
+	}
+    }
+
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    public static void  saveAutochoose() {
+	synchronized (AUTOCHOOSE) {
+	    Gson gson = (new GsonBuilder()).create();
+	    saveFile("autochoose.json", gson.toJson(AUTOCHOOSE));
+	}
     }
 
     private static void loadGobPathCfg() {

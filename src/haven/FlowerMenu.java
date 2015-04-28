@@ -39,6 +39,7 @@ public class FlowerMenu extends Widget {
     static Color ptc = new Color(248, 240, 193);
     static Text.Foundry ptf = new Text.Foundry(new Font("SansSerif", Font.PLAIN, 12));
     static int ph = pbgm.sz().y, ppl = 8;
+    private Petal autochoose = null;
     Petal[] opts;
 
     @RName("sm")
@@ -186,8 +187,13 @@ public class FlowerMenu extends Widget {
 	if(study == null) {
 	    opts = new Petal[options.length];
 	    for(int i = 0; i < options.length; i++) {
-		opts[i] = new Petal(options[i]);
-		opts[i].num = i;
+		String name = options[i];
+		Petal p = new Petal(name);
+		p.num = i;
+		if(Config.AUTOCHOOSE.containsKey(name ) && Config.AUTOCHOOSE.get(name)){
+		    autochoose = p;
+		}
+		opts[i] = p;
 	    }
 	} else {
 	    opts = new Petal[]{study};
@@ -242,6 +248,15 @@ public class FlowerMenu extends Widget {
 	    i++;
 	}
 	return 0;
+    }
+
+    @Override
+    public void tick(double dt) {
+	if(autochoose != null){
+	    choose(autochoose);
+	    autochoose = null;
+	}
+	super.tick(dt);
     }
 
     public void draw(GOut g) {
