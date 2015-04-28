@@ -143,8 +143,8 @@ public class Config {
 	}
 	if(AUTOCHOOSE == null){
 	    AUTOCHOOSE = new HashMap<String, Boolean>();
-	    AUTOCHOOSE.put("Pick", true);
-	    AUTOCHOOSE.put("Open", true);
+	    AUTOCHOOSE.put("Pick", false);
+	    AUTOCHOOSE.put("Open", false);
 	}
     }
 
