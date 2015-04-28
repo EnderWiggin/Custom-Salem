@@ -112,6 +112,9 @@ public class FlowerList extends Scrollport {
 
 	@Override
 	public boolean mousedown(Coord c, int button) {
+	    if(super.mousedown(c, button)){
+		return true;
+	    }
 	    if(button != 1)
 		return(false);
 	    a = true;
