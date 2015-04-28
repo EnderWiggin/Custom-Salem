@@ -32,9 +32,9 @@ import static haven.Window.fbox;
 public abstract class Listbox<T> extends ListWidget<T> {
     public final int h;
     public final Scrollbar sb;
-    public final Color sell = new Color(52, 35, 36);
-    public final Color selr = new Color(178, 93, 91);
-    public final Color overr = new Color(189, 239, 137, 33);
+    public static final Color sell = new Color(52, 35, 36);
+    public static final Color selr = new Color(178, 93, 91);
+    public static final Color overr = new Color(189, 239, 137, 33);
     public Color bgcolor = Color.BLACK;
     private T over;
 
