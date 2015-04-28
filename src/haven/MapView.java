@@ -29,6 +29,7 @@ package haven;
 import static haven.MCache.tilesz;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Collections;
@@ -1347,6 +1348,12 @@ public class MapView extends PView implements DTarget, Console.Directory {
     }
     
     public boolean globtype(char c, java.awt.event.KeyEvent ev) {
+	int code = ev.getKeyCode();
+	if(code == KeyEvent.VK_ADD) {
+	    return camera.wheel(Coord.z, 1);
+	} else if(code == KeyEvent.VK_SUBTRACT){
+	    return camera.wheel(Coord.z, -1);
+	}
 	return(false);
     }
 
