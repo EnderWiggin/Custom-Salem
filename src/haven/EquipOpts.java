@@ -14,6 +14,7 @@ class EquipOpts extends GameUI.Hidewnd {
 	    }
 	};
 	an.put(0, "Head");
+	an.put(13, "Neck");
 	an.put(6, "Left hand");
 	an.put(7, "Right hand");
 	an.put(9, "Purse");
