@@ -502,6 +502,16 @@ public class OptWnd2 extends Window {
 	    }
 	};
 
+	(new CheckBox(new Coord(0, y+=35), tab, "Auto drop bats"){
+	    @Override
+	    public void changed(boolean val) {
+		super.changed(val);
+		Config.auto_drop_bats = val;
+		Utils.setprefb("auto_drop_bats", val);
+	    }
+	    {tooltip = Text.render("Will automatically drop bats that sit on your neck.");}
+	}).a = Config.auto_drop_bats;
+
 	//new Frame(new Coord(-10, 20), new Coord(420, 330), this);
 	String last = Utils.getpref("optwndtab", "");
 	for(Tabs.Tab t : body.tabs) {

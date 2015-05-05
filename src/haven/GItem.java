@@ -44,6 +44,8 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
     public boolean sendttupdate = false;
     public boolean matched = false;
     private long filtered = 0;
+    public boolean drop = false;
+    private double dropTimer = 0;
 
     public static void setFilter(ItemFilter filter) {
 	GItem.filter = filter;
@@ -124,6 +126,19 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	if(filtered < lastFilter){
 	    matched = filter != null && filter.matches(info());
 	    filtered = lastFilter;
+	}
+    }
+
+    @Override
+    public void tick(double dt) {
+	super.tick(dt);
+	if(drop) {
+	    dropTimer += dt;
+	    if (dropTimer > 0.1) {
+		dropTimer = 0;
+		wdgmsg("take", Coord.z);
+		ui.message("Dropping bat!", GameUI.MsgType.BAD);
+	    }
 	}
     }
 

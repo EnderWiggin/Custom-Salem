@@ -86,6 +86,7 @@ public class Equipory extends Widget implements DTarget {
     WItem[] slots = new WItem[ecoords.length];
     Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
     private EquipOpts opts;
+    private List<GItem> checkForDrop = new LinkedList<GItem>();
 
     @RName("epry")
     public static class $_ implements Factory {
@@ -186,6 +187,21 @@ public class Equipory extends Widget implements DTarget {
 	}
     }
 
+    @Override
+    public void tick(double dt) {
+	super.tick(dt);
+	try {
+	    if (!checkForDrop.isEmpty()) {
+		GItem g = checkForDrop.get(0);
+		if (g.resname().equals("gfx/invobjs/bat")) {
+		    g.drop = true;
+		}
+		checkForDrop.remove(0);
+	    }
+	} catch (Resource.Loading ignore) {
+	}
+    }
+
     public Widget makechild(String type, Object[] pargs, Object[] cargs) {
 	Widget ret = gettype(type).create(Coord.z, this, cargs);
 	if(ret instanceof GItem) {
@@ -197,6 +213,9 @@ public class Equipory extends Widget implements DTarget {
 		slots[ep] = v[i] = new WItem(ecoords[ep].add(sqlo), this, g);
 	    }
 	    wmap.put(g, v);
+	    if(Config.auto_drop_bats){
+		checkForDrop.add(g);
+	    }
 	}
 	return(ret);
     }
