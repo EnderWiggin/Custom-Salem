@@ -142,7 +142,15 @@ public class ChatUI extends Widget {
     }
 
     public static abstract class Channel extends Widget {
-	public final List<Message> msgs = new LinkedList<Message>();
+	public final List<Message> msgs = new LinkedList<Message>(){
+	    @Override
+	    public boolean add(Message message) {
+		if(size() >= 200){
+		    removeFirst();
+		}
+		return super.add(message);
+	    }
+	};
 	private final Scrollbar sb;
 	public IButton cbtn;
 	protected boolean read = true;
