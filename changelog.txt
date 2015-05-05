@@ -1,5 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 05.05.15:}}
+  * added option to auto remove bats
+  * added neck to quick access equipment slots
+  * limited chat channel log to 200 messages
+ 
 $size[14]{$u{Update for 28.04.15:}}
   * added option to make right-click menu to autochoose some options
   * added camera zoom by + and - on numpad
