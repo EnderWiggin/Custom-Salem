@@ -146,7 +146,7 @@ public class ChatUI extends Widget {
 	    @Override
 	    public boolean add(Message message) {
 		if(size() >= 200){
-		    removeFirst();
+		    removeFirst().tex().dispose();
 		}
 		return super.add(message);
 	    }
