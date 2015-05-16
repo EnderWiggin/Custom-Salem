@@ -43,6 +43,7 @@ public class WItem extends Widget implements DTarget {
     private Tex mask = null;
     private Resource cmask = null;
     private long ts = 0;
+    private long gobbleUpdateTime = 0;
 
     public WItem(Coord c, Widget parent, GItem item) {
 	super(c, Inventory.sqsz, parent);
@@ -179,7 +180,7 @@ public class WItem extends Widget implements DTarget {
 	public T get() {
 	    try {
 		List<ItemInfo> info = item.info();
-		if(info != forinfo) {
+		if(info != forinfo || save == null) {
 		    save = find(info);
 		    forinfo = info;
 		}
@@ -188,7 +189,9 @@ public class WItem extends Widget implements DTarget {
 	    }
 	    return(save);
 	}
-	
+	public void reset(){
+	    save = null;
+	}
 	protected abstract T find(List<ItemInfo> info);
     }
     
@@ -218,6 +221,12 @@ public class WItem extends Widget implements DTarget {
     public final AttrCache<List<Integer>> heurmeter = new AttrCache<List<Integer>>() {
 	protected List<Integer> find(List<ItemInfo> info) {
 	    return ItemInfo.getMeters(info);
+	}
+    };
+
+    public final AttrCache<Double> gobblemeter = new AttrCache<Double>() {
+	protected Double find(List<ItemInfo> info) {
+	    return ItemInfo.getGobbleMeter(info);
 	}
     };
 
@@ -408,23 +417,47 @@ public class WItem extends Widget implements DTarget {
     }
     
     private void heurmeters(GOut g) {
-	List<Integer> meters = heurmeter.get();
-	if(meters == null){return;}
-	
-	int k = 0;
-	Coord s2 = sz.sub(0, 4);
-	for (Integer meter : meters){
-	    double a = ((double)meter) / 100.0;
-	    int r = (int) ((1-a)*255);
-	    int gr = (int) (a*255);
-	    g.chcolor(r, gr, 0, 255);
-	    Coord bsz = new Coord(4, (int) (a*s2.y));
-	    g.frect(new Coord(bsz.x*k+1, s2.y - bsz.y), bsz);
-	    g.chcolor();
-	    k++;
+	Coord c0 = sz.sub(0, 4);
+
+	//process for meters in gobble mode
+	if (UI.isCursor(UI.Cursor.GOBBLE)) {
+	    double meter = gobblemeter.get();
+	    if (meter > 0) {
+		draw_meter(g, 0, c0, meter);
+	    }
+	} else { //process generic meters
+	    List<Integer> meters = heurmeter.get();
+	    if (meters == null) {
+		return;
+	    }
+
+	    int k = 0;
+	    for (Integer meter : meters) {
+		double a = ((double) meter) / 100.0;
+		draw_meter(g, k, c0, a);
+		k++;
+	    }
 	}
     }
-    
+
+    private void draw_meter(GOut g, int k, Coord c0, double a) {
+	int r = (int) ((1-a)*255);
+	int gr = (int) (a*255);
+	g.chcolor(r, gr, 0, 255);
+	Coord bsz = new Coord(4, (int) (a*c0.y));
+	g.frect(new Coord(bsz.x*k+1, c0.y - bsz.y), bsz);
+	g.chcolor();
+    }
+
+    @Override
+    public void tick(double dt) {
+	if(ui.gui.gobble != null && ui.gui.gobble.lastUpdate != gobbleUpdateTime){
+	    gobbleUpdateTime = ui.gui.gobble.lastUpdate;
+	    gobblemeter.reset();
+	}
+	super.tick(dt);
+    }
+
     public boolean mousedown(Coord c, int btn) {
 	if(checkXfer(btn)) {
 	    return true;

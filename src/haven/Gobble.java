@@ -43,6 +43,7 @@ public class Gobble extends SIWidget {
     static final Color hic = new Color(0, 128, 64);
     static final BufferedImage[] lobars, hibars;
     private boolean updt = true;
+    public long lastUpdate = 0;
     private TypeList typelist;
     private int[] lmax = new int[4];
     private int max;
@@ -179,9 +180,9 @@ public class Gobble extends SIWidget {
 	}
     }
 
-    private double foodeff(GobbleInfo food) {
+    public double foodeff(GobbleInfo food) {
 	double ret = 1.0;
-	for(int t : lfood.types)
+	for(int t : food.types)
 	    ret *= mods.get(t).a;
 	return(ret);
     }
@@ -279,6 +280,7 @@ public class Gobble extends SIWidget {
     }
 
     public void typemod(Indir<Resource> t, double a) {
+	lastUpdate = System.currentTimeMillis();
 	updt = true;
 	for(TypeMod m : mods) {
 	    if(m.t == t) {

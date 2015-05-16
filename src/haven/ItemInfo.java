@@ -226,6 +226,15 @@ public abstract class ItemInfo {
 	}
 	return res;
     }
+
+    public static double getGobbleMeter(List<ItemInfo> infos){
+	GobbleInfo gobble = find(GobbleInfo.class, infos);
+	if (gobble != null && UI.instance != null && UI.instance.gui != null && UI.instance.gui.gobble != null) {
+	    return UI.instance.gui.gobble.foodeff(gobble);
+	}
+
+	return 0;
+    }
     
     static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+\\s*%?)");
     public static String getCount(List<ItemInfo> infos){
