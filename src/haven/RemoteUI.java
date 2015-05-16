@@ -96,7 +96,7 @@ public class RemoteUI implements UI.Receiver, UI.Runner {
 
     private void progressComplete() {
 	try {
-	    if (Config.autosift && UI.instance.root.cursor.name.equals("gfx/hud/curs/sft")) {
+	    if (Config.autosift && UI.isCursor(UI.Cursor.SIFTING)) {
 		MapView map = UI.instance.gui.map;
 		Gob player = map.player();
 		map.wdgmsg(map, "click", player.sc, player.rc, 1, 0);

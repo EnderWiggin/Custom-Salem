@@ -343,7 +343,16 @@ public class UI {
 	}
     }
 
+    public static boolean isCursor(String name) {
+	return instance != null && instance.root != null && instance.root.cursor.name.equals(name);
+    }
+
     public void destroy() {
 	audio.clear();
+    }
+
+    public static class Cursor {
+	public static final String SIFTING = "gfx/hud/curs/sft";
+	public static final String GOBBLE = "gfx/hud/curs/eat";
     }
 }
