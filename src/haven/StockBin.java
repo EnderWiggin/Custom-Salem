@@ -91,6 +91,10 @@ public class StockBin extends Widget implements DTarget {
     }
     
     public boolean mousedown(Coord c, int button) {
+	Coord cc = xlate(take.c, true);
+	if(c.isect(cc, take.sz)) {
+	    return take.mousedown(c.sub(cc), button);
+	}
 	if (button == 1) {
 	    if (ui.modshift ^ ui.modctrl) {        //SHIFT or CTRL means pull
 		int dir = ui.modctrl ? -1 : 1;        //CTRL means pull out, SHIFT pull in
@@ -160,10 +164,11 @@ public class StockBin extends Widget implements DTarget {
 
     private static class Value extends TextEntry {
 	private static final Set<Integer> ALLOWED_KEYS = new HashSet<Integer>(Arrays.asList(
-		KeyEvent.VK_0, KeyEvent.VK_1, KeyEvent.VK_2,
-		KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5,
-		KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8,
-		KeyEvent.VK_9, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
+		KeyEvent.VK_0, KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4,
+		KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9,
+		KeyEvent.VK_NUMPAD0, KeyEvent.VK_NUMPAD1, KeyEvent.VK_NUMPAD2, KeyEvent.VK_NUMPAD3, KeyEvent.VK_NUMPAD4,
+		KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD6, KeyEvent.VK_NUMPAD7, KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD9,
+		KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
 		KeyEvent.VK_ENTER, KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE
 	));
 
