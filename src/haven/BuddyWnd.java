@@ -31,7 +31,7 @@ import java.util.*;
 import java.text.Collator;
 
 public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
-    private List<Buddy> buddies = new ArrayList<Buddy>();
+    private final List<Buddy> buddies = new ArrayList<Buddy>();
     private Map<Integer, Buddy> idmap = new HashMap<Integer, Buddy>();
     private BuddyList bl;
     private Button sbalpha;
@@ -285,7 +285,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 	    if(b.seen)
 		opts.add("Describe");
 	    if(menu == null) {
-		menu = new FlowerMenu(c, ui.root, opts.toArray(new String[0])) {
+		menu = new FlowerMenu(c, ui.root, opts.toArray(new String[opts.size()])) {
 		    public void destroy() {
 			menu = null;
 			super.destroy();
@@ -400,7 +400,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
     }
     
     public void uimsg(String msg, Object... args) {
-	if(msg == "add") {
+	if(msg.equals("add")) {
 	    int id = (Integer)args[0];
 	    String name = ((String)args[1]).intern();
 	    int online = (Integer)args[2];
@@ -413,7 +413,7 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		Collections.sort(buddies, bcmp);
 	    }
 	    serial++;
-	} else if(msg == "rm") {
+	} else if(msg.equals("rm")) {
 	    int id = (Integer)args[0];
 	    Buddy b;
 	    synchronized(buddies) {
@@ -429,13 +429,13 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		ui.destroy(grpsel);
 	    }
 	    serial++;
-	} else if(msg == "chst") {
+	} else if(msg.equals("chst")) {
 	    int id = (Integer)args[0];
 	    int online = (Integer)args[1];
 	    Buddy b = find(id);
 	    b.online = online;
 	    ui.message(String.format("%s is %s now.", b.name, online>0?"ONLINE":"OFFLINE"), GameUI.MsgType.INFO);
-	} else if(msg == "upd") {
+	} else if(msg.equals("upd")) {
 	    int id = (Integer)args[0];
 	    String name = (String)args[1];
 	    int online = (Integer)args[2];
@@ -453,14 +453,14 @@ public class BuddyWnd extends Window implements Iterable<BuddyWnd.Buddy> {
 		grpsel.group = b.group;
 	    }
 	    serial++;
-	} else if(msg == "sel") {
+	} else if(msg.equals("sel")) {
 	    int id = (Integer)args[0];
 	    show();
 	    raise();
 	    bl.change(find(id));
-	} else if(msg == "pwd") {
+	} else if(msg.equals("pwd")) {
 	    charpass.update((String)args[0]);
-	} else if(msg == "pname") {
+	} else if(msg.equals("pname")) {
 	    pname.update((String)args[0]);
 	} else {
 	    super.uimsg(msg, args);
