@@ -3,6 +3,7 @@ $size[20]{$u{CHANGE LOG:}}
 $size[14]{$u{Update for 17.05.15:}}
   * Kin ONLINE/OFFLINE messages are colored as kin
   * added small window with current carrying weight. Can be toggled in Options->General->Show weight widget
+  * added ability to take custom amount of materials from stockpile
   * changed minimap border color
   * added content icons for potato seeds
   * fixed content icons for corn seeds
