@@ -26,6 +26,7 @@
 
 package haven;
 
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -340,6 +341,12 @@ public class UI {
     public void message(String str, GameUI.MsgType type) {
 	if((cons!=null) && (gui!=null)){
 	    gui.message(str, type);
+	}
+    }
+
+    public void message(String str, Color msgColor) {
+	if((cons!=null) && (gui!=null)){
+	    gui.message(str, msgColor);
 	}
     }
 

@@ -1253,8 +1253,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     private static final Resource errsfx = Resource.load("sfx/error");
     public void message(String msg, MsgType type) {
+	message(msg, getMsgColor(type));
+    }
+
+    public void message(String msg, Color msgColor) {
 	errtime = System.currentTimeMillis();
-	Color msgColor = getMsgColor(type);
 	lasterr = errfoundry.render(msg, msgColor);
 	syslog.append(msg, msgColor);
 	Audio.play(errsfx);
