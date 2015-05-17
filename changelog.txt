@@ -1,5 +1,8 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 17.05.15:}}
+  * Kin ONLINE/OFFLINE messages are colored as kin
+ 
 $size[14]{$u{Update for 16.05.15:}}
   * added bars on item icons during gobbling to show food effectiveness
  
