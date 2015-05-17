@@ -440,8 +440,10 @@ public class LocalMiniMap extends Window implements Console.Directory{
 	}
 
 	g.gl.glPopMatrix();
-	//drawicons(g);
+
+	og.chcolor(SeasonImg.color);
 	Window.swbox.draw(og, Coord.z, this.sz);
+	og.chcolor();
     }
 
     private String mapfolder(){
