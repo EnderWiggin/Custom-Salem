@@ -111,6 +111,7 @@ public class Config {
     public static Map<String, GobPath.Cfg> gobPathCfg;
     public static boolean isocam_steps = Utils.getprefb("isocam_steps", true);
     public static boolean auto_drop_bats = Utils.getprefb("auto_drop_bats", false);
+    public static boolean weight_wdg = Utils.getprefb("weight_wdg", false);
 
     static {
 	String p;

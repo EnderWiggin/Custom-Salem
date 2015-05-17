@@ -68,6 +68,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private InvWindow invwnd;
     private Window equwnd, makewnd;
     public Inventory maininv;
+    public WeightWdg weightwdg;
     public MainMenu mainmenu;
     public BuddyWnd buddies;
     public CharWnd chrwdg;
@@ -383,6 +384,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    if(nm == null) {
 		Inventory inv = (Inventory)invwnd.makechild(type, new Object[0], cargs);
 		maininv = inv;
+		weightwdg = new WeightWdg(new Coord(10, 100), this);
 		return(inv);
 	    } else {
 		return(invwnd.makechild(type, new Object[] {nm}, cargs));
@@ -718,6 +720,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    weight = (Integer)args[0];
 	    if(invwnd != null)
 		invwnd.updweight();
+	    if(weightwdg != null){
+		weightwdg.update(weight);
+	    }
 	} else {
 	    super.uimsg(msg, args);
 	}

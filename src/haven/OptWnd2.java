@@ -204,7 +204,7 @@ public class OptWnd2 extends Window {
 		
 	    }.a = Config.ss_compress;
 	    
-	    new CheckBox(new Coord(0, y += 25), tab, "Include UI on screenshots"){
+	    new CheckBox(new Coord(200, y + 25), tab, "Include UI on screenshots"){
 		@Override
 		public void changed(boolean val) {
 		    super.changed(val);
@@ -215,6 +215,18 @@ public class OptWnd2 extends Window {
 		{tooltip = Text.render("Sets default value of include UI on screenshot dialog");}
 		
 	    }.a = Config.ss_ui;
+
+	    new CheckBox(new Coord(0, y += 25), tab, "Show weight widget"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.weight_wdg = val;
+		    Utils.setprefb("weight_wdg", val);
+		}
+
+		{tooltip = Text.render("Shows small floating widget with current carrying weight");}
+
+	    }.a = Config.weight_wdg;
 	    
 	    new CheckBox(new Coord(0, y += 25), tab, "Arrow home pointer"){
 		@Override
