@@ -60,7 +60,7 @@ public class GobPath extends Sprite
 	GOut.checkerr(gl);
     }
 
-    private Coord target(){
+    private synchronized Coord target(){
 	if(move != null){
 	    Class<? extends GAttrib> aClass = move.getClass();
 	    if(aClass == LinMove.class){
@@ -104,11 +104,11 @@ public class GobPath extends Sprite
 	return true;
     }
 
-    public void move(Moving m) {
+    public synchronized void move(Moving m) {
 	move = m;
     }
 
-    public void stop(){
+    public synchronized void stop(){
 	move = null;
     }
 
