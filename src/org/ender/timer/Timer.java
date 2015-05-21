@@ -94,7 +94,13 @@ public class Timer {
 	int h = (int) (t / 3600);
 	int m = (int) ((t % 3600) / 60);
 	int s = (int) (t % 60);
-	return String.format("%d:%02d:%02d", h, m, s);
+	if (h >= 24) {
+	    int d = h / 24;
+	    h = h % 24;
+	    return String.format("%d:%02d:%02d:%02d", d, h, m, s);
+	} else {
+	    return String.format("%d:%02d:%02d", h, m, s);
+	}
     }
     
     public void destroy() {
