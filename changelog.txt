@@ -1,5 +1,11 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 21.05.15:}}
+  * fixed rare crash in gob path displaying
+  * fixed crash in gobble meters
+  * added option to disable gobble meters (Options->General)
+  * made timer display days, if more than 24 hours left
+ 
 $size[14]{$u{Update for 17.05.15:}}
   * Kin ONLINE/OFFLINE messages are colored as kin
   * added small window with current carrying weight. Can be toggled in Options->General->Show weight widget
