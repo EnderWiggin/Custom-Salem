@@ -112,6 +112,7 @@ public class Config {
     public static boolean isocam_steps = Utils.getprefb("isocam_steps", true);
     public static boolean auto_drop_bats = Utils.getprefb("auto_drop_bats", false);
     public static boolean weight_wdg = Utils.getprefb("weight_wdg", false);
+    public static boolean gobble_meters = Utils.getprefb("gobble_meters", true);;
 
     static {
 	String p;

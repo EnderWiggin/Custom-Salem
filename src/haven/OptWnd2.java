@@ -271,8 +271,19 @@ public class OptWnd2 extends Window {
 		    Utils.setprefb("autoopen_craftwnd", val);
 		}
 
-		{tooltip = Text.render("Makes open if you click on any crafting item in menugrid or toolbelt.");}
+		{tooltip = Text.render("Makes craft window open if you click on any crafting item in menugrid or toolbelt.");}
 	    }.a = Config.autoopen_craftwnd;
+
+	    new CheckBox(new Coord(200, y += 25), tab, "Show gobble meters"){
+		@Override
+		public void changed(boolean val) {
+		    super.changed(val);
+		    Config.gobble_meters = val;
+		    Utils.setprefb("gobble_meters", val);
+		}
+
+		{tooltip = Text.render("During gobbling displays meters that show food efficiency.");}
+	    }.a = Config.gobble_meters;
 	}
 
 	
