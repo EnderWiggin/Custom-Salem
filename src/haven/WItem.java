@@ -421,8 +421,8 @@ public class WItem extends Widget implements DTarget {
 
 	//process for meters in gobble mode
 	if (UI.isCursor(UI.Cursor.GOBBLE)) {
-	    double meter = gobblemeter.get();
-	    if (meter > 0) {
+	    Double meter = gobblemeter.get();
+	    if (meter != null && meter > 0) {
 		draw_meter(g, 0, c0, meter);
 	    }
 	} else { //process generic meters
