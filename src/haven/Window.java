@@ -309,7 +309,7 @@ public class Window extends Widget implements DTarget {
     
     protected void storeOpt(String opt, boolean value){
 	if(name == null){return;}
-	Config.setWindowOpt(name+opt, value);
+	Config.setWindowOpt(name + opt, value);
     }
     
     protected Coord getOptCoord(String opt, Coord def){
@@ -335,5 +335,21 @@ public class Window extends Widget implements DTarget {
     protected void loadOpts(){
 	if(name == null){return;}
 	c = getOptCoord(OPT_POS, c);
+    }
+
+    private  CustomWndDetector detector = new CustomWndDetector();
+    @Override
+    public Widget makechild(String type, Object[] pargs, Object[] cargs) {
+	Widget child = super.makechild(type, pargs, cargs);
+	detector.add(type, cargs, child);
+	return child;
+    }
+
+    @Override
+    public void tick(double dt) {
+	if(detector.canDetect()){
+	    detector.detect(this);
+	}
+	super.tick(dt);
     }
 }
