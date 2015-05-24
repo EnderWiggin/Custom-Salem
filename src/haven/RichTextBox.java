@@ -34,6 +34,7 @@ public class RichTextBox extends Widget {
     private final RichText.Foundry fnd;
     private RichText text;
     private Scrollbar sb;
+    public boolean drawbox = true;
     
     public RichTextBox(Coord c, Coord sz, Widget parent, String text, RichText.Foundry fnd) {
 	super(c, sz, parent);
@@ -57,7 +58,9 @@ public class RichTextBox extends Widget {
 	if(text != null){
 	    g.image(text.tex(), new Coord(10, v));
 	}
-	fbox.draw(g, Coord.z, sz);
+	if(drawbox){
+	    fbox.draw(g, Coord.z, sz);
+	}
 	super.draw(g);
     }
     
