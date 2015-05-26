@@ -11,7 +11,7 @@ public class TextPage extends RichTextBox {
 	fnd = new RichText.Foundry(
 	    TextAttribute.FAMILY, 	"Serif",
 	    TextAttribute.SIZE,		18,
-	    TextAttribute.FOREGROUND,	new Color(0x22053D)//Color.BLACK
+	    TextAttribute.FOREGROUND,	Color.BLACK
 	);
 	fnd.aa = true;
     }
@@ -26,6 +26,7 @@ public class TextPage extends RichTextBox {
     public TextPage(Coord c, Coord sz, Widget parent, String text) {
 	super(c, sz, parent, "", fnd);
 	bg = null;
+	drawbox = false;
 	settext(text);
     }
 
