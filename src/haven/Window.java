@@ -344,14 +344,19 @@ public class Window extends Widget implements DTarget {
 	    type = "textpageedit";
 	}
 	Widget child = super.makechild(type, pargs, cargs);
-	detector.add(type, cargs, child);
+	if(detector != null && (detector.canDetect() || detector.detected())){
+	    detector.add(type, cargs, child);
+	}
 	return child;
     }
 
     @Override
     public void tick(double dt) {
-	if(detector.canDetect()){
+	if(detector != null && detector.canDetect()){
 	    detector.detect(this);
+	    if(!detector.canDetect()){
+		detector = null;
+	    }
 	}
 	super.tick(dt);
     }
