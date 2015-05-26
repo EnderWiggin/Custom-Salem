@@ -354,7 +354,7 @@ public class Window extends Widget implements DTarget {
     public void tick(double dt) {
 	if(pageDetector != null && pageDetector.canDetect()){
 	    pageDetector.detect(this);
-	    if(!pageDetector.canDetect()){
+	    if(!pageDetector.canDetect() && !pageDetector.detected()){
 		pageDetector = null;
 	    }
 	}
