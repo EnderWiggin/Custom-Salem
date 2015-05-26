@@ -27,8 +27,7 @@ public class TextPageEditor extends Widget implements DTarget {
 		    buf.key('/', KeyEvent.VK_SLASH, 0);
 		    buf.key('n', KeyEvent.VK_N, 0);
 		} else {
-		    ui.message("SUBMIT!", GameUI.MsgType.INFO);
-		    //super.activate(text);
+		    TextPageEditor.this.wdgmsg("activate", text);
 		}
 	    }
 
@@ -48,7 +47,7 @@ public class TextPageEditor extends Widget implements DTarget {
 	    page.settext(RichText.Parser.quote(text));
 	}
 	int length = text.length();
-	boolean ok = length < MAX_CHARS;
+	boolean ok = length <= MAX_CHARS;
 	symbols.col = ok ? Color.WHITE : Color.RED;
 	symbols.settext(String.format("Symbols left: %d/%d   Press CTRL+Enter to submit.", MAX_CHARS - length, MAX_CHARS));
     }
