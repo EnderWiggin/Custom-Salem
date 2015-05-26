@@ -1,6 +1,6 @@
 package haven;
 
-public class CustomWndDetector {
+public class PageDetector {
     private boolean canDetect = true;
     private boolean detected = false;
 

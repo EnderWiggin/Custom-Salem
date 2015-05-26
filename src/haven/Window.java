@@ -72,6 +72,7 @@ public class Window extends Widget implements DTarget {
     protected Coord doff;
     protected final IButton cbtn;
     private final Collection<Widget> twdgs = new LinkedList<Widget>();
+    private PageDetector pageDetector = new PageDetector();
 
 // ******************************
     private static final String OPT_POS = "_pos";
@@ -337,25 +338,24 @@ public class Window extends Widget implements DTarget {
 	c = getOptCoord(OPT_POS, c);
     }
 
-    private  CustomWndDetector detector = new CustomWndDetector();
     @Override
     public Widget makechild(String type, Object[] pargs, Object[] cargs) {
 	if(name.equals("Blank Page") && type.equals("text")) {
 	    type = "textpageedit";
 	}
 	Widget child = super.makechild(type, pargs, cargs);
-	if(detector != null && (detector.canDetect() || detector.detected())){
-	    detector.add(type, cargs, child);
+	if(pageDetector != null && (pageDetector.canDetect() || pageDetector.detected())){
+	    pageDetector.add(type, cargs, child);
 	}
 	return child;
     }
 
     @Override
     public void tick(double dt) {
-	if(detector != null && detector.canDetect()){
-	    detector.detect(this);
-	    if(!detector.canDetect()){
-		detector = null;
+	if(pageDetector != null && pageDetector.canDetect()){
+	    pageDetector.detect(this);
+	    if(!pageDetector.canDetect()){
+		pageDetector = null;
 	    }
 	}
 	super.tick(dt);
