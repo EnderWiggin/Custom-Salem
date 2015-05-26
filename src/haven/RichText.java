@@ -418,6 +418,8 @@ public class RichText extends Text {
 		    na.put(TextAttribute.FOREGROUND, a2col(args));
 		} else if(tn == "bg") {
 		    na.put(TextAttribute.BACKGROUND, a2col(args));
+		} else if(tn == "c") {
+		    na.put(TextAttribute.FOREGROUND, new Color(Integer.parseInt(args[0], 16)));
 		}
 		if(s.in.peek(true) != '{')
 		    throw(new FormatException("Expected `{', got `" + (char)s.in.peek() + "'"));
