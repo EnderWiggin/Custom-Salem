@@ -3,7 +3,7 @@ package haven;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-public class TextPageEditor extends Widget {
+public class TextPageEditor extends Widget implements DTarget {
     private static final int MAX_CHARS = 1000;
     TextPage page;
     TextEntry text;
@@ -51,5 +51,17 @@ public class TextPageEditor extends Widget {
 	boolean ok = length < MAX_CHARS;
 	symbols.col = ok ? Color.WHITE : Color.RED;
 	symbols.settext(String.format("Symbols left: %d/%d   Press CTRL+Enter to submit.", MAX_CHARS - length, MAX_CHARS));
+    }
+
+    @Override
+    public boolean drop(Coord cc, Coord ul) {
+	parent.mousedown(parent.xlate(cc, true), 1);
+	return true;
+    }
+
+    @Override
+    public boolean iteminteract(Coord cc, Coord ul) {
+	parent.mousedown(parent.xlate(cc, true), 3);
+	return true;
     }
 }
