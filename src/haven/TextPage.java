@@ -41,4 +41,13 @@ public class TextPage extends RichTextBox {
 	g.image(paper, Coord.z);
 	super.draw(g);
     }
+
+    @Override
+    public void uimsg(String msg, Object... args) {
+	if(msg.equals("set")) {
+	    settext((String)args[0]);
+	} else {
+	    super.uimsg(msg, args);
+	}
+    }
 }
