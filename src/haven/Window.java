@@ -340,6 +340,9 @@ public class Window extends Widget implements DTarget {
     private  CustomWndDetector detector = new CustomWndDetector();
     @Override
     public Widget makechild(String type, Object[] pargs, Object[] cargs) {
+	if(name.equals("Blank Page") && type.equals("text")) {
+	    type = "textpageedit";
+	}
 	Widget child = super.makechild(type, pargs, cargs);
 	detector.add(type, cargs, child);
 	return child;

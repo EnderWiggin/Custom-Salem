@@ -63,22 +63,14 @@ public class CustomWndDetector {
 	    System.out.println("FOUND page!");
 	    children.get(1).show(false);
 	    String text = (String) args.get(1)[0];
-	    //text = "asd $col[128,32,32]{TE$b{XT}} $size[33]{ww} <br> second line! woo hoo! <br> ahsgdfhagsfd ahgda hagsd agsdahgd fdgsahsgdf ahsgd ahgsdf ahsgdf ahgsdf ";
-	    text = text.replaceAll("<br>", "\n");
+	    text = "asd $col[128,32,32]{TE$b{XT}} $size[33]{ww} /n second line! woo hoo! /n ahsgdfhagsfd ahgda hagsd agsdahgd fdgsahsgdf ahsgd ahgsdf ahsgdf ahgsdf ";
 
-	    //text = getmaxtext();
-
-	    (new RichTextBox(Coord.z, new Coord(505, 500), target, text, TextAttribute.FAMILY, "SansSerif",TextAttribute.SIZE, 16, TextAttribute.FOREGROUND, Color.BLACK)).bg = null;
+	    //(new RichTextBox(Coord.z, new Coord(505, 500), target, text, TextAttribute.FAMILY, "SansSerif",TextAttribute.SIZE, 16, TextAttribute.FOREGROUND, Color.BLACK)).bg = null;
+	    Window wnd = new Window(Coord.z, Coord.z, target.ui.gui, "Book");
+	    wnd.justclose = true;
+	    new TextPage(Coord.z, new Coord(485, 500), wnd, text);
+	    wnd.pack();
 	}
-    }
-
-    private String getmaxtext() {
-	String res = "";
-	for(int i=0; i<1000; i++){
-	    res+="W";
-	}
-	System.out.println(res.length());
-	return res;
     }
 
     private static class BookMatcher {
