@@ -41,11 +41,7 @@ public class TextPageEditor extends Widget implements DTarget {
     }
 
     private void textchanged(String text) {
-	try {
-	    page.settext(text);
-	} catch (Exception error) {
-	    page.settext(RichText.Parser.quote(text));
-	}
+	page.settext(text);
 	int length = text.length();
 	boolean ok = length <= MAX_CHARS;
 	symbols.col = ok ? Color.WHITE : Color.RED;

@@ -9,9 +9,9 @@ public class TextPage extends RichTextBox {
 
     static {
 	fnd = new RichText.Foundry(
-	    TextAttribute.FAMILY, 	"Serif",
-	    TextAttribute.SIZE,		18,
-	    TextAttribute.FOREGROUND,	Color.BLACK
+		TextAttribute.FAMILY, "Serif",
+		TextAttribute.SIZE, 18,
+		TextAttribute.FOREGROUND, Color.BLACK
 	);
 	fnd.aa = true;
     }
@@ -34,7 +34,11 @@ public class TextPage extends RichTextBox {
     public void settext(String text) {
 	text = text.replaceAll("/n", "\n");
 	text = text.replaceAll("\\$t\\{", "\\$size[30]{");
-	super.settext(text);
+	try {
+	    super.settext(text);
+	} catch(Exception error) {
+	    super.settext(RichText.Parser.quote(text));
+	}
     }
 
     @Override
@@ -46,7 +50,7 @@ public class TextPage extends RichTextBox {
     @Override
     public void uimsg(String msg, Object... args) {
 	if(msg.equals("set")) {
-	    settext((String)args[0]);
+	    settext((String) args[0]);
 	} else {
 	    super.uimsg(msg, args);
 	}
