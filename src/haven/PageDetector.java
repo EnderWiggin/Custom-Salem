@@ -47,6 +47,7 @@ public class PageDetector {
 	    try {
 		if(img.get().name.contains("blankpaper")) {
 		    detected = true;
+		    canDetect = false;
 		    page = new TextPage(Coord.z, new Coord(485, 500), target, "");
 		    updatetext();
 		}
