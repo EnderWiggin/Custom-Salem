@@ -4,15 +4,17 @@ public class PageDetector {
     private boolean canDetect = true;
     private boolean detected = false;
 
-    private Indir<Resource> img = null;
+    private Indir<Resource> res = null;
+    private Widget img = null;
     private Label label = null;
     TextPage page = null;
 
     public void add(String type, Object[] cargs, Widget child) {
 	if(!detected) {
-	    if(img == null) {
+	    if(res == null) {
 		if(type.equals("img")) {
-		    img = child.ui.sess.getres((Integer) cargs[0]);
+		    res = child.ui.sess.getres((Integer) cargs[0]);
+		    img = child;
 		} else {
 		    canDetect = false;
 		}
@@ -43,12 +45,13 @@ public class PageDetector {
     }
 
     public void detect(Widget target) {
-	if(img != null) {
+	if(res != null) {
 	    try {
-		if(img.get().name.contains("blankpaper")) {
+		if(res.get().name.equals("gfx/hud/blankpaper")) {
 		    detected = true;
 		    canDetect = false;
 		    page = new TextPage(Coord.z, new Coord(485, 500), target, "");
+		    img.visible = false;
 		    updatetext();
 		}
 	    } catch(Resource.Loading ignored) {
