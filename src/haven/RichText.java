@@ -101,17 +101,24 @@ public class RichText extends Text {
 	public Image(BufferedImage img) {
 	    this.img = img;
 	}
-	
-	public Image(Resource res, int id) {
-	    res.loadwait();
-	    for(Resource.Image img : res.layers(Resource.imgc)) {
-		if(img.id == id) {
-		    this.img = img.img;
-		    break;
+
+	//public Image(Resource res, int id) {
+	public Image(String name, int id) {
+	    Resource res;
+	    try {
+		res = Resource.load(name);
+		res.loadwait();
+		for(Resource.Image img : res.layers(Resource.imgc)) {
+		    if(img.id == id) {
+			this.img = img.img;
+			break;
+		    }
 		}
+	    } catch(RuntimeException error) {
+		this.img = Resource.load("gfx/invobjs/missing").layer(Resource.imgc).img;
 	    }
 	    if(this.img == null)
-		throw(new RuntimeException("Found no image with id " + id + " in " + res.toString()));
+		throw (new RuntimeException("Found no image with id " + id + " in " + name));
 	}
 	
 	public int width() {return(img.getWidth());}
@@ -395,11 +402,14 @@ public class RichText extends Text {
 
 	protected Part tag(PState s, String tn, String[] args, Map<? extends Attribute, ?> attrs) throws IOException {
 	    if(tn == "img") {
-		Resource res = Resource.load(args[0]);
 		int id = -1;
 		if(args.length > 1)
 		    id = Integer.parseInt(args[1]);
-		return(new Image(res, id));
+		return(new Image(args[0], id));
+	    } else if(tn == "item") {
+		return new Image("gfx/invobjs/"+args[0], -1);
+	    } else if(tn == "menu") {
+		return new Image("paginae/"+args[0], -1);
 	    } else {
 		Map<Attribute, Object> na = new HashMap<Attribute, Object>(attrs);
 		if(tn == "font") {
