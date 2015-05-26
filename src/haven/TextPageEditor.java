@@ -17,7 +17,7 @@ public class TextPageEditor extends Widget implements DTarget {
     }
 
     public TextPageEditor(Coord c, Widget parent) {
-	super(c, new Coord(485, 560), parent);
+	super(c, new Coord(485, 550), parent);
 
 	page = new TextPage(Coord.z, new Coord(485, 500), this, "");
 	text = new TextEntry(new Coord(0, 505), 485, this, "") {
