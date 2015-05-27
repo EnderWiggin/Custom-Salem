@@ -102,25 +102,18 @@ public class RichText extends Text {
 	    this.img = img;
 	}
 
-	//public Image(Resource res, int id) {
-	public Image(String name, int id) {
-	    Resource res;
-	    try {
-		res = Resource.load(name);
-		res.loadwait();
-		for(Resource.Image img : res.layers(Resource.imgc)) {
-		    if(img.id == id) {
-			this.img = img.img;
-			break;
-		    }
+	public Image(Resource res, int id) {
+	    res.loadwait();
+	    for(Resource.Image img : res.layers(Resource.imgc)) {
+		if(img.id == id) {
+		    this.img = img.img;
+		    break;
 		}
-	    } catch(RuntimeException error) {
-		this.img = Resource.load("gfx/invobjs/missing").layer(Resource.imgc).img;
 	    }
 	    if(this.img == null)
-		throw (new RuntimeException("Found no image with id " + id + " in " + name));
+		throw(new RuntimeException("Found no image with id " + id + " in " + res.toString()));
 	}
-	
+
 	public int width() {return(img.getWidth());}
 	public int height() {return(img.getHeight());}
 	public int baseline() {return(img.getHeight() - 1);}
@@ -133,51 +126,52 @@ public class RichText extends Text {
     public static class Newline extends Part {
 	private Map<? extends Attribute, ?> attrs;
 	private LineMetrics lm;
-	
+
 	public Newline(Map<? extends Attribute, ?> attrs) {
 	    this.attrs = attrs;
 	}
-	
+
 	private LineMetrics lm() {
 	    if(lm == null) {
-		Font f = (Font)attrs.get(TextAttribute.FONT);
-		if(f == null) {
+		Font f;
+		if((f = (Font)attrs.get(TextAttribute.FONT)) != null) {
+		} else {
 		    f = new Font(attrs);
 		}
 		lm = f.getLineMetrics("", rs.frc);
 	    }
 	    return(lm);
 	}
-	
+
 	public int height() {
 	    return((int)lm().getHeight());
 	}
-	
+
 	public int baseline() {
 	    return((int)lm().getAscent());
 	}
     }
-    
+
     public static class TextPart extends Part {
 	public AttributedString str;
 	public int start, end;
 	private TextMeasurer tm = null;
 	private TextLayout tl = null;
-	
+
 	public TextPart(AttributedString str, int start, int end) {
 	    this.str = str;
 	    this.start = start;
 	    this.end = end;
 	}
-	
+
 	public TextPart(String str, Map<? extends Attribute, ?> attrs) {
 	    this((str.length() == 0)?(new AttributedString(str)):(new AttributedString(str, attrs)), 0, str.length());
 	}
-	
+
 	public TextPart(String str) {
 	    this(new AttributedString(str), 0, str.length());
 	}
-	
+
 	public AttributedCharacterIterator ti() {
 	    return(str.getIterator(null, start, end));
 	}
@@ -197,7 +191,7 @@ public class RichText extends Text {
 		next.append(p);
 	    }
 	}
-	
+
 	public TextMeasurer tm() {
 	    if(tm == null)
 		tm = new TextMeasurer(str.getIterator(), rs.frc);
@@ -219,17 +213,17 @@ public class RichText extends Text {
 	    if(start == end) return(0);
 	    return((int)tm().getAdvanceBetween(start, end));
 	}
-	
+
 	public int height() {
 	    if(start == end) return(0);
 	    return((int)(tl().getAscent() + tl().getDescent() + tl().getLeading()));
 	}
-	
+
 	public int baseline() {
 	    if(start == end) return(0);
 	    return((int)tl().getAscent());
 	}
-	
+
 	private Part split2(int e1, int s2) {
 	    TextPart p1 = new TextPart(str, start, e1);
 	    TextPart p2 = new TextPart(str, s2, end);
@@ -270,12 +264,12 @@ public class RichText extends Text {
 	    }
 	    return(split2(l, l));
 	}
-	
+
 	public void render(Graphics2D g) {
 	    if(start == end) return;
 	    tl().draw(g, x, y + tl().getAscent());
 	}
-	
+
 	public TextHitInfo charat(float x, float y) {
 	    return(tl().hitTestChar(x, y));
 	}
@@ -288,13 +282,13 @@ public class RichText extends Text {
     public Part partat(Coord c) {
 	for(Part p = parts; p != null; p = p.next) {
 	    if((c.x >= p.x) && (c.y >= p.y) &&
-	       (c.x < p.x + p.width()) && (c.y < p.y + p.height())) {
+		(c.x < p.x + p.width()) && (c.y < p.y + p.height())) {
 		return(p);
 	    }
 	}
 	return(null);
     }
-    
+
     public AttributedCharacterIterator attrat(Coord c) {
 	Part p = partat(c);
 	if((p == null) || !(p instanceof TextPart))
@@ -311,7 +305,7 @@ public class RichText extends Text {
 	    return(null);
 	return(ai.getAttribute(attr));
     }
-    
+
     public static Map<? extends Attribute, ?> fillattrs2(Map<? extends Attribute, ?> def, Object... attrs) {
 	Map<Attribute, Object> a;
 	if(def == null)
@@ -322,7 +316,7 @@ public class RichText extends Text {
 	    a.put((Attribute)attrs[i], attrs[i + 1]);
 	return(a);
     }
-    
+
     public static Map<? extends Attribute, ?> fillattrs(Object... attrs) {
 	return(fillattrs2(null, attrs));
     }
@@ -351,23 +345,23 @@ public class RichText extends Text {
 
     public static class Parser {
 	private final Map<? extends Attribute, ?> defattrs;
-	
+
 	public Parser(Map<? extends Attribute, ?> defattrs) {
 	    this.defattrs = fixattrs(defattrs);
 	}
-	
+
 	public Parser(Object... attrs) {
 	    this(fillattrs2(std.defattrs, attrs));
 	}
-	
+
 	public static class PState {
 	    PeekReader in;
-	
+
 	    PState(PeekReader in) {
 		this.in = in;
 	    }
 	}
-    
+
 	private static boolean namechar(char c) {
 	    return((c == ':') || (c == '_') || (c == '$') || (c == '.') || (c == '-') || ((c >= '0') && (c <= '9')) || ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')));
 	}
@@ -388,7 +382,7 @@ public class RichText extends Text {
 		throw(new FormatException("Expected name, got `" + (char)in.peek() + "'"));
 	    return(buf.toString());
 	}
-    
+
 	protected Color a2col(String[] args) {
 	    int r = Integer.parseInt(args[0]);
 	    int g = Integer.parseInt(args[1]);
@@ -399,43 +393,30 @@ public class RichText extends Text {
 	    return(new Color(r, g, b, a));
 	}
 
-	protected float a2float(Object val) {
-	    float res = 0;
-	    if(val instanceof String) {
-		try {
-		    res = Float.parseFloat((String) val);
-		} catch (Exception ignored) {}
-	    } else {
-		try {
-		    res = (Float) val;
-		} catch (Exception ignored) {}
-	    }
-	    return res;
-	}
-
 	protected Part tag(PState s, String tn, String[] args, Map<? extends Attribute, ?> attrs) throws IOException {
-	    if(tn.equals("img")) {
+	    if(tn == "img") {
+		Resource res = Resource.load(args[0]);
 		int id = -1;
 		if(args.length > 1)
 		    id = Integer.parseInt(args[1]);
-		return(new Image(args[0], id));
+		return(new Image(res, id));
 	    } else {
 		Map<Attribute, Object> na = new HashMap<Attribute, Object>(attrs);
-		if(tn.equals("font")) {
+		if(tn == "font") {
 		    na.put(TextAttribute.FAMILY, args[0]);
 		    if(args.length > 1)
 			na.put(TextAttribute.SIZE, Float.parseFloat(args[1]));
-		} else if(tn.equals("size")) {
+		} else if(tn == "size") {
 		    na.put(TextAttribute.SIZE, Float.parseFloat(args[0]));
-		} else if(tn.equals("b")) {
+		} else if(tn == "b") {
 		    na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-		} else if(tn.equals("i")) {
+		} else if(tn == "i") {
 		    na.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
-		} else if(tn.equals("u")) {
+		} else if(tn == "u") {
 		    na.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-		} else if(tn.equals("col")) {
+		} else if(tn == "col") {
 		    na.put(TextAttribute.FOREGROUND, a2col(args));
-		} else if(tn.equals("bg")) {
+		} else if(tn == "bg") {
 		    na.put(TextAttribute.BACKGROUND, a2col(args));
 		}
 		if(s.in.peek(true) != '{')
@@ -469,7 +450,7 @@ public class RichText extends Text {
 	    }
 	    return(tag(s, tn, args, attrs));
 	}
-	
+
 	protected Part text(PState s, String text, Map<? extends Attribute, ?> attrs) throws IOException {
 	    return(new TextPart(text, attrs));
 	}
@@ -512,7 +493,7 @@ public class RichText extends Text {
 		throw(new FormatException("Junk left after the end of input: " + (char)s.in.peek()));
 	    return(res);
 	}
-	
+
 	public Part parse(Reader in, Map<? extends Attribute, ?> extra) throws IOException {
 	    PState s = new PState(new PeekReader(in));
 	    if(extra != null) {
@@ -528,7 +509,7 @@ public class RichText extends Text {
 	public Part parse(Reader in) throws IOException {
 	    return(parse(in, null));
 	}
-	
+
 	public Part parse(String text, Map<? extends Attribute, ?> extra) {
 	    try {
 		return(parse(new StringReader(text), extra));
@@ -540,7 +521,7 @@ public class RichText extends Text {
 	public Part parse(String text) {
 	    return(parse(text, null));
 	}
-	
+
 	public static String quote(String in) {
 	    StringBuilder buf = new StringBuilder();
 	    for(int i = 0; i < in.length(); i++) {
@@ -555,12 +536,12 @@ public class RichText extends Text {
 	    return(buf.toString());
 	}
     }
-    
+
     public static class Foundry {
 	private Parser parser;
 	private RState rs;
 	public boolean aa = false;
-	
+
 	public Foundry(Parser parser) {
 	    this.parser = parser;
 	    BufferedImage junk = TexI.mkbuf(new Coord(10, 10));
@@ -571,11 +552,11 @@ public class RichText extends Text {
 	public Foundry(Map<? extends Attribute, ?> defattrs) {
 	    this(new Parser(defattrs));
 	}
-	
+
 	public Foundry(Object... attrs) {
 	    this(new Parser(attrs));
 	}
-	
+
 	private static Map<? extends Attribute, ?> xlate(Font f, Color defcol) {
 	    Map<Attribute, Object> attrs = new HashMap<Attribute, Object>();
 	    attrs.put(TextAttribute.FONT, f);
@@ -680,19 +661,19 @@ public class RichText extends Text {
 		p.render(g);
 	    return(new RichText(text, img, fp));
 	}
-	
+
 	public RichText render(String text) {
 	    return(render(text, 0));
 	}
     }
-    
+
     public static RichText render(String text, int width, Object... extra) {
 	return(stdf.render(text, width, extra));
     }
-    
+
     public static void main(String[] args) throws Exception {
 	String cmd = args[0].intern();
-	if(cmd.equals("render")) {
+	if(cmd == "render") {
 	    Map<Attribute, Object> a = new HashMap<Attribute, Object>(std.defattrs);
 	    PosixArgs opt = PosixArgs.getopt(args, 1, "aw:f:s:");
 	    boolean aa = false;
@@ -714,7 +695,7 @@ public class RichText extends Text {
 	    java.io.OutputStream out = new java.io.FileOutputStream(opt.rest[1]);
 	    javax.imageio.ImageIO.write(t.img, "PNG", out);
 	    out.close();
-	} else if(cmd.equals("pagina")) {
+	} else if(cmd == "pagina") {
 	    PosixArgs opt = PosixArgs.getopt(args, 1, "aw:");
 	    boolean aa = false;
 	    int width = 0;
