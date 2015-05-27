@@ -54,14 +54,22 @@ public class RichTextBox extends Widget {
 	    g.frect(Coord.z, sz);
 	    g.chcolor();
 	}
-	int v = 10 - (sb==null?0:sb.val);
 	if(text != null){
-	    g.image(text.tex(), new Coord(10, v));
+	    g.image(text.tex(), textshift());
 	}
 	if(drawbox){
 	    fbox.draw(g, Coord.z, sz);
 	}
 	super.draw(g);
+    }
+
+    public RichText.Part partat(Coord c){
+	return text.partat(c.sub(textshift()));
+    }
+
+    private Coord textshift(){
+	int v = 10 - (sb == null ? 0 : sb.val);
+	return new Coord(10, v);
     }
     
     public void settext(String text) {
