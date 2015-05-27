@@ -3,8 +3,9 @@ package haven;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.AttributedCharacterIterator;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,12 @@ public class TextPage extends RichTextBox {
 		    id = Integer.parseInt(args[1]);
 		return (new Image(args[0], id));
 	    } else if(tn.equals("item")) {
-		return new Image("gfx/invobjs/" + args[0], -1);
+		Image img = new Image("gfx/invobjs/" + args[0], -1);
+		String name = img.res.layer(Resource.tooltip).t;
+		try {
+		    img.url = new URL("http://www.salem-wiki.com/mediawiki/index.php?title=" + URLEncoder.encode(name, "UTF-8"));
+		} catch (java.net.MalformedURLException ignored) {}
+		return img;
 	    } else if(tn.equals("menu")) {
 		return new Image("paginae/" + args[0], -1);
 	    } else {
@@ -91,11 +97,13 @@ public class TextPage extends RichTextBox {
 	    if(val instanceof String) {
 		try {
 		    res = Float.parseFloat((String) val);
-		} catch (Exception ignored) {}
+		} catch (Exception ignored) {
+		}
 	    } else {
 		try {
 		    res = (Float) val;
-		} catch (Exception ignored) {}
+		} catch (Exception ignored) {
+		}
 	    }
 	    return res;
 	}
@@ -103,14 +111,11 @@ public class TextPage extends RichTextBox {
 
     public static class Image extends RichText.Part {
 	public BufferedImage img;
-
-	public Image(BufferedImage img) {
-	    this.img = img;
-	}
+	public Resource res;
+	public URL url;
 
 	//public Image(Resource res, int id) {
 	public Image(String name, int id) {
-	    Resource res;
 	    try {
 		res = Resource.load(name);
 		res.loadwait();
@@ -159,6 +164,35 @@ public class TextPage extends RichTextBox {
 	    super.settext(text);
 	} catch (Exception error) {
 	    super.settext(RichText.Parser.quote(text));
+	}
+    }
+
+    @Override
+    public boolean mousedown(Coord c, int button) {
+	RichText.Part p = partat(c);
+	if(p != null && p instanceof Image) {
+	    return true;
+	}
+	return super.mousedown(c, button);
+    }
+
+    @Override
+    public boolean mouseup(Coord c, int button) {
+	RichText.Part p = partat(c);
+	if(p != null && p instanceof Image) {
+	    Image img = (Image) p;
+	    if(img.url != null && WebBrowser.self != null) {
+		try {
+		    WebBrowser.self.show(img.url);
+		} catch (WebBrowser.BrowserException e) {
+		    getparent(GameUI.class).error("Could not launch web browser.");
+		}
+		return true;
+	    } else {
+		return false;
+	    }
+	} else {
+	    return super.mouseup(c, button);
 	}
     }
 
