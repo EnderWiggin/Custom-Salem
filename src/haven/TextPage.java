@@ -2,6 +2,7 @@ package haven;
 
 import java.awt.*;
 import java.awt.font.TextAttribute;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.AttributedCharacterIterator;
@@ -40,10 +41,15 @@ public class TextPage extends RichTextBox {
     private static class Parser extends RichText.Parser {
 	@Override
 	protected RichText.Part tag(PState s, String tn, String[] args, Map<? extends AttributedCharacterIterator.Attribute, ?> attrs) throws IOException {
-	    if(tn.equals("item")) {
-		return new RichText.Image("gfx/invobjs/" + args[0], -1);
+	    if(tn.equals("img")) {
+		int id = -1;
+		if(args.length > 1)
+		    id = Integer.parseInt(args[1]);
+		return (new Image(args[0], id));
+	    } else if(tn.equals("item")) {
+		return new Image("gfx/invobjs/" + args[0], -1);
 	    } else if(tn.equals("menu")) {
-		return new RichText.Image("paginae/" + args[0], -1);
+		return new Image("paginae/" + args[0], -1);
 	    } else {
 		Map<AttributedCharacterIterator.Attribute, Object> na = new HashMap<AttributedCharacterIterator.Attribute, Object>(attrs);
 		boolean found = false;
@@ -78,6 +84,63 @@ public class TextPage extends RichTextBox {
 
 	public Parser(Object... attrs) {
 	    super(attrs);
+	}
+
+	protected float a2float(Object val) {
+	    float res = 0;
+	    if(val instanceof String) {
+		try {
+		    res = Float.parseFloat((String) val);
+		} catch (Exception ignored) {}
+	    } else {
+		try {
+		    res = (Float) val;
+		} catch (Exception ignored) {}
+	    }
+	    return res;
+	}
+    }
+
+    public static class Image extends RichText.Part {
+	public BufferedImage img;
+
+	public Image(BufferedImage img) {
+	    this.img = img;
+	}
+
+	//public Image(Resource res, int id) {
+	public Image(String name, int id) {
+	    Resource res;
+	    try {
+		res = Resource.load(name);
+		res.loadwait();
+		for (Resource.Image img : res.layers(Resource.imgc)) {
+		    if(img.id == id) {
+			this.img = img.img;
+			break;
+		    }
+		}
+	    } catch (RuntimeException error) {
+		this.img = Resource.load("gfx/invobjs/missing").layer(Resource.imgc).img;
+	    }
+	    if(this.img == null)
+		throw (new RuntimeException("Found no image with id " + id + " in " + name));
+	}
+
+	public int width() {
+	    return (img.getWidth());
+	}
+
+	public int height() {
+	    return (img.getHeight());
+	}
+
+	public int baseline() {
+	    return (img.getHeight() - 1);
+	}
+
+	public void render(Graphics2D g) {
+	    g.drawImage(img, x, y, null);
 	}
     }
 
