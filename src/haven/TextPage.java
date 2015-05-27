@@ -13,6 +13,8 @@ import java.util.Map;
 public class TextPage extends RichTextBox {
     private static final RichText.Foundry fnd;
     private final Tex paper = Resource.loadtex("gfx/hud/blankpaper");
+    private RichText.Part ttpart = null;
+    private Tex tt = null;
 
     static {
 	Font font = null;
@@ -194,6 +196,34 @@ public class TextPage extends RichTextBox {
 	} else {
 	    return super.mouseup(c, button);
 	}
+    }
+
+    @Override
+    public Object tooltip(Coord c, Widget prev) {
+	RichText.Part p = partat(c);
+	if(p == ttpart && tt != null) {
+	    return tt;
+	} else {
+	    tt = null;
+	    if(p instanceof Image) {
+		Image img = (Image) p;
+		Resource.Tooltip tip = img.res.layer(Resource.tooltip);
+		if(tip != null) {
+		    ttpart = p;
+		    tt = Text.render(tip.t).tex();
+		} else {
+		    Resource.AButton action = img.res.layer(Resource.action);
+		    if(action != null) {
+			ttpart = p;
+			tt = Text.render(action.name).tex();
+		    }
+		}
+	    }
+	    if(tt != null){
+		return tt;
+	    }
+	}
+	return super.tooltip(c, prev);
     }
 
     @Override
