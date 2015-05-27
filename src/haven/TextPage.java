@@ -2,16 +2,27 @@ package haven;
 
 import java.awt.*;
 import java.awt.font.TextAttribute;
+import java.io.File;
+import java.io.IOException;
 
 public class TextPage extends RichTextBox {
     private static final RichText.Foundry fnd;
     private final Tex paper = Resource.loadtex("gfx/hud/blankpaper");
 
     static {
+	Font font = null;
+	try {
+	    font = Font.createFont(Font.TRUETYPE_FONT, Config.getFile("mordred.regular.ttf"));
+	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    ge.registerFont(font.deriveFont(Font.PLAIN, 18));
+	} catch (FontFormatException ignored) {
+	} catch (IOException ignored) {
+	}
+	String family = font != null ? font.getFamily() : "Serif";
 	fnd = new RichText.Foundry(
-		TextAttribute.FAMILY, "Serif",
-		TextAttribute.SIZE, 18,
-		TextAttribute.FOREGROUND, Color.BLACK
+	    TextAttribute.FAMILY, family,
+	    TextAttribute.SIZE, 18,
+	    TextAttribute.FOREGROUND, Color.BLACK
 	);
 	fnd.aa = true;
     }
@@ -36,7 +47,7 @@ public class TextPage extends RichTextBox {
 	text = text.replaceAll("\\$t\\{", "\\$size[30]{");
 	try {
 	    super.settext(text);
-	} catch(Exception error) {
+	} catch (Exception error) {
 	    super.settext(RichText.Parser.quote(text));
 	}
     }
