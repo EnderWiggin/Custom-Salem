@@ -1,5 +1,8 @@
 package haven;
 
+import haven.ChatUI.ChatAttribute;
+import haven.ChatUI.FuckMeGentlyWithAChainsaw;
+
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
@@ -77,6 +80,17 @@ public class TextPage extends RichTextBox {
 			na.put(TextAttribute.SIZE, Math.round(1.2 * sz));
 			na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
 			found = true;
+		    }
+		} else if(tn.equals("url")) {
+		    try {
+			if(args[0].indexOf(':') < 0)
+			    args[0] = "http://" + args[0];
+			URL url = new URL(args[0]);
+			na.putAll(ChatUI.ChatParser.urlstyle);
+			na.put(ChatAttribute.HYPERLINK, new FuckMeGentlyWithAChainsaw(url));
+			found = true;
+		    }catch(Exception ignored){
+			ignored.printStackTrace();
 		    }
 		}
 		if(found) {
@@ -169,30 +183,42 @@ public class TextPage extends RichTextBox {
 	}
     }
 
+    private URL geturl(Coord c) {
+	RichText.Part part = partat(c);
+	if(part instanceof Image){
+	    return ((Image)part).url;
+	} else if(part instanceof RichText.TextPart){
+	    RichText.TextPart textPart = (RichText.TextPart) part;
+	    int index = textPart.charat(c.sub(textshift())).getCharIndex() + textPart.start;
+	    AttributedCharacterIterator inf = textPart.ti();
+	    try {
+		inf.setIndex(index);
+	    }catch(Exception e){
+		e.printStackTrace();
+	    }
+	    FuckMeGentlyWithAChainsaw url = (FuckMeGentlyWithAChainsaw)inf.getAttribute(ChatAttribute.HYPERLINK);
+	    if(url != null){
+		return url.url;
+	    }
+	}
+	return null;
+    }
+
     @Override
     public boolean mousedown(Coord c, int button) {
-	RichText.Part p = partat(c);
-	if(p != null && p instanceof Image) {
-	    return true;
-	}
-	return super.mousedown(c, button);
+	return geturl(c) != null || super.mousedown(c, button);
     }
 
     @Override
     public boolean mouseup(Coord c, int button) {
-	RichText.Part p = partat(c);
-	if(p != null && p instanceof Image) {
-	    Image img = (Image) p;
-	    if(img.url != null && WebBrowser.self != null) {
-		try {
-		    WebBrowser.self.show(img.url);
-		} catch (WebBrowser.BrowserException e) {
-		    getparent(GameUI.class).error("Could not launch web browser.");
-		}
-		return true;
-	    } else {
-		return false;
+	URL url = geturl(c);
+	if(url != null && WebBrowser.self != null) {
+	    try {
+		WebBrowser.self.show(url);
+	    } catch(WebBrowser.BrowserException e) {
+		getparent(GameUI.class).error("Could not launch web browser.");
 	    }
+	    return true;
 	} else {
 	    return super.mouseup(c, button);
 	}
@@ -201,23 +227,40 @@ public class TextPage extends RichTextBox {
     @Override
     public Object tooltip(Coord c, Widget prev) {
 	RichText.Part p = partat(c);
+	URL url = geturl(c);
 	if(p == ttpart && tt != null) {
 	    return tt;
 	} else {
 	    tt = null;
 	    if(p instanceof Image) {
 		Image img = (Image) p;
+		Text text = null;
 		Resource.Tooltip tip = img.res.layer(Resource.tooltip);
 		if(tip != null) {
-		    ttpart = p;
-		    tt = Text.render(tip.t).tex();
+		    text = Text.render(tip.t);
 		} else {
 		    Resource.AButton action = img.res.layer(Resource.action);
 		    if(action != null) {
-			ttpart = p;
-			tt = Text.render(action.name).tex();
+			text = Text.render(action.name);
 		    }
 		}
+		Text urltex = null;
+		if(url != null){
+		    urltex = Text.render(url.toString(), Color.LIGHT_GRAY);
+		}
+		if(text != null || urltex != null){
+		    ttpart = p;
+		    if(text != null && urltex != null){
+			tt = new TexI(ItemInfo.catimgs(2, text.img, urltex.img));
+		    } else if(text != null){
+			tt = text.tex();
+		    } else {
+			tt = urltex.tex();
+		    }
+		}
+	    } else if(p instanceof RichText.TextPart && url != null){
+		ttpart = p;
+		tt = Text.render(url.toString()).tex();
 	    }
 	    if(tt != null){
 		return tt;

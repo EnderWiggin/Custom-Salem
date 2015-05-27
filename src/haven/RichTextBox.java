@@ -67,7 +67,7 @@ public class RichTextBox extends Widget {
 	return text.partat(c.sub(textshift()));
     }
 
-    private Coord textshift(){
+    protected Coord textshift(){
 	int v = 10 - (sb == null ? 0 : sb.val);
 	return new Coord(10, v);
     }
