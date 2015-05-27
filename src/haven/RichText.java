@@ -400,6 +400,20 @@ public class RichText extends Text {
 	    return(new Color(r, g, b, a));
 	}
 
+	protected float a2float(Object val) {
+	    float res = 0;
+	    if(val instanceof String) {
+		try {
+		    res = Float.parseFloat((String) val);
+		} catch (Exception ignored) {}
+	    } else {
+		try {
+		    res = (Float) val;
+		} catch (Exception ignored) {}
+	    }
+	    return res;
+	}
+
 	protected Part tag(PState s, String tn, String[] args, Map<? extends Attribute, ?> attrs) throws IOException {
 	    if(tn == "img") {
 		int id = -1;
@@ -430,6 +444,18 @@ public class RichText extends Text {
 		    na.put(TextAttribute.BACKGROUND, a2col(args));
 		} else if(tn == "c") {
 		    na.put(TextAttribute.FOREGROUND, new Color(Integer.parseInt(args[0], 16)));
+		} else if(tn == "h1") {
+		    float sz = a2float(attrs.get(TextAttribute.SIZE));
+		    if(sz > 0){
+			na.put(TextAttribute.SIZE, Math.round(1.6 * sz));
+			na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
+		    }
+		} else if(tn == "h2") {
+		    float sz = a2float(attrs.get(TextAttribute.SIZE));
+		    if(sz > 0){
+			na.put(TextAttribute.SIZE, Math.round(1.2 * sz));
+			na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
+		    }
 		}
 		if(s.in.peek(true) != '{')
 		    throw(new FormatException("Expected `{', got `" + (char)s.in.peek() + "'"));
