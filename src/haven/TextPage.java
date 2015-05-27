@@ -10,11 +10,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.AttributedCharacterIterator;
+import java.text.AttributedCharacterIterator.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TextPage extends RichTextBox {
     private static final RichText.Foundry fnd;
+    public static final String WIKI_BASE_URL = "http://www.salem-wiki.com/mediawiki/index.php?title=";
     private final Tex paper = Resource.loadtex("gfx/hud/blankpaper");
     private RichText.Part ttpart = null;
     private Tex tt = null;
@@ -46,7 +48,7 @@ public class TextPage extends RichTextBox {
 
     private static class Parser extends RichText.Parser {
 	@Override
-	protected RichText.Part tag(PState s, String tn, String[] args, Map<? extends AttributedCharacterIterator.Attribute, ?> attrs) throws IOException {
+	protected RichText.Part tag(PState s, String tn, String[] args,  Map<? extends Attribute, ?> attrs) throws IOException {
 	    if(tn.equals("img")) {
 		int id = -1;
 		if(args.length > 1)
@@ -56,13 +58,13 @@ public class TextPage extends RichTextBox {
 		Image img = new Image("gfx/invobjs/" + args[0], -1);
 		String name = img.res.layer(Resource.tooltip).t;
 		try {
-		    img.url = new URL("http://www.salem-wiki.com/mediawiki/index.php?title=" + URLEncoder.encode(name, "UTF-8"));
+		    img.url = new URL(WIKI_BASE_URL + URLEncoder.encode(name, "UTF-8"));
 		} catch (java.net.MalformedURLException ignored) {}
 		return img;
 	    } else if(tn.equals("menu")) {
 		return new Image("paginae/" + args[0], -1);
 	    } else {
-		Map<AttributedCharacterIterator.Attribute, Object> na = new HashMap<AttributedCharacterIterator.Attribute, Object>(attrs);
+		Map<Attribute, Object> na = new HashMap<Attribute, Object>(attrs);
 		boolean found = false;
 		if(tn.equals("c")) {
 		    na.put(TextAttribute.FOREGROUND, new Color(Integer.parseInt(args[0], 16)));
