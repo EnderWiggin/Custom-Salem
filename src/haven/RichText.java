@@ -140,9 +140,8 @@ public class RichText extends Text {
 	
 	private LineMetrics lm() {
 	    if(lm == null) {
-		Font f;
-		if((f = (Font)attrs.get(TextAttribute.FONT)) != null) {
-		} else {
+		Font f = (Font)attrs.get(TextAttribute.FONT);
+		if(f == null) {
 		    f = new Font(attrs);
 		}
 		lm = f.getLineMetrics("", rs.frc);
@@ -415,42 +414,42 @@ public class RichText extends Text {
 	}
 
 	protected Part tag(PState s, String tn, String[] args, Map<? extends Attribute, ?> attrs) throws IOException {
-	    if(tn == "img") {
+	    if(tn.equals("img")) {
 		int id = -1;
 		if(args.length > 1)
 		    id = Integer.parseInt(args[1]);
 		return(new Image(args[0], id));
-	    } else if(tn == "item") {
+	    } else if(tn.equals("item")) {
 		return new Image("gfx/invobjs/"+args[0], -1);
-	    } else if(tn == "menu") {
+	    } else if(tn.equals("menu")) {
 		return new Image("paginae/"+args[0], -1);
 	    } else {
 		Map<Attribute, Object> na = new HashMap<Attribute, Object>(attrs);
-		if(tn == "font") {
+		if(tn.equals("font")) {
 		    na.put(TextAttribute.FAMILY, args[0]);
 		    if(args.length > 1)
 			na.put(TextAttribute.SIZE, Float.parseFloat(args[1]));
-		} else if(tn == "size") {
+		} else if(tn.equals("size")) {
 		    na.put(TextAttribute.SIZE, Float.parseFloat(args[0]));
-		} else if(tn == "b") {
+		} else if(tn.equals("b")) {
 		    na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-		} else if(tn == "i") {
+		} else if(tn.equals("i")) {
 		    na.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
-		} else if(tn == "u") {
+		} else if(tn.equals("u")) {
 		    na.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-		} else if(tn == "col") {
+		} else if(tn.equals("col")) {
 		    na.put(TextAttribute.FOREGROUND, a2col(args));
-		} else if(tn == "bg") {
+		} else if(tn.equals("bg")) {
 		    na.put(TextAttribute.BACKGROUND, a2col(args));
-		} else if(tn == "c") {
+		} else if(tn.equals("c")) {
 		    na.put(TextAttribute.FOREGROUND, new Color(Integer.parseInt(args[0], 16)));
-		} else if(tn == "h1") {
+		} else if(tn.equals("h1")) {
 		    float sz = a2float(attrs.get(TextAttribute.SIZE));
 		    if(sz > 0){
 			na.put(TextAttribute.SIZE, Math.round(1.6 * sz));
 			na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
 		    }
-		} else if(tn == "h2") {
+		} else if(tn.equals("h2")) {
 		    float sz = a2float(attrs.get(TextAttribute.SIZE));
 		    if(sz > 0){
 			na.put(TextAttribute.SIZE, Math.round(1.2 * sz));
@@ -711,7 +710,7 @@ public class RichText extends Text {
     
     public static void main(String[] args) throws Exception {
 	String cmd = args[0].intern();
-	if(cmd == "render") {
+	if(cmd.equals("render")) {
 	    Map<Attribute, Object> a = new HashMap<Attribute, Object>(std.defattrs);
 	    PosixArgs opt = PosixArgs.getopt(args, 1, "aw:f:s:");
 	    boolean aa = false;
@@ -733,7 +732,7 @@ public class RichText extends Text {
 	    java.io.OutputStream out = new java.io.FileOutputStream(opt.rest[1]);
 	    javax.imageio.ImageIO.write(t.img, "PNG", out);
 	    out.close();
-	} else if(cmd == "pagina") {
+	} else if(cmd.equals("pagina")) {
 	    PosixArgs opt = PosixArgs.getopt(args, 1, "aw:");
 	    boolean aa = false;
 	    int width = 0;
