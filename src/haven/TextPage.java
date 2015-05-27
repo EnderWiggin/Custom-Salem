@@ -206,14 +206,26 @@ public class TextPage extends RichTextBox {
 	return null;
     }
 
+    private Resource getaction(Coord c){
+	RichText.Part part = partat(c);
+	if(part instanceof Image){
+	    Resource res = ((Image) part).res;
+	    if(res != null && res.layer(Resource.action) != null){
+		return res;
+	    }
+	}
+	return null;
+    }
+
     @Override
     public boolean mousedown(Coord c, int button) {
-	return geturl(c) != null || super.mousedown(c, button);
+	return geturl(c) != null || getaction(c) != null || super.mousedown(c, button);
     }
 
     @Override
     public boolean mouseup(Coord c, int button) {
 	URL url = geturl(c);
+	Resource action = getaction(c);
 	if(url != null && WebBrowser.self != null) {
 	    try {
 		WebBrowser.self.show(url);
@@ -221,9 +233,11 @@ public class TextPage extends RichTextBox {
 		getparent(GameUI.class).error("Could not launch web browser.");
 	    }
 	    return true;
-	} else {
-	    return super.mouseup(c, button);
+	} else if(action != null) {
+	    ui.gui.menu.useres(action);
+	    return true;
 	}
+	return super.mouseup(c, button);
     }
 
     @Override
