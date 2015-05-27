@@ -419,10 +419,6 @@ public class RichText extends Text {
 		if(args.length > 1)
 		    id = Integer.parseInt(args[1]);
 		return(new Image(args[0], id));
-	    } else if(tn.equals("item")) {
-		return new Image("gfx/invobjs/"+args[0], -1);
-	    } else if(tn.equals("menu")) {
-		return new Image("paginae/"+args[0], -1);
 	    } else {
 		Map<Attribute, Object> na = new HashMap<Attribute, Object>(attrs);
 		if(tn.equals("font")) {
@@ -441,20 +437,6 @@ public class RichText extends Text {
 		    na.put(TextAttribute.FOREGROUND, a2col(args));
 		} else if(tn.equals("bg")) {
 		    na.put(TextAttribute.BACKGROUND, a2col(args));
-		} else if(tn.equals("c")) {
-		    na.put(TextAttribute.FOREGROUND, new Color(Integer.parseInt(args[0], 16)));
-		} else if(tn.equals("h1")) {
-		    float sz = a2float(attrs.get(TextAttribute.SIZE));
-		    if(sz > 0){
-			na.put(TextAttribute.SIZE, Math.round(1.6 * sz));
-			na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-		    }
-		} else if(tn.equals("h2")) {
-		    float sz = a2float(attrs.get(TextAttribute.SIZE));
-		    if(sz > 0){
-			na.put(TextAttribute.SIZE, Math.round(1.2 * sz));
-			na.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-		    }
 		}
 		if(s.in.peek(true) != '{')
 		    throw(new FormatException("Expected `{', got `" + (char)s.in.peek() + "'"));
