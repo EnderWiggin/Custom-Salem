@@ -16,7 +16,11 @@ import java.util.Map;
 
 public class TextPage extends RichTextBox {
     private static final RichText.Foundry fnd;
-    public static final String WIKI_BASE_URL = "http://www.salem-wiki.com/mediawiki/index.php?title=";
+    public static final String WIKI_BASE_URL = "http://www.thesalemwiki.com/wiki/index.php?title=";
+    public static final Map<? extends Attribute, ?> urlstyle = RichText.fillattrs(
+	    TextAttribute.FOREGROUND, new Color(1, 1, 223),
+	    TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON,
+	    TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
     private final Tex paper = Resource.loadtex("gfx/hud/blankpaper");
     private RichText.Part ttpart = null;
     private Tex tt = null;
@@ -27,14 +31,14 @@ public class TextPage extends RichTextBox {
 	    font = Font.createFont(Font.TRUETYPE_FONT, Config.getFile("mordred.regular.ttf"));
 	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    ge.registerFont(font.deriveFont(Font.PLAIN, 18));
-	} catch (FontFormatException ignored) {
-	} catch (IOException ignored) {
+	} catch(FontFormatException ignored) {
+	} catch(IOException ignored) {
 	}
 	String family = font != null ? font.getFamily() : "Serif";
 	fnd = new RichText.Foundry(new Parser(
-	    TextAttribute.FAMILY, family,
-	    TextAttribute.SIZE, 18,
-	    TextAttribute.FOREGROUND, Color.BLACK
+		TextAttribute.FAMILY, family,
+		TextAttribute.SIZE, 18,
+		TextAttribute.FOREGROUND, Color.BLACK
 	));
 	fnd.aa = true;
     }
@@ -48,7 +52,7 @@ public class TextPage extends RichTextBox {
 
     private static class Parser extends RichText.Parser {
 	@Override
-	protected RichText.Part tag(PState s, String tn, String[] args,  Map<? extends Attribute, ?> attrs) throws IOException {
+	protected RichText.Part tag(PState s, String tn, String[] args, Map<? extends Attribute, ?> attrs) throws IOException {
 	    if(tn.equals("img")) {
 		int id = -1;
 		if(args.length > 1)
@@ -59,10 +63,15 @@ public class TextPage extends RichTextBox {
 		String name = img.res.layer(Resource.tooltip).t;
 		try {
 		    img.url = new URL(WIKI_BASE_URL + URLEncoder.encode(name, "UTF-8"));
-		} catch (java.net.MalformedURLException ignored) {}
+		} catch(java.net.MalformedURLException ignored) {}
 		return img;
 	    } else if(tn.equals("menu")) {
-		return new Image("paginae/" + args[0], -1);
+		Image img = new Image("paginae/" + args[0], -1);
+		String name = img.res.layer(Resource.action).name;
+		try {
+		    img.url = new URL(WIKI_BASE_URL + URLEncoder.encode(name, "UTF-8"));
+		} catch(java.net.MalformedURLException ignored) {}
+		return img;
 	    } else {
 		Map<Attribute, Object> na = new HashMap<Attribute, Object>(attrs);
 		boolean found = false;
@@ -88,12 +97,10 @@ public class TextPage extends RichTextBox {
 			if(args[0].indexOf(':') < 0)
 			    args[0] = "http://" + args[0];
 			URL url = new URL(args[0]);
-			na.putAll(ChatUI.ChatParser.urlstyle);
+			na.putAll(urlstyle);
 			na.put(ChatAttribute.HYPERLINK, new FuckMeGentlyWithAChainsaw(url));
 			found = true;
-		    }catch(Exception ignored){
-			ignored.printStackTrace();
-		    }
+		    } catch(Exception ignored) {}
 		}
 		if(found) {
 		    if(s.in.peek(true) != '{')
@@ -115,12 +122,12 @@ public class TextPage extends RichTextBox {
 	    if(val instanceof String) {
 		try {
 		    res = Float.parseFloat((String) val);
-		} catch (Exception ignored) {
+		} catch(Exception ignored) {
 		}
 	    } else {
 		try {
 		    res = (Float) val;
-		} catch (Exception ignored) {
+		} catch(Exception ignored) {
 		}
 	    }
 	    return res;
@@ -137,13 +144,13 @@ public class TextPage extends RichTextBox {
 	    try {
 		res = Resource.load(name);
 		res.loadwait();
-		for (Resource.Image img : res.layers(Resource.imgc)) {
+		for(Resource.Image img : res.layers(Resource.imgc)) {
 		    if(img.id == id) {
 			this.img = img.img;
 			break;
 		    }
 		}
-	    } catch (RuntimeException error) {
+	    } catch(RuntimeException error) {
 		this.img = Resource.load("gfx/invobjs/missing").layer(Resource.imgc).img;
 	    }
 	    if(this.img == null)
@@ -180,37 +187,36 @@ public class TextPage extends RichTextBox {
 	text = text.replaceAll("\\$t\\{", "\\$size[30]{");
 	try {
 	    super.settext(text);
-	} catch (Exception error) {
+	} catch(Exception error) {
 	    super.settext(RichText.Parser.quote(text));
 	}
     }
 
     private URL geturl(Coord c) {
 	RichText.Part part = partat(c);
-	if(part instanceof Image){
-	    return ((Image)part).url;
-	} else if(part instanceof RichText.TextPart){
+	if(part instanceof Image) {
+	    return ((Image) part).url;
+	} else if(part instanceof RichText.TextPart) {
 	    RichText.TextPart textPart = (RichText.TextPart) part;
 	    int index = textPart.charat(c.sub(textshift())).getCharIndex() + textPart.start;
 	    AttributedCharacterIterator inf = textPart.ti();
 	    try {
 		inf.setIndex(index);
-	    }catch(Exception e){
-		e.printStackTrace();
+	    } catch(Exception ignored) {
 	    }
-	    FuckMeGentlyWithAChainsaw url = (FuckMeGentlyWithAChainsaw)inf.getAttribute(ChatAttribute.HYPERLINK);
-	    if(url != null){
+	    FuckMeGentlyWithAChainsaw url = (FuckMeGentlyWithAChainsaw) inf.getAttribute(ChatAttribute.HYPERLINK);
+	    if(url != null) {
 		return url.url;
 	    }
 	}
 	return null;
     }
 
-    private Resource getaction(Coord c){
+    private Resource getaction(Coord c) {
 	RichText.Part part = partat(c);
-	if(part instanceof Image){
+	if(part instanceof Image) {
 	    Resource res = ((Image) part).res;
-	    if(res != null && res.layer(Resource.action) != null){
+	    if(res != null && res.layer(Resource.action) != null) {
 		return res;
 	    }
 	}
@@ -226,15 +232,15 @@ public class TextPage extends RichTextBox {
     public boolean mouseup(Coord c, int button) {
 	URL url = geturl(c);
 	Resource action = getaction(c);
-	if(url != null && WebBrowser.self != null) {
+	if(action != null && button == 1) {
+	    ui.gui.menu.useres(action);
+	    return true;
+	} else if(url != null && WebBrowser.self != null) {
 	    try {
 		WebBrowser.self.show(url);
 	    } catch(WebBrowser.BrowserException e) {
 		getparent(GameUI.class).error("Could not launch web browser.");
 	    }
-	    return true;
-	} else if(action != null) {
-	    ui.gui.menu.useres(action);
 	    return true;
 	}
 	return super.mouseup(c, button);
@@ -248,53 +254,62 @@ public class TextPage extends RichTextBox {
 	    return tt;
 	} else {
 	    tt = null;
+	    String name = null;
 	    if(p instanceof Image) {
 		Image img = (Image) p;
-		Text text = null;
-		String action = action(img.res);
-		if(action != null){
-		    //text = Text.render(action.name);
-		    text = Text.render(action);
+		String path = action(img.res);
+		Resource.AButton act = img.res.layer(Resource.action);
+		if(path != null) {
+		    name = act.name +"\n$col[192,192,192]{"+path+"}";
 		} else {
 		    Resource.Tooltip tip = img.res.layer(Resource.tooltip);
 		    if(tip != null) {
-			text = Text.render(tip.t);
+			name = tip.t;
 		    }
 		}
+		Text text = null;
+		if(name != null){
+		    text = RichText.render(name, 200);
+		}
 		Text urltex = null;
-		if(url != null){
+		if(url != null) {
 		    urltex = Text.render(url.toString(), Color.LIGHT_GRAY);
 		}
-		if(text != null || urltex != null){
+		if(name != null || urltex != null) {
 		    ttpart = p;
-		    if(text != null && urltex != null){
+		    if(name != null && urltex != null) {
 			tt = new TexI(ItemInfo.catimgs(2, text.img, urltex.img));
-		    } else if(text != null){
+		    } else if(name != null) {
 			tt = text.tex();
 		    } else {
 			tt = urltex.tex();
 		    }
 		}
-	    } else if(p instanceof RichText.TextPart && url != null){
+	    } else if(p instanceof RichText.TextPart && url != null) {
 		ttpart = p;
 		tt = Text.render(url.toString()).tex();
 	    }
-	    if(tt != null){
+	    if(tt != null) {
 		return tt;
 	    }
 	}
 	return super.tooltip(c, prev);
     }
 
-    private String action(Resource res){
+    private String action(Resource res) {
 	String path = null;
 	Resource.AButton action = res.layer(Resource.action);
 	if(action != null) {
 	    path = action.name;
-	    Glob.Pagina p =  ui.gui.menu.getParent(ui.sess.glob.paginafor(res));
-	    while(p != null){
-		path  = p.act().name+" ["+p.act().hk+"] > "+path;
-		p = ui.gui.menu.getParent(p);
+	    MenuGrid menu = ui.gui.menu;
+	    Glob.Pagina p = menu.getParent(ui.sess.glob.paginafor(res));
+	    if(p != null){
+		path = p.act().name;
+	    }
+	    p = menu.getParent(p);
+	    while(p != null) {
+		path = p.act().name + " > "+path;
+		p = menu.getParent(p);
 	    }
 	}
 	return path;
