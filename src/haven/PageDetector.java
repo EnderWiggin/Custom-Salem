@@ -32,7 +32,8 @@ public class PageDetector {
     private void updatetext() {
 	if(label != null) {
 	    label.visible = false;
-	    page.settext(label.texts);
+	    page.settext("$h1{       Hello World!}/n/n$h2{  Text formatting is reality!}/nYou can now make text $c[0aaa44]{colored}, $b{bold}, $i{itallic} or $u{underscored} and change its size to be $size[28]{bigger} or $size[14]{smaller}./n/n$h2{  Images can be added!}/nYou can put item icon ( like $item[bar-iron] or $item[rockmaraca]) into texts. It will have tooltip with item name and link to the wiki. If you click it - wiki page will be opened in browser!/nYou can put menu icons ( like $menu[craft/frikadel] or $menu[bld/fishtrap]) into text. It will have tooltip with action name. If you click it - this action will be executed. So now it is possible to make recipe books that list your favorite gluttony foods!/nIt is even possible to add any image from client resources like cursors ($img[gfx/hud/curs/atk]), skills ($img[gfx/hud/skills/arts])./n/n$h2{  Linking websites is possible too!}/nYou can add link to any website. Like $url[forum.salemthegame.com]{forums} or $url[store.salemthegame.com/store]{shop}.");
+	    //page.settext(label.texts);
 	}
     }
 

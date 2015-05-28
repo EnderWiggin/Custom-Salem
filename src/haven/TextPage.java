@@ -251,13 +251,14 @@ public class TextPage extends RichTextBox {
 	    if(p instanceof Image) {
 		Image img = (Image) p;
 		Text text = null;
-		Resource.Tooltip tip = img.res.layer(Resource.tooltip);
-		if(tip != null) {
-		    text = Text.render(tip.t);
+		String action = action(img.res);
+		if(action != null){
+		    //text = Text.render(action.name);
+		    text = Text.render(action);
 		} else {
-		    Resource.AButton action = img.res.layer(Resource.action);
-		    if(action != null) {
-			text = Text.render(action.name);
+		    Resource.Tooltip tip = img.res.layer(Resource.tooltip);
+		    if(tip != null) {
+			text = Text.render(tip.t);
 		    }
 		}
 		Text urltex = null;
@@ -283,6 +284,20 @@ public class TextPage extends RichTextBox {
 	    }
 	}
 	return super.tooltip(c, prev);
+    }
+
+    private String action(Resource res){
+	String path = null;
+	Resource.AButton action = res.layer(Resource.action);
+	if(action != null) {
+	    path = action.name;
+	    Glob.Pagina p =  ui.gui.menu.getParent(ui.sess.glob.paginafor(res));
+	    while(p != null){
+		path  = p.act().name+" ["+p.act().hk+"] > "+path;
+		p = ui.gui.menu.getParent(p);
+	    }
+	}
+	return path;
     }
 
     @Override
