@@ -184,6 +184,10 @@ public class TextPage extends RichTextBox {
     @Override
     public void settext(String text) {
 	text = text.replaceAll("/n", "\n");
+	text = text.replaceAll("((?:\\r?\\n)+)(?!\\s)", "$1  ");
+	if(!text.startsWith("\\s")){
+	    text  = "  "+text;
+	}
 	try {
 	    super.settext(text);
 	} catch(Exception error) {
