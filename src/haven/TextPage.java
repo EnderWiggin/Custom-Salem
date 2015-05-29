@@ -184,7 +184,6 @@ public class TextPage extends RichTextBox {
     @Override
     public void settext(String text) {
 	text = text.replaceAll("/n", "\n");
-	text = text.replaceAll("\\$t\\{", "\\$size[30]{");
 	try {
 	    super.settext(text);
 	} catch(Exception error) {
