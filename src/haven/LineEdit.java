@@ -87,8 +87,7 @@ public class LineEdit {
 		point++;
 	    } else if(((c == 'v')||(c == 'V')) && (mod == C)) {
 		String str = Utils.getClipboard();
-		line = line.substring(0, point) + str + line.substring(point);
-		point += str.length();
+		insert(str);
 	    } else if((code == KeyEvent.VK_LEFT) && (mod == 0)) {
 		if(point > 0)
 		    point--;
@@ -111,13 +110,17 @@ public class LineEdit {
 			break;
 		    }
 		}
-		line = line.substring(0, point) + cl + line.substring(point);
-		point += cl.length();
+		insert(cl);
 	    } else {
 		return(false);
 	    }
 	    return(true);
 	}
+    }
+
+    public void insert(String text) {
+	line = line.substring(0, point) + text + line.substring(point);
+	point += text.length();
     }
     
     public class EmacsMode extends KeyHandler {
