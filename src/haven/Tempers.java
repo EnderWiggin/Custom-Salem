@@ -36,7 +36,6 @@ import static haven.PUtils.*;
 
 public class Tempers extends SIWidget {
     static final Foundry tmprfnd = new RichText.Foundry(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12);
-    public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/bg");
     public static final BufferedImage[] bg = {
 	Resource.loadimg("gfx/hud/tempers/bg1"),
 	Resource.loadimg("gfx/hud/tempers/bg2"),
