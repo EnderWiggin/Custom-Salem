@@ -1115,7 +1115,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	if((Config.storeurl != null) && (WebBrowser.self != null)) {
 	    IButton cash = new IButton(Coord.z, this, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd"), Resource.loadimg("gfx/hud/cashh")) {
 		{
-		    tooltip = Text.render("Buy silver");
+		    tooltip = Text.render("Salem Store");
 		}
 
 		private String encode(String in) {
