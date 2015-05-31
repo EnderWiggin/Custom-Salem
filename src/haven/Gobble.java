@@ -137,7 +137,7 @@ public class Gobble extends SIWidget {
     }
 
     public Gobble(Coord c, Widget parent) {
-	super(c, Utils.imgsz(Tempers.bg), parent);
+	super(c, Utils.imgsz(Tempers.bg[0]), parent);
 	lcount(0, Color.WHITE);
 	typelist = new TypeList(Coord.z, getparent(GameUI.class));
     }
