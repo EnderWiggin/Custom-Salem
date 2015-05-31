@@ -36,7 +36,18 @@ import static haven.PUtils.*;
 
 public class Tempers extends SIWidget {
     static final Foundry tmprfnd = new RichText.Foundry(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, TextAttribute.FOREGROUND, new Color(32,32,64), TextAttribute.SIZE, 12);
-    public static final BufferedImage bg = Resource.loadimg("gfx/hud/tempers/bg");
+    public static final BufferedImage[] bg = {
+	Resource.loadimg("gfx/hud/tempers/bg1"),
+	Resource.loadimg("gfx/hud/tempers/bg2"),
+	Resource.loadimg("gfx/hud/tempers/bg3"),
+	Resource.loadimg("gfx/hud/tempers/bg4"),
+	Resource.loadimg("gfx/hud/tempers/bg5"),
+	Resource.loadimg("gfx/hud/tempers/bg6"),
+	Resource.loadimg("gfx/hud/tempers/bg7"),
+	Resource.loadimg("gfx/hud/tempers/bg8"),
+	Resource.loadimg("gfx/hud/tempers/bg9"),
+	Resource.loadimg("gfx/hud/tempers/bg10"),
+    };
     public static final BufferedImage[] bars, sbars, fbars;
     public static final BufferedImage lcap = Resource.loadimg("gfx/hud/tempers/lcap");
     public static final BufferedImage rcap = Resource.loadimg("gfx/hud/tempers/rcap");
@@ -60,6 +71,7 @@ public class Tempers extends SIWidget {
     static final String[] rnm = {"Blood", "Phlegm", "Yellow Bile", "Black Bile"};
     int[] soft = new int[4], hard = new int[4];
     int[] lmax = new int[4];
+    int insanity = 0;
     public boolean gavail = true;
     Tex tt = null;
     public Widget gbtn;
@@ -85,7 +97,7 @@ public class Tempers extends SIWidget {
     }
     
     public Tempers(Coord c, Widget parent) {
-	super(c, imgsz(bg), parent);
+	super(c, imgsz(bg[0]), parent);
     }
     
     private FoodInfo lfood;
@@ -203,7 +215,7 @@ public class Tempers extends SIWidget {
 
     public void draw(BufferedImage buf) {
 	WritableRaster dst = buf.getRaster();
-	blit(dst, bg.getRaster(), Coord.z);
+	blit(dst, bg[insanity].getRaster(), Coord.z);
 
 	if(lfood != null) {
 	    alphablit(dst, rfmeter(lfood, 0), mc[0]);
@@ -221,6 +233,12 @@ public class Tempers extends SIWidget {
 	alphablit(dst, lmeter(bars[1].getRaster(), hard[1], lmax[1]), mc[1].sub(bars[1].getWidth() - 1, 0));
 	alphablit(dst, lmeter(bars[2].getRaster(), hard[2], lmax[2]), mc[2].sub(bars[2].getWidth() - 1, 0));
 	alphablit(dst, rmeter(bars[3].getRaster(), hard[3], lmax[3]), mc[3]);
+    }
+
+    public void updinsanity(int n) {
+	insanity = n;
+	redraw();
+	tt = null;
     }
     
     @Override
@@ -257,7 +275,7 @@ public class Tempers extends SIWidget {
     }
     
     public boolean mousedown(Coord c, int button) {
-	if(bg.getRaster().getSample(c.x, c.y, 3) > 128)
+	if(bg[insanity].getRaster().getSample(c.x, c.y, 3) > 128)
 	    return(true);
 	return(super.mousedown(c, button));
     }

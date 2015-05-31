@@ -652,6 +652,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	    } else {
 		belt[slot] = ui.sess.getres((Integer)args[1]);
 	    }
+	} else if(msg == "ins") {
+	    tm.updinsanity((Integer)args[0]);
 	} else if(msg == "stm") {
 	    int[] n = new int[4];
 	    for(int i = 0; i < 4; i++)
@@ -1115,7 +1117,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	if((Config.storeurl != null) && (WebBrowser.self != null)) {
 	    IButton cash = new IButton(Coord.z, this, Resource.loadimg("gfx/hud/cashu"), Resource.loadimg("gfx/hud/cashd"), Resource.loadimg("gfx/hud/cashh")) {
 		{
-		    tooltip = Text.render("Buy silver");
+		    tooltip = Text.render("Salem Store");
 		}
 
 		private String encode(String in) {
