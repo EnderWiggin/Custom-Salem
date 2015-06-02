@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 02.06.15:}}
+  * added madness level to biles tooltip
+  * added tooltip with estimated timer completion date to timer widget
+ 
 $size[14]{$u{Update for 21.05.15:}}
   * fixed rare crash in gob path displaying
   * fixed crash in gobble meters
