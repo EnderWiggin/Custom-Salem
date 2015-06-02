@@ -3,6 +3,8 @@ package haven;
 import org.ender.timer.Timer;
 import org.ender.timer.TimerController;
 
+import java.util.Date;
+
 public class TimerWdg extends Widget {
 
     static Tex bg = Resource.loadtex("gfx/hud/bosq");
@@ -33,7 +35,19 @@ public class TimerWdg extends Widget {
 	delete = new Button(new Coord(90,21), 50, this, "delete");
 	updbtns();
     }
-    
+
+    @Override
+    public Object tooltip(Coord c, Widget prev) {
+	if(timer.isWorking()) {
+	    if(tooltip == null) {
+		tooltip = Text.render(new Date(timer.getFinishDate()).toString()).tex();
+	    }
+	    return tooltip;
+	}
+	tooltip = null;
+	return null;
+    }
+
     private void updbtns(){
 	start.visible = !timer.isWorking();
 	stop.visible = timer.isWorking();

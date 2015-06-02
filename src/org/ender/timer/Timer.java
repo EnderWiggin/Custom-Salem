@@ -88,6 +88,10 @@ public class Timer {
 	return duration;
     }
 
+    public synchronized long getFinishDate() {
+	return (duration + local - (server - start) / SERVER_RATIO);
+    }
+
     @Override
     public String toString() {
 	long t = Math.abs(isWorking() ? remaining : duration) / 1000;
