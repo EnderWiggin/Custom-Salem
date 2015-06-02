@@ -286,6 +286,7 @@ public class Tempers extends SIWidget {
 		StringBuilder buf = new StringBuilder();
 		for(int i = 0; i < 4; i++)
 		    buf.append(String.format("%s: %s/%s/%s\n", rnm[i], Utils.fpformat(hard[i], 3, 1), Utils.fpformat(soft[i], 3, 1), Utils.fpformat(lmax[i], 3, 1)));
+		buf.append(String.format("Madness level: %d", insanity));
 		tt = RichText.render(buf.toString(), 0).tex();
 	    }
 	    return(tt);
