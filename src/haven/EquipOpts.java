@@ -68,7 +68,7 @@ class EquipOpts extends GameUI.Hidewnd {
 
     private void read() {
 	selected = new LinkedList<Integer>();
-	String[] slots =  Utils.getpref("equip_proxy_slots", "6;7;9;14;5;4").split(";");
+	String[] slots =  Utils.getpref("equip_proxy_slots", "6;7;9;14;5").split(";");
 	for(String slot : slots){
 	    try {
 		selected.add(Integer.parseInt(slot));
