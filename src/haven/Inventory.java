@@ -44,6 +44,15 @@ public class Inventory extends Widget implements DTarget {
     public static final Coord sqlo = new Coord(4, 4);
     public static final Tex refl = Resource.loadtex("gfx/hud/invref");
 
+    private static final Set<String> NOSORT;
+    static{
+	NOSORT = new HashSet<String>();
+	NOSORT.add("Turkey Coop");
+	NOSORT.add("Drying Frame");
+	NOSORT.add("Cementation Furnace");
+	NOSORT.add("Tanning Tub");
+    }
+
     Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
     public int newseq = 0;
@@ -74,6 +83,7 @@ public class Inventory extends Widget implements DTarget {
     public Inventory(Coord c, Coord sz, Widget parent) {
 	super(c, invsz(sz), parent);
 	risz = isz = sz;
+	addsorting();
     }
 
     public static Coord sqoff(Coord c) {
@@ -176,7 +186,11 @@ public class Inventory extends Widget implements DTarget {
     public void uimsg(String msg, Object... args) {
 	if(msg.equals("sz")) {
 	    risz = isz = (Coord)args[0];
-	    resort();
+	    if(cansort){
+		resort();
+	    } else {
+		resize(invsz(isz));
+	    }
 	}
     }
 
@@ -197,7 +211,6 @@ public class Inventory extends Widget implements DTarget {
     }
 
     public void sort(boolean value){
-	value = value && !sz.equals(new Coord(1,1)) && Window.class.isInstance(parent);
 	if( value != cansort){
 	    cansort = value;
 	    if(cansort){
@@ -270,8 +283,20 @@ public class Inventory extends Widget implements DTarget {
 		double a = Math.ceil(aspect_ratio * Math.sqrt(n / aspect_ratio));
 		isz.x = (int) Math.max(4, a);
 		isz.y = (int) Math.max(4, Math.ceil(n/a));
-		ui.gui.message(isz.toString(), GameUI.MsgType.INFO);
 	    }
+	}
+    }
+
+    private void addsorting() {
+	Window wnd = getparent(Window.class);
+	if(wnd != null && !risz.equals(new Coord(1, 1)) && wnd.cap != null && !NOSORT.contains(wnd.cap.text)) {
+	    IButton btnsort = new IButton(Coord.z, wnd, Window.obtni[0], Window.obtni[1], Window.obtni[2]) {
+		@Override
+		public void click() {
+		    sort(!cansort);
+		}
+	    };
+	    wnd.addtwdg(btnsort);
 	}
     }
 
