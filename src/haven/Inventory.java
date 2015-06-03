@@ -44,17 +44,15 @@ public class Inventory extends Widget implements DTarget {
     public static final Coord sqlo = new Coord(4, 4);
     public static final Tex refl = Resource.loadtex("gfx/hud/invref");
 
-    private static final Comparator<WItem> cmp_asc = new WItemComparator();
-    private static final Comparator<WItem> cmp_desc = new Comparator<WItem>() {
-	@Override
-	public int compare(WItem o1, WItem o2) {
-	    return cmp_asc.compare(o2, o1);
-	}
-    };
-
     Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
     public int newseq = 0;
+    private boolean cansort = false;
+    private boolean needSort = true;
+    private boolean needresize = false;
+    private Coord risz;
+    private Set<String> freecells;
+    private LinkedList<WItem> items;
 
     @RName("inv")
     public static class $_ implements Factory {
@@ -75,7 +73,7 @@ public class Inventory extends Widget implements DTarget {
 
     public Inventory(Coord c, Coord sz, Widget parent) {
 	super(c, invsz(sz), parent);
-	isz = sz;
+	risz = isz = sz;
     }
 
     public static Coord sqoff(Coord c) {
@@ -138,21 +136,37 @@ public class Inventory extends Widget implements DTarget {
 	    GItem i = (GItem)ret;
 	    wmap.put(i, new WItem(sqoff(c), this, i));
 	    newseq++;
+	    resort();
 	}
 	return(ret);
     }
 
     public void cdestroy(Widget w) {
-	super.cdestroy(w);
 	if(w instanceof GItem) {
 	    GItem i = (GItem)w;
 	    ui.destroy(wmap.remove(i));
+	    resort();
 	}
+	super.cdestroy(w);
     }
 
     public boolean drop(Coord cc, Coord ul) {
-	wdgmsg("drop", sqroff(ul.add(isqsz.div(2))));
-	return(true);
+	Coord c = sqroff(ul.add(isqsz.div(2)));
+	int i = c.y * isz.x + c.x;
+	if(items != null) {
+	    if(items.size() > i) {
+		c = items.get(i).item.c;
+	    } else {
+		Iterator<String> iterator = freecells.iterator();
+		if(iterator.hasNext()) {
+		    String sc = iterator.next();
+		    c = new Coord(sc);
+		    freecells.remove(sc);
+		}
+	    }
+	}
+	wdgmsg("drop", c);
+	return (true);
     }
 
     public boolean iteminteract(Coord cc, Coord ul) {
@@ -161,11 +175,11 @@ public class Inventory extends Widget implements DTarget {
 
     public void uimsg(String msg, Object... args) {
 	if(msg.equals("sz")) {
-	    isz = (Coord)args[0];
-	    resize(invsz(isz));
+	    risz = isz = (Coord)args[0];
+	    resort();
 	}
     }
-    
+
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(msg.equals("transfer-same")){
 	    process(getSame((String) args[0],(Boolean)args[1]), "transfer");
@@ -182,6 +196,85 @@ public class Inventory extends Widget implements DTarget {
 	}
     }
 
+    public void sort(boolean value){
+	value = value && !sz.equals(new Coord(1,1)) && Window.class.isInstance(parent);
+	if( value != cansort){
+	    cansort = value;
+	    if(cansort){
+		resort();
+	    } else {
+		for(WItem item : wmap.values()){
+		    item.c = sqoff(item.item.c);
+		}
+		items = null;
+		freecells = null;
+		isz = risz;
+		resize(invsz(isz));
+	    }
+	}
+    }
+
+    @Override
+    public void tick(double dt) {
+	if(cansort) {
+	    if(needresize) {
+		sortedsize();
+		resize(invsz(isz));
+		needresize = false;
+	    }
+	    if(needSort) {
+		try {
+		    items = new LinkedList<WItem>(wmap.values());
+		    items.sort(WItemComparator.sort);
+		    for(int i = 0; i < items.size(); i++) {
+			items.get(i).c = sqoff(new Coord(i % isz.x, i / isz.x));
+		    }
+		    needSort = false;
+		} catch(Loading ignored) {
+		}
+	    }
+	    if(items != null && freecells == null) {
+		calcfreecells();
+	    }
+	}
+	super.tick(dt);
+    }
+
+    public void resort() {
+	needSort = true;
+	needresize = true;
+	items = null;
+	freecells = null;
+    }
+
+    private void calcfreecells() {
+	freecells = new HashSet<String>(isz.x * isz.y);
+	Coord c = new Coord();
+	for(c.y = 0; c.y < isz.y; c.y++) {
+	    for(c.x = 0; c.x < isz.x; c.x++) {
+		freecells.add(c.toString());
+	    }
+	}
+	Set<GItem> items = wmap.keySet();
+	for(GItem item : items){
+	    freecells.remove(item.c.toString());
+	}
+    }
+
+    private void sortedsize() {
+	if(cansort) {
+	    if(this.equals(this.ui.gui.maininv)) {
+		int n = wmap.size() + 1;
+		float aspect_ratio = 1.5f;
+		isz = new Coord();
+		double a = Math.ceil(aspect_ratio * Math.sqrt(n / aspect_ratio));
+		isz.x = (int) Math.max(4, a);
+		isz.y = (int) Math.max(4, Math.ceil(n/a));
+		ui.gui.message(isz.toString(), GameUI.MsgType.INFO);
+	    }
+	}
+    }
+
     private List<WItem> getSame(String name, Boolean ascending) {
 	List<WItem> items = new ArrayList<WItem>();
 	for (Widget wdg = lchild; wdg != null; wdg = wdg.prev) {
@@ -190,7 +283,7 @@ public class Inventory extends Widget implements DTarget {
 		    items.add((WItem) wdg);
 	    }
 	}
-	Collections.sort(items, ascending?cmp_asc:cmp_desc);
+	Collections.sort(items, ascending? WItemComparator.cmp_stats_asc : WItemComparator.cmp_stats_desc);
 	return items;
     }
     

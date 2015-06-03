@@ -57,7 +57,7 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
     public static class $_ implements Factory {
 	public Widget create(Coord c, Widget parent, Object[] args) {
 	    int res = (Integer)args[0];
-	    return(new GItem(parent, parent.ui.sess.getres(res)));
+	    return(new GItem(c, parent, parent.ui.sess.getres(res)));
 	}
     }
     
@@ -82,8 +82,9 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	}
     }
     
-    public GItem(Widget parent, Indir<Resource> res) {
+    public GItem(Coord c, Widget parent, Indir<Resource> res) {
 	super(parent);
+	this.c = c;
 	this.res = res;
     }
 

@@ -6,6 +6,37 @@ import java.util.regex.Pattern;
 
 public class WItemComparator implements Comparator<WItem> {
     static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+)");
+    public static final Comparator<WItem> cmp_stats_asc = new WItemComparator();
+    public static final Comparator<WItem> cmp_stats_desc = cmp_stats_asc.reversed();
+    public static final Comparator<WItem> sort = new Comparator<WItem>() {
+	@Override
+	public int compare(WItem o1, WItem o2) {
+	    String n1 = o1.item.name();
+	    String n2 = o2.item.name();
+	    try {
+		if(n1 == null || n2 == null) {
+		    throw new Loading();
+		}
+		int k = n1.compareTo(n2);
+		if(k == 0) {
+		    n1 = o1.item.resname();
+		    n2 = o2.item.resname();
+		    if(n1 == null || n2 == null) {
+			throw new Loading();
+		    }
+
+		    k = n1.compareTo(n2);
+		    if(k == 0) {
+			return cmp_stats_desc.compare(o1, o2);
+		    }
+		    return k;
+		}
+		return k;
+	    }catch(Resource.Loading e){
+		throw new Loading();
+	    }
+	}
+    };
 
     @Override
     public int compare(WItem o1, WItem o2) {
@@ -23,7 +54,7 @@ public class WItemComparator implements Comparator<WItem> {
 	}
     }
 
-    public int alchemy(WItem o1, WItem o2) {
+    protected int alchemy(WItem o1, WItem o2) {
 	Alchemy a = o1.alch.get();
 	double q1 = (a == null) ? 0 : a.purity();
 
@@ -39,9 +70,12 @@ public class WItemComparator implements Comparator<WItem> {
 	}
     }
 
-    private int carats(WItem o1, WItem o2) {
-	float c1 = (o1 != null && o1.carats != null)?o1.carats.get():0;
-	float c2 = (o2 != null && o2.carats != null)?o2.carats.get():0;
+    protected int carats(WItem o1, WItem o2) {
+	Float c1 = (o1 != null && o1.carats != null)?o1.carats.get():null;
+	Float c2 = (o2 != null && o2.carats != null)?o2.carats.get():null;
+
+	if(c1 == null){c1 = 0f;}
+	if(c2 == null){c2 = 0f;}
 
 	if(c1 > c2){
 	    return 1;
@@ -52,7 +86,7 @@ public class WItemComparator implements Comparator<WItem> {
 	}
     }
 
-    private int number(WItem o1, WItem o2) {
+    protected int number(WItem o1, WItem o2) {
 	float n1 = getCount(o1);
 	float n2 = getCount(o2);
 	if(n1 > n2){
@@ -64,7 +98,7 @@ public class WItemComparator implements Comparator<WItem> {
 	}
     }
 
-    private float getCount(WItem wItem) {
+    protected float getCount(WItem wItem) {
 	float num = wItem.item.num;
 	try {
 	    if (num < 0) {
