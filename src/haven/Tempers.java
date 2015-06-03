@@ -236,6 +236,11 @@ public class Tempers extends SIWidget {
     }
 
     public void updinsanity(int n) {
+	if(insanity != n) {
+	    String direction = insanity > n ? "decreased" : "increased";
+	    GameUI.MsgType type = insanity > n ? GameUI.MsgType.GOOD : GameUI.MsgType.BAD;
+	    ui.gui.message(String.format("Your madness %s to level %d!", direction, n), type);
+	}
 	insanity = n;
 	redraw();
 	tt = null;
