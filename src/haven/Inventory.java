@@ -277,7 +277,7 @@ public class Inventory extends Widget implements DTarget {
     private void sortedsize() {
 	if(cansort) {
 	    if(this.equals(this.ui.gui.maininv)) {
-		int n = wmap.size() + 1;
+		int n = Math.min(1024, wmap.size() + 1);
 		float aspect_ratio = 1.5f;
 		isz = new Coord();
 		double a = Math.ceil(aspect_ratio * Math.sqrt(n / aspect_ratio));
