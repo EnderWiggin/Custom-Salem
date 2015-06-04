@@ -306,8 +306,8 @@ public class Inventory extends Widget implements DTarget {
 	    IButton btnsort = new IButton(Coord.z, wnd, imgs[0], imgs[1], imgs[2]) {
 		private Tex sort, unsort;
 		{
-		    sort = Text.render("start sorting").tex();
-		    unsort = Text.render("stop sorting").tex();
+		    sort = Text.render("sorting disabled").tex();
+		    unsort = Text.render("sorting enabled").tex();
 		    tooltip = sort_opt?unsort:sort;
 		}
 		@Override
