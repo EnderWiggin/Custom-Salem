@@ -7,7 +7,6 @@ public class R2DWdg extends Widget {
     public R2DWdg(PView target) {
 	super(target.c, target.sz, target.parent);
 	this.target = target;
-	lower();
     }
 
     @Override
