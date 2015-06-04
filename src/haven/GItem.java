@@ -111,14 +111,9 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
     }
     
     public String name() {
-	Resource res = resource();
-	if(res != null){
-	    if(res.layer(Resource.tooltip) != null) {
-		return res.layer(Resource.tooltip).t;
-	    } else {
-		Name name = ItemInfo.find(Name.class, info);
-		return (name != null)?name.str.text:null;
-	    }
+	if(info != null) {
+	    Name name = ItemInfo.find(Name.class, info);
+	    return name != null ? name.str.text : null;
 	}
 	return null;
     }
