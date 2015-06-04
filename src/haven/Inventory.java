@@ -26,6 +26,7 @@
 
 package haven;
 
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class Inventory extends Widget implements DTarget {
@@ -38,6 +39,16 @@ public class Inventory extends Widget implements DTarget {
     private static final Tex cbr = Resource.loadtex("gfx/hud/inv/ocbr");
     private static final Tex cbl = Resource.loadtex("gfx/hud/inv/ocbl");
     private static final Tex bsq = Resource.loadtex("gfx/hud/inv/sq");
+    public static final BufferedImage[] sbtni = new BufferedImage[] {
+	Resource.loadimg("gfx/hud/wnd/sortbtn"),
+	Resource.loadimg("gfx/hud/wnd/sortbtnd"),
+	Resource.loadimg("gfx/hud/wnd/sortbtnh")
+    };
+    public static final BufferedImage[] usbtni = new BufferedImage[] {
+	Resource.loadimg("gfx/hud/wnd/unsortbtn"),
+	Resource.loadimg("gfx/hud/wnd/unsortbtnd"),
+	Resource.loadimg("gfx/hud/wnd/unsortbtnh")
+    };
     public static final Coord sqsz = bsq.sz();
     public static final Coord isqsz = new Coord(40, 40);
     public static final Tex sqlite = Resource.loadtex("gfx/hud/inv/sq1");
@@ -290,10 +301,21 @@ public class Inventory extends Widget implements DTarget {
     private void addsorting() {
 	Window wnd = getparent(Window.class);
 	if(wnd != null && !risz.equals(new Coord(1, 1)) && wnd.cap != null && !NOSORT.contains(wnd.cap.text)) {
-	    IButton btnsort = new IButton(Coord.z, wnd, Window.obtni[0], Window.obtni[1], Window.obtni[2]) {
+	    IButton btnsort = new IButton(Coord.z, wnd, usbtni[0], usbtni[1], usbtni[2]) {
+		private Tex sort, unsort;
+		{
+		    tooltip = sort = Text.render("start sorting").tex();
+		    unsort = Text.render("stop sorting").tex();
+		}
 		@Override
 		public void click() {
 		    sort(!cansort);
+		    BufferedImage[] imgs = cansort?sbtni:usbtni;
+		    up = imgs[0];
+		    down = imgs[1];
+		    hover = imgs[2];
+
+		    tooltip = cansort?unsort:sort;
 		}
 	    };
 	    wnd.addtwdg(btnsort);
