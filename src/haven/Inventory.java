@@ -159,6 +159,9 @@ public class Inventory extends Widget implements DTarget {
 	Widget ret = gettype(type).create(c, this, cargs);
 	if(ret instanceof GItem) {
 	    GItem i = (GItem)ret;
+	    if(cansort){
+		c = new Coord(wmap.size()%isz.x, wmap.size()/isz.x);
+	    }
 	    wmap.put(i, new WItem(sqoff(c), this, i));
 	    newseq++;
 	    resort();
