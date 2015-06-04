@@ -7,7 +7,12 @@ import java.util.regex.Pattern;
 public class WItemComparator implements Comparator<WItem> {
     static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+)");
     public static final Comparator<WItem> cmp_stats_asc = new WItemComparator();
-    public static final Comparator<WItem> cmp_stats_desc = cmp_stats_asc.reversed();
+    public static final Comparator<WItem> cmp_stats_desc = new WItemComparator(){
+	@Override
+	public int compare(WItem o1, WItem o2) {
+	    return super.compare(o2, o1);
+	}
+    };
     public static final Comparator<WItem> sort = new Comparator<WItem>() {
 	@Override
 	public int compare(WItem o1, WItem o2) {

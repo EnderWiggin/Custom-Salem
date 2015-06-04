@@ -61,7 +61,7 @@ public class Inventory extends Widget implements DTarget {
     private boolean needresize = false;
     private Coord risz;
     private Set<String> freecells;
-    private LinkedList<WItem> items;
+    private List<WItem> items;
 
     @RName("inv")
     public static class $_ implements Factory {
@@ -238,7 +238,7 @@ public class Inventory extends Widget implements DTarget {
 	    if(needSort) {
 		try {
 		    items = new LinkedList<WItem>(wmap.values());
-		    items.sort(WItemComparator.sort);
+		    Collections.sort(items, WItemComparator.sort);
 		    for(int i = 0; i < items.size(); i++) {
 			items.get(i).c = sqoff(new Coord(i % isz.x, i / isz.x));
 		    }
