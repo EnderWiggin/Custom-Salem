@@ -81,7 +81,11 @@ public class GItem extends AWidget implements ItemInfo.ResOwner {
 	    return(num);
 	}
     }
-    
+
+    public GItem(Widget parent, Indir<Resource> res) {
+	this(Coord.z, parent, res);
+    }
+
     public GItem(Coord c, Widget parent, Indir<Resource> res) {
 	super(parent);
 	this.c = c;
