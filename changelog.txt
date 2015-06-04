@@ -1,5 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 04.06.15:}}
+  * display system message when madness level changes
+  * changed console font size and color
+  * added button to each window with inventory to enable sorting of that inventory
+ 
 $size[14]{$u{Update for 02.06.15:}}
   * added madness level to biles tooltip
   * added tooltip with estimated timer completion date to timer widget
