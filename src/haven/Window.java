@@ -298,21 +298,21 @@ public class Window extends Widget implements DTarget {
 	    return("");
     }
     
-    protected void storeOpt(String opt, String value){
+    public void storeOpt(String opt, String value){
 	if(name == null){return;}
 	Config.setWindowOpt(name+opt, value);
     }
     
-    protected void storeOpt(String opt, Coord value){
+    public void storeOpt(String opt, Coord value){
 	storeOpt(opt, value.toString());
     }
     
-    protected void storeOpt(String opt, boolean value){
+    public void storeOpt(String opt, boolean value){
 	if(name == null){return;}
 	Config.setWindowOpt(name+opt, value);
     }
     
-    protected Coord getOptCoord(String opt, Coord def){
+    public Coord getOptCoord(String opt, Coord def){
 	synchronized (Config.window_props) {
 	    try {
 		return new Coord(Config.window_props.getProperty(name+opt, def.toString()));
@@ -322,7 +322,7 @@ public class Window extends Widget implements DTarget {
 	}
     }
     
-    protected boolean getOptBool(String opt, boolean def){
+    public boolean getOptBool(String opt, boolean def){
 	synchronized (Config.window_props) {
 	    try {
 		return Config.window_props.getProperty(name+opt, null).equals("true");

@@ -299,13 +299,16 @@ public class Inventory extends Widget implements DTarget {
     }
 
     private void addsorting() {
-	Window wnd = getparent(Window.class);
+	final Window wnd = getparent(Window.class);
 	if(wnd != null && !risz.equals(new Coord(1, 1)) && wnd.cap != null && !NOSORT.contains(wnd.cap.text)) {
-	    IButton btnsort = new IButton(Coord.z, wnd, usbtni[0], usbtni[1], usbtni[2]) {
+	    final boolean sort_opt = wnd.getOptBool("_sort", false);
+	    BufferedImage[] imgs = sort_opt?sbtni:usbtni;
+	    IButton btnsort = new IButton(Coord.z, wnd, imgs[0], imgs[1], imgs[2]) {
 		private Tex sort, unsort;
 		{
-		    tooltip = sort = Text.render("start sorting").tex();
+		    sort = Text.render("start sorting").tex();
 		    unsort = Text.render("stop sorting").tex();
+		    tooltip = sort_opt?unsort:sort;
 		}
 		@Override
 		public void click() {
@@ -316,9 +319,11 @@ public class Inventory extends Widget implements DTarget {
 		    hover = imgs[2];
 
 		    tooltip = cansort?unsort:sort;
+		    wnd.storeOpt("_sort", cansort);
 		}
 	    };
 	    wnd.addtwdg(btnsort);
+	    sort(sort_opt);
 	}
     }
 
