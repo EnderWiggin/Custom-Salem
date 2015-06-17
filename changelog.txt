@@ -1,5 +1,9 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 17.06.15:}
+  * fixed client hanging
+  * fixed possible crash in craft window if input/output resource lacked tooltip
+ 
 $size[14]{$u{Update for 04.06.15:}}
   * display system message when madness level changes
   * changed console font size and color
