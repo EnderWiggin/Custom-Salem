@@ -144,7 +144,14 @@ public class Makewindow extends Widget {
 		break find;
 	    }
 	}
-	if(!full){return tres==null?null:tres.layer(Resource.tooltip).t;}
+
+	Resource.Tooltip layer = null;
+	if(tres != null) {
+	    layer = tres.layer(Resource.tooltip);
+	}
+	String tip = layer != null?layer.t:"<MISSING TOOLTIP>";
+
+	if(!full){return tres==null?null: tip;}
 	if(tres == null)
 	    return(null);
 	if(lasttip != tres) {
@@ -158,12 +165,12 @@ public class Makewindow extends Widget {
 	else if(now - hoverstart > 1000)
 	    sh = false;
 	if(sh) {
-	    if(stip == null)
-		stip = Text.render(tres.layer(Resource.tooltip).t);
+	    if(stip == null && tip != null)
+		stip = Text.render(tip);
 	    return(stip);
 	} else {
-	    if(ltip == null) {
-		String t = tres.layer(Resource.tooltip).t;
+	    if(ltip == null && tip != null) {
+		String t = tip;
 		t += "\n" + tres.name;
 		Resource.Pagina p = tres.layer(Resource.pagina);
 		if(p != null)
