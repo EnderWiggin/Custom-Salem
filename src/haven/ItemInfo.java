@@ -236,7 +236,7 @@ public abstract class ItemInfo {
 	return 0;
     }
     
-    static final Pattern count_patt = Pattern.compile("([0-9]*\\.?[0-9]+\\s*%?)");
+    static final Pattern count_patt = Pattern.compile("(?:^|[\\s])([0-9]*\\.?[0-9]+\\s*%?)");
     public static String getCount(List<ItemInfo> infos){
 	String res = null;
 	for (ItemInfo info : infos){
