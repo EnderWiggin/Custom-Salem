@@ -190,7 +190,7 @@ public class FlowerMenu extends Widget {
 		String name = options[i];
 		Petal p = new Petal(name);
 		p.num = i;
-		if(Config.AUTOCHOOSE.containsKey(name ) && Config.AUTOCHOOSE.get(name)){
+		if(!ui.modshift && Config.AUTOCHOOSE.containsKey(name) && Config.AUTOCHOOSE.get(name)){
 		    autochoose = p;
 		}
 		opts[i] = p;
