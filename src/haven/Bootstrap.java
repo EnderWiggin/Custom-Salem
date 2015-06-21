@@ -152,8 +152,10 @@ public class Bootstrap implements UI.Receiver, UI.Runner {
 			}
 			cookie = auth.getcookie();
 			if(savepw) {
-			    setpref("savedtoken", Utils.byte2hex(auth.gettoken()));
+			    String hex = Utils.byte2hex(auth.gettoken());
+			    setpref("savedtoken", hex);
 			    setpref("tokenname", acctname);
+			    Config.storeAccount(acctname, hex);
 			}
 		    } finally {
 			auth.close();
