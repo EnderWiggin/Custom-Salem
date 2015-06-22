@@ -304,8 +304,12 @@ public class LoginScreen extends Widget {
 		super.wdgmsg("login", cur.data());
 	    return;
 	} else if(msg.equals("account")){
-	    uimsg("token", args[0], args[1]);
-	    super.wdgmsg("login", cur.data());
+	    //repeat if was not token box to do actual login
+	    boolean repeat = !(cur instanceof Tokenbox);
+	    if(repeat){
+		super.wdgmsg("login", args[0], args[1]);
+	    }
+	    super.wdgmsg("login", args[0], args[1]);
 	    return;
 	}
 	super.wdgmsg(sender, msg, args);

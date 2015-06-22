@@ -33,7 +33,7 @@ public class Bootstrap implements UI.Receiver, UI.Runner {
     Session sess;
     String hostname;
     int port;
-    Queue<Message> msgs = new LinkedList<Message>();
+    final Queue<Message> msgs = new LinkedList<Message>();
     String inituser = null;
     byte[] initcookie = null;
 	
@@ -137,9 +137,18 @@ public class Bootstrap implements UI.Receiver, UI.Runner {
 		    }
 		    if(msg.id == 1) {
 			if(msg.name == "login") {
-			    creds = (AuthClient.Credentials)msg.args[0];
-			    savepw = (Boolean)msg.args[1];
-			    loginname = creds.name();
+			    if(msg.args[0] instanceof String && msg.args[1] instanceof String) {
+				loginname = tokenname = (String) msg.args[0];
+				tokenhex = (String) msg.args[1];
+				token = Utils.hex2byte(tokenhex);
+				setpref("savedtoken", tokenhex);
+				setpref("tokenname", tokenname);
+				continue retry;
+			    } else {
+				creds = (AuthClient.Credentials) msg.args[0];
+				savepw = (Boolean) msg.args[1];
+				loginname = creds.name();
+			    }
 			    break;
 			}
 		    }
