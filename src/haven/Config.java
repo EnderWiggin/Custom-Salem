@@ -113,7 +113,7 @@ public class Config {
     public static boolean auto_drop_bats = Utils.getprefb("auto_drop_bats", false);
     public static boolean weight_wdg = Utils.getprefb("weight_wdg", false);
     public static boolean gobble_meters = Utils.getprefb("gobble_meters", true);
-    public static Map<String, String> accounts;
+    public static final Map<String, String> accounts = new HashMap<String, String>();
 
     static {
 	String p;
@@ -143,17 +143,27 @@ public class Config {
 	    try {
 		Gson gson = (new GsonBuilder()).create();
 		Type collectionType = new TypeToken<HashMap<String, String>>(){}.getType();
-		accounts = gson.fromJson(json, collectionType);
+		Map<String, String> tmp = gson.fromJson(json, collectionType);
+		accounts.putAll(tmp);
 	    }catch(Exception ignored){ }
-	}
-	if(accounts == null){
-	    accounts = new HashMap<String, String>();
 	}
     }
 
-    @SuppressWarnings("SynchronizeOnNonFinalField")
     public static void storeAccount(String name, String token){
-	accounts.put(name, token);
+	synchronized (accounts) {
+	    accounts.put(name, token);
+	}
+	saveAccounts();
+    }
+
+    public static void removeAccount(String name){
+	synchronized (accounts) {
+	    accounts.remove(name);
+	}
+	saveAccounts();
+    }
+
+    public static void saveAccounts(){
 	synchronized (accounts) {
 	    Gson gson = (new GsonBuilder()).create();
 	    saveFile("accounts.json", gson.toJson(accounts));

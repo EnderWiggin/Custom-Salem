@@ -48,7 +48,7 @@ public class LoginScreen extends Widget {
     static final Tex cbox = Resource.loadtex("gfx/hud/login/cbox");
     static final Coord cboxc = new Coord((bg.sz().x - cbox.sz().x) / 2, 310);
     Text progress = null;
-    Accountlist accounts;
+    AccountList accounts;
 	
     static {
 	textf = new Text.Foundry(new Font("Sans", Font.BOLD, 16), Color.BLACK).aa(true);
@@ -63,9 +63,9 @@ public class LoginScreen extends Widget {
 	new Img(Coord.z, bg, this);
 	new Img(cboxc, cbox, this);
 
-	accounts = new Accountlist(Coord.z, this, 3);
+	accounts = new AccountList(Coord.z, this, 10);
 	
-	if(Config.isUpdate == true){
+	if(Config.isUpdate){
 	    showChangelog();
 	}
     }
@@ -92,8 +92,8 @@ public class LoginScreen extends Widget {
 	    br.close();
 	    out.close();
 	    in.close();
-	} catch (FileNotFoundException e) {
-	} catch (IOException e) {
+	} catch (FileNotFoundException ignored) {
+	} catch (IOException ignored) {
 	}
 	txt.setprog(0);
 	
