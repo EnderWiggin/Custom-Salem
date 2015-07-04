@@ -14,7 +14,6 @@ public class AccountList extends Widget {
     };
 
     public int height, y;
-    //public IButton sau, sad;
     public final List<Account> accounts = new ArrayList<Account>();
 
     public static class Account {
@@ -84,9 +83,7 @@ public class AccountList extends Widget {
 			super.wdgmsg("account", account.name, account.token);
 			break;
 		    } else if(sender == account.del){
-			accounts.remove(account);
-			scroll(0);
-			Config.removeAccount(account.name);
+			remove(account);
 			break;
 		    }
 		}
@@ -104,10 +101,16 @@ public class AccountList extends Widget {
 	c.del.hide();
 	synchronized(accounts) {
 	    accounts.add(c);
-	    //if(accounts.size() > height) {
-		//sau.show();
-		//sad.show();
-	    //}
 	}
+    }
+
+    public void remove(Account account) {
+	synchronized(accounts) {
+	    accounts.remove(account);
+	}
+	scroll(0);
+	Config.removeAccount(account.name);
+	ui.destroy(account.plb);
+	ui.destroy(account.del);
     }
 }
