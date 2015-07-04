@@ -286,7 +286,7 @@ public class Config {
     private static void loadOptions() {
 	options = loadProps("salem.cfg");
         String ver = options.getProperty("version", "");
-        isUpdate = !version.equals(ver);
+        isUpdate = !version.equals(ver) || !Config.getFile("changelog.txt").exists();
         shadows = options.getProperty("shadows", "false").equals("true");
         flight = options.getProperty("flight", "false").equals("true");
         cellshade = options.getProperty("cellshade", "false").equals("true");
