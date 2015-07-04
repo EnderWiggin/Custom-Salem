@@ -1,5 +1,10 @@
 $size[20]{$u{CHANGE LOG:}}
  
+$size[14]{$u{Update for 04.07.15:}
+  * do not auto-choose menu if SHIFT is pressed when it is shown
+  * added option (Options->Menu->Single item CTRL choose) to automatically select single item menus if CTRL is pressed
+  * account cookies are now stored in accounts.json for easy switching between them. You'll see buttons in top-left corner with account names - click on them to login. Cookies will be invalidated if you login from other place. But you can copy-over accounts.json and you won't need to re-enter password. If you suspect someone might have taken your accounts.json - press forget me on login screen and login - this will invalidate your old cookies. If you, dear bot user, have more than 10 accounts - scroll your mouse over account list to see them all.
+ 
 $size[14]{$u{Update for 17.06.15:}
   * fixed client hanging
   * fixed possible crash in craft window if input/output resource lacked tooltip
