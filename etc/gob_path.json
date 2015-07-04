@@ -1,18 +1,87 @@
 {
-  "gfx/kritter/argopelter/argopelter":{"name":"argopelter"},
-  "gfx/kritter/bear/bear":{"color":"E34444", "name":"bear"},
-  "gfx/kritter/beaver/beaver":{"color":"6091ea", "name":"beaver"},
-  "gfx/kritter/butterfly/butterfly":{"show":false, "name":"butterfly"},
-  "gfx/kritter/crab/crab":{"color":"aa9999", "show":false, "name":"crab"},
-  "gfx/kritter/cricket/cricket":{"color":"DDFF88", "name":"cricket"},
-  "gfx/kritter/deer/deer":{"color":"E59363", "name":"deer"},
-  "gfx/kritter/frog/frog":{"color":"88ffdd", "show":false, "name":"frog"},
-  "gfx/kritter/marchhare/marchhare":{"name":"march hare"},
-  "gfx/kritter/rabbit/rabbit":{"color":"ffffee", "name":"rabbit"},
-  "gfx/kritter/rattler/rattler":{"color":"ff8888", "name":"timber rattler"},
-  "gfx/kritter/spider/spider":{"color":"BFB938", "name":"spider"},
-  "gfx/kritter/squonk/squonk":{"name":"squonk"},
-  "gfx/kritter/turkey/turkey":{"color":"8888ff", "name":"turkey"},
-  "gfx/kritter/wishpoosh/wishpoosh":{"name":"wishpoosh"},
-  "gfx/terobjs/tumbleweed":{"color":"885A06", "name":"tumbleweed"}
+  "gfx/kritter/bear/bear": {
+    "show": true,
+    "color": "ffe34444",
+    "name": "bear"
+  },
+  "gfx/kritter/deer/deer": {
+    "show": true,
+    "color": "ffe59363",
+    "name": "deer"
+  },
+  "gfx/kritter/spider/spider": {
+    "show": true,
+    "color": "ffbfb938",
+    "name": "spider"
+  },
+  "gfx/kritter/argopelter/argopelter": {
+    "show": true,
+    "name": "argopelter"
+  },
+  "gfx/kritter/wishpoosh/wishpoosh": {
+    "show": true,
+    "name": "wishpoosh"
+  },
+  "gfx/kritter/butterfly/butterfly": {
+    "show": false,
+    "name": "butterfly"
+  },
+  "gfx/kritter/rabbit/rabbit": {
+    "show": false,
+    "color": "ffffffee",
+    "name": "rabbit"
+  },
+  "gfx/kritter/cougar/cougar": {
+    "show": true,
+    "color": "ffff0040",
+    "name": "cougar"
+  },
+  "gfx/kritter/beaver/beaver": {
+    "show": true,
+    "color": "ff6091ea",
+    "name": "beaver"
+  },
+  "gfx/terobjs/tumbleweed": {
+    "show": true,
+    "color": "ff885a06",
+    "name": "tumbleweed"
+  },
+  "gfx/kritter/frog/frog": {
+    "show": false,
+    "color": "ff88ffdd",
+    "name": "frog"
+  },
+  "gfx/kritter/marchhare/marchhare": {
+    "show": true,
+    "name": "march hare"
+  },
+  "gfx/kritter/cricket/cricket": {
+    "show": true,
+    "color": "ffddff88",
+    "name": "cricket"
+  },
+  "gfx/kritter/squirrel/squirrel": {
+    "show": true,
+    "color": "fffe9a2e",
+    "name": "squirrel"
+  },
+  "gfx/kritter/turkey/turkey": {
+    "show": false,
+    "color": "ff8888ff",
+    "name": "turkey"
+  },
+  "gfx/kritter/crab/crab": {
+    "show": false,
+    "color": "ffaa9999",
+    "name": "crab"
+  },
+  "gfx/kritter/rattler/rattler": {
+    "show": true,
+    "color": "ffff8888",
+    "name": "timber rattler"
+  },
+  "gfx/kritter/squonk/squonk": {
+    "show": true,
+    "name": "squonk"
+  }
 }
