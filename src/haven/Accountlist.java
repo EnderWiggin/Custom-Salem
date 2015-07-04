@@ -1,13 +1,17 @@
 package haven;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static haven.Utils.setpref;
 
 public class AccountList extends Widget {
     private static final Coord SZ = new Coord(230, 30);
+    private static final Comparator<Account> accountComparator = new Comparator<Account>() {
+	@Override
+	public int compare(Account o1, Account o2) {
+	    return o1.name.compareTo(o2.name);
+	}
+    };
 
     public int height, y;
     //public IButton sau, sad;
@@ -31,6 +35,7 @@ public class AccountList extends Widget {
 	for(Map.Entry<String, String> entry :Config.accounts.entrySet()){
 	    add(entry.getKey(), entry.getValue());
 	}
+	Collections.sort(accounts, accountComparator);
 
     }
 
@@ -99,10 +104,10 @@ public class AccountList extends Widget {
 	c.del.hide();
 	synchronized(accounts) {
 	    accounts.add(c);
-	    if(accounts.size() > height) {
+	    //if(accounts.size() > height) {
 		//sau.show();
 		//sad.show();
-	    }
+	    //}
 	}
     }
 }
