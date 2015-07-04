@@ -562,6 +562,16 @@ public class OptWnd2 extends Window {
 	    }
 	};
 	new Label(new Coord(0, 30), tab, "Choose menu items to select automatically:");
+
+	new CheckBox(new Coord(220, 60), tab, "Single item CTRL choose"){
+	    @Override
+	    public void changed(boolean val) {
+		super.changed(val);
+		Config.singleItemCTRLChoose = val;
+		Utils.setprefb("singleItemCTRLChoose", val);
+	    }
+	    {tooltip = Text.render("If checked, will automatically select single item menus if CTRL is pressed when menu is opened.");}
+	}.a = Config.singleItemCTRLChoose;
     }
     
     private static void checkVideoOpt(CheckBox check, BoolSetting setting){

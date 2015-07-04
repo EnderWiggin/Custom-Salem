@@ -114,6 +114,7 @@ public class Config {
     public static boolean weight_wdg = Utils.getprefb("weight_wdg", false);
     public static boolean gobble_meters = Utils.getprefb("gobble_meters", true);
     public static final Map<String, String> accounts = new HashMap<String, String>();
+    public static boolean singleItemCTRLChoose = Utils.getprefb("singleItemCTRLChoose", true);
 
     static {
 	String p;
