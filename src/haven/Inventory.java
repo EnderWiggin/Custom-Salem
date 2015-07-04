@@ -63,8 +63,9 @@ public class Inventory extends Widget implements DTarget {
 	NOSORT.add("Cementation Furnace");
 	NOSORT.add("Tanning Tub");
 	NOSORT.add("Novice Toolbelt");
-	NOSORT.add("Jorneyman Toolbelt");
+	NOSORT.add("Journeyman Toolbelt");
 	NOSORT.add("Master Toolbelt");
+	NOSORT.add("Bee Skep");
 
     }
 

@@ -48,6 +48,7 @@ public class LoginScreen extends Widget {
     static final Tex cbox = Resource.loadtex("gfx/hud/login/cbox");
     static final Coord cboxc = new Coord((bg.sz().x - cbox.sz().x) / 2, 310);
     Text progress = null;
+    AccountList accounts;
 	
     static {
 	textf = new Text.Foundry(new Font("Sans", Font.BOLD, 16), Color.BLACK).aa(true);
@@ -61,8 +62,10 @@ public class LoginScreen extends Widget {
 	parent.setfocus(this);
 	new Img(Coord.z, bg, this);
 	new Img(cboxc, cbox, this);
+
+	accounts = new AccountList(Coord.z, this, 10);
 	
-	if(Config.isUpdate == true){
+	if(Config.isUpdate){
 	    showChangelog();
 	}
     }
@@ -89,8 +92,8 @@ public class LoginScreen extends Widget {
 	    br.close();
 	    out.close();
 	    in.close();
-	} catch (FileNotFoundException e) {
-	} catch (IOException e) {
+	} catch (FileNotFoundException ignored) {
+	} catch (IOException ignored) {
 	}
 	txt.setprog(0);
 	
@@ -212,17 +215,21 @@ public class LoginScreen extends Widget {
     }
 	
     private class Tokenbox extends Login {
+	private final String name;
+	private final String token;
 	Text label;
 	Button btn;
 		
-	private Tokenbox(String username) {
+	private Tokenbox(String username, String token) {
 	    super(cboxc, cbox.sz(), LoginScreen.this);
 	    label = textfs.render("Identity is saved for " + username);
 	    btn = new Button(new Coord((sz.x - 100) / 2, 55), 100, this, "Forget me");
+	    this.name = username;
+	    this.token = token;
 	}
 		
 	Object[] data() {
-	    return(new Object[0]);
+	    return(new Object[]{name, token});
 	}
 		
 	boolean enter() {
@@ -296,6 +303,14 @@ public class LoginScreen extends Widget {
 	    if(cur.enter())
 		super.wdgmsg("login", cur.data());
 	    return;
+	} else if(msg.equals("account")){
+	    //repeat if was not token box to do actual login
+	    boolean repeat = !(cur instanceof Tokenbox);
+	    if(repeat){
+		super.wdgmsg("login", args[0], args[1]);
+	    }
+	    super.wdgmsg("login", args[0], args[1]);
+	    return;
 	}
 	super.wdgmsg(sender, msg, args);
     }
@@ -316,7 +331,7 @@ public class LoginScreen extends Widget {
 		mklogin();
 	    } else if(msg == "token") {
 		clear();
-		cur = new Tokenbox((String)args[0]);
+		cur = new Tokenbox((String)args[0], (String)args[1]);
 		mklogin();
 	    } else if(msg == "error") {
 		error((String)args[0]);

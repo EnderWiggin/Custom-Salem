@@ -47,7 +47,7 @@ public class Radar {
         Marker m = factory.makeMarker(name, gob);
         if (m != null) {
             markers.put(gob.id, m);
-            gob.setattr(new GobBlink(gob));
+            gob.setattr(new GobBlink(gob, m));
         }
     }
 
@@ -77,6 +77,10 @@ public class Radar {
             checkUndefined();
             return markers.values().toArray(new Marker[markers.size()]);
         }
+    }
+
+    public Marker get(Gob gob){
+	return markers.get(gob.id);
     }
 
     public void remove(Long gobid) {
@@ -109,11 +113,13 @@ public class Radar {
     }
     
     public static class GobBlink extends GAttrib {
+	private final Marker marker;
 	Material.Colors fx;
 	int time = 0;
 	
-	public GobBlink(Gob gob) {
+	public GobBlink(Gob gob, Marker marker) {
 	    super(gob);
+	    this.marker = marker;
 	    Color c = new Color(255, 100, 100, 100);
 	    fx = new Material.Colors();
 	    fx.amb = Utils.c2fa(c);
@@ -139,6 +145,10 @@ public class Radar {
 
 	public GLState getfx() {
 	    return(fx);
+	}
+
+	public boolean visible() {
+	    return marker.template.visible;
 	}
     }
 }

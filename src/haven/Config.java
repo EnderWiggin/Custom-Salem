@@ -112,7 +112,9 @@ public class Config {
     public static boolean isocam_steps = Utils.getprefb("isocam_steps", true);
     public static boolean auto_drop_bats = Utils.getprefb("auto_drop_bats", false);
     public static boolean weight_wdg = Utils.getprefb("weight_wdg", false);
-    public static boolean gobble_meters = Utils.getprefb("gobble_meters", true);;
+    public static boolean gobble_meters = Utils.getprefb("gobble_meters", true);
+    public static final Map<String, String> accounts = new HashMap<String, String>();
+    public static boolean singleItemCTRLChoose = Utils.getprefb("singleItemCTRLChoose", true);
 
     static {
 	String p;
@@ -133,6 +135,40 @@ public class Config {
 	Wiki.init(getFile("cache"), 3);
 
 	loadGobPathCfg();
+	loadAccounts();
+    }
+
+    private static void loadAccounts() {
+	String json = loadFile("accounts.json");
+	if(json != null){
+	    try {
+		Gson gson = (new GsonBuilder()).create();
+		Type collectionType = new TypeToken<HashMap<String, String>>(){}.getType();
+		Map<String, String> tmp = gson.fromJson(json, collectionType);
+		accounts.putAll(tmp);
+	    }catch(Exception ignored){ }
+	}
+    }
+
+    public static void storeAccount(String name, String token){
+	synchronized (accounts) {
+	    accounts.put(name, token);
+	}
+	saveAccounts();
+    }
+
+    public static void removeAccount(String name){
+	synchronized (accounts) {
+	    accounts.remove(name);
+	}
+	saveAccounts();
+    }
+
+    public static void saveAccounts(){
+	synchronized (accounts) {
+	    Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
+	    saveFile("accounts.json", gson.toJson(accounts));
+	}
     }
 
     private static void loadAutochoose() {
