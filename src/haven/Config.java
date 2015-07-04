@@ -166,7 +166,7 @@ public class Config {
 
     public static void saveAccounts(){
 	synchronized (accounts) {
-	    Gson gson = (new GsonBuilder()).create();
+	    Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
 	    saveFile("accounts.json", gson.toJson(accounts));
 	}
     }
