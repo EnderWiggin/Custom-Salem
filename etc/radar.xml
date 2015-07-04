@@ -59,6 +59,8 @@
 	<marker pattern="gfx/kritter/spider/.+" text="Spider" color="#BFB938" />
 	<marker pattern="gfx/kritter/bear/.+" text="Bear" color="#e34444" />
 	<marker pattern="gfx/kritter/rattler/.+" text="Timber Rattler" color="#ff8888" />
+	<marker pattern="gfx/kritter/squirrel/.+" text="Squirrel" color="#FE9A2E" show="false"/>
+	<marker pattern="gfx/kritter/cougar/.+" text="Cougar" color="#FF0040" show="true"/>
 
 	<!-- unknown animals -->
 	<marker pattern="gfx/kritter/.+" color="#ffaaff" />
@@ -80,4 +82,20 @@
 	<marker match="gfx/terobjs/minepoint-copper" text="Copper" color="#46B469" />
 	<marker match="gfx/terobjs/wellpoint" text="Well point" color="#1093E5" />
 </group>
+
+
+<group name="hidden" show="false">
+	<marker match="gfx/terobjs/herbs/lugleaf"  />
+	<marker match="gfx/terobjs/herbs/mabonleaf"  />
+	<marker match="gfx/terobjs/herbs/samleaf"  />
+	<marker match="gfx/terobjs/herbs/fern"  />
+	<marker match="gfx/terobjs/herbs/reeds"  />
+	<marker match="gfx/terobjs/herbs/autumngrass"  />
+	<marker match="gfx/terobjs/herbs/rottenlog"  />
+	<marker match="gfx/terobjs/herbs/gneiss"  />
+	<marker match="gfx/terobjs/herbs/daisy"  />
+	<marker match="gfx/terobjs/herbs/honeysucklekudzu"  />
+	<marker match="gfx/terobjs/herbs/pricklypearcactus"  />
+</group>
+
 </radarConfig>
