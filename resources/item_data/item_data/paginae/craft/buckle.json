@@ -1,0 +1,16 @@
+{
+  "artifice": {
+    "pmin": 90,
+    "pmax": 100,
+    "profs": [
+      "thread",
+      "fire"
+    ],
+    "bonuses": {
+      "Productivity": 3,
+      "Common combat defence": 1,
+      "Alloying": 5
+    }
+  },
+  "uses": -1
+}

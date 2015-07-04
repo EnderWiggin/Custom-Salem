@@ -1,0 +1,31 @@
+{
+  "food": [
+    7500,
+    7500,
+    7500,
+    7500
+  ],
+  "gobble": {
+    "fed-up_time": 600,
+    "high": [
+      0,
+      10000,
+      0,
+      0
+    ],
+    "low": [
+      0,
+      8000,
+      0,
+      0
+    ],
+    "events": [
+      {
+        "chance": 0.1,
+        "value": -10,
+        "type": "gfx/invobjs/shellfish"
+      }
+    ]
+  },
+  "uses": -1
+}

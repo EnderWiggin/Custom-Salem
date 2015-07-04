@@ -1,0 +1,14 @@
+{
+  "artifice": {
+    "pmin": 95,
+    "pmax": 100,
+    "profs": [
+      "law"
+    ],
+    "bonuses": {
+      "Affluence": 4,
+      "Mining": 2
+    }
+  },
+  "uses": -1
+}

@@ -1,0 +1,11 @@
+{
+  "inspiration": {
+    "natp": 550,
+    "arts": 1200,
+    "cloak": 1250,
+    "faith": 1400,
+    "law": 1100,
+    "fire": 3100
+  },
+  "uses": 5
+}
