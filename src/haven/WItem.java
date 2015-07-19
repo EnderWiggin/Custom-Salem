@@ -96,9 +96,17 @@ public class WItem extends Widget implements DTarget {
     
     public static BufferedImage longtip(GItem item, List<ItemInfo> info) {
 	BufferedImage img = ItemInfo.longtip(info);
+	try {
+	    double weight = item.ui.gui.getWeight(item.resname());
+	    if(weight > 0) {
+		img = ItemInfo.catimgs(5, img, RichText.stdf.render("$col[200,200,200]{Weight:} " + item.ui.gui.getWeight(item.resname()) + "kg").img);
+	    }
+	} catch(Loading e) {
+	}
 	Resource.Pagina pg = item.res.get().layer(Resource.pagina);
-	if(pg != null)
+	if(pg != null) {
 	    img = ItemInfo.catimgs(5, img, RichText.render(pg.text, 200).img);
+	}
 	return(img);
     }
     
@@ -463,6 +471,7 @@ public class WItem extends Widget implements DTarget {
 	    return true;
 	} else if(btn == 1) {
 	    item.wdgmsg("take", c);
+	    ui.gui.takingItem(item.resname());
 	    return true;
 	} else if(btn == 3) {
 	    item.wdgmsg("iact", c);

@@ -77,6 +77,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     public OptWnd opts;
     public Collection<GItem> hand = new LinkedList<GItem>();
     private WItem vhand;
+    private HashMap<String, Double> itemWeights = new HashMap<String, Double>();
     public ChatUI chat;
     public FilterWnd filter = new FilterWnd(this);
     public ChatUI.Channel syslog;
@@ -150,10 +151,28 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 			buf.delete(0, p + 1);
 		    }
 		}
-		
+
 		public void close() {}
 		public void flush() {}
 	    });
+	// de-serialize item weights file
+	try {
+	    java.io.File f = new java.io.File(Config.userhome + "/itemWeights.ser");
+	    if(f.exists() && !f.isDirectory()) {
+		java.io.FileInputStream fis = new java.io.FileInputStream(Config.userhome + "/itemWeights.ser");
+		java.io.ObjectInputStream ois = new java.io.ObjectInputStream(fis);
+		itemWeights = (HashMap) ois.readObject();
+		ois.close();
+		fis.close();
+	    }
+	} catch(java.io.IOException ioe) {
+	    ioe.printStackTrace();
+	    return;
+	} catch(ClassNotFoundException c) {
+	    System.out.println("Class not found");
+	    c.printStackTrace();
+	    return;
+	}
 	opts = new OptWnd(sz.sub(200, 200).div(2), this);
 	opts.hide();
 	TimerController.init(Config.server);
@@ -635,7 +654,39 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
 	dwalkupd();
     }
-    
+
+    private String takingItemName = "";
+
+    public void takingItem(String name) {
+	takingItemName = name;
+    }
+
+    private double lastweight = 0.0;
+
+    private void setWeight(String name, double weight) {
+	Double w = itemWeights.get(name);
+	if(w == null || Math.abs(w-weight) < 0.0001) {
+	    itemWeights.put(name, weight);
+	    // try to serialize the item weights
+	    try {
+		java.io.FileOutputStream fos =
+		    new java.io.FileOutputStream(Config.userhome + "/itemWeights.ser");
+		java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(fos);
+		oos.writeObject(itemWeights);
+		oos.close();
+		fos.close();
+	    } catch(java.io.IOException ioe) {
+		// could not serialize
+	    }
+	}
+    }
+    public double getWeight(String resname) {
+	Double weight = itemWeights.get(resname);
+	if(weight == null)
+	    return -1;
+	else
+	    return weight;
+    }
     public void uimsg(String msg, Object... args) {
 	if(msg == "err") {
 	    String err = (String)args[0];
@@ -720,6 +771,16 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 		help.res = res;
 	} else if(msg == "weight") {
 	    weight = (Integer)args[0];
+	    double weightChange = (weight - lastweight)/1000.0;
+	    if(!takingItemName.equals("")) {
+		if(weightChange > 0) {
+		    setWeight(takingItemName, weightChange);
+		    // System.out.println("weight of " + takingItemName + " is " + weightChange);
+		    takingItemName = "";
+		}
+	    }
+	    lastweight = weight;
+
 	    if(invwnd != null)
 		invwnd.updweight();
 	    if(weightwdg != null){
